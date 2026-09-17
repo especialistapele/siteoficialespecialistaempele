@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Resultados — Painel</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<link rel="stylesheet" href="/assets/css/antes-depois-slider.css">
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+</head>
+<body>
+<div class="painel-layout">
+  <aside class="painel-sidebar" data-sidebar></aside>
+  <main class="painel-main">
+    <div class="painel-topo">
+      <div><h1>Resultados</h1><p class="texto-suave">Gerencie as fotos dos resultados dos tratamentos.</p></div>
+      <button class="btn-p btn-p-dourado" id="botao-novo">+ Novo resultado</button>
+    </div>
+    <div class="aviso-flash" data-flash></div>
+    <div class="busca-campo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="busca" placeholder="Buscar resultado..."></div>
+    <table class="tabela-p">
+      <thead><tr><th>Tratamento</th><th>Antes / Depois</th><th>Consentimento</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody data-tabela-corpo><tr><td colspan="5" class="painel-vazio">Carregando…</td></tr></tbody>
+    </table>
+
+    <div id="modal" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
+      <div class="painel-card" style="max-width:520px;width:100%;margin:auto">
+        <h3>Novo resultado</h3>
+        <form id="form-item">
+          <div class="form-linha">
+            <div class="form-campo"><label for="foto_antes">Foto — antes</label><input type="file" id="foto_antes" accept="image/*" required></div>
+            <div class="form-campo"><label for="foto_depois">Foto — depois</label><input type="file" id="foto_depois" accept="image/*" required></div>
+          </div>
+          <div class="form-campo" id="preview-wrap" style="display:none">
+            <label>Pré-visualização — como vai aparecer no site</label>
+            <div class="antes-depois-slider" data-antes-depois id="preview-slider" style="max-width:260px">
+              <img class="ad-depois" id="preview-depois" alt="Depois">
+              <img class="ad-antes" id="preview-antes" alt="Antes">
+              <span class="ad-tag ad-tag-antes">Antes</span>
+              <span class="ad-tag ad-tag-depois">Depois</span>
+              <div class="ad-handle"><span class="ad-handle-grip"></span></div>
+            </div>
+            <p class="texto-suave" style="font-size:12px;margin:6px 0 0">Arraste a foto para os lados para conferir o efeito.</p>
+          </div>
+          <div class="form-linha">
+            <div class="form-campo"><label for="treatment_id">Tratamento</label><select id="treatment_id"><option value="">— nenhum —</option></select></div>
+            <div class="form-campo"><label for="description">Legenda</label><input type="text" id="description" maxlength="200"></div>
+          </div>
+          <div class="form-checkbox"><input type="checkbox" id="consent_confirmed" required><label for="consent_confirmed">Tenho o consentimento da paciente para publicar</label></div>
+          <div class="form-checkbox"><input type="checkbox" id="published"><label for="published">Publicar imediatamente</label></div>
+          <div class="form-acoes">
+            <button type="submit" class="btn-p btn-p-dourado" id="botao-salvar">Salvar resultado</button>
+            <button type="button" class="btn-p btn-p-fora" id="botao-fechar">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash } from "/painel/assets/js/painel-auth.js";
+  import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
+  import { otimizarImagemParaWebP } from "/painel/assets/js/imagem-otimizacao.js";
+  import { escapeHtml, safeUrl } from "/painel/assets/js/sanitize.js";
+  import { initAntesDepoisSlider } from "/assets/js/antes-depois-slider.js";
+
+  const contexto = await exigirAdmin();
+  if (!contexto) throw new Error("sem acesso");
+  document.querySelector("[data-sidebar]").innerHTML = renderSidebarAdmin("resultados", contexto.perfil.full_name);
+  configurarBotaoSair();
+
+  const flash = document.querySelector("[data-flash]");
+  const corpo = document.querySelector("[data-tabela-corpo]");
+  const modal = document.getElementById("modal");
+  const selectTratamento = document.getElementById("treatment_id");
+  let todos = [];
+
+  const { data: tratamentos } = await supabase.from("treatments").select("id, name").order("sort_order");
+  (tratamentos || []).forEach((t) => { const o = document.createElement("option"); o.value = t.id; o.textContent = t.name; selectTratamento.appendChild(o); });
+
+  async function carregar() {
+    const { data, error } = await supabase.from("results").select("*, treatments(name)").order("created_at", { ascending: false });
+    if (error) { corpo.innerHTML = `<tr><td colspan="5" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
+    todos = data || [];
+    renderizar(todos);
+  }
+
+  function renderizar(lista) {
+    corpo.innerHTML = lista.length ? lista.map((r) => `
+      <tr>
+        <td>${escapeHtml(r.treatments?.name || "—")}</td>
+        <td>
+          <div class="antes-depois-slider antes-depois-slider--mini" data-antes-depois style="width:64px" title="Arraste para ver o efeito antes/depois">
+            <img class="ad-depois" src="${safeUrl(r.after_image_url)}" alt="Depois">
+            <img class="ad-antes" src="${safeUrl(r.before_image_url)}" alt="Antes">
+            <div class="ad-handle"><span class="ad-handle-grip"></span></div>
+          </div>
+        </td>
+        <td>${r.consent_confirmed ? "✅" : "⚠️"}</td>
+        <td><span class="selo-p ${r.published ? "publicado" : "rascunho"}">${r.published ? "Publicado" : "Rascunho"}</span></td>
+        <td><button class="btn-p btn-p-mini btn-p-perigo" data-excluir="${r.id}">Excluir</button></td>
+      </tr>`).join("") : `<tr><td colspan="5" class="painel-vazio">Nenhum resultado cadastrado.</td></tr>`;
+
+    initAntesDepoisSlider(corpo);
+
+    corpo.querySelectorAll("[data-excluir]").forEach((btn) => btn.addEventListener("click", async () => {
+      if (!confirm("Excluir este resultado?")) return;
+      await supabase.from("results").delete().eq("id", btn.dataset.excluir);
+      carregar();
+    }));
+  }
+
+  document.getElementById("busca").addEventListener("input", (e) => {
+    const t = e.target.value.toLowerCase();
+    renderizar(todos.filter((r) => (r.treatments?.name || "").toLowerCase().includes(t)));
+  });
+
+  const previewWrap = document.getElementById("preview-wrap");
+  const previewAntes = document.getElementById("preview-antes");
+  const previewDepois = document.getElementById("preview-depois");
+  const inputAntes = document.getElementById("foto_antes");
+  const inputDepois = document.getElementById("foto_depois");
+  let urlAntesAtual = null, urlDepoisAtual = null;
+
+  function limparPreview() {
+    previewWrap.style.display = "none";
+    if (urlAntesAtual) URL.revokeObjectURL(urlAntesAtual);
+    if (urlDepoisAtual) URL.revokeObjectURL(urlDepoisAtual);
+    urlAntesAtual = urlDepoisAtual = null;
+  }
+
+  function atualizarPreview() {
+    const arquivoAntes = inputAntes.files[0];
+    const arquivoDepois = inputDepois.files[0];
+    if (!arquivoAntes || !arquivoDepois) return;
+    if (urlAntesAtual) URL.revokeObjectURL(urlAntesAtual);
+    if (urlDepoisAtual) URL.revokeObjectURL(urlDepoisAtual);
+    urlAntesAtual = URL.createObjectURL(arquivoAntes);
+    urlDepoisAtual = URL.createObjectURL(arquivoDepois);
+    previewAntes.src = urlAntesAtual;
+    previewDepois.src = urlDepoisAtual;
+    previewWrap.style.display = "block";
+    initAntesDepoisSlider(document.getElementById("preview-slider"));
+  }
+
+  inputAntes.addEventListener("change", atualizarPreview);
+  inputDepois.addEventListener("change", atualizarPreview);
+
+  document.getElementById("botao-novo").addEventListener("click", () => { limparPreview(); modal.style.display = "flex"; });
+  document.getElementById("botao-fechar").addEventListener("click", () => { modal.style.display = "none"; limparPreview(); document.getElementById("form-item").reset(); });
+
+  document.getElementById("form-item").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const botao = document.getElementById("botao-salvar");
+    botao.disabled = true; botao.textContent = "Enviando…";
+    try {
+      const antes = document.getElementById("foto_antes").files[0];
+      const depois = document.getElementById("foto_depois").files[0];
+      const marca = Date.now();
+      const antesOtimizada = await otimizarImagemParaWebP(antes, 1800, 0.82);
+      const depoisOtimizada = await otimizarImagemParaWebP(depois, 1800, 0.82);
+      const caminhoAntes = `resultados/${marca}-antes.webp`;
+      const caminhoDepois = `resultados/${marca}-depois.webp`;
+      let { error: e1 } = await supabase.storage.from("site-media").upload(caminhoAntes, antesOtimizada, { contentType: "image/webp", cacheControl: "31536000" });
+      if (e1) throw e1;
+      let { error: e2 } = await supabase.storage.from("site-media").upload(caminhoDepois, depoisOtimizada, { contentType: "image/webp", cacheControl: "31536000" });
+      if (e2) throw e2;
+      const before_image_url = supabase.storage.from("site-media").getPublicUrl(caminhoAntes).data.publicUrl;
+      const after_image_url = supabase.storage.from("site-media").getPublicUrl(caminhoDepois).data.publicUrl;
+
+      const { error } = await supabase.from("results").insert({
+        before_image_url, after_image_url,
+        treatment_id: selectTratamento.value || null,
+        description: document.getElementById("description").value.trim(),
+        consent_confirmed: document.getElementById("consent_confirmed").checked,
+        published: document.getElementById("published").checked,
+      });
+      if (error) throw error;
+      modal.style.display = "none";
+      document.getElementById("form-item").reset();
+      limparPreview();
+      mostrarFlash(flash, "Resultado salvo com sucesso.", "sucesso");
+      carregar();
+    } catch (erro) {
+      mostrarFlash(flash, "Erro: " + erro.message, "erro");
+    } finally {
+      botao.disabled = false; botao.textContent = "Salvar resultado";
+    }
+  });
+
+  carregar();
+</script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Dashboard — Painel</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+</head>
+<body>
+
+<div class="painel-layout">
+  <aside class="painel-sidebar" data-sidebar></aside>
+
+  <main class="painel-main">
+    <div class="painel-topo">
+      <div>
+        <h1>Bem-vinda, <span data-primeiro-nome>...</span> 👋</h1>
+        <p class="texto-suave">Aqui você gerencia seus pacientes, conteúdos e todo o seu espaço.</p>
+      </div>
+      <span class="data-hoje" data-data-hoje></span>
+    </div>
+
+    <div class="aviso-flash" data-flash></div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card__topo"><span class="stat-card__legenda">Total de pacientes</span></div>
+        <div class="stat-card__valor" data-stat-pacientes>—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__topo"><span class="stat-card__legenda">Banco de dados</span></div>
+        <div class="stat-card__valor" data-stat-db>—</div>
+        <span class="texto-suave" style="font-size:12px" data-stat-db-livre></span>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__topo"><span class="stat-card__legenda">Consultas no mês</span></div>
+        <div class="stat-card__valor" data-stat-consultas>—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__topo"><span class="stat-card__legenda">Receita do mês</span></div>
+        <div class="stat-card__valor" data-stat-receita>—</div>
+      <span class="texto-suave" style="font-size:12px" data-stat-pendente></span>
+      </div>
+    </div>
+
+    <div class="grid-dashboard">
+      <div class="painel-card">
+        <h3>Pacientes recentes</h3>
+        <div class="lista-simples" data-pacientes-recentes><p class="texto-suave">Carregando…</p></div>
+      </div>
+
+      <div class="painel-card">
+        <h3>Consumo por mês (R$)</h3>
+        <canvas id="grafico-consumo" height="160"></canvas>
+      </div>
+
+      <div class="painel-card">
+        <h3>Cliente que mais consome</h3>
+        <div data-cliente-top><p class="texto-suave">Carregando…</p></div>
+        <h3 style="margin-top:22px">Tipo de tratamento mais realizado</h3>
+        <div data-tipo-top><p class="texto-suave">Carregando…</p></div>
+      </div>
+    </div>
+
+    <div class="painel-card">
+      <h3>Tipos de tratamento (contagem)</h3>
+      <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center">
+        <canvas id="grafico-tipos" width="160" height="160" style="max-width:160px"></canvas>
+        <div class="donut-legenda" data-legenda-tipos style="flex:1;min-width:200px"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script type="module">
+  import { supabase, exigirAdmin, configurarBotaoSair, iniciais } from "/painel/assets/js/painel-auth.js";
+  import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
+  import { escapeHtml } from "/painel/assets/js/sanitize.js";
+
+  const contexto = await exigirAdmin();
+  if (!contexto) throw new Error("sem acesso");
+
+  document.querySelector("[data-sidebar]").innerHTML = renderSidebarAdmin("dashboard", contexto.perfil.full_name);
+  configurarBotaoSair();
+
+  document.querySelector("[data-primeiro-nome]").textContent = (contexto.perfil.full_name || "").split(" ")[0] || "";
+  document.querySelector("[data-data-hoje]").textContent = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+
+  const flash = document.querySelector("[data-flash]");
+
+  const { data: stats, error } = await supabase.rpc("admin_stats");
+  if (error) {
+    flash.textContent = "Erro ao carregar estatísticas: " + error.message;
+    flash.className = "aviso-flash visivel erro";
+  } else {
+    document.querySelector("[data-stat-pacientes]").textContent = stats.total_pacientes;
+    document.querySelector("[data-stat-db]").textContent = `${stats.db_pct}%`;
+    document.querySelector("[data-stat-db-livre]").textContent = `${(100 - stats.db_pct).toFixed(1)}% livre`;
+    document.querySelector("[data-stat-consultas]").textContent = stats.consultas_mes;
+    document.querySelector("[data-stat-receita]").textContent = "R$ " + Number(stats.receita_mes).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+    document.querySelector("[data-stat-pendente]").textContent = `Pendente: R$ ${Number(stats.financeiro_pendente || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+
+    // Cliente que mais consome
+    const topoCliente = document.querySelector("[data-cliente-top]");
+    if (stats.cliente_top) {
+      topoCliente.innerHTML = `
+        <div class="pessoa">
+          <div class="pessoa__avatar">${escapeHtml(iniciais(stats.cliente_top.full_name))}</div>
+          <div><div class="pessoa__nome">${escapeHtml(stats.cliente_top.full_name)}</div>
+          <div class="pessoa__sub">R$ ${Number(stats.cliente_top.total).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</div></div>
+        </div>`;
+    } else {
+      topoCliente.innerHTML = `<p class="texto-suave">Sem dados ainda.</p>`;
+    }
+
+    // Tipo mais realizado
+    const topoTipo = document.querySelector("[data-tipo-top]");
+    if (stats.tipos_tratamento?.length) {
+      const top = stats.tipos_tratamento[0];
+      topoTipo.innerHTML = `<div class="pessoa__nome">${escapeHtml(top.tipo)}</div><div class="pessoa__sub">${top.total} pacientes</div>`;
+    } else {
+      topoTipo.innerHTML = `<p class="texto-suave">Sem dados ainda.</p>`;
+    }
+
+    // Gráfico de consumo por mês
+    const meses = stats.consumo_por_mes.map((m) => {
+      const [ano, mes] = m.mes.split("-");
+      return new Date(ano, mes - 1).toLocaleDateString("pt-BR", { month: "short" }).replace(".", "");
+    });
+    const valores = stats.consumo_por_mes.map((m) => Number(m.total));
+    new Chart(document.getElementById("grafico-consumo"), {
+      type: "bar",
+      data: { labels: meses, datasets: [{ data: valores, backgroundColor: "#c9a45b", borderRadius: 4 }] },
+      options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } },
+    });
+
+    // Donut de tipos de tratamento
+    const cores = ["#c9a45b", "#4f7a45", "#26312d", "#e4c77f", "#a94438", "#8a6a2f"];
+    new Chart(document.getElementById("grafico-tipos"), {
+      type: "doughnut",
+      data: {
+        labels: stats.tipos_tratamento.map((t) => t.tipo),
+        datasets: [{ data: stats.tipos_tratamento.map((t) => t.total), backgroundColor: cores, borderWidth: 0 }],
+      },
+      options: { plugins: { legend: { display: false } }, cutout: "68%" },
+    });
+
+    const totalTipos = stats.tipos_tratamento.reduce((s, t) => s + Number(t.total), 0);
+    document.querySelector("[data-legenda-tipos]").innerHTML = stats.tipos_tratamento.map((t, i) => `
+      <div class="donut-legenda__item">
+        <span><span class="donut-legenda__cor" style="background:${cores[i % cores.length]}"></span>${escapeHtml(t.tipo)}</span>
+        <strong>${totalTipos ? Math.round((t.total / totalTipos) * 100) : 0}%</strong>
+      </div>`).join("") || `<p class="texto-suave">Sem dados ainda.</p>`;
+  }
+
+  // Pacientes recentes
+  const { data: recentes } = await supabase.from("patients").select("*").order("created_at", { ascending: false }).limit(5);
+  const listaRecentes = document.querySelector("[data-pacientes-recentes]");
+  listaRecentes.innerHTML = recentes && recentes.length
+    ? recentes.map((p) => `
+      <a href="/painel/admin/paciente.html?id=${encodeURIComponent(p.id)}" class="lista-simples__item" style="text-decoration:none;color:inherit">
+        <div class="pessoa">
+          <div class="pessoa__avatar">${escapeHtml(iniciais(p.full_name))}</div>
+          <div><div class="pessoa__nome">${escapeHtml(p.full_name)}</div><div class="pessoa__sub">Cadastrado em ${new Date(p.created_at).toLocaleDateString("pt-BR")}</div></div>
+        </div>
+        <span class="chevron">›</span>
+      </a>`).join("")
+    : `<p class="texto-suave">Nenhum paciente cadastrado ainda.</p>`;
+</script>
+</body>
+</html>

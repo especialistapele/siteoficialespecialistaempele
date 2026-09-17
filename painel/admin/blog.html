@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Blog — Painel</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<style>
+  .editor-p-toolbar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;border:1px solid var(--linha,#ddd7c9);border-bottom:none;border-radius:6px 6px 0 0;padding:6px;background:#faf8f3}
+  .editor-p-toolbar button{min-width:30px;height:30px;border:1px solid transparent;border-radius:4px;background:transparent;cursor:pointer;font-size:13px;color:#26312d}
+  .editor-p-toolbar button:hover{background:#efe8d8;border-color:var(--gold,#c9a45b)}
+  .editor-p-toolbar__sep{width:1px;align-self:stretch;background:var(--linha,#ddd7c9);margin:2px 4px}
+  .editor-p-area{min-height:220px;max-height:420px;overflow-y:auto;border:1px solid var(--linha,#ddd7c9);border-radius:0 0 6px 6px;padding:12px;font-size:14px;line-height:1.6;background:#fff}
+  .editor-p-area:empty::before{content:attr(data-placeholder);color:#9a978c}
+  .editor-p-area:focus{outline:none;border-color:var(--gold,#c9a45b)}
+</style>
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+</head>
+<body>
+<div class="painel-layout">
+  <aside class="painel-sidebar" data-sidebar></aside>
+  <main class="painel-main">
+    <div class="painel-topo">
+      <div><h1>Blog</h1><p class="texto-suave">Gerencie os artigos do seu blog (Conhecimento).</p></div>
+      <button class="btn-p btn-p-dourado" id="botao-novo">+ Novo artigo</button>
+    </div>
+    <div class="aviso-flash" data-flash></div>
+    <div class="busca-campo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="busca" placeholder="Buscar artigo..."></div>
+    <table class="tabela-p">
+      <thead><tr><th>Título</th><th>Data</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody data-tabela-corpo><tr><td colspan="4" class="painel-vazio">Carregando…</td></tr></tbody>
+    </table>
+
+    <div id="modal" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
+      <div class="painel-card" style="max-width:640px;width:100%;margin:auto">
+        <h3 data-modal-titulo>Novo artigo</h3>
+        <form id="form-item">
+          <input type="hidden" id="item_id">
+          <div class="form-campo"><label for="title">Título</label><input type="text" id="title" required></div>
+          <div class="form-linha">
+            <div class="form-campo"><label for="slug">Slug</label><input type="text" id="slug" required pattern="[a-z0-9-]+"></div>
+            <div class="form-campo"><label for="treatment_id">Tratamento relacionado</label><select id="treatment_id"><option value="">— nenhum —</option></select></div>
+          </div>
+          <div class="form-campo"><label for="excerpt">Resumo curto</label><input type="text" id="excerpt" maxlength="200"></div>
+          <div class="form-campo">
+            <label for="content-editor">Conteúdo</label>
+            <div class="editor-p-toolbar" role="toolbar" aria-label="Formatação do texto">
+              <button type="button" data-cmd="bold" title="Negrito"><strong>N</strong></button>
+              <button type="button" data-cmd="italic" title="Itálico"><em>I</em></button>
+              <button type="button" data-cmd="font-inc" title="Aumentar fonte">A+</button>
+              <button type="button" data-cmd="font-dec" title="Reduzir fonte">A-</button>
+              <span class="editor-p-toolbar__sep"></span>
+              <button type="button" data-cmd="justifyLeft" title="Alinhar à esquerda">⇤</button>
+              <button type="button" data-cmd="justifyCenter" title="Centralizar">↔</button>
+              <button type="button" data-cmd="justifyRight" title="Alinhar à direita">⇥</button>
+            </div>
+            <div id="content-editor" class="editor-p-area" contenteditable="true" data-placeholder="Escreva o conteúdo do artigo..."></div>
+            <input type="hidden" id="content">
+          </div>
+          <div class="form-linha">
+            <div class="form-campo"><label for="cta_label">Texto do botão (opcional)</label><input type="text" id="cta_label" maxlength="40" placeholder="Ex.: Agendar avaliação"></div>
+            <div class="form-campo"><label for="cta_url">URL do botão</label><input type="text" id="cta_url" placeholder="https://... ou /pagina.html"></div>
+          </div>
+          <p class="texto-suave" style="font-size:12px;margin:-6px 0 10px">O botão aparece sempre ao final do artigo, centralizado. Deixe os dois campos em branco para não exibir nenhum botão.</p>
+          <div class="form-campo"><label for="imagem">Imagem de capa</label><input type="file" id="imagem" accept="image/*"></div>
+          <div class="form-checkbox"><input type="checkbox" id="published"><label for="published">Publicado</label></div>
+          <div class="form-acoes">
+            <button type="submit" class="btn-p btn-p-dourado" id="botao-salvar">Salvar</button>
+            <button type="button" class="btn-p btn-p-fora" id="botao-fechar">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash } from "/painel/assets/js/painel-auth.js";
+  import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
+  import { otimizarImagemParaWebP } from "/painel/assets/js/imagem-otimizacao.js";
+  import { escapeHtml, safeUrl } from "/painel/assets/js/sanitize.js";
+  import { sanitizeRichHtml, pareceHtml } from "/assets/js/rich-text.js";
+
+  const contexto = await exigirAdmin();
+  if (!contexto) throw new Error("sem acesso");
+  document.querySelector("[data-sidebar]").innerHTML = renderSidebarAdmin("blog", contexto.perfil.full_name);
+  configurarBotaoSair();
+
+  const flash = document.querySelector("[data-flash]");
+  const corpo = document.querySelector("[data-tabela-corpo]");
+  const modal = document.getElementById("modal");
+  const selectTratamento = document.getElementById("treatment_id");
+  let todos = [];
+  let imagemAtualUrl = null;
+
+  // ------------------------------------------------------------------
+  // Pequeno editor de texto para o conteúdo do artigo (negrito, itálico,
+  // tamanho da fonte e alinhamento). O HTML gerado é sempre filtrado por
+  // sanitizeRichHtml antes de ir para o campo oculto que é de fato salvo.
+  // ------------------------------------------------------------------
+  const contentEditor = document.getElementById("content-editor");
+  const contentHidden = document.getElementById("content");
+
+  function sincronizarConteudo() {
+    contentHidden.value = sanitizeRichHtml(contentEditor.innerHTML);
+  }
+  contentEditor.addEventListener("input", sincronizarConteudo);
+  contentEditor.addEventListener("blur", sincronizarConteudo);
+
+  function alterarTamanhoFonte(delta) {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount || sel.isCollapsed) return;
+    const range = sel.getRangeAt(0);
+    if (!contentEditor.contains(range.commonAncestorContainer)) return;
+    const base = window.getComputedStyle(
+      range.commonAncestorContainer.nodeType === 1 ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement
+    ).fontSize;
+    const novo = Math.max(11, Math.min(34, (parseFloat(base) || 14) + delta));
+    const span = document.createElement("span");
+    span.style.fontSize = novo + "px";
+    try {
+      span.appendChild(range.extractContents());
+      range.insertNode(span);
+    } catch (_) { /* seleção complexa: ignora silenciosamente */ }
+    sincronizarConteudo();
+  }
+
+  document.querySelectorAll(".editor-p-toolbar [data-cmd]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      contentEditor.focus();
+      const cmd = btn.dataset.cmd;
+      if (cmd === "font-inc") alterarTamanhoFonte(2);
+      else if (cmd === "font-dec") alterarTamanhoFonte(-2);
+      else document.execCommand(cmd, false, null);
+      sincronizarConteudo();
+    });
+  });
+
+  const { data: tratamentos } = await supabase.from("treatments").select("id, name").order("sort_order");
+  (tratamentos || []).forEach((t) => { const o = document.createElement("option"); o.value = t.id; o.textContent = t.name; selectTratamento.appendChild(o); });
+
+  async function carregar() {
+    const { data, error } = await supabase.from("articles").select("*").order("created_at", { ascending: false });
+    if (error) { corpo.innerHTML = `<tr><td colspan="4" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
+    todos = data || [];
+    renderizar(todos);
+  }
+
+  function renderizar(lista) {
+    corpo.innerHTML = lista.length ? lista.map((a) => `
+      <tr>
+        <td>${escapeHtml(a.title)}</td>
+        <td>${a.published_at ? new Date(a.published_at).toLocaleDateString("pt-BR") : "—"}</td>
+        <td><span class="selo-p ${a.published ? "publicado" : "rascunho"}">${a.published ? "Publicado" : "Rascunho"}</span></td>
+        <td>
+          <button class="btn-p btn-p-mini btn-p-fora" data-editar="${a.id}">Editar</button>
+          <button class="btn-p btn-p-mini btn-p-perigo" data-excluir="${a.id}">Excluir</button>
+        </td>
+      </tr>`).join("") : `<tr><td colspan="4" class="painel-vazio">Nenhum artigo cadastrado.</td></tr>`;
+
+    corpo.querySelectorAll("[data-editar]").forEach((btn) => btn.addEventListener("click", () => abrirEdicao(btn.dataset.editar)));
+    corpo.querySelectorAll("[data-excluir]").forEach((btn) => btn.addEventListener("click", async () => {
+      if (!confirm("Excluir este artigo?")) return;
+      await supabase.from("articles").delete().eq("id", btn.dataset.excluir);
+      carregar();
+    }));
+  }
+
+  document.getElementById("busca").addEventListener("input", (e) => {
+    const t = e.target.value.toLowerCase();
+    renderizar(todos.filter((a) => a.title.toLowerCase().includes(t)));
+  });
+
+  function abrirNovo() {
+    document.getElementById("form-item").reset();
+    document.getElementById("item_id").value = "";
+    contentEditor.innerHTML = "";
+    contentHidden.value = "";
+    document.getElementById("cta_label").value = "";
+    document.getElementById("cta_url").value = "";
+    imagemAtualUrl = null;
+    document.querySelector("[data-modal-titulo]").textContent = "Novo artigo";
+    modal.style.display = "flex";
+  }
+
+  function abrirEdicao(id) {
+    const item = todos.find((a) => a.id === id);
+    if (!item) return;
+    document.getElementById("item_id").value = item.id;
+    document.getElementById("title").value = item.title || "";
+    document.getElementById("slug").value = item.slug || "";
+    document.getElementById("excerpt").value = item.excerpt || "";
+    const conteudo = item.content || "";
+    // Compatibilidade: artigos salvos antes do editor existir têm texto
+    // simples (sem tags); nesse caso preservamos as quebras de linha.
+    contentEditor.innerHTML = pareceHtml(conteudo)
+      ? sanitizeRichHtml(conteudo)
+      : escapeHtml(conteudo).split(/\n\s*\n/).map((p) => `<p>${p}</p>`).join("");
+    contentHidden.value = sanitizeRichHtml(contentEditor.innerHTML);
+    document.getElementById("cta_label").value = item.cta_label || "";
+    document.getElementById("cta_url").value = item.cta_url || "";
+    document.getElementById("published").checked = !!item.published;
+    selectTratamento.value = item.treatment_id || "";
+    imagemAtualUrl = item.cover_image_url;
+    document.querySelector("[data-modal-titulo]").textContent = "Editar artigo";
+    modal.style.display = "flex";
+  }
+
+
+
+  document.getElementById("botao-novo").addEventListener("click", abrirNovo);
+  document.getElementById("botao-fechar").addEventListener("click", () => modal.style.display = "none");
+
+  document.getElementById("form-item").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const botao = document.getElementById("botao-salvar");
+    botao.disabled = true; botao.textContent = "Salvando…";
+    try {
+      const id = document.getElementById("item_id").value;
+      const arquivo = document.getElementById("imagem").files[0];
+      let cover_image_url = imagemAtualUrl;
+      if (arquivo) {
+        // Otimiza a imagem no navegador antes do upload: redimensiona e converte para WebP.
+        const imagemOtimizada = await otimizarImagemParaWebP(arquivo, 2000, 0.82);
+        const caminho = `blog/${document.getElementById("slug").value}-${Date.now()}.webp`;
+        const { error: erroUpload } = await supabase.storage.from("site-media").upload(caminho, imagemOtimizada, {
+          upsert: true,
+          contentType: "image/webp",
+          cacheControl: "31536000"
+        });
+        if (erroUpload) throw erroUpload;
+        cover_image_url = supabase.storage.from("site-media").getPublicUrl(caminho).data.publicUrl;
+      }
+      sincronizarConteudo();
+      const ctaLabel = document.getElementById("cta_label").value.trim();
+      const ctaUrlBruta = document.getElementById("cta_url").value.trim();
+      const ctaUrl = ctaUrlBruta ? safeUrl(ctaUrlBruta) : "";
+      if (ctaUrlBruta && !ctaUrl) throw new Error("URL do botão inválida. Use um endereço http(s) ou um caminho interno como /contato.html.");
+      const published = document.getElementById("published").checked;
+      const payload = {
+        title: document.getElementById("title").value.trim(),
+        slug: document.getElementById("slug").value.trim().toLowerCase(),
+        excerpt: document.getElementById("excerpt").value.trim(),
+        content: document.getElementById("content").value.trim(),
+        cta_label: ctaLabel && ctaUrl ? ctaLabel : null,
+        cta_url: ctaLabel && ctaUrl ? ctaUrl : null,
+        treatment_id: selectTratamento.value || null,
+        published, cover_image_url,
+      };
+      if (published) payload.published_at = new Date().toISOString();
+
+      const { error } = id ? await supabase.from("articles").update(payload).eq("id", id) : await supabase.from("articles").insert(payload);
+      if (error) throw error;
+
+      modal.style.display = "none";
+      mostrarFlash(flash, "Artigo salvo com sucesso.", "sucesso");
+      carregar();
+    } catch (erro) {
+      mostrarFlash(flash, "Erro: " + erro.message, "erro");
+    } finally {
+      botao.disabled = false; botao.textContent = "Salvar";
+    }
+  });
+
+  carregar();
+</script>
+</body>
+</html>

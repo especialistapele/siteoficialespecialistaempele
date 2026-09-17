@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Paciente — Painel</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<link rel="stylesheet" href="/assets/css/antes-depois-slider.css">
+</head>
+<body>
+
+<div class="painel-layout">
+  <aside class="painel-sidebar" data-sidebar></aside>
+
+  <main class="painel-main">
+    <div class="painel-topo">
+      <div>
+        <a href="/painel/admin/pacientes.html" class="texto-suave" style="font-size:13px">← Voltar</a>
+        <h1 style="margin-top:6px" data-nome-paciente>Carregando…</h1>
+        <p class="texto-suave" data-contato-paciente></p>
+        <div style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:9px;cursor:pointer" data-acesso-toggle>
+            <input type="checkbox" id="acesso_painel" style="width:16px;height:16px">
+            <strong>Acesso ao painel do paciente</strong>
+          </label>
+          <span class="texto-suave" id="status-acesso-painel">—</span>
+          <button type="button" class="btn-p btn-p-mini btn-p-dourado" id="botao-gerar-acesso" style="display:none">Gerar acesso do paciente</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="aviso-flash" data-flash></div>
+
+    <!-- Credenciais de acesso geradas -->
+    <div id="modal-credenciais-acesso" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px">
+      <div class="painel-card" style="max-width:420px;width:100%">
+        <h3>Acesso criado com sucesso</h3>
+        <p class="texto-suave" style="font-size:13px">Guarde esta senha e entregue à paciente por um canal seguro. Ela poderá alterá-la depois.</p>
+        <div style="margin-top:14px;padding:14px;background:rgba(78,122,69,.1);border-radius:8px;font-size:13.5px">
+          <p style="margin:0 0 8px"><strong>E-mail:</strong> <span id="acesso-cred-email"></span></p>
+          <p style="display:flex;align-items:center;gap:8px;margin:0;flex-wrap:wrap"><strong>Senha:</strong> <span id="acesso-cred-senha"></span> <button type="button" class="btn-p btn-p-mini btn-p-fora" data-copiar-alvo="acesso-cred-senha">Copiar</button></p>
+        </div>
+        <div class="form-acoes" style="margin-top:16px">
+          <button type="button" class="btn-p btn-p-dourado" id="botao-fechar-credenciais-acesso">Entendi</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-dashboard" style="grid-template-columns:2fr 1fr">
+      <div class="painel-card">
+        <div class="abas-p">
+          <button class="ativa" data-aba="historico">Histórico</button>
+          <button data-aba="pre-atendimento">Pré-atendimento</button>
+          <button data-aba="atendimentos">Novo atendimento</button>
+          <button data-aba="documentos">Documentos</button>
+          <button data-aba="prontuario">Prontuário</button>
+          <button data-aba="financeiro">Financeiro</button>
+        </div>
+
+        <!-- HISTÓRICO -->
+        <div class="aba-conteudo visivel" data-conteudo="historico">
+          <table class="tabela-p">
+            <thead><tr><th>Data</th><th>Atendimento</th><th>Total</th><th>Taxa</th><th>Restante</th><th>Status</th><th></th></tr></thead>
+            <tbody data-lista-atendimentos><tr><td colspan="5" class="painel-vazio">Carregando…</td></tr></tbody>
+          </table>
+          <h3 style="margin-top:24px">Histórico de consumo</h3>
+          <canvas id="grafico-paciente" height="140"></canvas>
+        </div>
+
+        <!-- PRÉ-ATENDIMENTO -->
+        <div class="aba-conteudo" data-conteudo="pre-atendimento">
+          <div data-pre-atendimento-conteudo class="texto-suave">Carregando…</div>
+        </div>
+
+        <!-- NOVO ATENDIMENTO -->
+        <div class="aba-conteudo" data-conteudo="atendimentos">
+          <form id="form-atendimento">
+            <div class="form-linha">
+              <div class="form-campo"><label for="appointment_date">Data</label><input type="date" id="appointment_date" required></div>
+              <div class="form-campo"><label for="appointment_time">Hora</label><input type="time" id="appointment_time" required></div>
+              <div class="form-campo"><label for="valor">Valor total (R$)</label><input type="number" id="valor" min="0" step="0.01" value="0"></div>
+            </div>
+            <div class="form-linha">
+              <div class="form-campo"><label for="taxa_agendamento">Taxa de agendamento (R$)</label><input type="number" id="taxa_agendamento" min="0" step="0.01" value="0"></div>
+              <div class="form-campo"><label for="taxa_status">Status da taxa</label><select id="taxa_status"><option value="pendente">Pendente</option><option value="pago">Pago</option></select></div>
+              <div class="form-campo"><label for="taxa_forma_pagamento">Forma de pagamento</label><input type="text" id="taxa_forma_pagamento" placeholder="Pix, cartão..."></div>
+            </div>
+            <div class="resumo-atendimento-financeiro" id="resumo-atendimento-financeiro">
+              <div><span>Taxa de agendamento</span><strong data-resumo-taxa>R$ 0,00</strong></div>
+              <div><span>Restante para o dia</span><strong data-resumo-restante>R$ 0,00</strong></div>
+            </div>
+            <div class="bloco-pagamentos-restante">
+              <div class="bloco-pagamentos-restante__cabecalho">
+                <div><strong>Histórico do restante</strong><small>Cada pagamento fica registrado separadamente. O sistema mostra automaticamente quanto ainda falta.</small></div>
+                <span class="selo-p" data-restante-status-resumo>Pendente</span>
+              </div>
+              <div class="pagamento-restante-form">
+                <div class="form-campo"><label for="novo_pagamento_valor">Valor deste pagamento (R$)</label><input type="number" id="novo_pagamento_valor" min="0" step="0.01" value="0"></div>
+                <div class="form-campo"><label for="novo_pagamento_data">Data do pagamento</label><input type="date" id="novo_pagamento_data"></div>
+                <div class="form-campo"><label for="novo_pagamento_forma">Forma de pagamento</label><input type="text" id="novo_pagamento_forma" placeholder="Pix, cartão, dinheiro..."></div>
+                <button type="button" class="btn-p btn-p-mini" id="registrar-pagamento-restante">Registrar pagamento</button>
+              </div>
+              <div class="pagamentos-restante-lista" data-pagamentos-restante><div class="painel-vazio">Nenhum pagamento do restante registrado.</div></div>
+              <div class="pagamento-restante-total"><span>Total já pago do restante</span><strong data-total-pago-restante>R$ 0,00</strong><span>Falta quitar</span><strong data-total-falta-restante>R$ 0,00</strong></div>
+            </div>
+            <div class="form-linha">
+              <div class="form-campo"><label for="tipo">Tipo de atendimento</label>
+                <select id="tipo">
+                  <option>Consulta de Avaliação</option>
+                  <option>Retorno</option>
+                  <option>Procedimento</option>
+                  <option>Acompanhamento</option>
+                </select>
+              </div>
+              <div class="form-campo"><label for="status">Status</label>
+                <select id="status">
+                  <option value="agendado">Agendado</option>
+                  <option value="confirmado">Confirmado</option>
+                  <option value="realizado">Realizado</option>
+                  <option value="cancelado">Cancelado</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-campo"><label for="descricao">Observações (opcional)</label><input type="text" id="descricao"></div>
+            <div class="form-acoes"><button type="submit" class="btn-p btn-p-dourado">Adicionar atendimento</button></div>
+          </form>
+        </div>
+
+        <!-- DOCUMENTOS -->
+        <div class="aba-conteudo" data-conteudo="documentos">
+          <form id="form-documento">
+            <div class="form-linha">
+              <div class="form-campo"><label for="doc_title">Nome do documento</label><input type="text" id="doc_title" required></div>
+              <div class="form-campo"><label for="doc_arquivo">Arquivo</label><input type="file" id="doc_arquivo" required></div>
+            </div>
+            <div class="form-acoes"><button type="submit" class="btn-p btn-p-dourado">Adicionar documento</button></div>
+          </form>
+          <div data-lista-documentos style="margin-top:16px"></div>
+        </div>
+
+        <!-- FINANCEIRO -->
+        <div class="aba-conteudo" data-conteudo="financeiro">
+          <form id="form-financeiro">
+            <div class="form-linha">
+              <div class="form-campo"><label for="fin_description">Descrição</label><input type="text" id="fin_description" required placeholder="Ex.: Procedimento facial"></div>
+              <div class="form-campo"><label for="fin_amount">Valor (R$)</label><input type="number" id="fin_amount" min="0" step="0.01" required></div>
+            </div>
+            <div class="form-linha">
+              <div class="form-campo"><label for="fin_due_date">Vencimento</label><input type="date" id="fin_due_date"></div>
+              <div class="form-campo"><label for="fin_status">Status</label><select id="fin_status"><option value="pendente">Pendente</option><option value="pago">Pago</option><option value="cancelado">Cancelado</option></select></div>
+              <div class="form-campo"><label for="fin_payment_method">Forma de pagamento</label><input type="text" id="fin_payment_method" placeholder="Pix, cartão..."></div>
+            </div>
+            <div class="form-campo"><label for="fin_notes">Observações</label><input type="text" id="fin_notes"></div>
+            <div class="form-acoes"><button type="submit" class="btn-p btn-p-dourado">Adicionar lançamento</button></div>
+          </form>
+          <div data-resumo-financeiro style="display:flex;gap:16px;flex-wrap:wrap;margin:20px 0"></div>
+          <div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Descrição</th><th>Vencimento</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody data-lista-financeiro></tbody></table></div>
+        </div>
+
+        <!-- PRONTUÁRIO -->
+        <div class="aba-conteudo" data-conteudo="prontuario">
+          <form id="form-prontuario">
+            <div class="form-campo">
+              <label for="google_doc_url">Link do documento (Google Docs)</label>
+              <input type="url" id="google_doc_url" placeholder="https://docs.google.com/document/d/...">
+            </div>
+            <div class="form-campo"><label for="clinical_summary">Resumo clínico</label><textarea id="clinical_summary" rows="4" placeholder="Resumo do caso, histórico e evolução."></textarea></div>
+            <div class="form-linha">
+              <div class="form-campo"><label for="allergies">Alergias</label><textarea id="allergies" rows="3"></textarea></div>
+              <div class="form-campo"><label for="medications">Medicamentos</label><textarea id="medications" rows="3"></textarea></div>
+            </div>
+            <div class="form-campo"><label for="observations">Observações clínicas</label><textarea id="observations" rows="4"></textarea></div>
+            <p class="texto-suave" style="font-size:12.5px">O Google Docs é opcional. As informações estruturadas acima ficam armazenadas no prontuário do paciente.</p>
+            <div class="form-acoes"><button type="submit" class="btn-p btn-p-dourado">Salvar prontuário</button></div>
+          </form>
+
+          <div style="margin-top:28px;padding-top:22px;border-top:1px solid var(--linha)">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px">
+              <div>
+                <h3 style="margin-bottom:2px">Registro de acompanhamento fotográfico</h3>
+                <p class="texto-suave" style="margin:0;font-size:12.5px">Evolução visual do tratamento, com comparação Antes × Depois.</p>
+              </div>
+              <button type="button" class="btn-p btn-p-dourado btn-p-mini" id="botao-novo-registro-foto">+ Novo registro</button>
+            </div>
+
+            <div id="form-registro-foto-wrap" style="display:none;margin-top:16px;padding:16px;border:1px solid var(--linha);border-radius:10px;background:#fcfbf8">
+              <form id="form-registro-foto">
+                <div class="form-linha">
+                  <div class="form-campo"><label for="rf_data">Data do atendimento</label><input type="date" id="rf_data" required></div>
+                  <div class="form-campo"><label for="rf_procedimento">Atendimento / procedimento</label><input type="text" id="rf_procedimento" placeholder="Ex.: Tratamento de melasma"></div>
+                </div>
+                <div class="form-campo"><label for="rf_legenda">Legenda / observação</label><textarea id="rf_legenda" rows="2" placeholder="Ex.: Evolução após 3 sessões."></textarea></div>
+                <div class="form-linha">
+                  <div class="form-campo"><label for="rf_foto_antes">Foto — antes</label><input type="file" id="rf_foto_antes" accept="image/*" required></div>
+                  <div class="form-campo"><label for="rf_foto_depois">Foto — depois</label><input type="file" id="rf_foto_depois" accept="image/*" required></div>
+                </div>
+                <div class="form-campo" id="rf-preview-wrap" style="display:none">
+                  <label>Pré-visualização</label>
+                  <div class="antes-depois-slider antes-depois-slider--proporcional" data-antes-depois id="rf-preview-slider" style="max-width:300px">
+                    <img class="ad-depois" id="rf-preview-depois" alt="Depois">
+                    <img class="ad-antes" id="rf-preview-antes" alt="Antes">
+                    <span class="ad-tag ad-tag-antes">Antes</span>
+                    <span class="ad-tag ad-tag-depois">Depois</span>
+                    <div class="ad-handle"><span class="ad-handle-grip"></span></div>
+                  </div>
+                </div>
+                <div class="form-checkbox"><input type="checkbox" id="rf_visivel"><label for="rf_visivel">Permitir visualização pelo paciente</label></div>
+                <div class="form-acoes">
+                  <button type="submit" class="btn-p btn-p-dourado" id="botao-salvar-registro-foto">Salvar registro</button>
+                  <button type="button" class="btn-p btn-p-fora" id="botao-cancelar-registro-foto">Cancelar</button>
+                </div>
+              </form>
+            </div>
+
+            <div id="lista-registros-foto" style="margin-top:18px;display:grid;gap:16px">
+              <p class="texto-suave">Carregando…</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR DE ESTATÍSTICAS -->
+      <div class="painel-card">
+        <h3>Estatísticas do paciente</h3>
+        <div class="estatisticas-paciente-grid">
+          <div><div class="stat-card__valor" style="font-size:20px" data-total-atendimentos>—</div><div class="texto-suave" style="font-size:11.5px">Total de atendimentos</div></div>
+          <div><div class="stat-card__valor" style="font-size:20px" data-total-valor>—</div><div class="texto-suave" style="font-size:11.5px">Valor total</div></div>
+          <div><div class="stat-card__valor" style="font-size:20px" data-total-pago>—</div><div class="texto-suave" style="font-size:11.5px">Já pago</div></div>
+          <div><div class="stat-card__valor" style="font-size:20px" data-total-pendente>—</div><div class="texto-suave" style="font-size:11.5px">Ainda a pagar</div></div>
+        </div>
+        <div data-tratamento-atual style="padding-top:14px;border-top:1px solid var(--linha)">
+          <div class="texto-suave" style="font-size:11.5px;margin-bottom:4px">Próximo atendimento</div>
+          <div class="pessoa__nome" data-proximo-atendimento>—</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script type="module">
+  import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash, iniciais, EDGE_FUNCTION_URL, configurarBotoesCopiar } from "/painel/assets/js/painel-auth.js";
+  import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
+  import { otimizarImagemParaWebP } from "/painel/assets/js/imagem-otimizacao.js";
+  import { escapeHtml } from "/painel/assets/js/sanitize.js";
+  import { initAntesDepoisSlider } from "/assets/js/antes-depois-slider.js";
+
+  configurarBotoesCopiar();
+
+  const contexto = await exigirAdmin();
+  if (!contexto) throw new Error("sem acesso");
+  document.querySelector("[data-sidebar]").innerHTML = renderSidebarAdmin("pacientes", contexto.perfil.full_name);
+  configurarBotaoSair();
+
+  const flash = document.querySelector("[data-flash]");
+  const params = new URLSearchParams(window.location.search);
+  const patientId = params.get("id");
+  if (!patientId) { mostrarFlash(flash, "Paciente não informado.", "erro"); throw new Error("sem id"); }
+
+  // Abas
+  document.querySelectorAll(".abas-p button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".abas-p button").forEach((b) => b.classList.remove("ativa"));
+      document.querySelectorAll(".aba-conteudo").forEach((c) => c.classList.remove("visivel"));
+      btn.classList.add("ativa");
+      document.querySelector(`[data-conteudo="${btn.dataset.aba}"]`).classList.add("visivel");
+    });
+  });
+
+  // Dados do paciente
+  const { data: paciente } = await supabase.from("patients").select("*").eq("id", patientId).single();
+  if (paciente) {
+    document.querySelector("[data-nome-paciente]").textContent = paciente.full_name;
+    document.querySelector("[data-contato-paciente]").textContent = `${paciente.email || ""} ${paciente.phone ? "· " + paciente.phone : ""}`;
+    const acesso = document.getElementById("acesso_painel");
+    const statusAcesso = document.getElementById("status-acesso-painel");
+    const toggleAcesso = document.querySelector("[data-acesso-toggle]");
+    const botaoGerarAcesso = document.getElementById("botao-gerar-acesso");
+
+    if (!paciente.user_id) {
+      // Ainda não existe login para este paciente: esconde o toggle
+      // (que só faz sentido quando já existe conta) e mostra a opção
+      // para gerar o acesso agora.
+      toggleAcesso.style.display = "none";
+      statusAcesso.textContent = "Acesso ainda não gerado";
+      botaoGerarAcesso.style.display = "inline-flex";
+      botaoGerarAcesso.addEventListener("click", async () => {
+        if (!paciente.email) {
+          mostrarFlash(flash, "Este paciente não tem e-mail cadastrado. Adicione um e-mail antes de gerar o acesso.", "erro");
+          return;
+        }
+        if (!confirm(`Gerar acesso ao Painel do Paciente para ${paciente.full_name}?`)) return;
+        botaoGerarAcesso.disabled = true;
+        botaoGerarAcesso.textContent = "Gerando…";
+        try {
+          const accessToken = contexto.session.access_token;
+          if (!accessToken) throw new Error("Sua sessão expirou. Faça login novamente.");
+          const resposta = await fetch(`${EDGE_FUNCTION_URL}/create-patient`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+            body: JSON.stringify({ modo: "acesso", patient_id: patientId }),
+          });
+          const resultado = await resposta.json().catch(() => ({}));
+          if (!resposta.ok) throw new Error(resultado.error || "Não foi possível gerar o acesso.");
+          document.getElementById("acesso-cred-email").textContent = resultado.email;
+          document.getElementById("acesso-cred-senha").textContent = resultado.senha_temporaria;
+          document.getElementById("modal-credenciais-acesso").style.display = "flex";
+          document.getElementById("botao-fechar-credenciais-acesso").onclick = () => window.location.reload();
+          mostrarFlash(flash, "Acesso do paciente gerado com sucesso.", "sucesso");
+        } catch (erro) {
+          mostrarFlash(flash, "Erro: " + erro.message, "erro");
+          botaoGerarAcesso.disabled = false;
+          botaoGerarAcesso.textContent = "Gerar acesso do paciente";
+        }
+      });
+    } else {
+      // Já existe login: mantém o comportamento original de ativar/bloquear.
+      acesso.checked = paciente.acesso_painel !== false;
+      statusAcesso.textContent = acesso.checked ? "Ativo" : "Bloqueado";
+      acesso.addEventListener("change", async () => {
+        acesso.disabled = true;
+        const novoValor = acesso.checked;
+        const { error } = await supabase.from("patients").update({ acesso_painel: novoValor }).eq("id", patientId);
+        acesso.disabled = false;
+        if (error) {
+          acesso.checked = !novoValor;
+          statusAcesso.textContent = acesso.checked ? "Ativo" : "Bloqueado";
+          mostrarFlash(flash, "Não foi possível alterar o acesso: " + error.message, "erro");
+          return;
+        }
+        statusAcesso.textContent = novoValor ? "Ativo" : "Bloqueado";
+        mostrarFlash(flash, novoValor ? "Acesso ao painel liberado." : "Acesso ao painel bloqueado.", "sucesso");
+      });
+    }
+  }
+
+  // Pré-atendimento (respostas do formulário do site)
+  const preAtendimentoBox = document.querySelector("[data-pre-atendimento-conteudo]");
+  if (paciente?.pre_atendimento_id) {
+    const { data: pre, error: preError } = await supabase.from("pre_atendimentos").select("*").eq("id", paciente.pre_atendimento_id).maybeSingle();
+    if (preError) {
+      preAtendimentoBox.textContent = "Não foi possível carregar as respostas: " + preError.message;
+    } else if (!pre) {
+      preAtendimentoBox.textContent = "Pré-atendimento original não encontrado (pode ter sido excluído).";
+    } else {
+      preAtendimentoBox.innerHTML = `
+        <div class="form-linha">
+          <div class="form-campo"><label>Idade</label><p>${escapeHtml(pre.idade ? pre.idade + " anos" : "—")}</p></div>
+          <div class="form-campo"><label>Recebido em</label><p>${escapeHtml(new Date(pre.created_at).toLocaleDateString("pt-BR"))}</p></div>
+        </div>
+        <div class="form-campo"><label>Principal queixa</label><p>${escapeHtml(pre.queixa_principal || "—")}</p></div>
+        <div class="form-campo"><label>Tratamentos anteriores</label><p>${escapeHtml(pre.tratamentos_anteriores || "—")}</p></div>
+        <div class="form-campo"><label>Medicamentos / condições de saúde</label><p>${escapeHtml(pre.usa_medicamentos || "—")}</p></div>
+        <div class="form-campo"><label>Outras observações</label><p>${escapeHtml(pre.observacoes || "—")}</p></div>`;
+    }
+  } else {
+    preAtendimentoBox.textContent = "Este paciente não veio do formulário de pré-atendimento do site (cadastro manual ou anterior a este recurso).";
+  }
+
+  // Prontuário
+  const { data: prontuario } = await supabase.from("medical_records").select("*").eq("patient_id", patientId).maybeSingle();
+  if (prontuario) {
+    document.getElementById("google_doc_url").value = prontuario.google_doc_url || "";
+    document.getElementById("clinical_summary").value = prontuario.clinical_summary || "";
+    document.getElementById("allergies").value = prontuario.allergies || "";
+    document.getElementById("medications").value = prontuario.medications || "";
+    document.getElementById("observations").value = prontuario.observations || "";
+  }
+
+  document.getElementById("form-prontuario").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const { error } = await supabase.from("medical_records").upsert(
+      {
+        patient_id: patientId,
+        google_doc_url: document.getElementById("google_doc_url").value.trim(),
+        clinical_summary: document.getElementById("clinical_summary").value.trim(),
+        allergies: document.getElementById("allergies").value.trim(),
+        medications: document.getElementById("medications").value.trim(),
+        observations: document.getElementById("observations").value.trim(),
+        updated_by: contexto.session.user.id
+      },
+      { onConflict: "patient_id" }
+    );
+    mostrarFlash(flash, error ? "Erro: " + error.message : "Prontuário salvo.", error ? "erro" : "sucesso");
+  });
+
+  // Atendimentos (histórico + estatísticas)
+  let grafico;
+  let atendimentoEditando = null;
+
+  const moeda = (valor) => Number(valor || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+  let historicoPagamentos = [];
+
+  const atualizarResumoAtendimento = () => {
+    const total = Math.max(0, parseFloat(document.getElementById("valor").value) || 0);
+    const taxa = Math.max(0, parseFloat(document.getElementById("taxa_agendamento").value) || 0);
+    const restante = Math.max(0, total - taxa);
+    const pagoHistorico = historicoPagamentos.reduce((s, p) => s + Number(p.amount || 0), 0);
+    const falta = Math.max(0, restante - pagoHistorico);
+    document.querySelector("[data-resumo-taxa]").textContent = `R$ ${moeda(taxa)}`;
+    document.querySelector("[data-resumo-restante]").textContent = `R$ ${moeda(falta)}`;
+    document.querySelector("[data-total-pago-restante]").textContent = `R$ ${moeda(pagoHistorico)}`;
+    document.querySelector("[data-total-falta-restante]").textContent = `R$ ${moeda(falta)}`;
+    const statusEl = document.querySelector("[data-restante-status-resumo]");
+    statusEl.textContent = falta <= 0 && restante > 0 ? "Pago" : pagoHistorico > 0 ? "Parcial" : "Pendente";
+    if (taxa > total) document.getElementById("taxa_agendamento").setCustomValidity("A taxa não pode ser maior que o valor total.");
+    else document.getElementById("taxa_agendamento").setCustomValidity("");
+  };
+
+  function renderizarHistoricoPagamentos() {
+    const el = document.querySelector("[data-pagamentos-restante]");
+    if (!historicoPagamentos.length) { el.innerHTML = '<div class="painel-vazio">Nenhum pagamento do restante registrado.</div>'; atualizarResumoAtendimento(); return; }
+    el.innerHTML = historicoPagamentos.map((p, i) => `
+      <div class="pagamento-restante-card">
+        <div><span>Pagamento ${i + 1}</span><strong>R$ ${moeda(p.amount)}</strong></div>
+        <div><small>Data</small><span>${p.payment_date ? new Date(p.payment_date + "T00:00:00").toLocaleDateString("pt-BR") : "—"}</span></div>
+        <div><small>Forma</small><span>${escapeHtml(p.payment_method || "Não informada")}</span></div>
+        <button type="button" class="btn-p btn-p-mini btn-p-perigo" data-excluir-pagamento="${p.id}">Excluir</button>
+      </div>`).join("");
+    el.querySelectorAll("[data-excluir-pagamento]").forEach(btn => btn.addEventListener("click", async () => {
+      if (!confirm("Excluir este pagamento do histórico?")) return;
+      const { error } = await supabase.from("appointment_payment_history").delete().eq("id", btn.dataset.excluirPagamento);
+      if (error) { mostrarFlash(flash, "Erro ao excluir pagamento: " + error.message, "erro"); return; }
+      await carregarHistoricoPagamentos(atendimentoEditando);
+    }));
+    atualizarResumoAtendimento();
+  }
+
+  async function carregarHistoricoPagamentos(appointmentId) {
+    historicoPagamentos = [];
+    if (!appointmentId) { renderizarHistoricoPagamentos(); return; }
+    const { data, error } = await supabase.from("appointment_payment_history").select("id,amount,payment_date,payment_method,payment_type").eq("appointment_id", appointmentId).eq("payment_type", "restante").order("payment_date", { ascending: true }).order("created_at", { ascending: true });
+    if (error) { mostrarFlash(flash, "Erro ao carregar histórico: " + error.message, "erro"); }
+    historicoPagamentos = data || [];
+    renderizarHistoricoPagamentos();
+  }
+
+  ["valor", "taxa_agendamento"].forEach(id => document.getElementById(id).addEventListener("input", atualizarResumoAtendimento));
+
+  document.getElementById("registrar-pagamento-restante").addEventListener("click", async () => {
+    if (!atendimentoEditando) { mostrarFlash(flash, "Salve o atendimento primeiro para registrar pagamentos.", "erro"); return; }
+    const total = Math.max(0, parseFloat(document.getElementById("valor").value) || 0);
+    const taxa = Math.max(0, parseFloat(document.getElementById("taxa_agendamento").value) || 0);
+    const restante = Math.max(0, total - taxa);
+    const pago = historicoPagamentos.reduce((s, p) => s + Number(p.amount || 0), 0);
+    const falta = Math.max(0, restante - pago);
+    const valor = Math.max(0, parseFloat(document.getElementById("novo_pagamento_valor").value) || 0);
+    if (valor <= 0) { mostrarFlash(flash, "Informe um valor de pagamento maior que zero.", "erro"); return; }
+    if (valor > falta + 0.009) { mostrarFlash(flash, `O pagamento não pode ser maior que o valor que falta quitar: R$ ${moeda(falta)}.`, "erro"); return; }
+    const { error } = await supabase.from("appointment_payment_history").insert({ appointment_id: atendimentoEditando, amount: valor, payment_date: document.getElementById("novo_pagamento_data").value || new Date().toISOString().slice(0,10), payment_method: document.getElementById("novo_pagamento_forma").value.trim() || null, payment_type: "restante" });
+    if (error) { mostrarFlash(flash, "Erro ao registrar pagamento: " + error.message, "erro"); return; }
+    document.getElementById("novo_pagamento_valor").value = 0;
+    document.getElementById("novo_pagamento_data").value = new Date().toISOString().slice(0,10);
+    document.getElementById("novo_pagamento_forma").value = "";
+    await carregarHistoricoPagamentos(atendimentoEditando);
+    mostrarFlash(flash, falta - valor <= 0.009 ? "Pagamento final registrado. Atendimento quitado." : "Pagamento registrado. O saldo restante foi atualizado.", "sucesso");
+  });
+
+  function preencherFormularioAtendimento(a) {
+    atendimentoEditando = a.id;
+    document.getElementById("appointment_date").value = a.appointment_date || "";
+    document.getElementById("appointment_time").value = a.appointment_time ? String(a.appointment_time).slice(0,5) : "";
+    document.getElementById("valor").value = Number(a.valor || 0);
+    document.getElementById("taxa_agendamento").value = Number(a.taxa_agendamento || 0);
+    document.getElementById("taxa_status").value = a.taxa_status || "pendente";
+    document.getElementById("taxa_forma_pagamento").value = a.taxa_forma_pagamento || "";
+    document.getElementById("novo_pagamento_data").value = new Date().toISOString().slice(0,10);
+    carregarHistoricoPagamentos(a.id);
+    document.getElementById("tipo").value = a.tipo || "Consulta de Avaliação";
+    document.getElementById("status").value = a.status || "agendado";
+    document.getElementById("descricao").value = a.description || "";
+    document.querySelector('#form-atendimento button[type="submit"]').textContent = "Salvar alterações";
+    document.querySelector('[data-aba="atendimentos"]').click();
+    atualizarResumoAtendimento();
+  }
+
+  function limparFormularioAtendimento() {
+    atendimentoEditando = null;
+    document.getElementById("form-atendimento").reset();
+    document.getElementById("taxa_status").value = "pendente";
+    historicoPagamentos = [];
+    document.getElementById("novo_pagamento_valor").value = 0;
+    document.getElementById("novo_pagamento_data").value = new Date().toISOString().slice(0,10);
+    document.getElementById("novo_pagamento_forma").value = "";
+    renderizarHistoricoPagamentos();
+    document.querySelector('#form-atendimento button[type="submit"]').textContent = "Adicionar atendimento";
+    atualizarResumoAtendimento();
+  }
+
+  async function carregarAtendimentos() {
+    const { data, error } = await supabase.from("appointments").select("*").eq("patient_id", patientId).order("appointment_date", { ascending: false });
+    const lista = data || [];
+    const tbody = document.querySelector("[data-lista-atendimentos]");
+    if (error) { tbody.innerHTML = `<tr><td colspan="7" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
+    const ids = lista.map(a => a.id);
+    const { data: pagamentosData } = ids.length ? await supabase.from("appointment_payment_history").select("id,appointment_id,amount,payment_date,payment_method,payment_type").in("appointment_id", ids).eq("payment_type","restante").order("payment_date", { ascending: true }) : { data: [] };
+    const pagamentosPorAtendimento = {};
+    (pagamentosData || []).forEach(p => { (pagamentosPorAtendimento[p.appointment_id] ||= []).push(p); });
+    tbody.innerHTML = lista.length ? lista.map((a) => {
+      const total = Number(a.valor || 0);
+      const taxa = Number(a.taxa_agendamento || 0);
+      const restante = Math.max(0, total - taxa);
+      const historico = pagamentosPorAtendimento[a.id] || [];
+      const pagoHistorico = historico.reduce((s,p) => s + Number(p.amount || 0), 0);
+      const pagoRestante = Math.min(restante, pagoHistorico || Number(a.restante_pago || 0));
+      const falta = Math.max(0, restante - pagoRestante);
+      return `<tr>
+        <td>${new Date(a.appointment_date + "T00:00:00").toLocaleDateString("pt-BR")}${a.appointment_time ? `<div class="pessoa__sub">${escapeHtml(String(a.appointment_time).slice(0,5))}</div>` : ""}</td>
+        <td>${escapeHtml(a.tipo || a.description || "—")}</td>
+        <td>R$ ${moeda(total)}</td>
+        <td>R$ ${moeda(taxa)}<div class="pessoa__sub">${escapeHtml(a.taxa_status || "pendente")}</div></td>
+        <td>R$ ${moeda(falta)}<div class="pessoa__sub">${escapeHtml(a.restante_status || "pendente")}${a.restante_data_pagamento ? " · " + new Date(a.restante_data_pagamento + "T00:00:00").toLocaleDateString("pt-BR") : ""}</div></td>
+        <td><span class="selo-p ${escapeHtml(a.status)}">${escapeHtml(a.status)}</span></td>
+        <td><div style="display:flex;gap:6px"><button class="btn-p btn-p-mini" data-editar="${a.id}">Editar</button><button class="btn-p btn-p-mini btn-p-perigo" data-excluir="${a.id}">Excluir</button></div></td>
+      </tr>`;
+    }).join("") : `<tr><td colspan="7" class="painel-vazio">Nenhum atendimento registrado.</td></tr>`;
+
+    tbody.querySelectorAll("[data-editar]").forEach(btn => btn.addEventListener("click", () => {
+      const a = lista.find(item => item.id === btn.dataset.editar);
+      if (a) preencherFormularioAtendimento(a);
+    }));
+    tbody.querySelectorAll("[data-excluir]").forEach(btn => btn.addEventListener("click", async () => {
+      if (!confirm("Excluir este atendimento?")) return;
+      const { error: erroDelete } = await supabase.from("appointments").delete().eq("id", btn.dataset.excluir);
+      if (erroDelete) { mostrarFlash(flash, "Erro ao excluir: " + erroDelete.message, "erro"); return; }
+      mostrarFlash(flash, "Atendimento excluído.", "sucesso");
+      document.getElementById("novo_pagamento_data").value = new Date().toISOString().slice(0,10);
+  carregarAtendimentos();
+    }));
+
+    const ativas = lista.filter((a) => a.status !== "cancelado");
+    const totalValor = ativas.reduce((s, a) => s + Number(a.valor || 0), 0);
+    const totalPago = ativas.reduce((s, a) => {
+      const taxa = a.taxa_status === "pago" ? Number(a.taxa_agendamento || 0) : 0;
+      const restanteBase = Math.max(0, Number(a.valor || 0) - Number(a.taxa_agendamento || 0));
+      const historico = pagamentosPorAtendimento[a.id] || [];
+      const pagoRestante = Math.min(restanteBase, historico.reduce((x,p) => x + Number(p.amount || 0), 0) || Number(a.restante_pago || 0));
+      return s + taxa + pagoRestante;
+    }, 0);
+    const totalPendente = Math.max(0, totalValor - totalPago);
+    document.querySelector("[data-total-atendimentos]").textContent = lista.length;
+    document.querySelector("[data-total-valor]").textContent = "R$ " + totalValor.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+    document.querySelector("[data-total-pago]").textContent = "R$ " + totalPago.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+    document.querySelector("[data-total-pendente]").textContent = "R$ " + totalPendente.toLocaleString("pt-BR", { minimumFractionDigits: 2 });
+    const proximo = lista.filter((a) => a.appointment_date >= new Date().toISOString().slice(0, 10) && a.status !== "cancelado").sort((a,b) => a.appointment_date.localeCompare(b.appointment_date))[0];
+    document.querySelector("[data-proximo-atendimento]").textContent = proximo ? `${new Date(proximo.appointment_date + "T00:00:00").toLocaleDateString("pt-BR")} — ${proximo.tipo || ""}` : "Nenhum agendado";
+
+    const ordenado = [...lista].reverse();
+    const labels = ordenado.map(a => new Date(a.appointment_date + "T00:00:00").toLocaleDateString("pt-BR", {day:"2-digit",month:"2-digit"}));
+    const valores = ordenado.map(a => Number(a.valor || 0));
+    if (grafico) grafico.destroy();
+    grafico = new Chart(document.getElementById("grafico-paciente"), { type:"line", data:{labels,datasets:[{data:valores,borderColor:"#c9a45b",backgroundColor:"rgba(201,164,91,.15)",fill:true,tension:.3}]}, options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}} });
+  }
+
+  document.getElementById("form-atendimento").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const total = Math.max(0, parseFloat(document.getElementById("valor").value) || 0);
+    const taxa = Math.max(0, parseFloat(document.getElementById("taxa_agendamento").value) || 0);
+    if (taxa > total) { atualizarResumoAtendimento(); mostrarFlash(flash, "A taxa de agendamento não pode ser maior que o valor total.", "erro"); return; }
+    const restanteBase = Math.max(0, total - taxa);
+    const restantePago = Math.min(restanteBase, historicoPagamentos.reduce((s, p) => s + Number(p.amount || 0), 0));
+    const restanteStatus = restanteBase === 0 || restantePago >= restanteBase ? "pago" : restantePago > 0 ? "parcial" : "pendente";
+    const dados = {
+      patient_id: patientId, appointment_date: document.getElementById("appointment_date").value, appointment_time: document.getElementById("appointment_time").value,
+      valor: total, taxa_agendamento: taxa, taxa_status: document.getElementById("taxa_status").value, taxa_forma_pagamento: document.getElementById("taxa_forma_pagamento").value.trim() || null,
+      restante_pago: historicoPagamentos.reduce((s, p) => s + Number(p.amount || 0), 0),
+      restante_status: (() => { const base = Math.max(0, total - taxa); const pago = historicoPagamentos.reduce((s,p)=>s+Number(p.amount||0),0); return base <= 0 || pago >= base ? "pago" : pago > 0 ? "parcial" : "pendente"; })(),
+      restante_data_pagamento: historicoPagamentos.length ? historicoPagamentos[historicoPagamentos.length - 1].payment_date : null,
+      restante_forma_pagamento: historicoPagamentos.length ? historicoPagamentos[historicoPagamentos.length - 1].payment_method : null,
+      tipo: document.getElementById("tipo").value, status: document.getElementById("status").value, description: document.getElementById("descricao").value.trim()
+    };
+    const query = atendimentoEditando ? supabase.from("appointments").update(dados).eq("id", atendimentoEditando) : supabase.from("appointments").insert(dados);
+    const { error } = await query;
+    if (error) { mostrarFlash(flash, "Erro: " + error.message, "erro"); return; }
+    mostrarFlash(flash, atendimentoEditando ? "Atendimento atualizado." : "Atendimento adicionado.", "sucesso");
+    limparFormularioAtendimento();
+    document.querySelector('[data-aba="historico"]').click();
+    carregarAtendimentos();
+  });
+
+  carregarAtendimentos();
+  // Documentos
+  async function carregarDocumentos() {
+    const { data } = await supabase.from("support_documents").select("*").eq("patient_id", patientId).order("created_at", { ascending: false });
+    const container = document.querySelector("[data-lista-documentos]");
+    container.innerHTML = (data && data.length) ? data.map((d) => `
+      <div class="lista-simples__item">
+        <span>${escapeHtml(d.title)}</span>
+        <button class="btn-p btn-p-mini btn-p-perigo" data-excluir-doc="${d.id}">Excluir</button>
+      </div>`).join("") : `<p class="texto-suave">Nenhum documento enviado.</p>`;
+
+    container.querySelectorAll("[data-excluir-doc]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        await supabase.from("support_documents").delete().eq("id", btn.dataset.excluirDoc);
+        carregarDocumentos();
+      });
+    });
+  }
+
+  document.getElementById("form-documento").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const arquivo = document.getElementById("doc_arquivo").files[0];
+    if (!arquivo) return;
+    const { data: config } = await supabase.from("configuracoes").select("permitir_upload_documentos").eq("id", 1).maybeSingle();
+    if (config && config.permitir_upload_documentos === false) { mostrarFlash(flash, "O upload de documentos está desativado nas configurações.", "erro"); return; }
+    const tiposPermitidos = ["application/pdf", "image/jpeg", "image/png", "image/webp", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+    if (!tiposPermitidos.includes(arquivo.type)) { mostrarFlash(flash, "Tipo de arquivo não permitido. Envie PDF, imagem ou documento Word.", "erro"); return; }
+    if (arquivo.size > 10 * 1024 * 1024) { mostrarFlash(flash, "O arquivo deve ter no máximo 10 MB.", "erro"); return; }
+    const nomeSeguro = arquivo.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-120);
+    const caminho = `${patientId}/${Date.now()}-${nomeSeguro}`;
+    const { error: erroUpload } = await supabase.storage.from("documentos-pacientes").upload(caminho, arquivo, { contentType: arquivo.type, upsert: false });
+    if (erroUpload) { mostrarFlash(flash, "Erro no upload: " + erroUpload.message, "erro"); return; }
+    const { error } = await supabase.from("support_documents").insert({ patient_id: patientId, title: document.getElementById("doc_title").value.trim(), file_url: caminho });
+    if (error) { await supabase.storage.from("documentos-pacientes").remove([caminho]); mostrarFlash(flash, "Erro ao registrar documento: " + error.message, "erro"); return; }
+    document.getElementById("form-documento").reset();
+    carregarDocumentos();
+  });
+
+  carregarAtendimentos();
+  carregarDocumentos();
+  carregarFinanceiro();
+  // Financeiro
+  async function carregarFinanceiro() {
+    const { data, error } = await supabase.from("financial_transactions").select("*").eq("patient_id", patientId).order("due_date", { ascending: false });
+    const lista = data || [];
+    const corpoFin = document.querySelector("[data-lista-financeiro]");
+    if (error) { corpoFin.innerHTML = `<tr><td colspan="5" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
+    corpoFin.innerHTML = lista.length ? lista.map((f) => `
+      <tr><td>${escapeHtml(f.description)}</td><td>${f.due_date ? new Date(f.due_date + "T00:00:00").toLocaleDateString("pt-BR") : "—"}</td><td>R$ ${Number(f.amount).toLocaleString("pt-BR", {minimumFractionDigits:2})}</td><td><span class="selo-p ${escapeHtml(f.status)}">${escapeHtml(f.status)}</span></td><td><button class="btn-p btn-p-mini btn-p-perigo" data-excluir-fin="${f.id}">Excluir</button></td></tr>`).join("") : `<tr><td colspan="5" class="painel-vazio">Nenhum lançamento financeiro.</td></tr>`;
+    const pendente = lista.filter(f=>f.status==='pendente').reduce((s,f)=>s+Number(f.amount),0);
+    const pago = lista.filter(f=>f.status==='pago').reduce((s,f)=>s+Number(f.amount),0);
+    document.querySelector("[data-resumo-financeiro]").innerHTML = `<div><strong>R$ ${pago.toLocaleString("pt-BR",{minimumFractionDigits:2})}</strong><div class="texto-suave">Pago</div></div><div><strong>R$ ${pendente.toLocaleString("pt-BR",{minimumFractionDigits:2})}</strong><div class="texto-suave">Pendente</div></div>`;
+    corpoFin.querySelectorAll("[data-excluir-fin]").forEach(btn=>btn.addEventListener("click",async()=>{ const {error:e}=await supabase.from("financial_transactions").delete().eq("id",btn.dataset.excluirFin); if(e) mostrarFlash(flash,"Erro: "+e.message,"erro"); carregarFinanceiro(); }));
+  }
+  document.getElementById("form-financeiro").addEventListener("submit", async (e)=>{
+    e.preventDefault();
+    const payload={patient_id:patientId,description:document.getElementById("fin_description").value.trim(),amount:parseFloat(document.getElementById("fin_amount").value),due_date:document.getElementById("fin_due_date").value||null,status:document.getElementById("fin_status").value,payment_method:document.getElementById("fin_payment_method").value.trim(),notes:document.getElementById("fin_notes").value.trim()};
+    if(payload.status==='pago') payload.paid_at=new Date().toISOString();
+    const {error}=await supabase.from("financial_transactions").insert(payload);
+    if(error){mostrarFlash(flash,"Erro: "+error.message,"erro");return;}
+    e.target.reset(); mostrarFlash(flash,"Lançamento financeiro adicionado.","sucesso"); carregarFinanceiro();
+  });
+
+  // ------------------------------------------------------------------
+  // Registro de acompanhamento fotográfico (Prontuário)
+  // ------------------------------------------------------------------
+  const rfWrap = document.getElementById("form-registro-foto-wrap");
+  const rfForm = document.getElementById("form-registro-foto");
+  const rfPreviewWrap = document.getElementById("rf-preview-wrap");
+  const rfPreviewAntes = document.getElementById("rf-preview-antes");
+  const rfPreviewDepois = document.getElementById("rf-preview-depois");
+  const rfInputAntes = document.getElementById("rf_foto_antes");
+  const rfInputDepois = document.getElementById("rf_foto_depois");
+  let rfUrlAntes = null, rfUrlDepois = null;
+
+  function rfLimparPreview() {
+    rfPreviewWrap.style.display = "none";
+    if (rfUrlAntes) URL.revokeObjectURL(rfUrlAntes);
+    if (rfUrlDepois) URL.revokeObjectURL(rfUrlDepois);
+    rfUrlAntes = rfUrlDepois = null;
+  }
+
+  function rfAtualizarPreview() {
+    const arquivoAntes = rfInputAntes.files[0];
+    const arquivoDepois = rfInputDepois.files[0];
+    if (!arquivoAntes || !arquivoDepois) return;
+    if (rfUrlAntes) URL.revokeObjectURL(rfUrlAntes);
+    if (rfUrlDepois) URL.revokeObjectURL(rfUrlDepois);
+    rfUrlAntes = URL.createObjectURL(arquivoAntes);
+    rfUrlDepois = URL.createObjectURL(arquivoDepois);
+    rfPreviewWrap.style.display = "block";
+    initAntesDepoisSlider(document.getElementById("rf-preview-slider"));
+    rfPreviewAntes.src = rfUrlAntes;
+    rfPreviewDepois.src = rfUrlDepois;
+  }
+
+  rfInputAntes.addEventListener("change", rfAtualizarPreview);
+  rfInputDepois.addEventListener("change", rfAtualizarPreview);
+
+  document.getElementById("botao-novo-registro-foto").addEventListener("click", () => {
+    rfWrap.style.display = rfWrap.style.display === "none" ? "block" : "none";
+  });
+  document.getElementById("botao-cancelar-registro-foto").addEventListener("click", () => {
+    rfForm.reset();
+    rfLimparPreview();
+    rfWrap.style.display = "none";
+  });
+
+  async function carregarRegistrosFoto() {
+    const container = document.getElementById("lista-registros-foto");
+    const { data, error } = await supabase.from("photo_records").select("*").eq("patient_id", patientId).order("appointment_date", { ascending: false });
+    if (error) { container.innerHTML = `<p class="texto-suave">Erro: ${escapeHtml(error.message)}</p>`; return; }
+    if (!data?.length) { container.innerHTML = `<p class="texto-suave">Nenhum registro fotográfico ainda.</p>`; return; }
+
+    container.innerHTML = data.map((r) => `
+      <div class="painel-card" style="padding:16px">
+        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px">
+          <div>
+            <strong>${r.appointment_date ? new Date(r.appointment_date + "T00:00:00").toLocaleDateString("pt-BR") : "Sem data"}</strong>${r.procedure_description ? " — " + escapeHtml(r.procedure_description) : ""}
+            ${r.notes ? `<p class="texto-suave" style="margin:4px 0 0">${escapeHtml(r.notes)}</p>` : ""}
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer">
+              <input type="checkbox" data-toggle-visivel="${r.id}" ${r.visible_to_patient ? "checked" : ""}>
+              Visível para o paciente
+            </label>
+            <button type="button" class="btn-p btn-p-mini btn-p-perigo" data-excluir-registro="${r.id}">Excluir</button>
+          </div>
+        </div>
+        <div style="max-width:340px">
+          <div class="antes-depois-slider antes-depois-slider--proporcional" data-antes-depois data-registro="${r.id}">
+            <img class="ad-depois" alt="Depois">
+            <img class="ad-antes" alt="Antes">
+            <span class="ad-tag ad-tag-antes">Antes</span>
+            <span class="ad-tag ad-tag-depois">Depois</span>
+            <div class="ad-handle"><span class="ad-handle-grip"></span></div>
+          </div>
+        </div>
+      </div>`).join("");
+
+    for (const r of data) {
+      const box = container.querySelector(`[data-registro="${r.id}"]`);
+      if (!box) continue;
+      const imgAntes = box.querySelector(".ad-antes");
+      const imgDepois = box.querySelector(".ad-depois");
+      initAntesDepoisSlider(box);
+      if (r.before_image_path) {
+        const { data: sa } = await supabase.storage.from("documentos-pacientes").createSignedUrl(r.before_image_path, 3600);
+        if (sa?.signedUrl) imgAntes.src = sa.signedUrl;
+      }
+      if (r.after_image_path) {
+        const { data: sd } = await supabase.storage.from("documentos-pacientes").createSignedUrl(r.after_image_path, 3600);
+        if (sd?.signedUrl) imgDepois.src = sd.signedUrl;
+      }
+    }
+
+    container.querySelectorAll("[data-toggle-visivel]").forEach((chk) => chk.addEventListener("change", async () => {
+      chk.disabled = true;
+      const { error: erroToggle } = await supabase.from("photo_records").update({ visible_to_patient: chk.checked }).eq("id", chk.dataset.toggleVisivel);
+      chk.disabled = false;
+      if (erroToggle) { mostrarFlash(flash, "Erro: " + erroToggle.message, "erro"); chk.checked = !chk.checked; }
+    }));
+
+    container.querySelectorAll("[data-excluir-registro]").forEach((btn) => btn.addEventListener("click", async () => {
+      if (!confirm("Excluir este registro fotográfico?")) return;
+      const registro = data.find((item) => item.id === btn.dataset.excluirRegistro);
+      await supabase.from("photo_records").delete().eq("id", btn.dataset.excluirRegistro);
+      if (registro) {
+        const caminhos = [registro.before_image_path, registro.after_image_path].filter(Boolean);
+        if (caminhos.length) await supabase.storage.from("documentos-pacientes").remove(caminhos);
+      }
+      carregarRegistrosFoto();
+    }));
+  }
+
+  rfForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const botao = document.getElementById("botao-salvar-registro-foto");
+    const arquivoAntes = rfInputAntes.files[0];
+    const arquivoDepois = rfInputDepois.files[0];
+    if (!arquivoAntes || !arquivoDepois) { mostrarFlash(flash, "Selecione as duas fotos (antes e depois).", "erro"); return; }
+    botao.disabled = true;
+    botao.textContent = "Enviando…";
+    try {
+      const marca = Date.now();
+      const antesOtimizada = await otimizarImagemParaWebP(arquivoAntes, 1800, 0.82);
+      const depoisOtimizada = await otimizarImagemParaWebP(arquivoDepois, 1800, 0.82);
+      const caminhoAntes = `${patientId}/fotos/${marca}-antes.webp`;
+      const caminhoDepois = `${patientId}/fotos/${marca}-depois.webp`;
+      const { error: erroUploadAntes } = await supabase.storage.from("documentos-pacientes").upload(caminhoAntes, antesOtimizada, { contentType: "image/webp", cacheControl: "31536000" });
+      if (erroUploadAntes) throw erroUploadAntes;
+      const { error: erroUploadDepois } = await supabase.storage.from("documentos-pacientes").upload(caminhoDepois, depoisOtimizada, { contentType: "image/webp", cacheControl: "31536000" });
+      if (erroUploadDepois) throw erroUploadDepois;
+
+      const { error: erroInsert } = await supabase.from("photo_records").insert({
+        patient_id: patientId,
+        appointment_date: document.getElementById("rf_data").value || null,
+        procedure_description: document.getElementById("rf_procedimento").value.trim() || null,
+        notes: document.getElementById("rf_legenda").value.trim() || null,
+        before_image_path: caminhoAntes,
+        after_image_path: caminhoDepois,
+        visible_to_patient: document.getElementById("rf_visivel").checked,
+      });
+      if (erroInsert) throw erroInsert;
+
+      rfForm.reset();
+      rfLimparPreview();
+      rfWrap.style.display = "none";
+      mostrarFlash(flash, "Registro fotográfico salvo com sucesso.", "sucesso");
+      carregarRegistrosFoto();
+    } catch (erro) {
+      mostrarFlash(flash, "Erro: " + (erro?.message || "Falha ao salvar o registro."), "erro");
+    } finally {
+      botao.disabled = false;
+      botao.textContent = "Salvar registro";
+    }
+  });
+
+  carregarRegistrosFoto();
+</script>
+</body>
+</html>

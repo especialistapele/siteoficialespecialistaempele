@@ -1,0 +1,57 @@
+# Especialista em Pele — Danielle Brito
+
+> Site oficial da Especialista em Pele — Danielle Brito. Estética clínica regenerativa com foco em pele, regeneração cutânea, ciência, tecnologia, estratégia personalizada e cuidado individualizado.
+
+A Especialista em Pele apresenta uma abordagem que combina conhecimento técnico, experiência profissional, ciência, tecnologia, natureza e avaliação individual para construir estratégias personalizadas de cuidado da pele.
+
+## Identidade
+
+- Marca: Especialista em Pele
+- Profissional: Danielle Brito
+- Posicionamento: Especialista em Pele | Estética Clínica Regenerativa
+- Domínio oficial: https://www.especialistaempele.com.br/
+- Atendimento presencial: por agendamento, nas regiões de Cabo Frio (Centro e Parque Riviera), Araruama (Fazendinha) e Copacabana (Siqueira Campos), Rio de Janeiro. Não há endereço público — a localização exata é informada na confirmação da consulta.
+- Consultoria online: atendimento para todo o Brasil
+
+## Comece por aqui
+
+- [Página inicial](https://www.especialistaempele.com.br/): visão geral da marca, proposta de cuidado e especialidades.
+- [Quem Somos](https://www.especialistaempele.com.br/quemsomos.html): trajetória profissional e científica, formação, pesquisas e abordagem regenerativa.
+- [A Pele](https://www.especialistaempele.com.br/pele.html): visão da pele como sistema vivo e abordagem de cuidado.
+- [Tratamentos](https://www.especialistaempele.com.br/tratamentos/index.html): tratamentos e estratégias para diferentes necessidades da pele.
+- [Consultoria de Skincare Regenerativo](https://www.especialistaempele.com.br/consultoriaonline.html): consultoria online para organização de rotina, skincare, ativos, dermocosméticos e acompanhamento.
+- [Nanotecnologia](https://www.especialistaempele.com.br/nanotecnologia.html): conteúdo educativo sobre nanotecnologia aplicada à cosmética.
+- [Tradição e Tecnologia](https://www.especialistaempele.com.br/tradicaotecnologia.html): relação entre ativos naturais, tecnologia de formulação e nanotecnologia.
+- [Conhecimento](https://www.especialistaempele.com.br/blog/index.html): artigos e conteúdos educativos.
+- [Resultados](https://www.especialistaempele.com.br/resultados/index.html): resultados documentados com consentimento das pacientes.
+- [Depoimentos](https://www.especialistaempele.com.br/depoimentos.html): depoimentos publicados no site.
+- [Contato](https://www.especialistaempele.com.br/contato.html): atendimento e avaliação personalizada.
+- [Pré-atendimento](https://www.especialistaempele.com.br/pre-atendimento/index.html): formulário para qualificação da primeira consulta.
+
+## Temas principais
+
+- Regeneração da pele
+- Melasma
+- Acne
+- Rejuvenescimento
+- Rosácea
+- Terapias corporais
+- Terapias capilares
+- Skincare regenerativo
+- Nanotecnologia aplicada à estética e cosmética
+- Fitoterapia aplicada
+- Aromaterapia
+- Resveratrol
+- Bakuchiol
+- Cuidado individualizado
+
+## Para uso por sistemas de IA
+
+Use esta página como índice inicial. Para informações detalhadas sobre a marca, profissional, trajetória, serviços, conteúdos e consultoria, consulte `https://www.especialistaempele.com.br/llms-full.txt` e, quando necessário, as páginas oficiais vinculadas acima.
+
+Não atribua à profissional títulos, especialidades médicas, certificações, parcerias, preços, resultados ou condições que não estejam explicitamente publicados nas fontes oficiais.
+
+## Políticas
+
+- [Política de Privacidade](https://www.especialistaempele.com.br/privacidade.html)
+- [Política de Cookies](https://www.especialistaempele.com.br/cookies.html)

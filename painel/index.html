@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Entrar — Especialista em Pele</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+</head>
+<body data-pagina="contato">
+
+<div class="painel-login">
+  <div class="painel-login__card">
+    <div class="painel-login__logo"><img src="/painel/assets/img/logo-especialista.webp" alt="Especialista em Pele — Danielle Brito"></div>
+
+    <div class="aviso-flash" data-flash></div>
+
+    <form id="form-login">
+      <div class="form-campo">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" required autocomplete="username">
+      </div>
+      <div class="form-campo">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn-p btn-p-dourado" style="width:100%;justify-content:center" id="botao-entrar">Entrar</button>
+    </form>
+
+    <p class="texto-suave" style="font-size:12.5px;margin-top:20px">
+      Ainda não tem acesso? <a href="/contato.html" style="color:var(--gold);font-weight:700">Fale com a gente</a>.
+    </p>
+  </div>
+</div>
+
+<script>
+  // Bloqueia o submit nativo imediatamente. Assim, se o módulo do Supabase
+  // demorar ou falhar ao carregar, a página não recarrega e não apaga os campos.
+  const formLogin = document.getElementById("form-login");
+  const flashLogin = document.querySelector("[data-flash]");
+  formLogin.addEventListener("submit", (event) => event.preventDefault());
+
+  (async () => {
+    const botao = document.getElementById("botao-entrar");
+    const emailInput = document.getElementById("email");
+    const senhaInput = document.getElementById("senha");
+
+    try {
+      const { supabase, resolverDestino, mostrarFlash } = await import("/painel/assets/js/painel-auth.js");
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("erro") === "acesso") mostrarFlash(flashLogin, "Esta conta não tem acesso ao painel.", "erro");
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        const destino = await resolverDestino(session.user.id);
+        if (destino) { window.location.replace(destino.destino); return; }
+      }
+
+      formLogin.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (botao.disabled) return;
+        botao.disabled = true;
+        botao.textContent = "Entrando…";
+
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: emailInput.value.trim(),
+            password: senhaInput.value,
+          });
+
+          if (error) {
+            console.error("Falha no login Supabase:", error);
+            const mensagem = /invalid login credentials/i.test(error.message)
+              ? "E-mail ou senha incorretos."
+              : "Não foi possível entrar agora. Tente novamente em instantes.";
+            mostrarFlash(flashLogin, mensagem, "erro");
+            botao.disabled = false;
+            botao.textContent = "Entrar";
+            return;
+          }
+
+          const destino = await resolverDestino(data.user.id);
+          if (!destino) {
+            await supabase.auth.signOut();
+            mostrarFlash(flashLogin, "Esta conta não tem acesso ao painel.", "erro");
+            botao.disabled = false;
+            botao.textContent = "Entrar";
+            return;
+          }
+
+          window.location.replace(destino.destino);
+        } catch (erro) {
+          console.error("Erro inesperado no login:", erro);
+          mostrarFlash(flashLogin, "Não foi possível conectar ao sistema. Verifique sua conexão e tente novamente.", "erro");
+          botao.disabled = false;
+          botao.textContent = "Entrar";
+        }
+      });
+    } catch (erro) {
+      console.error("Falha ao carregar autenticação do painel:", erro);
+      flashLogin.textContent = "O sistema de login não conseguiu carregar. Atualize a página e tente novamente.";
+      flashLogin.className = "aviso-flash visivel erro";
+    }
+  })();
+</script>
+</body>
+</html>

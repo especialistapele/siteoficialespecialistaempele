@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Depoimentos — Painel</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+</head>
+<body>
+<div class="painel-layout">
+  <aside class="painel-sidebar" data-sidebar></aside>
+  <main class="painel-main">
+    <div class="painel-topo">
+      <div><h1>Depoimentos</h1><p class="texto-suave">Gerencie os depoimentos dos seus pacientes.</p></div>
+      <button class="btn-p btn-p-dourado" id="botao-novo">+ Novo depoimento</button>
+    </div>
+    <div class="aviso-flash" data-flash></div>
+    <div class="busca-campo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="busca" placeholder="Buscar depoimentos..."></div>
+    <table class="tabela-p">
+      <thead><tr><th>Foto</th><th>Paciente</th><th>Depoimento</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody data-tabela-corpo><tr><td colspan="5" class="painel-vazio">Carregando…</td></tr></tbody>
+    </table>
+
+    <div id="modal" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
+      <div class="painel-card" style="max-width:520px;width:100%;margin:auto">
+        <h3 data-modal-titulo>Novo depoimento</h3>
+        <form id="form-item">
+          <input type="hidden" id="item_id">
+          <div class="form-linha">
+            <div class="form-campo"><label for="patient_name">Nome da paciente</label><input type="text" id="patient_name" required></div>
+            <div class="form-campo"><label for="treatment_id">Tratamento</label><select id="treatment_id"><option value="">— nenhum —</option></select></div>
+          </div>
+          <div class="form-campo"><label for="text">Depoimento</label><textarea id="text" required style="min-height:110px"></textarea></div>
+          <div class="form-campo"><label for="foto">Foto da paciente (opcional)</label><input type="file" id="foto" accept="image/*"></div>
+          <div class="form-checkbox"><input type="checkbox" id="published"><label for="published">Publicado</label></div>
+          <div class="form-acoes">
+            <button type="submit" class="btn-p btn-p-dourado" id="botao-salvar">Salvar</button>
+            <button type="button" class="btn-p btn-p-fora" id="botao-fechar">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash } from "/painel/assets/js/painel-auth.js";
+  import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
+  import { otimizarImagemParaWebP } from "/painel/assets/js/imagem-otimizacao.js";
+  import { escapeHtml, safeUrl } from "/painel/assets/js/sanitize.js";
+
+  const contexto = await exigirAdmin();
+  if (!contexto) throw new Error("sem acesso");
+  document.querySelector("[data-sidebar]").innerHTML = renderSidebarAdmin("depoimentos", contexto.perfil.full_name);
+  configurarBotaoSair();
+
+  const flash = document.querySelector("[data-flash]");
+  const corpo = document.querySelector("[data-tabela-corpo]");
+  const modal = document.getElementById("modal");
+  const selectTratamento = document.getElementById("treatment_id");
+  let todos = [];
+  let fotoAtualUrl = null;
+
+  const { data: tratamentos } = await supabase.from("treatments").select("id, name").order("sort_order");
+  (tratamentos || []).forEach((t) => { const o = document.createElement("option"); o.value = t.id; o.textContent = t.name; selectTratamento.appendChild(o); });
+
+  async function carregar() {
+    const { data, error } = await supabase.from("testimonials").select("*").order("created_at", { ascending: false });
+    if (error) { corpo.innerHTML = `<tr><td colspan="5" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
+    todos = data || [];
+    renderizar(todos);
+  }
+
+  function renderizar(lista) {
+    corpo.innerHTML = lista.length ? lista.map((d) => `
+      <tr>
+        <td>${d.photo_url ? `<img src="${safeUrl(d.photo_url)}" style="width:34px;height:34px;border-radius:50%;object-fit:cover">` : `<div class="pessoa__avatar">${escapeHtml((d.patient_name||"?")[0])}</div>`}</td>
+        <td>${escapeHtml(d.patient_name)}</td>
+        <td>"${escapeHtml((d.text || "").slice(0, 50))}${d.text?.length > 50 ? "…" : ""}"</td>
+        <td><span class="selo-p ${d.published ? "publicado" : "rascunho"}">${d.published ? "Publicado" : "Rascunho"}</span></td>
+        <td>
+          <button class="btn-p btn-p-mini btn-p-fora" data-editar="${d.id}">Editar</button>
+          <button class="btn-p btn-p-mini btn-p-perigo" data-excluir="${d.id}">Excluir</button>
+        </td>
+      </tr>`).join("") : `<tr><td colspan="5" class="painel-vazio">Nenhum depoimento cadastrado.</td></tr>`;
+
+    corpo.querySelectorAll("[data-editar]").forEach((btn) => btn.addEventListener("click", () => abrirEdicao(btn.dataset.editar)));
+    corpo.querySelectorAll("[data-excluir]").forEach((btn) => btn.addEventListener("click", async () => {
+      if (!confirm("Excluir este depoimento?")) return;
+      await supabase.from("testimonials").delete().eq("id", btn.dataset.excluir);
+      carregar();
+    }));
+  }
+
+  document.getElementById("busca").addEventListener("input", (e) => {
+    const t = e.target.value.toLowerCase();
+    renderizar(todos.filter((d) => d.patient_name.toLowerCase().includes(t)));
+  });
+
+  function abrirNovo() {
+    document.getElementById("form-item").reset();
+    document.getElementById("item_id").value = "";
+    fotoAtualUrl = null;
+    document.querySelector("[data-modal-titulo]").textContent = "Novo depoimento";
+    modal.style.display = "flex";
+  }
+  function abrirEdicao(id) {
+    const item = todos.find((d) => d.id === id);
+    if (!item) return;
+    document.getElementById("item_id").value = item.id;
+    document.getElementById("patient_name").value = item.patient_name || "";
+    document.getElementById("text").value = item.text || "";
+    document.getElementById("published").checked = !!item.published;
+    selectTratamento.value = item.treatment_id || "";
+    fotoAtualUrl = item.photo_url;
+    document.querySelector("[data-modal-titulo]").textContent = "Editar depoimento";
+    modal.style.display = "flex";
+  }
+
+  document.getElementById("botao-novo").addEventListener("click", abrirNovo);
+  document.getElementById("botao-fechar").addEventListener("click", () => modal.style.display = "none");
+
+  document.getElementById("form-item").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const botao = document.getElementById("botao-salvar");
+    botao.disabled = true; botao.textContent = "Salvando…";
+    try {
+      const id = document.getElementById("item_id").value;
+      const arquivo = document.getElementById("foto").files[0];
+      let photo_url = fotoAtualUrl;
+      if (arquivo) {
+        const imagemOtimizada = await otimizarImagemParaWebP(arquivo, 1400, 0.82);
+        const caminho = `depoimentos/${Date.now()}.webp`;
+        const { error: erroUpload } = await supabase.storage.from("site-media").upload(caminho, imagemOtimizada, { upsert: true, contentType: "image/webp", cacheControl: "31536000" });
+        if (erroUpload) throw erroUpload;
+        photo_url = supabase.storage.from("site-media").getPublicUrl(caminho).data.publicUrl;
+      }
+      const payload = {
+        patient_name: document.getElementById("patient_name").value.trim(),
+        text: document.getElementById("text").value.trim(),
+        treatment_id: selectTratamento.value || null,
+        published: document.getElementById("published").checked,
+        photo_url,
+      };
+      const { error } = id ? await supabase.from("testimonials").update(payload).eq("id", id) : await supabase.from("testimonials").insert(payload);
+      if (error) throw error;
+      modal.style.display = "none";
+      mostrarFlash(flash, "Depoimento salvo com sucesso.", "sucesso");
+      carregar();
+    } catch (erro) {
+      mostrarFlash(flash, "Erro: " + erro.message, "erro");
+    } finally {
+      botao.disabled = false; botao.textContent = "Salvar";
+    }
+  });
+
+  carregar();
+</script>
+</body>
+</html>

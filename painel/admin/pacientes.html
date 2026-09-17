@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Pacientes — Painel</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+</head>
+<body>
+
+<div class="painel-layout">
+  <aside class="painel-sidebar" data-sidebar></aside>
+
+  <main class="painel-main">
+    <div class="painel-topo">
+      <div>
+        <h1>Pacientes</h1>
+        <p class="texto-suave">Lista completa de pacientes cadastrados no sistema.</p>
+      </div>
+      <button class="btn-p btn-p-dourado" id="botao-novo">+ Novo paciente</button>
+    </div>
+
+    <div class="aviso-flash" data-flash></div>
+
+    <div class="busca-campo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" id="busca" placeholder="Buscar paciente...">
+    </div>
+
+    <div style="overflow:auto">
+      <table class="tabela-p">
+        <thead><tr><th>Nome</th><th>E-mail</th><th>Telefone</th><th>Status</th><th>Ações</th></tr></thead>
+        <tbody data-tabela-corpo><tr><td colspan="5" class="painel-vazio">Carregando…</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- Modal simples de cadastro -->
+    <div id="modal-novo" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px">
+      <div class="painel-card" style="max-width:460px;width:100%">
+        <h3>Cadastrar novo paciente</h3>
+        <form id="form-paciente">
+          <div class="form-campo"><label for="full_name">Nome completo</label><input type="text" id="full_name" required></div>
+          <div class="form-campo"><label for="email">E-mail (será o login)</label><input type="email" id="email" required></div>
+          <div class="form-campo"><label for="phone">Telefone</label><input type="tel" id="phone" placeholder="(21) 90000-0000"></div>
+          <div class="form-campo" style="padding:12px 0">
+            <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+              <input type="checkbox" id="acesso_painel" checked style="margin-top:3px">
+              <span><strong>Permitir acesso ao painel do paciente</strong><br><small class="texto-suave">A paciente poderá entrar em /painel/paciente/painel.html e visualizar somente os próprios dados.</small></span>
+            </label>
+          </div>
+          <div class="form-acoes">
+            <button type="submit" class="btn-p btn-p-dourado" id="botao-cadastrar">Cadastrar</button>
+            <button type="button" class="btn-p btn-p-fora" id="botao-cancelar">Cancelar</button>
+          </div>
+        </form>
+        <div id="credenciais-resultado" style="display:none;margin-top:16px;padding:14px;background:rgba(78,122,69,.1);border-radius:8px;font-size:13.5px">
+          <p><strong>E-mail:</strong> <span id="cred-email-valor" data-cred-email></span></p>
+          <p style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><strong>Senha temporária:</strong> <span id="cred-senha-valor" data-cred-senha></span> <button type="button" class="btn-p btn-p-mini btn-p-fora" data-copiar-alvo="cred-senha-valor">Copiar</button></p>
+          <p class="texto-suave" data-cred-aviso>Envie essas credenciais com segurança para a paciente.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de edição de cadastro -->
+    <div id="modal-editar" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px">
+      <div class="painel-card" style="max-width:460px;width:100%">
+        <h3>Editar cadastro do paciente</h3>
+        <form id="form-editar-paciente">
+          <div class="form-campo"><label for="editar_full_name">Nome completo</label><input type="text" id="editar_full_name" required></div>
+          <div class="form-campo"><label for="editar_email">E-mail</label><input type="email" id="editar_email" required></div>
+          <div class="form-campo"><label for="editar_phone">Telefone</label><input type="tel" id="editar_phone" placeholder="(21) 90000-0000"></div>
+          <div class="form-campo" id="editar-senha-campo">
+            <label for="editar_senha">Nova senha (opcional)</label>
+            <div style="display:flex;gap:8px">
+              <input type="text" id="editar_senha" placeholder="Deixe em branco para não alterar">
+              <button type="button" class="btn-p btn-p-fora btn-p-mini" id="botao-gerar-senha" style="white-space:nowrap">Gerar</button>
+            </div>
+            <p class="texto-suave" style="font-size:12px;margin-top:6px">Se preenchida, substitui a senha atual do paciente imediatamente.</p>
+          </div>
+          <p class="texto-suave" id="editar-sem-acesso-aviso" style="display:none;font-size:12.5px;margin-bottom:14px">Este paciente ainda não tem acesso ao painel gerado — não há login para definir uma senha ainda.</p>
+          <div class="form-acoes">
+            <button type="submit" class="btn-p btn-p-dourado" id="botao-salvar-edicao">Salvar alterações</button>
+            <button type="button" class="btn-p btn-p-fora" id="botao-cancelar-edicao">Cancelar</button>
+          </div>
+        </form>
+        <div id="editar-credenciais-resultado" style="display:none;margin-top:16px;padding:14px;background:rgba(78,122,69,.1);border-radius:8px;font-size:13.5px">
+          <p style="margin:0 0 8px"><strong>Login atualizado com sucesso.</strong></p>
+          <p style="margin:0 0 4px"><strong>E-mail:</strong> <span id="editar-cred-email-valor"></span></p>
+          <p style="display:flex;align-items:center;gap:8px;margin:0;flex-wrap:wrap"><strong>Senha:</strong> <span id="editar-cred-senha-valor"></span> <button type="button" class="btn-p btn-p-mini btn-p-fora" data-copiar-alvo="editar-cred-senha-valor">Copiar</button></p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash, iniciais, EDGE_FUNCTION_URL, configurarBotoesCopiar } from "/painel/assets/js/painel-auth.js";
+  import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
+  import { escapeHtml } from "/painel/assets/js/sanitize.js";
+
+  configurarBotoesCopiar();
+
+  const contexto = await exigirAdmin();
+  if (!contexto || !contexto.session?.access_token) throw new Error("Sessão administrativa não encontrada. Faça login novamente.");
+  document.querySelector("[data-sidebar]").innerHTML = renderSidebarAdmin("pacientes", contexto.perfil.full_name);
+  configurarBotaoSair();
+
+  const flash = document.querySelector("[data-flash]");
+  const corpo = document.querySelector("[data-tabela-corpo]");
+  let todosPacientes = [];
+
+  async function carregar() {
+    const { data, error } = await supabase.from("patients").select("*").order("created_at", { ascending: false });
+    if (error) { corpo.innerHTML = `<tr><td colspan="5" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
+    todosPacientes = data || [];
+    renderizar(todosPacientes);
+  }
+
+  function renderizar(lista) {
+    if (!lista.length) { corpo.innerHTML = `<tr><td colspan="5" class="painel-vazio">Nenhum paciente encontrado.</td></tr>`; return; }
+    corpo.innerHTML = lista.map((p) => `
+      <tr data-paciente-id="${p.id}" tabindex="0" role="link">
+        <td><div class="pessoa"><div class="pessoa__avatar">${escapeHtml(iniciais(p.full_name))}</div><span class="pessoa__nome">${escapeHtml(p.full_name)}</span></div></td>
+        <td>${escapeHtml(p.email || "—")}</td>
+        <td>${escapeHtml(p.phone || "—")}</td>
+        <td>
+          <span class="selo-p ${p.status === "ativo" ? "ativo" : "cancelado"}">${escapeHtml(p.status)}</span>
+          ${!p.user_id ? '<span class="texto-suave" style="display:block;font-size:11.5px;margin-top:3px">Acesso pendente</span>' : ''}
+        </td>
+        <td><div style="display:flex;gap:6px"><button type="button" class="btn-p btn-p-mini btn-p-fora" data-editar="${p.id}">Editar</button><button type="button" class="btn-p btn-p-mini btn-p-perigo" data-excluir="${p.id}">Excluir</button></div></td>
+      </tr>`).join("");
+  }
+
+  corpo.addEventListener("click", (e) => {
+    const botaoEditar = e.target.closest("[data-editar]");
+    if (botaoEditar) { abrirEdicao(botaoEditar.dataset.editar); return; }
+    const botaoExcluir = e.target.closest("[data-excluir]");
+    if (botaoExcluir) { excluirPaciente(botaoExcluir.dataset.excluir, botaoExcluir); return; }
+    const row = e.target.closest("[data-paciente-id]");
+    if (row && !e.target.closest("button,a,input,select,textarea")) window.location.href = `/painel/admin/paciente.html?id=${encodeURIComponent(row.dataset.pacienteId)}`;
+  });
+
+  async function excluirPaciente(id, botao) {
+    const paciente = todosPacientes.find((p) => p.id === id);
+    const nome = paciente ? paciente.full_name : "este paciente";
+    if (!confirm(`Excluir ${nome}? Essa ação apaga o cadastro, o histórico e o acesso ao painel (se houver) e não pode ser desfeita.`)) return;
+    botao.disabled = true;
+    const textoOriginal = botao.textContent;
+    botao.textContent = "Excluindo…";
+    try {
+      const accessToken = contexto.session.access_token;
+      if (!accessToken) throw new Error("Sua sessão expirou. Faça login novamente.");
+      const resposta = await fetch(`${EDGE_FUNCTION_URL}/create-patient`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify({ modo: "excluir", patient_id: id }),
+      });
+      const resultado = await resposta.json().catch(() => ({}));
+      if (!resposta.ok) throw new Error(resultado.error || "Não foi possível excluir o paciente.");
+      mostrarFlash(flash, "Paciente excluído com sucesso.", "sucesso");
+      carregar();
+    } catch (erro) {
+      mostrarFlash(flash, "Erro: " + erro.message, "erro");
+      botao.disabled = false;
+      botao.textContent = textoOriginal;
+    }
+  }
+  corpo.addEventListener("keydown", (e) => {
+    const row = e.target.closest("[data-paciente-id]");
+    if (row && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); window.location.href = `/painel/admin/paciente.html?id=${encodeURIComponent(row.dataset.pacienteId)}`; }
+  });
+
+  document.getElementById("busca").addEventListener("input", (e) => {
+    const termo = e.target.value.trim().toLowerCase();
+    renderizar(todosPacientes.filter((p) => p.full_name.toLowerCase().includes(termo) || (p.email || "").toLowerCase().includes(termo)));
+  });
+
+  document.getElementById("botao-novo").addEventListener("click", () => document.getElementById("modal-novo").style.display = "flex");
+  document.getElementById("botao-cancelar").addEventListener("click", () => document.getElementById("modal-novo").style.display = "none");
+
+  document.getElementById("form-paciente").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const botao = document.getElementById("botao-cadastrar");
+    botao.disabled = true; botao.textContent = "Cadastrando…";
+
+    try {
+      const accessToken = contexto.session.access_token;
+      if (!accessToken) throw new Error("Sua sessão expirou. Faça login novamente.");
+      const resposta = await fetch(`${EDGE_FUNCTION_URL}/create-patient`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify({
+          full_name: document.getElementById("full_name").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          phone: document.getElementById("phone").value.trim(),
+          acesso_painel: document.getElementById("acesso_painel").checked,
+        }),
+      });
+      const resultado = await resposta.json();
+      if (!resposta.ok) throw new Error(resultado.error || "Erro ao cadastrar.");
+
+      if (resultado.acesso_painel) {
+        document.getElementById("credenciais-resultado").style.display = "block";
+        document.querySelector("[data-cred-email]").textContent = resultado.email;
+        document.querySelector("[data-cred-senha]").textContent = resultado.senha_temporaria || "—";
+        document.querySelector("[data-cred-aviso]").textContent = "Envie essas credenciais com segurança para a paciente.";
+      } else {
+        document.getElementById("credenciais-resultado").style.display = "block";
+        document.querySelector("[data-cred-email]").textContent = resultado.email;
+        document.querySelector("[data-cred-senha]").textContent = "Acesso não liberado";
+        document.querySelector("[data-cred-aviso]").textContent = "O cadastro foi criado sem acesso ao painel. O administrador poderá liberar o acesso posteriormente.";
+      }
+      document.getElementById("form-paciente").reset();
+      document.getElementById("acesso_painel").checked = true;
+      mostrarFlash(flash, "Paciente cadastrado com sucesso!", "sucesso");
+      carregar();
+    } catch (erro) {
+      mostrarFlash(flash, erro.message, "erro");
+    } finally {
+      botao.disabled = false; botao.textContent = "Cadastrar";
+    }
+  });
+
+  // ------------------------------------------------------------------
+  // Editar cadastro do paciente (nome, e-mail, telefone e senha)
+  // ------------------------------------------------------------------
+  const modalEditar = document.getElementById("modal-editar");
+  const formEditar = document.getElementById("form-editar-paciente");
+  let pacienteEditando = null;
+
+  function abrirEdicao(id) {
+    const paciente = todosPacientes.find((p) => p.id === id);
+    if (!paciente) return;
+    pacienteEditando = paciente;
+    document.getElementById("editar_full_name").value = paciente.full_name || "";
+    document.getElementById("editar_email").value = paciente.email || "";
+    document.getElementById("editar_phone").value = paciente.phone || "";
+    document.getElementById("editar_senha").value = "";
+    document.getElementById("editar-credenciais-resultado").style.display = "none";
+    const temAcesso = !!paciente.user_id;
+    document.getElementById("editar-senha-campo").style.display = temAcesso ? "block" : "none";
+    document.getElementById("editar-sem-acesso-aviso").style.display = temAcesso ? "none" : "block";
+    modalEditar.style.display = "flex";
+  }
+
+  document.getElementById("botao-cancelar-edicao").addEventListener("click", () => {
+    modalEditar.style.display = "none";
+    pacienteEditando = null;
+  });
+
+  document.getElementById("botao-gerar-senha").addEventListener("click", () => {
+    document.getElementById("editar_senha").value = "Ep" + crypto.randomUUID().replace(/-/g, "").slice(0, 10);
+  });
+
+  formEditar.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!pacienteEditando) return;
+    const botao = document.getElementById("botao-salvar-edicao");
+    botao.disabled = true; botao.textContent = "Salvando…";
+    const emailNovo = document.getElementById("editar_email").value.trim();
+    const novaSenha = document.getElementById("editar_senha").value.trim();
+
+    try {
+      const accessToken = contexto.session.access_token;
+      if (!accessToken) throw new Error("Sua sessão expirou. Faça login novamente.");
+      const resposta = await fetch(`${EDGE_FUNCTION_URL}/create-patient`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify({
+          modo: "editar",
+          patient_id: pacienteEditando.id,
+          full_name: document.getElementById("editar_full_name").value.trim(),
+          email: emailNovo,
+          phone: document.getElementById("editar_phone").value.trim(),
+          ...(novaSenha ? { nova_senha: novaSenha } : {}),
+        }),
+      });
+      const resultado = await resposta.json().catch(() => ({}));
+      if (!resposta.ok) throw new Error(resultado.error || "Não foi possível salvar as alterações.");
+
+      if (novaSenha) {
+        document.getElementById("editar-cred-email-valor").textContent = emailNovo;
+        document.getElementById("editar-cred-senha-valor").textContent = novaSenha;
+        document.getElementById("editar-credenciais-resultado").style.display = "block";
+      } else {
+        modalEditar.style.display = "none";
+      }
+      mostrarFlash(flash, "Cadastro atualizado com sucesso.", "sucesso");
+      pacienteEditando = null;
+      carregar();
+    } catch (erro) {
+      mostrarFlash(flash, "Erro: " + erro.message, "erro");
+    } finally {
+      botao.disabled = false; botao.textContent = "Salvar alterações";
+    }
+  });
+
+  carregar();
+</script>
+</body>
+</html>

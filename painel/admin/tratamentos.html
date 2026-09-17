@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Tratamentos — Painel</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<style>
+  .arrastar-alca{cursor:grab;color:rgba(38,49,45,.4);font-size:16px;line-height:1;user-select:none;padding:0 6px;display:inline-block}
+  tr[draggable="true"]{cursor:grab}
+  tr.arrastando{opacity:.4}
+  tr.linha-alvo-acima{box-shadow:inset 0 2px 0 var(--gold)}
+  tr.linha-alvo-abaixo{box-shadow:inset 0 -2px 0 var(--gold)}
+  .editor-p-toolbar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;border:1px solid var(--linha,#ddd7c9);border-bottom:none;border-radius:6px 6px 0 0;padding:6px;background:#faf8f3}
+  .editor-p-toolbar button{min-width:30px;height:30px;border:1px solid transparent;border-radius:4px;background:transparent;cursor:pointer;font-size:13px;color:#26312d}
+  .editor-p-toolbar button:hover{background:#efe8d8;border-color:var(--gold,#c9a45b)}
+  .editor-p-toolbar__sep{width:1px;align-self:stretch;background:var(--linha,#ddd7c9);margin:2px 4px}
+  .editor-p-area{min-height:160px;max-height:340px;overflow-y:auto;border:1px solid var(--linha,#ddd7c9);border-radius:0 0 6px 6px;padding:12px;font-size:14px;line-height:1.6;background:#fff}
+  .editor-p-area:empty::before{content:attr(data-placeholder);color:#9a978c}
+  .editor-p-area:focus{outline:none;border-color:var(--gold,#c9a45b)}
+</style>
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+</head>
+<body>
+<div class="painel-layout">
+  <aside class="painel-sidebar" data-sidebar></aside>
+  <main class="painel-main">
+    <div class="painel-topo">
+      <div><h1>Tratamentos</h1><p class="texto-suave">Cadastre e edite as informações dos tratamentos.</p></div>
+      <button class="btn-p btn-p-dourado" id="botao-novo">+ Novo tratamento</button>
+    </div>
+    <div class="aviso-flash" data-flash></div>
+    <div class="busca-campo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="busca" placeholder="Buscar tratamentos..."></div>
+    <p class="texto-suave" id="dica-arrastar" style="font-size:12.5px;margin:-4px 0 12px">Arraste pelo ícone ⠿ para reordenar os tratamentos.</p>
+    <table class="tabela-p">
+      <thead><tr><th>Ordem</th><th>Nome</th><th>Descrição</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody data-tabela-corpo><tr><td colspan="5" class="painel-vazio">Carregando…</td></tr></tbody>
+    </table>
+
+    <div id="modal" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
+      <div class="painel-card" style="max-width:560px;width:100%;margin:auto">
+        <h3 data-modal-titulo>Novo tratamento</h3>
+        <form id="form-item">
+          <input type="hidden" id="item_id">
+          <div class="form-linha">
+            <div class="form-campo"><label for="name">Nome</label><input type="text" id="name" required></div>
+            <div class="form-campo"><label for="slug">Slug</label><input type="text" id="slug" required pattern="[a-z0-9-]+"></div>
+            <div class="form-campo" style="max-width:110px"><label for="sort_order">Ordem</label><input type="number" id="sort_order" value="1" min="1"></div>
+          </div>
+          <div class="form-campo"><label for="summary">Resumo curto</label><input type="text" id="summary" maxlength="160"></div>
+          <div class="form-campo">
+            <label for="description-editor">Descrição completa (orientação)</label>
+            <div class="editor-p-toolbar" role="toolbar" aria-label="Formatação do texto">
+              <button type="button" data-cmd="bold" title="Negrito"><strong>N</strong></button>
+              <button type="button" data-cmd="italic" title="Itálico"><em>I</em></button>
+              <button type="button" data-cmd="font-inc" title="Aumentar fonte">A+</button>
+              <button type="button" data-cmd="font-dec" title="Reduzir fonte">A-</button>
+              <span class="editor-p-toolbar__sep"></span>
+              <button type="button" data-cmd="justifyLeft" title="Alinhar à esquerda">⇤</button>
+              <button type="button" data-cmd="justifyCenter" title="Centralizar">↔</button>
+              <button type="button" data-cmd="justifyRight" title="Alinhar à direita">⇥</button>
+            </div>
+            <div id="description-editor" class="editor-p-area" contenteditable="true" data-placeholder="Escreva a orientação do tratamento..."></div>
+            <input type="hidden" id="description">
+          </div>
+          <div class="form-linha">
+            <div class="form-campo"><label for="cta_label">Texto do botão (opcional)</label><input type="text" id="cta_label" maxlength="40" placeholder="Ex.: Agendar avaliação"></div>
+            <div class="form-campo"><label for="cta_url">URL do botão</label><input type="text" id="cta_url" placeholder="https://... ou /pagina.html"></div>
+          </div>
+          <p class="texto-suave" style="font-size:12px;margin:-6px 0 10px">O botão aparece sempre ao final da orientação, centralizado. Deixe os dois campos em branco para não exibir nenhum botão.</p>
+          <div class="form-campo"><label for="imagem">Imagem de capa</label><input type="file" id="imagem" accept="image/*"></div>
+          <div class="form-checkbox"><input type="checkbox" id="published"><label for="published">Publicado</label></div>
+          <div class="form-acoes">
+            <button type="submit" class="btn-p btn-p-dourado" id="botao-salvar">Salvar</button>
+            <button type="button" class="btn-p btn-p-fora" id="botao-fechar">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash } from "/painel/assets/js/painel-auth.js";
+  import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
+  import { otimizarImagemParaWebP } from "/painel/assets/js/imagem-otimizacao.js";
+  import { escapeHtml, safeUrl } from "/painel/assets/js/sanitize.js";
+  import { sanitizeRichHtml, pareceHtml } from "/assets/js/rich-text.js";
+
+  const contexto = await exigirAdmin();
+  if (!contexto) throw new Error("sem acesso");
+  document.querySelector("[data-sidebar]").innerHTML = renderSidebarAdmin("tratamentos", contexto.perfil.full_name);
+  configurarBotaoSair();
+
+  const flash = document.querySelector("[data-flash]");
+  const corpo = document.querySelector("[data-tabela-corpo]");
+  const modal = document.getElementById("modal");
+  let todos = [];
+  let imagemAtualUrl = null;
+
+  // ------------------------------------------------------------------
+  // Pequeno editor de texto para a orientação do tratamento (negrito,
+  // itálico, tamanho da fonte e alinhamento). O HTML gerado é sempre
+  // filtrado por sanitizeRichHtml antes de ir para o campo oculto que
+  // é de fato salvo no banco.
+  // ------------------------------------------------------------------
+  const descEditor = document.getElementById("description-editor");
+  const descHidden = document.getElementById("description");
+
+  function sincronizarDescricao() {
+    descHidden.value = sanitizeRichHtml(descEditor.innerHTML);
+  }
+  descEditor.addEventListener("input", sincronizarDescricao);
+  descEditor.addEventListener("blur", sincronizarDescricao);
+
+  function alterarTamanhoFonte(delta) {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount || sel.isCollapsed) return;
+    const range = sel.getRangeAt(0);
+    if (!descEditor.contains(range.commonAncestorContainer)) return;
+    const base = window.getComputedStyle(
+      range.commonAncestorContainer.nodeType === 1 ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement
+    ).fontSize;
+    const novo = Math.max(11, Math.min(34, (parseFloat(base) || 14) + delta));
+    const span = document.createElement("span");
+    span.style.fontSize = novo + "px";
+    try {
+      span.appendChild(range.extractContents());
+      range.insertNode(span);
+    } catch (_) { /* seleção complexa: ignora silenciosamente */ }
+    sincronizarDescricao();
+  }
+
+  document.querySelectorAll(".editor-p-toolbar [data-cmd]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      descEditor.focus();
+      const cmd = btn.dataset.cmd;
+      if (cmd === "font-inc") alterarTamanhoFonte(2);
+      else if (cmd === "font-dec") alterarTamanhoFonte(-2);
+      else document.execCommand(cmd, false, null);
+      sincronizarDescricao();
+    });
+  });
+
+  async function carregar() {
+    const { data, error } = await supabase.from("treatments").select("*").order("sort_order");
+    if (error) { corpo.innerHTML = `<tr><td colspan="5" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
+    todos = data || [];
+    renderizar(todos);
+  }
+
+  function renderizar(lista) {
+    const buscaAtiva = !!(document.getElementById("busca").value || "").trim();
+    document.getElementById("dica-arrastar").style.display = buscaAtiva ? "none" : "block";
+
+    corpo.innerHTML = lista.length ? lista.map((t) => `
+      <tr data-id="${t.id}" draggable="${buscaAtiva ? "false" : "true"}">
+        <td>${buscaAtiva ? "" : '<span class="arrastar-alca" title="Arraste para reordenar">⠿</span>'}${escapeHtml(t.sort_order)}</td><td>${escapeHtml(t.name)}</td><td>${escapeHtml((t.summary || "").slice(0, 50))}</td>
+        <td><span class="selo-p ${t.published ? "publicado" : "rascunho"}">${t.published ? "Publicado" : "Rascunho"}</span></td>
+        <td>
+          <button class="btn-p btn-p-mini btn-p-fora" data-editar="${t.id}">Editar</button>
+          <button class="btn-p btn-p-mini btn-p-perigo" data-excluir="${t.id}">Excluir</button>
+        </td>
+      </tr>`).join("") : `<tr><td colspan="5" class="painel-vazio">Nenhum tratamento cadastrado.</td></tr>`;
+
+    corpo.querySelectorAll("[data-editar]").forEach((btn) => btn.addEventListener("click", () => abrirEdicao(btn.dataset.editar)));
+    corpo.querySelectorAll("[data-excluir]").forEach((btn) => btn.addEventListener("click", async () => {
+      if (!confirm("Excluir este tratamento?")) return;
+      await supabase.from("treatments").delete().eq("id", btn.dataset.excluir);
+      carregar();
+    }));
+
+    if (!buscaAtiva) ativarArrastar(lista);
+  }
+
+  // ------------------------------------------------------------------
+  // Drag and drop nativo para reordenar os tratamentos. A nova ordem é
+  // aplicada primeiro na tela e depois persistida no banco (sort_order),
+  // sem alterar nenhum outro dado do tratamento.
+  // ------------------------------------------------------------------
+  let arrastandoId = null;
+
+  function ativarArrastar(lista) {
+    const linhas = corpo.querySelectorAll("tr[data-id]");
+
+    linhas.forEach((linha) => {
+      linha.addEventListener("dragstart", () => {
+        arrastandoId = linha.dataset.id;
+        linha.classList.add("arrastando");
+      });
+      linha.addEventListener("dragend", () => {
+        linha.classList.remove("arrastando");
+        linhas.forEach((l) => l.classList.remove("linha-alvo-acima", "linha-alvo-abaixo"));
+      });
+      linha.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        if (!arrastandoId || linha.dataset.id === arrastandoId) return;
+        const antes = e.clientY < linha.getBoundingClientRect().top + linha.offsetHeight / 2;
+        linha.classList.toggle("linha-alvo-acima", antes);
+        linha.classList.toggle("linha-alvo-abaixo", !antes);
+      });
+      linha.addEventListener("dragleave", () => linha.classList.remove("linha-alvo-acima", "linha-alvo-abaixo"));
+      linha.addEventListener("drop", async (e) => {
+        e.preventDefault();
+        linha.classList.remove("linha-alvo-acima", "linha-alvo-abaixo");
+        const destinoId = linha.dataset.id;
+        if (!arrastandoId || destinoId === arrastandoId) return;
+
+        const antes = e.clientY < linha.getBoundingClientRect().top + linha.offsetHeight / 2;
+        const origemIndex = lista.findIndex((t) => t.id === arrastandoId);
+        let destinoIndex = lista.findIndex((t) => t.id === destinoId);
+        if (origemIndex === -1 || destinoIndex === -1) return;
+
+        const [movido] = lista.splice(origemIndex, 1);
+        destinoIndex = lista.findIndex((t) => t.id === destinoId);
+        lista.splice(antes ? destinoIndex : destinoIndex + 1, 0, movido);
+
+        lista.forEach((t, i) => (t.sort_order = i + 1));
+        renderizar(lista);
+
+        const resultados = await Promise.all(
+          lista.map((t) => supabase.from("treatments").update({ sort_order: t.sort_order }).eq("id", t.id))
+        );
+        const erro = resultados.find((r) => r.error)?.error;
+        if (erro) {
+          mostrarFlash(flash, "Não foi possível salvar a nova ordem: " + erro.message, "erro");
+          carregar();
+          return;
+        }
+        mostrarFlash(flash, "Ordem dos tratamentos atualizada.", "sucesso");
+      });
+    });
+  }
+
+  document.getElementById("busca").addEventListener("input", (e) => {
+    const t = e.target.value.toLowerCase();
+    renderizar(todos.filter((x) => x.name.toLowerCase().includes(t)));
+  });
+
+  function abrirNovo() {
+    document.getElementById("form-item").reset();
+    document.getElementById("item_id").value = "";
+    descEditor.innerHTML = "";
+    descHidden.value = "";
+    document.getElementById("cta_label").value = "";
+    document.getElementById("cta_url").value = "";
+    imagemAtualUrl = null;
+    document.querySelector("[data-modal-titulo]").textContent = "Novo tratamento";
+    modal.style.display = "flex";
+  }
+  function abrirEdicao(id) {
+    const item = todos.find((t) => t.id === id);
+    if (!item) return;
+    document.getElementById("item_id").value = item.id;
+    document.getElementById("name").value = item.name || "";
+    document.getElementById("slug").value = item.slug || "";
+    document.getElementById("sort_order").value = item.sort_order || 1;
+    document.getElementById("summary").value = item.summary || "";
+    const descricao = item.description || "";
+    // Compatibilidade: tratamentos salvos antes do editor existir têm texto
+    // simples (sem tags); nesse caso preservamos as quebras de linha.
+    descEditor.innerHTML = pareceHtml(descricao)
+      ? sanitizeRichHtml(descricao)
+      : escapeHtml(descricao).split(/\n\s*\n/).map((p) => `<p>${p}</p>`).join("");
+    descHidden.value = sanitizeRichHtml(descEditor.innerHTML);
+    document.getElementById("cta_label").value = item.cta_label || "";
+    document.getElementById("cta_url").value = item.cta_url || "";
+    document.getElementById("published").checked = !!item.published;
+    imagemAtualUrl = item.cover_image_url;
+    document.querySelector("[data-modal-titulo]").textContent = "Editar tratamento";
+    modal.style.display = "flex";
+  }
+
+  document.getElementById("botao-novo").addEventListener("click", abrirNovo);
+  document.getElementById("botao-fechar").addEventListener("click", () => modal.style.display = "none");
+
+  document.getElementById("form-item").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const botao = document.getElementById("botao-salvar");
+    botao.disabled = true; botao.textContent = "Salvando…";
+    try {
+      const id = document.getElementById("item_id").value;
+      const arquivo = document.getElementById("imagem").files[0];
+      let cover_image_url = imagemAtualUrl;
+      if (arquivo) {
+        const imagemOtimizada = await otimizarImagemParaWebP(arquivo, 1800, 0.82);
+        const caminho = `tratamentos/${document.getElementById("slug").value}-${Date.now()}.webp`;
+        const { error: erroUpload } = await supabase.storage.from("site-media").upload(caminho, imagemOtimizada, { upsert: true, contentType: "image/webp", cacheControl: "31536000" });
+        if (erroUpload) throw erroUpload;
+        cover_image_url = supabase.storage.from("site-media").getPublicUrl(caminho).data.publicUrl;
+      }
+      sincronizarDescricao();
+      const ctaLabel = document.getElementById("cta_label").value.trim();
+      const ctaUrlBruta = document.getElementById("cta_url").value.trim();
+      const ctaUrl = ctaUrlBruta ? safeUrl(ctaUrlBruta) : "";
+      if (ctaUrlBruta && !ctaUrl) throw new Error("URL do botão inválida. Use um endereço http(s) ou um caminho interno como /contato.html.");
+      const payload = {
+        name: document.getElementById("name").value.trim(),
+        slug: document.getElementById("slug").value.trim().toLowerCase(),
+        sort_order: parseInt(document.getElementById("sort_order").value, 10) || 1,
+        summary: document.getElementById("summary").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        cta_label: ctaLabel && ctaUrl ? ctaLabel : null,
+        cta_url: ctaLabel && ctaUrl ? ctaUrl : null,
+        published: document.getElementById("published").checked,
+        cover_image_url,
+      };
+      const { error } = id ? await supabase.from("treatments").update(payload).eq("id", id) : await supabase.from("treatments").insert(payload);
+      if (error) throw error;
+      modal.style.display = "none";
+      mostrarFlash(flash, "Tratamento salvo com sucesso.", "sucesso");
+      carregar();
+    } catch (erro) {
+      mostrarFlash(flash, "Erro: " + erro.message, "erro");
+    } finally {
+      botao.disabled = false; botao.textContent = "Salvar";
+    }
+  });
+
+  carregar();
+</script>
+</body>
+</html>

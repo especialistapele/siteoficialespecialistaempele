@@ -1,0 +1,69 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="robots" content="noindex,nofollow"><title>Financeiro — Painel</title><link rel="stylesheet" href="/painel/assets/css/painel.css"><link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+</head><body><div class="painel-layout"><aside class="painel-sidebar" data-sidebar></aside><main class="painel-main"><div class="painel-topo"><div><h1>Financeiro</h1><p class="texto-suave">Visão geral dos lançamentos financeiros dos pacientes.</p></div></div><div class="stats-grid"><div class="stat-card"><span class="stat-card__legenda">Total lançado</span><div class="stat-card__valor" data-total>—</div></div><div class="stat-card"><span class="stat-card__legenda">Pago</span><div class="stat-card__valor" data-pago>—</div></div><div class="stat-card"><span class="stat-card__legenda">Pendente</span><div class="stat-card__valor" data-pendente>—</div></div></div><div class="aviso-flash" data-flash></div><div class="painel-card"><div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Paciente</th><th>Descrição</th><th>Vencimento</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody data-lista><tr><td colspan="6" class="painel-vazio">Carregando…</td></tr></tbody></table></div></div></main></div><script type="module">
+import {supabase,exigirAdmin,configurarBotaoSair,mostrarFlash} from '/painel/assets/js/painel-auth.js';
+import {renderSidebarAdmin} from '/painel/assets/js/admin-sidebar.js';
+const ctx=await exigirAdmin();
+if(!ctx) throw Error('sem acesso');
+document.querySelector('[data-sidebar]').innerHTML=renderSidebarAdmin('financeiro',ctx.perfil.full_name);
+configurarBotaoSair();
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const moeda=v=>'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
+
+async function carregar(){
+  const flash=document.querySelector('[data-flash]');
+  const tb=document.querySelector('[data-lista]');
+
+  const [{data:atendimentos,error:erroAt},{data:historico,error:erroHist},{data:lancamentos,error:erroFin}]=await Promise.all([
+    supabase.from('appointments').select('id,patient_id,appointment_date,appointment_time,tipo,description,valor,status,taxa_agendamento,taxa_status,taxa_forma_pagamento,patients(full_name)').order('appointment_date',{ascending:false}),
+    supabase.from('appointment_payment_history').select('appointment_id,amount,payment_date,payment_method,payment_type').eq('payment_type','restante').order('payment_date',{ascending:true}),
+    supabase.from('financial_transactions').select('id,patient_id,description,amount,due_date,status,patients(full_name)').order('due_date',{ascending:false})
+  ]);
+
+  if(erroAt){tb.innerHTML=`<tr><td colspan="6" class="painel-vazio">${esc(erroAt.message)}</td></tr>`;return;}
+  if(erroHist){mostrarFlash(flash,'Não foi possível carregar o histórico de pagamentos: '+erroHist.message,'erro');}
+  if(erroFin){mostrarFlash(flash,'Não foi possível carregar os lançamentos financeiros: '+erroFin.message,'erro');}
+
+  const mapa=new Map();
+  (historico||[]).forEach(p=>mapa.set(p.appointment_id,(mapa.get(p.appointment_id)||0)+Number(p.amount||0)));
+  const registros=[];
+
+  (atendimentos||[]).filter(a=>a.status!=='cancelado').forEach(a=>{
+    const total=Math.max(0,Number(a.valor||0));
+    const taxa=Math.max(0,Number(a.taxa_agendamento||0));
+    const taxaPaga=a.taxa_status==='pago'?Math.min(taxa,total):0;
+    const baseRestante=Math.max(0,total-taxa);
+    const historicoPago=Math.min(baseRestante,mapa.get(a.id)||0);
+    const restante=Math.max(0,baseRestante-historicoPago);
+    const totalPago=Math.min(total,taxaPaga+historicoPago);
+    if(restante>0){
+      registros.push({tipo:'atendimento',id:a.id,patient_id:a.patient_id,nome:a.patients?.full_name||'—',descricao:a.tipo||a.description||'Atendimento',data:a.appointment_date,valor:restante,status:restante>0&&historicoPago>0?'parcial':'pendente'});
+    }
+    if(taxa>0 && a.taxa_status!=='pago'){
+      registros.push({tipo:'taxa',id:a.id,patient_id:a.patient_id,nome:a.patients?.full_name||'—',descricao:'Taxa de agendamento',data:a.appointment_date,valor:Math.max(0,taxa-taxaPaga),status:'pendente'});
+    }
+  });
+
+  (lancamentos||[]).forEach(x=>{
+    if(x.status==='pendente') registros.push({tipo:'lancamento',id:x.id,patient_id:x.patient_id,nome:x.patients?.full_name||'—',descricao:x.description||'Lançamento financeiro',data:x.due_date,valor:Number(x.amount||0),status:'pendente'});
+  });
+
+  registros.sort((a,b)=>String(b.data||'').localeCompare(String(a.data||'')));
+
+  const totalPendente=registros.reduce((s,x)=>s+Number(x.valor||0),0);
+  const totalComprometido=(atendimentos||[]).filter(a=>a.status!=='cancelado').reduce((s,a)=>s+Number(a.valor||0),0)+(lancamentos||[]).filter(x=>x.status!=='cancelado').reduce((s,x)=>s+Number(x.amount||0),0);
+  const pagoAtendimentos=(atendimentos||[]).filter(a=>a.status!=='cancelado').reduce((s,a)=>{
+    const total=Math.max(0,Number(a.valor||0)); const taxa=Math.min(total,a.taxa_status==='pago'?Number(a.taxa_agendamento||0):0); const base=Math.max(0,total-Number(a.taxa_agendamento||0)); const pagoRestante=Math.min(base,mapa.get(a.id)||0); return s+Math.min(total,taxa+pagoRestante);
+  },0);
+  const pagoLancamentos=(lancamentos||[]).filter(x=>x.status==='pago').reduce((s,x)=>s+Number(x.amount||0),0);
+  const totalPago=pagoAtendimentos+pagoLancamentos;
+
+  document.querySelector('[data-total]').textContent=moeda(totalComprometido);
+  document.querySelector('[data-pago]').textContent=moeda(totalPago);
+  document.querySelector('[data-pendente]').textContent=moeda(totalPendente);
+
+  tb.innerHTML=registros.length?registros.map(x=>`<tr><td>${esc(x.nome)}</td><td>${esc(x.descricao)}</td><td>${x.data?new Date(x.data+'T00:00:00').toLocaleDateString('pt-BR'):'—'}</td><td>${moeda(x.valor)}</td><td><span class="selo-p ${x.status==='parcial'?'agendado':''}">${x.status==='parcial'?'Parcial':'Pendente'}</span></td><td>${x.tipo==='lancamento'?'<span class="texto-suave">Lançamento</span>':'<span class="texto-suave">Atendimento</span>'}</td></tr>`).join(''):`<tr><td colspan="6" class="painel-vazio">Nenhum valor pendente no momento.</td></tr>`;
+}
+carregar();
+</script></body></html>

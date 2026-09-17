@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Documentos — Painel</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+</head>
+<body>
+<div class="painel-layout">
+  <aside class="painel-sidebar" data-sidebar></aside>
+  <main class="painel-main">
+    <div class="painel-topo">
+      <div><h1>Documentos</h1><p class="texto-suave">Documentos gerais, visíveis para todos os pacientes. Para enviar um documento a um paciente específico, acesse a página dele em Pacientes.</p></div>
+    </div>
+    <div class="aviso-flash" data-flash></div>
+
+    <div class="painel-card" style="margin-bottom:20px">
+      <h3>Novo documento geral</h3>
+      <form id="form-documento">
+        <div class="form-linha">
+          <div class="form-campo"><label for="doc_title">Nome do documento</label><input type="text" id="doc_title" required placeholder="Ex.: Guia de cuidados pós-procedimento"></div>
+          <div class="form-campo"><label for="doc_arquivo">Arquivo</label><input type="file" id="doc_arquivo" required></div>
+        </div>
+        <div class="form-acoes"><button type="submit" class="btn-p btn-p-dourado">Enviar documento</button></div>
+      </form>
+    </div>
+
+    <table class="tabela-p">
+      <thead><tr><th>Nome</th><th>Enviado em</th><th>Ações</th></tr></thead>
+      <tbody data-tabela-corpo><tr><td colspan="3" class="painel-vazio">Carregando…</td></tr></tbody>
+    </table>
+  </main>
+</div>
+
+<script type="module">
+  import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash } from "/painel/assets/js/painel-auth.js";
+  import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
+  import { escapeHtml } from "/painel/assets/js/sanitize.js";
+
+  const contexto = await exigirAdmin();
+  if (!contexto) throw new Error("sem acesso");
+  document.querySelector("[data-sidebar]").innerHTML = renderSidebarAdmin("documentos", contexto.perfil.full_name);
+  configurarBotaoSair();
+
+  const flash = document.querySelector("[data-flash]");
+  const corpo = document.querySelector("[data-tabela-corpo]");
+
+  async function carregar() {
+    const { data, error } = await supabase.from("support_documents").select("*").is("patient_id", null).order("created_at", { ascending: false });
+    if (error) { corpo.innerHTML = `<tr><td colspan="3" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
+    corpo.innerHTML = (data && data.length) ? data.map((d) => `
+      <tr>
+        <td>${escapeHtml(d.title)}</td>
+        <td>${new Date(d.created_at).toLocaleDateString("pt-BR")}</td>
+        <td><button class="btn-p btn-p-mini btn-p-perigo" data-excluir="${d.id}">Excluir</button></td>
+      </tr>`).join("") : `<tr><td colspan="3" class="painel-vazio">Nenhum documento geral cadastrado.</td></tr>`;
+
+    corpo.querySelectorAll("[data-excluir]").forEach((btn) => btn.addEventListener("click", async () => {
+      if (!confirm("Excluir este documento?")) return;
+      await supabase.from("support_documents").delete().eq("id", btn.dataset.excluir);
+      carregar();
+    }));
+  }
+
+  document.getElementById("form-documento").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const arquivo = document.getElementById("doc_arquivo").files[0];
+    if (!arquivo) return;
+    const { data: config } = await supabase.from("configuracoes").select("permitir_upload_documentos").eq("id", 1).maybeSingle();
+    if (config && config.permitir_upload_documentos === false) { mostrarFlash(flash, "O upload de documentos está desativado nas configurações.", "erro"); return; }
+    const tiposPermitidos = ["application/pdf", "image/jpeg", "image/png", "image/webp", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+    if (!tiposPermitidos.includes(arquivo.type)) { mostrarFlash(flash, "Tipo de arquivo não permitido. Envie PDF, imagem ou documento Word.", "erro"); return; }
+    if (arquivo.size > 10 * 1024 * 1024) { mostrarFlash(flash, "O arquivo deve ter no máximo 10 MB.", "erro"); return; }
+    const nomeSeguro = arquivo.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-120);
+    const caminho = `geral/${Date.now()}-${nomeSeguro}`;
+    const { error: erroUpload } = await supabase.storage.from("documentos-pacientes").upload(caminho, arquivo, { contentType: arquivo.type, upsert: false });
+    if (erroUpload) { mostrarFlash(flash, "Erro no upload: " + erroUpload.message, "erro"); return; }
+    const { error } = await supabase.from("support_documents").insert({ patient_id: null, title: document.getElementById("doc_title").value.trim(), file_url: caminho });
+    if (error) { await supabase.storage.from("documentos-pacientes").remove([caminho]); mostrarFlash(flash, "Erro ao registrar documento: " + error.message, "erro"); return; }
+    document.getElementById("form-documento").reset();
+    mostrarFlash(flash, "Documento enviado.", "sucesso");
+    carregar();
+  });
+
+  carregar();
+</script>
+</body>
+</html>

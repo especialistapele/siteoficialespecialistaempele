@@ -1,0 +1,3 @@
+import { supabase } from "./supabase-client.js";
+import { escapeHtml } from "./sanitize.js";
+async function carregar(){const container=document.querySelector("[data-grade-depoimentos]");if(!container)return;const{data,error}=await supabase.from("testimonials").select("*").eq("published",true).order("created_at",{ascending:false});if(error||!data?.length){container.innerHTML=`<p class="texto-suave">Em breve, depoimentos de pacientes atendidas.</p>`;return;}container.innerHTML=data.map(d=>`<blockquote class="depoimento"><p>"${escapeHtml(d.text)}"</p><p class="depoimento__autor">${escapeHtml(d.patient_name)}</p></blockquote>`).join("");}carregar();

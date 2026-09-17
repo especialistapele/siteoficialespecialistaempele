@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Pré-atendimentos — Painel</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<style>
+  .pre-filtros{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+  .pre-filtros .busca-campo{margin-bottom:0;flex:1 1 320px;max-width:460px}
+  .pre-filtro-status{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700;min-width:150px}
+  .pre-filtro-status select{font:inherit;font-weight:400;padding:10px 12px;border:1px solid var(--linha);border-radius:8px;background:#fff;color:var(--ink)}
+  .pre-filtro-status select:focus{outline:2px solid var(--gold);outline-offset:1px}
+  .pre-atendimentos-acoes{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
+  .pre-atendimentos-acoes .btn-p{white-space:nowrap}
+  .status-select{min-width:120px}
+  .modal-pre{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(24,31,28,.56)}
+  .modal-pre.aberto{display:flex}
+  .modal-pre-caixa{width:min(760px,100%);max-height:min(88vh,900px);overflow:auto;background:#fff;border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.2)}
+  .modal-pre-cabecalho{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:22px 24px 16px;border-bottom:1px solid var(--linha)}
+  .modal-pre-cabecalho h2{margin:0 0 5px;font-size:20px}
+  .modal-pre-cabecalho p{margin:0}
+  .modal-pre-fechar{width:36px;height:36px;border:1px solid var(--linha);border-radius:50%;background:#fff;color:var(--ink);font-size:22px;line-height:1;cursor:pointer;transition:.2s ease}
+  .modal-pre-fechar:hover{background:var(--cream);border-color:var(--gold);color:var(--gold)}
+  .modal-pre-conteudo{padding:22px 24px}
+  .formulario-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .formulario-campo{padding:14px 15px;border:1px solid var(--linha);border-radius:9px;background:#fcfbf8}
+  .formulario-campo.campo-largo{grid-column:1/-1}
+  .formulario-campo dt{margin:0 0 6px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:rgba(38,49,45,.58)}
+  .formulario-campo dd{margin:0;font-size:14px;line-height:1.55;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere}
+  .formulario-vazio{color:rgba(38,49,45,.5);font-style:italic}
+  .modal-pre-rodape{display:flex;justify-content:flex-end;padding:0 24px 22px}
+  @media(max-width:700px){.formulario-grid{grid-template-columns:1fr}.formulario-campo.campo-largo{grid-column:auto}.modal-pre{padding:10px}.modal-pre-conteudo,.modal-pre-cabecalho{padding-left:17px;padding-right:17px}.modal-pre-rodape{padding-left:17px;padding-right:17px}.pre-atendimentos-acoes{align-items:stretch}.pre-atendimentos-acoes .btn-p{width:100%;justify-content:center}}
+</style>
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+</head>
+<body>
+<div class="painel-layout">
+  <aside class="painel-sidebar" data-sidebar></aside>
+  <main class="painel-main">
+    <div class="painel-topo">
+      <div>
+        <h1>Pré-atendimentos</h1>
+        <p class="texto-suave">Leads recebidos pelo formulário do site.</p>
+      </div>
+      <button type="button" class="btn-p btn-p-dourado" id="botao-atualizar-pre">↻ Atualizar</button>
+    </div>
+
+    <div class="aviso-flash" data-flash></div>
+
+    <div class="pre-filtros">
+      <div class="busca-campo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="search" id="busca-pre" placeholder="Buscar por nome, telefone ou e-mail…" autocomplete="off">
+      </div>
+      <label class="pre-filtro-status">
+        <span>Status</span>
+        <select id="filtro-status" aria-label="Filtrar por status">
+          <option value="todos">Todos</option>
+          <option value="novo">Novo</option>
+          <option value="contato">Em contato</option>
+          <option value="convertido">Convertido</option>
+          <option value="arquivado">Arquivado</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="painel-card">
+      <div style="overflow:auto">
+        <table class="tabela-p">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Telefone</th>
+              <th>E-mail</th>
+              <th>Data</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody data-lista>
+            <tr><td colspan="6" class="painel-vazio">Carregando…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-pre" data-modal aria-hidden="true">
+  <section class="modal-pre-caixa" role="dialog" aria-modal="true" aria-labelledby="modal-pre-titulo">
+    <header class="modal-pre-cabecalho">
+      <div>
+        <h2 id="modal-pre-titulo">Formulário de pré-atendimento</h2>
+        <p class="texto-suave" data-modal-subtitulo></p>
+      </div>
+      <button type="button" class="modal-pre-fechar" data-fechar-modal aria-label="Fechar">×</button>
+    </header>
+    <div class="modal-pre-conteudo">
+      <dl class="formulario-grid" data-modal-campos></dl>
+    </div>
+    <footer class="modal-pre-rodape">
+      <button type="button" class="btn-p btn-p-fora" data-fechar-modal>Fechar</button>
+    </footer>
+  </section>
+</div>
+
+<script type="module">
+import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash, EDGE_FUNCTION_URL } from '/painel/assets/js/painel-auth.js';
+import { renderSidebarAdmin } from '/painel/assets/js/admin-sidebar.js';
+
+const ctx = await exigirAdmin();
+if (!ctx || !ctx.session?.access_token) throw Error('Sessão administrativa não encontrada. Faça login novamente.');
+
+document.querySelector('[data-sidebar]').innerHTML = renderSidebarAdmin('pre-atendimentos', ctx.perfil.full_name);
+configurarBotaoSair();
+
+const flash = document.querySelector('[data-flash]');
+const lista = document.querySelector('[data-lista]');
+const modal = document.querySelector('[data-modal]');
+const modalCampos = document.querySelector('[data-modal-campos]');
+const modalSubtitulo = document.querySelector('[data-modal-subtitulo]');
+
+const statusLabel = { novo:'Novo', contato:'Em contato', convertido:'Convertido', arquivado:'Arquivado' };
+const statusValues = Object.keys(statusLabel);
+const buscaPre = document.querySelector('#busca-pre');
+const filtroStatus = document.querySelector('#filtro-status');
+let todosPreAtendimentos = [];
+const camposFormulario = [
+  ['full_name', 'Nome completo', false],
+  ['phone', 'WhatsApp / Telefone', false],
+  ['email', 'E-mail', false],
+  ['idade', 'Idade', false],
+  ['created_at', 'Data de envio', false],
+  ['status', 'Status', false],
+  ['queixa_principal', 'Qual sua principal queixa com a pele?', true],
+  ['tratamentos_anteriores', 'Tratamentos anteriores', true],
+  ['usa_medicamentos', 'Medicamentos / condição de saúde informada', true],
+  ['observacoes', 'Outras observações', true]
+];
+
+const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
+  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+}[char]));
+
+function valorCampo(lead, key){
+  if (key === 'created_at') {
+    if (!lead.created_at) return '';
+    const date = new Date(lead.created_at);
+    return Number.isNaN(date.getTime()) ? lead.created_at : date.toLocaleString('pt-BR', { dateStyle:'short', timeStyle:'short' });
+  }
+  if (key === 'status') return statusLabel[lead.status] || lead.status || '';
+  if (key === 'idade') return lead.idade ? `${lead.idade} anos` : '';
+  return lead[key] ?? '';
+}
+
+function abrirFormulario(lead){
+  modalSubtitulo.textContent = lead.full_name ? `Dados enviados por ${lead.full_name}.` : 'Dados enviados pelo interessado.';
+  modalCampos.innerHTML = camposFormulario.map(([key,label,largo]) => {
+    const valor = valorCampo(lead,key);
+    const vazio = valor === null || valor === undefined || String(valor).trim() === '';
+    return `<div class="formulario-campo ${largo ? 'campo-largo' : ''}"><dt>${esc(label)}</dt><dd class="${vazio ? 'formulario-vazio' : ''}">${vazio ? 'Não informado' : esc(valor)}</dd></div>`;
+  }).join('');
+  modal.classList.add('aberto');
+  modal.setAttribute('aria-hidden','false');
+  document.querySelector('[data-fechar-modal]').focus();
+}
+
+function fecharFormulario(){
+  modal.classList.remove('aberto');
+  modal.setAttribute('aria-hidden','true');
+}
+
+document.querySelectorAll('[data-fechar-modal]').forEach(btn => btn.addEventListener('click', fecharFormulario));
+modal.addEventListener('click', (event) => { if(event.target === modal) fecharFormulario(); });
+document.addEventListener('keydown', (event) => { if(event.key === 'Escape' && modal.classList.contains('aberto')) fecharFormulario(); });
+
+function senhaTemporaria(){
+  return 'Ep!' + crypto.randomUUID().replace(/-/g,'').slice(0,10) + 'a1';
+}
+
+function renderizar(data){
+  if (!data?.length) {
+    const temFiltros = (buscaPre?.value || '').trim() || (filtroStatus?.value && filtroStatus.value !== 'todos');
+    lista.innerHTML = `<tr><td colspan="6" class="painel-vazio">${temFiltros ? 'Nenhum pré-atendimento corresponde aos filtros.' : 'Nenhum pré-atendimento recebido.'}</td></tr>`;
+    return;
+  }
+
+  lista.innerHTML = data.map(lead => `
+    <tr>
+      <td><strong>${esc(lead.full_name)}</strong></td>
+      <td>${esc(lead.phone)}</td>
+      <td>${lead.email ? esc(lead.email) : '<span class="texto-suave">Não informado</span>'}</td>
+      <td>${esc(valorCampo(lead, 'created_at'))}</td>
+      <td>
+        <select class="status-select" data-status="${esc(lead.id)}" aria-label="Status de ${esc(lead.full_name)}">
+          ${statusValues.map(value => `<option value="${value}" ${lead.status === value ? 'selected' : ''}>${statusLabel[value]}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <div class="pre-atendimentos-acoes">
+          <button type="button" class="btn-p btn-p-fora btn-p-mini" data-formulario="${esc(lead.id)}">Formulário</button>
+          <button type="button" class="btn-p btn-p-mini" data-converter="${esc(lead.id)}" ${lead.status === 'convertido' ? 'disabled' : ''}>Converter em paciente</button>
+          <button type="button" class="btn-p btn-p-mini btn-p-perigo" data-excluir="${esc(lead.id)}">Excluir</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  lista.querySelectorAll('[data-formulario]').forEach(btn => btn.addEventListener('click', () => {
+    const lead = data.find(item => item.id === btn.dataset.formulario);
+    if (lead) abrirFormulario(lead);
+  }));
+
+  lista.querySelectorAll('[data-excluir]').forEach(btn => btn.addEventListener('click', async () => {
+    const lead = data.find(item => item.id === btn.dataset.excluir);
+    if (!lead) return;
+    if (!confirm(`Excluir o pré-atendimento de ${lead.full_name}? Esta ação não pode ser desfeita.`)) return;
+    btn.disabled = true;
+    const { error } = await supabase.from('pre_atendimentos').delete().eq('id', lead.id);
+    if (error) {
+      btn.disabled = false;
+      mostrarFlash(flash, 'Erro ao excluir: ' + error.message, 'erro');
+      return;
+    }
+    mostrarFlash(flash, 'Pré-atendimento excluído.', 'sucesso');
+    await carregar();
+  }));
+
+  lista.querySelectorAll('[data-status]').forEach(select => select.addEventListener('change', async () => {
+    const novoStatus = select.value;
+    if (!statusValues.includes(novoStatus)) return;
+    select.disabled = true;
+    const { error } = await supabase.from('pre_atendimentos').update({ status: novoStatus }).eq('id', select.dataset.status);
+    select.disabled = false;
+    if (error) {
+      mostrarFlash(flash, 'Erro ao atualizar status: ' + error.message, 'erro');
+      await carregar();
+      return;
+    }
+    const lead = data.find(item => item.id === select.dataset.status);
+    if (lead) lead.status = novoStatus;
+    mostrarFlash(flash, 'Status atualizado.', 'sucesso');
+  }));
+
+  lista.querySelectorAll('[data-converter]').forEach(btn => btn.addEventListener('click', async () => {
+    const lead = data.find(item => item.id === btn.dataset.converter);
+    if (!lead) return;
+    if (lead.status === 'convertido') return;
+    if (!lead.email) {
+      mostrarFlash(flash, 'O pré-atendimento precisa ter e-mail para ser convertido automaticamente.', 'erro');
+      return;
+    }
+    if (!confirm(`Converter ${lead.full_name} em paciente?`)) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Convertendo…';
+    const accessToken = ctx.session.access_token;
+    if (!accessToken) {
+      btn.disabled = false;
+      btn.textContent = 'Converter em paciente';
+      mostrarFlash(flash, 'Sua sessão expirou. Faça login novamente.', 'erro');
+      return;
+    }
+
+    try {
+      // Cria somente o cadastro do paciente (sem login ainda). O acesso ao
+      // Painel do Paciente é gerado depois, dentro do cadastro completo,
+      // em /painel/admin/paciente.html — ver função "Gerar acesso do paciente".
+      const resp = await fetch(`${EDGE_FUNCTION_URL}/create-patient`, {
+        method:'POST',
+        headers:{ Authorization:`Bearer ${accessToken}`, 'Content-Type':'application/json' },
+        body:JSON.stringify({
+          modo:'cadastro',
+          full_name:lead.full_name,
+          email:lead.email,
+          phone:lead.phone,
+          pre_atendimento_id:lead.id
+        })
+      });
+      const body = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(body.error || 'Não foi possível criar o paciente.');
+
+      const { error:updateError } = await supabase.from('pre_atendimentos').update({ status:'convertido' }).eq('id', lead.id);
+      if (updateError) throw updateError;
+
+      lead.status = 'convertido';
+      mostrarFlash(flash, 'Pré-atendimento convertido em paciente. Abra o cadastro em Pacientes para completar as informações e gerar o acesso.', 'sucesso');
+      await carregar();
+    } catch (error) {
+      btn.disabled = false;
+      btn.textContent = 'Converter em paciente';
+      mostrarFlash(flash, 'Erro: ' + (error?.message || 'Falha ao converter o pré-atendimento.'), 'erro');
+    }
+  }));
+}
+
+function aplicarFiltros(){
+  const termo = (buscaPre?.value || '').trim().toLowerCase();
+  const status = filtroStatus?.value || 'todos';
+  const filtrados = todosPreAtendimentos.filter((lead) => {
+    const correspondeTexto = !termo || [lead.full_name, lead.phone, lead.email].some((valor) => String(valor || '').toLowerCase().includes(termo));
+    const correspondeStatus = status === 'todos' || lead.status === status;
+    return correspondeTexto && correspondeStatus;
+  });
+  renderizar(filtrados);
+}
+
+buscaPre?.addEventListener('input', aplicarFiltros);
+filtroStatus?.addEventListener('change', aplicarFiltros);
+
+document.getElementById('botao-atualizar-pre')?.addEventListener('click', async (event) => {
+  const botao = event.currentTarget;
+  botao.disabled = true;
+  botao.textContent = 'Atualizando…';
+  await carregar();
+  botao.disabled = false;
+  botao.textContent = '↻ Atualizar';
+  mostrarFlash(flash, 'Lista de pré-atendimentos atualizada.', 'sucesso');
+});
+
+async function carregar(){
+  lista.innerHTML = '<tr><td colspan="6" class="painel-vazio">Carregando…</td></tr>';
+  const { data, error } = await supabase.from('pre_atendimentos').select('*').order('created_at', { ascending:false });
+  if (error) {
+    lista.innerHTML = `<tr><td colspan="6" class="painel-vazio">${esc(error.message)}</td></tr>`;
+    return;
+  }
+  todosPreAtendimentos = data || [];
+  aplicarFiltros();
+}
+
+carregar();
+</script>
+</body>
+</html>

@@ -1,0 +1,314 @@
+/* ============================================================
+   PAINEL — tema dourado/verde escuro, fiel aos mockups
+   ============================================================ */
+
+:root{
+  --gold:#c9a45b;
+  --gold-light:#e4c77f;
+  --cream:#f4eee3;
+  --ink:#26312d;
+  --ink-2:#1c2521;
+  --sombra: 0 8px 30px rgba(38,49,45,.08);
+  --linha: rgba(38,49,45,.10);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--cream);
+  color:var(--ink);
+}
+a{text-decoration:none;color:inherit}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:400;margin:0}
+
+/* --- Layout --- */
+.painel-layout{display:flex;min-height:100vh}
+.painel-sidebar{
+  width:250px;flex-shrink:0;background:var(--ink-2);color:var(--cream);
+  padding:26px 18px;display:flex;flex-direction:column;gap:4px;
+}
+.painel-sidebar__marca{
+  display:flex;align-items:center;justify-content:center;margin-bottom:8px;padding:0 2px;
+}
+.painel-sidebar__marca .selo-ep{width:100%;height:78px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.selo-ep img{display:block;width:100%;height:100%;object-fit:contain;object-position:center}
+
+.painel-sidebar__perfil{
+  display:flex;align-items:center;gap:10px;padding:14px 6px;margin:10px 0 16px;
+  border-top:1px solid rgba(244,238,227,.12);border-bottom:1px solid rgba(244,238,227,.12);
+}
+.painel-sidebar__avatar{
+  width:34px;height:34px;border-radius:50%;background:rgba(244,238,227,.12);
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--gold-light);
+}
+.painel-sidebar__perfil small{display:block;color:rgba(244,238,227,.55);font-size:11px}
+
+.painel-sidebar nav{display:flex;flex-direction:column;gap:2px;flex:1}
+.painel-sidebar nav a{
+  padding:11px 12px;border-radius:8px;font-size:13.5px;font-weight:600;
+  color:rgba(244,238,227,.75);display:flex;align-items:center;gap:10px;transition:.2s ease;
+}
+.painel-sidebar nav a:hover{background:rgba(244,238,227,.06);color:#fff}
+.painel-sidebar nav a.ativo{background:var(--gold);color:var(--ink-2)}
+.painel-sidebar nav a svg{width:17px;height:17px;flex-shrink:0}
+
+.painel-sidebar__sair{
+  margin-top:12px;background:none;border:1px solid rgba(244,238,227,.25);color:var(--cream);
+  border-radius:8px;padding:11px;cursor:pointer;font-size:13px;width:100%;transition:.2s ease;
+}
+.painel-sidebar__sair:hover{border-color:var(--gold-light);color:var(--gold-light)}
+.painel-sidebar__sair svg{width:14px;height:14px;vertical-align:-2px;margin-right:4px;display:inline-block}
+.estatisticas-paciente-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:18px}
+.estatisticas-paciente-grid>div{min-width:0}
+.painel-card canvas{display:block;max-width:100%}
+#grafico-consumo,#grafico-paciente{width:100%!important;max-height:280px}
+#grafico-tipos{width:160px!important;height:160px!important;max-width:160px!important}
+.table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+.painel-main{flex:1;padding:32px;max-width:1300px}
+.painel-topo{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:26px;flex-wrap:wrap}
+.painel-topo h1{font-size:26px}
+.painel-topo .data-hoje{font-size:12.5px;color:rgba(38,49,45,.55)}
+.texto-suave{color:rgba(38,49,45,.6)}
+
+/* --- Cards de estatística --- */
+.stats-grid{display:grid;gap:18px;grid-template-columns:repeat(4,1fr);margin-bottom:24px}
+@media (max-width:1000px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+.stat-card{
+  background:#fff;border-radius:12px;box-shadow:var(--sombra);padding:20px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.stat-card__topo{display:flex;justify-content:space-between;align-items:flex-start}
+.stat-card__icone{width:38px;height:38px;border-radius:10px;background:rgba(201,164,91,.15);color:var(--gold);display:flex;align-items:center;justify-content:center}
+.stat-card__icone svg{width:20px;height:20px}
+.stat-card__valor{font-family:Georgia,serif;font-size:28px}
+.stat-card__legenda{font-size:12.5px;color:rgba(38,49,45,.55)}
+.stat-card__delta{font-size:12px;font-weight:700;color:#4f7a45}
+
+/* --- Painéis brancos genéricos --- */
+.painel-card{background:#fff;border-radius:12px;box-shadow:var(--sombra);padding:22px}
+.painel-card h3{font-size:16px;margin-bottom:14px}
+.grid-dashboard{display:grid;gap:18px;grid-template-columns:1.4fr 1fr 1fr;margin-bottom:18px}
+@media (max-width:1000px){.grid-dashboard{grid-template-columns:1fr}}
+
+.lista-simples{display:flex;flex-direction:column;gap:2px}
+.lista-simples__item{display:flex;justify-content:space-between;align-items:center;padding:10px 4px;border-bottom:1px solid var(--linha)}
+.lista-simples__item:last-child{border-bottom:none}
+.pessoa{display:flex;align-items:center;gap:10px}
+.pessoa__avatar{width:34px;height:34px;border-radius:50%;background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--ink)}
+.pessoa__nome{font-size:14px;font-weight:700}
+.pessoa__sub{font-size:12px;color:rgba(38,49,45,.55)}
+.chevron{color:rgba(38,49,45,.35)}
+
+
+/* --- Saúde do banco / configuração --- */
+.config-db-grid{grid-template-columns:1fr 1fr .85fr}
+@media (max-width:1300px){.config-db-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:1000px){.config-db-grid{grid-template-columns:1fr}}
+.config-db-resumo{display:flex;align-items:center;gap:16px}
+.config-db-grafico{width:78px;height:78px;flex:0 0 78px;display:flex;align-items:center;justify-content:center}
+.config-db-grafico canvas{width:78px!important;height:78px!important;max-width:78px!important}
+.config-db-label{font-size:12px}
+.config-db-status{margin-top:7px;font-size:11.5px;font-weight:700}
+.config-status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#c9a45b;margin-right:5px}
+.config-status-dot.ok{background:#4f7a45}
+.config-status-dot.erro{background:#a94438}
+.config-indicadores{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px}
+.config-indicadores>div{background:var(--cream);border-radius:8px;padding:10px}
+.config-indicadores strong{display:block;font-family:Georgia,serif;font-size:16px}
+.config-indicadores span{display:block;font-size:10.5px;color:rgba(38,49,45,.58);margin-top:3px}
+.config-db-nota{font-size:10.5px;margin:10px 0 0}
+@media(max-width:700px){.config-indicadores{grid-template-columns:repeat(2,1fr)}}
+
+/* --- Formulários --- */
+.form-campo{margin-bottom:16px;display:flex;flex-direction:column;gap:6px}
+.form-campo label{font-size:13px;font-weight:700}
+.form-campo input,.form-campo textarea,.form-campo select{
+  font-family:inherit;font-size:14.5px;padding:10px 13px;border:1px solid var(--linha);
+  border-radius:8px;background:#fff;color:var(--ink);
+}
+.form-campo textarea{min-height:100px;resize:vertical}
+.form-campo input:focus,.form-campo textarea:focus,.form-campo select:focus{outline:2px solid var(--gold);outline-offset:1px}
+.form-linha{display:flex;gap:16px;flex-wrap:wrap}
+.form-linha .form-campo{flex:1;min-width:180px}
+.form-checkbox{display:flex;align-items:center;gap:8px;font-size:13.5px;margin-bottom:14px}
+.form-acoes{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+
+/* --- Botões --- */
+.btn-p{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:8px;font-size:13.5px;font-weight:700;cursor:pointer;border:1px solid transparent;transition:.2s ease}
+.btn-p-dourado{background:var(--gold);color:var(--ink-2)}
+.btn-p-dourado:hover{background:var(--gold-light)}
+.btn-p-fora{background:#fff;border-color:var(--linha);color:var(--ink)}
+.btn-p-fora:hover{background:var(--cream)}
+.btn-p-perigo{background:#fff;border-color:#e3b7ae;color:#a94438}
+.btn-p-perigo:hover{background:#fbeeea}
+.btn-p-mini{padding:7px 14px;font-size:12.5px}
+
+/* --- Tabela --- */
+.busca-campo{position:relative;max-width:320px;margin-bottom:18px}
+.busca-campo input{width:100%;padding:10px 14px 10px 36px;border:1px solid var(--linha);border-radius:8px;font-size:14px}
+.busca-campo svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:rgba(38,49,45,.4)}
+
+.tabela-p{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:var(--sombra)}
+.tabela-p th,.tabela-p td{text-align:left;padding:13px 16px;font-size:13.5px;border-bottom:1px solid var(--linha)}
+.tabela-p th{background:var(--cream);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:rgba(38,49,45,.6)}
+.tabela-p tr:last-child td{border-bottom:none}
+.tabela-p tbody tr{cursor:pointer;transition:.15s ease}
+.tabela-p tbody tr:hover{background:rgba(201,164,91,.06)}
+
+.selo-p{font-size:11.5px;padding:4px 11px;border-radius:999px;font-weight:700}
+.selo-p.agendado{background:rgba(201,164,91,.18);color:#8a6a2f}
+.selo-p.confirmado{background:rgba(78,122,69,.15);color:#3d5c37}
+.selo-p.realizado{background:rgba(78,122,69,.18);color:#3d5c37}
+.selo-p.cancelado{background:#fbeeea;color:#a94438}
+.selo-p.publicado{background:rgba(78,122,69,.15);color:#3d5c37}
+.selo-p.rascunho{background:rgba(38,49,45,.10);color:rgba(38,49,45,.6)}
+.selo-p.ativo{background:rgba(78,122,69,.15);color:#3d5c37}
+
+.aviso-flash{padding:13px 16px;border-radius:8px;font-size:13.5px;margin-bottom:18px;display:none}
+.aviso-flash.visivel{display:block}
+.aviso-flash.sucesso{background:rgba(78,122,69,.14);color:#3d5c37}
+.aviso-flash.erro{background:#fbeeea;color:#a94438}
+.painel-vazio{padding:30px;text-align:center;color:rgba(38,49,45,.5)}
+
+/* --- Donut simples via conic-gradient --- */
+.donut{width:120px;height:120px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.donut__centro{font-family:Georgia,serif;font-size:22px}
+.donut-legenda{display:flex;flex-direction:column;gap:8px;margin-top:14px;font-size:12.5px}
+.donut-legenda__item{display:flex;justify-content:space-between;align-items:center}
+.donut-legenda__cor{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:8px}
+
+/* --- Abas simples (tabs) --- */
+.abas-p{display:flex;gap:6px;margin-bottom:18px;border-bottom:1px solid var(--linha);flex-wrap:wrap}
+.abas-p button{padding:11px 4px;margin-right:22px;border:none;background:none;font-size:13.5px;font-weight:700;color:rgba(38,49,45,.5);cursor:pointer;border-bottom:2px solid transparent;transition:.2s ease}
+.abas-p button:hover{color:var(--ink)}
+.abas-p button.ativa{color:var(--ink);border-color:var(--gold)}
+.aba-conteudo{display:none}
+.aba-conteudo.visivel{display:block}
+
+/* --- Login --- */
+.painel-login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--cream)}
+.painel-login__card{background:#fff;border-radius:16px;box-shadow:var(--sombra);padding:38px;width:100%;max-width:380px;text-align:center}
+.painel-login__logo{width:min(300px,78vw);height:110px;margin:0 auto 22px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.painel-login__logo img{display:block;width:100%;height:100%;object-fit:contain}
+.painel-login__card h1{font-size:22px;margin-bottom:2px}
+.painel-login__card form{text-align:left;margin-top:22px}
+
+/* --- Cards do resumo do paciente --- */
+.resumo-grid{display:grid;gap:16px;grid-template-columns:repeat(3,1fr);margin-bottom:20px}
+@media (max-width:800px){.resumo-grid{grid-template-columns:1fr}}
+.resumo-card{background:#fff;border-radius:12px;box-shadow:var(--sombra);padding:18px;display:flex;flex-direction:column;gap:8px}
+.resumo-card svg{width:22px;height:22px;color:var(--gold)}
+.resumo-card strong{font-family:Georgia,serif;font-size:18px}
+.resumo-card span{font-size:12px;color:rgba(38,49,45,.55)}
+
+.cta-agendar{background:var(--ink-2);border-radius:12px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.cta-agendar span{color:var(--cream);font-weight:700}
+
+/* --- Timeline de atendimentos --- */
+.timeline{display:flex;flex-direction:column}
+.timeline-item{display:flex;gap:16px;padding:14px 0;border-left:2px solid var(--linha);margin-left:8px;padding-left:20px;position:relative}
+.timeline-item:last-child{border-color:transparent}
+.timeline-item::before{content:"";position:absolute;left:-7px;top:18px;width:12px;height:12px;border-radius:50%;background:var(--linha);border:2px solid #fff}
+.timeline-item.realizado::before{background:#4f7a45}
+.timeline-item.proximo::before{background:var(--gold)}
+.timeline-item.agendado::before{background:rgba(38,49,45,.3)}
+.timeline-data{font-size:12px;color:rgba(38,49,45,.55);min-width:90px}
+.timeline-titulo{font-weight:700;font-size:14.5px}
+
+@media (max-width:800px){
+  .painel-layout{flex-direction:column}
+  .painel-main{padding:18px 14px;width:100%;max-width:none;overflow-x:hidden}
+  .painel-topo h1{font-size:23px}
+  .painel-card{padding:16px;border-radius:10px}
+  .stats-grid{grid-template-columns:1fr;gap:12px}
+  .estatisticas-paciente-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .form-linha{flex-direction:column;gap:0}
+  .form-linha .form-campo{min-width:0}
+  .tabela-p{min-width:760px}
+  .painel-card:has(.tabela-p){overflow-x:auto}
+  .painel-sidebar__sair svg{width:13px;height:13px}
+  .painel-sidebar nav a{padding:9px 11px;font-size:12px;white-space:nowrap}
+  .painel-sidebar__sair{padding:8px 10px;font-size:12px;white-space:nowrap}
+
+  .painel-sidebar{width:100%;flex-direction:row;align-items:center;overflow-x:auto;padding:14px}
+  .painel-sidebar__marca,.painel-sidebar__perfil{display:none}
+  .painel-sidebar nav{flex-direction:row}
+  .painel-sidebar__sair{width:auto;margin-top:0}
+  .stats-grid{grid-template-columns:1fr 1fr}
+}
+
+/* Histórico de pagamentos do restante */
+.bloco-pagamentos-restante{margin:14px 0;padding:16px;border:1px solid var(--border,#e7e3db);border-radius:14px;background:var(--surface,#fff)}
+.bloco-pagamentos-restante__cabecalho{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px}
+.bloco-pagamentos-restante__cabecalho strong{display:block;font-size:14px}
+.bloco-pagamentos-restante__cabecalho small{display:block;margin-top:4px;color:var(--muted,#777);font-size:12px;line-height:1.45}
+.pagamento-restante-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:12px;align-items:end}
+.pagamento-restante-form .btn-p{height:40px;white-space:nowrap}
+.pagamentos-restante-lista{display:grid;gap:8px;margin-top:14px}
+.pagamento-restante-card{display:grid;grid-template-columns:1.1fr .8fr .9fr auto;gap:12px;align-items:center;padding:11px 12px;border-radius:10px;background:#f8f7f4;border:1px solid #ebe8e1}
+.pagamento-restante-card>div:first-child strong{display:block;margin-top:2px}
+.pagamento-restante-card small{display:block;color:#777;font-size:11px;margin-bottom:2px}
+.pagamento-restante-total{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin-top:12px;padding-top:12px;border-top:1px solid #ece9e2;font-size:12px;color:#666}
+.pagamento-restante-total strong{font-size:14px;color:inherit}
+@media (max-width:760px){
+  .pagamento-restante-form{grid-template-columns:1fr 1fr}
+  .pagamento-restante-form .form-campo:nth-child(3){grid-column:1/-1}
+  .pagamento-restante-form .btn-p{grid-column:1/-1;width:100%}
+  .pagamento-restante-card{grid-template-columns:1fr 1fr}
+  .pagamento-restante-card .btn-p{grid-column:1/-1;width:100%}
+  .bloco-pagamentos-restante__cabecalho{flex-direction:column}
+}
+
+/* ============================================================
+   CALENDÁRIO MENSAL INTERATIVO — Agenda
+   ============================================================ */
+.calendario-card{padding:22px 24px}
+.calendario-cabecalho{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.calendario-nav{display:flex;align-items:center;gap:14px}
+.calendario-nav h2{font-size:20px;min-width:190px;text-align:center}
+.calendario-nav .btn-p-mini{padding:6px 12px;font-size:15px;line-height:1}
+.calendario-acoes{display:flex;align-items:center;gap:10px}
+.calendario-acoes input[type="date"]{padding:9px 11px;border:1px solid var(--linha);border-radius:8px;font-size:13.5px;font-family:inherit;color:var(--ink)}
+
+.calendario-dias-semana{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
+.calendario-dias-semana span{text-align:center;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:rgba(38,49,45,.5);padding:4px 0}
+
+.calendario-grade{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.calendario-dia{
+  aspect-ratio:1/1;min-height:64px;border-radius:10px;border:1px solid var(--linha);background:#fff;
+  display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:6px;
+  padding:8px;cursor:pointer;font-family:inherit;transition:.15s ease;position:relative;
+}
+.calendario-dia:hover{border-color:var(--gold);background:rgba(201,164,91,.06)}
+.calendario-dia:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.calendario-dia.fora-do-mes{opacity:.35}
+.calendario-dia.hoje{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.calendario-dia.selecionado{background:var(--ink-2);border-color:var(--ink-2)}
+.calendario-dia.selecionado .calendario-dia__numero{color:var(--cream)}
+.calendario-dia__numero{font-size:13.5px;font-weight:700;color:var(--ink)}
+.calendario-dia__pontos{display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:auto}
+.calendario-ponto{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.calendario-ponto-extra{font-size:10px;font-weight:700;color:rgba(38,49,45,.55)}
+.calendario-dia.selecionado .calendario-ponto-extra{color:rgba(244,238,227,.7)}
+
+.calendario-tooltip{
+  position:absolute;z-index:80;max-width:260px;background:var(--ink-2);color:var(--cream);
+  border-radius:10px;padding:10px 12px;box-shadow:0 12px 30px rgba(0,0,0,.25);pointer-events:none;
+}
+.calendario-tooltip__item{display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-top:1px solid rgba(244,238,227,.12)}
+.calendario-tooltip__item:first-child{border-top:none}
+.calendario-tooltip__hora{font-weight:700;color:var(--gold-light);font-size:12.5px;min-width:38px}
+.calendario-tooltip__item strong{display:block;font-size:12.5px}
+.calendario-tooltip__item small{display:block;font-size:11px;color:rgba(244,238,227,.6);text-transform:capitalize}
+.calendario-tooltip__mais{font-size:11px;color:rgba(244,238,227,.6);padding-top:6px;text-align:center}
+
+@media (max-width:800px){
+  .calendario-card{padding:16px}
+  .calendario-nav h2{font-size:16px;min-width:0}
+  .calendario-dias-semana span{font-size:10px}
+  .calendario-dia{min-height:44px;padding:5px;border-radius:8px}
+  .calendario-dia__numero{font-size:12px}
+  .calendario-acoes input[type="date"]{font-size:12.5px;padding:7px 8px}
+  .calendario-tooltip{max-width:200px;font-size:12px}
+}

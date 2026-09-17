@@ -1,0 +1,244 @@
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="robots" content="noindex,nofollow"><title>Agenda — Painel</title><link rel="stylesheet" href="/painel/assets/css/painel.css"><link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+</head><body><div class="painel-layout"><aside class="painel-sidebar" data-sidebar></aside><main class="painel-main">
+
+<div class="painel-topo">
+  <div><h1>Agenda</h1><p class="texto-suave">Atendimentos agendados, confirmados e realizados.</p></div>
+</div>
+
+<div class="aviso-flash" data-flash></div>
+
+<!-- ===================== CALENDÁRIO MENSAL ===================== -->
+<div class="painel-card calendario-card">
+  <div class="calendario-cabecalho">
+    <div class="calendario-nav">
+      <button class="btn-p btn-p-fora btn-p-mini" id="mes-anterior" aria-label="Mês anterior">‹</button>
+      <h2 id="calendario-titulo">—</h2>
+      <button class="btn-p btn-p-fora btn-p-mini" id="mes-proximo" aria-label="Próximo mês">›</button>
+    </div>
+    <div class="calendario-acoes">
+      <input type="date" id="dia" aria-label="Ir para uma data específica">
+      <button class="btn-p btn-p-dourado btn-p-mini" id="hoje">Hoje</button>
+    </div>
+  </div>
+
+  <div class="calendario-dias-semana">
+    <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+  </div>
+
+  <div class="calendario-grade" data-grade></div>
+</div>
+
+<!-- ===================== LISTA DO DIA SELECIONADO ===================== -->
+<div class="painel-card" style="margin-top:20px">
+  <h3 id="lista-dia-titulo">Atendimentos do dia</h3>
+  <div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Hora</th><th>Paciente</th><th>Tipo</th><th>Observações</th><th>Valor</th><th>Pagamento</th><th>Status</th></tr></thead><tbody data-lista><tr><td colspan="7" class="painel-vazio">Carregando…</td></tr></tbody></table></div>
+</div>
+
+<!-- tooltip flutuante do calendário -->
+<div class="calendario-tooltip" data-tooltip hidden></div>
+
+<script type="module">
+import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash } from '/painel/assets/js/painel-auth.js';
+import { renderSidebarAdmin } from '/painel/assets/js/admin-sidebar.js';
+const ctx = await exigirAdmin();
+if (!ctx) throw Error('sem acesso');
+document.querySelector('[data-sidebar]').innerHTML = renderSidebarAdmin('agenda', ctx.perfil.full_name);
+configurarBotaoSair();
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+const campoData = document.getElementById('dia');
+const grade = document.querySelector('[data-grade]');
+const titulo = document.getElementById('calendario-titulo');
+const tooltip = document.querySelector('[data-tooltip]');
+const listaTitulo = document.getElementById('lista-dia-titulo');
+
+const hoje = new Date();
+const pad2 = n => String(n).padStart(2, '0');
+const paraChave = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const hojeStr = () => paraChave(hoje);
+
+let anoAtual = hoje.getFullYear();
+let mesAtual = hoje.getMonth(); // 0-11
+let diaSelecionado = hojeStr();
+let agendamentosPorDia = {}; // { 'YYYY-MM-DD': [ {...} ] }
+
+campoData.value = diaSelecionado;
+
+document.getElementById('hoje').onclick = () => {
+  anoAtual = hoje.getFullYear();
+  mesAtual = hoje.getMonth();
+  diaSelecionado = hojeStr();
+  campoData.value = diaSelecionado;
+  carregarMes();
+};
+
+document.getElementById('mes-anterior').onclick = () => {
+  mesAtual--;
+  if (mesAtual < 0) { mesAtual = 11; anoAtual--; }
+  carregarMes();
+};
+document.getElementById('mes-proximo').onclick = () => {
+  mesAtual++;
+  if (mesAtual > 11) { mesAtual = 0; anoAtual++; }
+  carregarMes();
+};
+
+campoData.addEventListener('change', () => {
+  if (!campoData.value) return;
+  const [a, m, d] = campoData.value.split('-').map(Number);
+  diaSelecionado = campoData.value;
+  if (a !== anoAtual || (m - 1) !== mesAtual) {
+    anoAtual = a; mesAtual = m - 1;
+    carregarMes();
+  } else {
+    selecionarDia(diaSelecionado);
+  }
+});
+
+function corStatus(status) {
+  return { agendado: 'var(--gold)', confirmado: '#4f7a45', realizado: '#4f7a45', cancelado: '#a94438' }[status] || 'var(--gold)';
+}
+
+// ---------- monta a grade do mês ----------
+function montarGrade() {
+  titulo.textContent = `${MESES[mesAtual]} ${anoAtual}`;
+
+  const primeiroDia = new Date(anoAtual, mesAtual, 1);
+  const offset = primeiroDia.getDay(); // 0 = Domingo
+  const inicioGrade = new Date(anoAtual, mesAtual, 1 - offset);
+  const totalCelulas = 42; // 6 semanas fixas, evita "pulo" de layout entre meses
+
+  grade.innerHTML = '';
+  for (let i = 0; i < totalCelulas; i++) {
+    const dataCelula = new Date(inicioGrade);
+    dataCelula.setDate(inicioGrade.getDate() + i);
+    const chave = paraChave(dataCelula);
+    const foraDoMes = dataCelula.getMonth() !== mesAtual;
+    const ehHoje = chave === hojeStr();
+    const ehSelecionado = chave === diaSelecionado;
+    const itens = agendamentosPorDia[chave] || [];
+
+    const celula = document.createElement('button');
+    celula.type = 'button';
+    celula.className = 'calendario-dia' +
+      (foraDoMes ? ' fora-do-mes' : '') +
+      (ehHoje ? ' hoje' : '') +
+      (ehSelecionado ? ' selecionado' : '');
+    celula.dataset.chave = chave;
+
+    const pontos = itens.slice(0, 4).map(a => `<span class="calendario-ponto" style="background:${corStatus(a.status)}"></span>`).join('');
+    const extra = itens.length > 4 ? `<span class="calendario-ponto-extra">+${itens.length - 4}</span>` : '';
+
+    celula.innerHTML = `
+      <span class="calendario-dia__numero">${dataCelula.getDate()}</span>
+      ${itens.length ? `<span class="calendario-dia__pontos">${pontos}${extra}</span>` : ''}
+    `;
+
+    celula.addEventListener('click', () => {
+      diaSelecionado = chave;
+      campoData.value = chave;
+      montarGrade();
+      selecionarDia(chave);
+    });
+
+    if (itens.length) {
+      celula.addEventListener('mouseenter', () => mostrarTooltip(celula, itens));
+      celula.addEventListener('mouseleave', esconderTooltip);
+      celula.addEventListener('focus', () => mostrarTooltip(celula, itens));
+      celula.addEventListener('blur', esconderTooltip);
+    }
+
+    grade.appendChild(celula);
+  }
+}
+
+function mostrarTooltip(celula, itens) {
+  const linhas = itens.slice(0, 8).map(a => `
+    <div class="calendario-tooltip__item">
+      <span class="calendario-tooltip__hora">${esc(String(a.appointment_time || '').slice(0, 5))}</span>
+      <span>
+        <strong>${esc(a.patients?.full_name || 'Paciente')}</strong>
+        <small>${esc(a.tipo || 'Atendimento')} · ${esc(a.status || 'agendado')}</small>
+      </span>
+    </div>`).join('');
+  const restante = itens.length > 8 ? `<div class="calendario-tooltip__mais">+${itens.length - 8} atendimento(s)</div>` : '';
+
+  tooltip.innerHTML = linhas + restante;
+  tooltip.hidden = false;
+
+  const retCelula = celula.getBoundingClientRect();
+  const retTooltip = tooltip.getBoundingClientRect();
+  let topo = retCelula.bottom + window.scrollY + 6;
+  let esquerda = retCelula.left + window.scrollX;
+
+  // Se ultrapassar a base da tela, mostra acima da célula
+  if (retCelula.bottom + retTooltip.height + 12 > window.innerHeight) {
+    topo = retCelula.top + window.scrollY - retTooltip.height - 6;
+  }
+  // Não deixa vazar pela direita
+  if (esquerda + 260 > window.innerWidth) {
+    esquerda = window.innerWidth - 270;
+  }
+
+  tooltip.style.top = `${topo}px`;
+  tooltip.style.left = `${esquerda}px`;
+}
+function esconderTooltip() { tooltip.hidden = true; }
+
+// ---------- carrega os agendamentos do mês visível (para os pontinhos) ----------
+async function carregarMes() {
+  montarGrade(); // desenha já, mesmo antes da resposta chegar (sem pontos)
+
+  const primeiroDia = `${anoAtual}-${pad2(mesAtual + 1)}-01`;
+  const ultimoDiaNum = new Date(anoAtual, mesAtual + 1, 0).getDate();
+  const ultimoDia = `${anoAtual}-${pad2(mesAtual + 1)}-${pad2(ultimoDiaNum)}`;
+
+  const { data, error } = await supabase
+    .from('appointments')
+    .select('id,appointment_date,appointment_time,tipo,status,patients(full_name)')
+    .gte('appointment_date', primeiroDia)
+    .lte('appointment_date', ultimoDia)
+    .order('appointment_time');
+
+  agendamentosPorDia = {};
+  if (!error && data) {
+    for (const a of data) {
+      (agendamentosPorDia[a.appointment_date] ||= []).push(a);
+    }
+  }
+  montarGrade();
+  selecionarDia(diaSelecionado);
+}
+
+// ---------- lista de atendimentos do dia selecionado (mesma lógica de antes) ----------
+async function selecionarDia(chave) {
+  const [a, m, d] = chave.split('-');
+  listaTitulo.textContent = `Atendimentos do dia ${d}/${m}/${a}`;
+
+  const { data, error } = await supabase.from('appointments').select('id,patient_id,appointment_time,tipo,description,valor,status,taxa_agendamento,taxa_status,restante_pago,restante_status,restante_data_pagamento,patients(full_name)').eq('appointment_date', chave).order('appointment_time');
+  const tb = document.querySelector('[data-lista]');
+  if (error) { tb.innerHTML = `<tr><td colspan="7" class="painel-vazio">${esc(error.message)}</td></tr>`; return; }
+  tb.innerHTML = data?.length ? data.map(a => {
+    const total = Number(a.valor || 0);
+    const taxa = Number(a.taxa_agendamento || 0);
+    const restante = Math.max(0, total - taxa);
+    const pagoRestante = Math.min(restante, Number(a.restante_pago || 0));
+    const falta = Math.max(0, restante - pagoRestante);
+    const pagamento = `Taxa: R$ ${taxa.toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${esc(a.taxa_status || 'pendente')}<br>Restante: R$ ${falta.toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${esc(a.restante_status || 'pendente')}`;
+    return `<tr><td><strong>${esc(String(a.appointment_time || '').slice(0,5))}</strong></td><td>${esc(a.patients?.full_name || 'Paciente')}</td><td>${esc(a.tipo || 'Atendimento')}</td><td>${esc(a.description || '—')}</td><td>R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>${pagamento}</td><td><select data-status="${a.id}"><option value="agendado" ${a.status === 'agendado' ? 'selected' : ''}>Agendado</option><option value="confirmado" ${a.status === 'confirmado' ? 'selected' : ''}>Confirmado</option><option value="realizado" ${a.status === 'realizado' ? 'selected' : ''}>Realizado</option><option value="cancelado" ${a.status === 'cancelado' ? 'selected' : ''}>Cancelado</option></select></td></tr>`;
+  }).join('') : `<tr><td colspan="7" class="painel-vazio">Nenhum atendimento para esta data.</td></tr>`;
+  tb.querySelectorAll('[data-status]').forEach(s => s.onchange = async () => {
+    const { error } = await supabase.from('appointments').update({ status: s.value }).eq('id', s.dataset.status);
+    mostrarFlash(document.querySelector('[data-flash]'), error ? 'Erro: ' + error.message : 'Status atualizado.', error ? 'erro' : 'sucesso');
+    if (!error) carregarMes(); // atualiza os pontinhos do calendário também
+  });
+}
+
+carregarMes();
+</script>
+</main></div></body></html>

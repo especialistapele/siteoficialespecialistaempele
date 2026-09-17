@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Configurações — Painel</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<style>
+  .toggle{position:relative;width:42px;height:24px;flex-shrink:0}
+  .toggle input{opacity:0;width:0;height:0}
+  .toggle .slider{position:absolute;inset:0;background:rgba(38,49,45,.2);border-radius:999px;cursor:pointer;transition:.2s}
+  .toggle .slider::before{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+  .toggle input:checked + .slider{background:var(--gold)}
+  .toggle input:checked + .slider::before{transform:translateX(18px)}
+  .config-item{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--linha)}
+  .config-item:last-child{border-bottom:none}
+</style>
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+</head>
+<body>
+<div class="painel-layout">
+  <aside class="painel-sidebar" data-sidebar></aside>
+  <main class="painel-main">
+    <div class="painel-topo"><div><h1>Configurações</h1><p class="texto-suave">Ajustes gerais do sistema e banco de dados.</p></div></div>
+    <div class="aviso-flash" data-flash></div>
+
+    <div class="grid-dashboard config-db-grid">
+      <div class="painel-card config-db-card">
+        <h3>Saúde do banco de dados</h3>
+        <div class="config-db-resumo">
+          <div class="config-db-grafico"><canvas id="grafico-db" width="78" height="78"></canvas></div>
+          <div>
+            <div class="stat-card__valor" data-db-pct style="font-size:25px">—</div>
+            <div class="texto-suave config-db-label">de uso do banco de dados</div>
+            <div class="config-db-status" data-db-status><span class="config-status-dot"></span> Verificando conexão…</div>
+          </div>
+        </div>
+        <div class="config-indicadores">
+          <div><strong data-db-size>—</strong><span>Tamanho atual</span></div>
+          <div><strong data-db-livre>—</strong><span>Espaço livre*</span></div>
+          <div><strong data-db-pacientes>—</strong><span>Pacientes</span></div>
+          <div><strong data-db-consultas>—</strong><span>Consultas no mês</span></div>
+        </div>
+        <p class="texto-suave config-db-nota">*Estimativa considerando o limite de 500 MB usado pelo painel para acompanhamento.</p>
+      </div>
+
+      <div class="painel-card config-db-card">
+        <h3>Armazenamento (Storage)</h3>
+        <div class="config-db-resumo">
+          <div class="config-db-grafico"><canvas id="grafico-storage" width="78" height="78"></canvas></div>
+          <div>
+            <div class="stat-card__valor" data-storage-pct style="font-size:25px">—</div>
+            <div class="texto-suave config-db-label">do storage utilizado</div>
+            <div class="config-db-status" data-storage-status><span class="config-status-dot"></span> Verificando conexão…</div>
+          </div>
+        </div>
+        <div class="config-indicadores">
+          <div><strong data-storage-imagens>—</strong><span>Imagens</span></div>
+          <div><strong data-storage-arquivos>—</strong><span>Arquivos no total</span></div>
+          <div><strong data-storage-usado>—</strong><span>Espaço usado</span></div>
+          <div><strong data-storage-livre>—</strong><span>Espaço livre*</span></div>
+        </div>
+        <p class="texto-suave config-db-nota">*Estimativa considerando o limite de 1 GB do plano atual do Supabase. Ajuste em <code>configuracoes.html</code> caso o plano seja outro.</p>
+      </div>
+
+      <div class="painel-card">
+        <h3>Acesso rápido</h3>
+        <div class="config-item">
+          <span>Permitir upload de documentos</span>
+          <label class="toggle"><input type="checkbox" id="cfg-upload"><span class="slider"></span></label>
+        </div>
+        <div class="config-item">
+          <span>Notificações por e-mail <small class="texto-suave">(configuração)</small></span>
+          <label class="toggle"><input type="checkbox" id="cfg-email"><span class="slider"></span></label>
+        </div>
+        <div class="config-item">
+          <span>Backup automático <small class="texto-suave">(configuração)</small></span>
+          <label class="toggle"><input type="checkbox" id="cfg-backup"><span class="slider"></span></label>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script type="module">
+  import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash } from "/painel/assets/js/painel-auth.js";
+  import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
+
+  const contexto = await exigirAdmin();
+  if (!contexto) throw new Error("sem acesso");
+  document.querySelector("[data-sidebar]").innerHTML = renderSidebarAdmin("configuracoes", contexto.perfil.full_name);
+  configurarBotaoSair();
+
+  const flash = document.querySelector("[data-flash]");
+
+  const { data: stats, error: statsError } = await supabase.rpc("admin_stats");
+  const LIMITE_DB = 500 * 1024 * 1024;
+  const fmtBytes = (bytes) => {
+    if (!Number.isFinite(bytes)) return "—";
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+  if (stats && !statsError) {
+    const pct = Number(stats.db_pct || 0);
+    const usado = Number(stats.db_bytes || 0);
+    document.querySelector("[data-db-pct]").textContent = `${pct.toFixed(1)}%`;
+    document.querySelector("[data-db-size]").textContent = fmtBytes(usado);
+    document.querySelector("[data-db-livre]").textContent = fmtBytes(Math.max(0, LIMITE_DB - usado));
+    document.querySelector("[data-db-pacientes]").textContent = Number(stats.total_pacientes || 0).toLocaleString("pt-BR");
+    document.querySelector("[data-db-consultas]").textContent = Number(stats.consultas_mes || 0).toLocaleString("pt-BR");
+    document.querySelector("[data-db-status]").innerHTML = '<span class="config-status-dot ok"></span> Banco conectado e respondendo';
+    new Chart(document.getElementById("grafico-db"), {
+      type: "doughnut",
+      data: { datasets: [{ data: [pct, Math.max(0, 100 - pct)], backgroundColor: ["#c9a45b", "#f4eee3"], borderWidth: 0 }] },
+      options: { responsive: false, animation: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, cutout: "72%" },
+    });
+  } else {
+    document.querySelector("[data-db-status]").innerHTML = '<span class="config-status-dot erro"></span> Não foi possível consultar o banco';
+  }
+
+  const { data: storageStats, error: storageError } = await supabase.rpc("admin_storage_stats");
+  const LIMITE_STORAGE = 1 * 1024 * 1024 * 1024; // 1 GB — ajuste conforme o plano do Supabase
+  if (storageStats && !storageError) {
+    const usadoBytes = Number(storageStats.total_bytes || 0);
+    const pctStorage = Math.min(100, (usadoBytes / LIMITE_STORAGE) * 100);
+    document.querySelector("[data-storage-pct]").textContent = `${pctStorage.toFixed(1)}%`;
+    document.querySelector("[data-storage-imagens]").textContent = Number(storageStats.total_imagens || 0).toLocaleString("pt-BR");
+    document.querySelector("[data-storage-arquivos]").textContent = Number(storageStats.total_arquivos || 0).toLocaleString("pt-BR");
+    document.querySelector("[data-storage-usado]").textContent = fmtBytes(usadoBytes);
+    document.querySelector("[data-storage-livre]").textContent = fmtBytes(Math.max(0, LIMITE_STORAGE - usadoBytes));
+    document.querySelector("[data-storage-status]").innerHTML = '<span class="config-status-dot ok"></span> Storage conectado e respondendo';
+    new Chart(document.getElementById("grafico-storage"), {
+      type: "doughnut",
+      data: { datasets: [{ data: [pctStorage, Math.max(0, 100 - pctStorage)], backgroundColor: ["#c9a45b", "#f4eee3"], borderWidth: 0 }] },
+      options: { responsive: false, animation: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, cutout: "72%" },
+    });
+  } else {
+    document.querySelector("[data-storage-status]").innerHTML = '<span class="config-status-dot erro"></span> Não foi possível consultar o storage';
+  }
+
+  const { data: config } = await supabase.from("configuracoes").select("*").eq("id", 1).single();
+  if (config) {
+    document.getElementById("cfg-upload").checked = config.permitir_upload_documentos;
+    document.getElementById("cfg-email").checked = config.notificacoes_email;
+    document.getElementById("cfg-backup").checked = config.backup_automatico;
+  }
+
+  async function salvar(campo, valor) {
+    const { error } = await supabase.from("configuracoes").update({ [campo]: valor, updated_at: new Date().toISOString() }).eq("id", 1);
+    mostrarFlash(flash, error ? "Erro ao salvar: " + error.message : "Configuração atualizada.", error ? "erro" : "sucesso");
+  }
+
+  document.getElementById("cfg-upload").addEventListener("change", (e) => salvar("permitir_upload_documentos", e.target.checked));
+  document.getElementById("cfg-email").addEventListener("change", (e) => salvar("notificacoes_email", e.target.checked));
+  document.getElementById("cfg-backup").addEventListener("change", (e) => salvar("backup_automatico", e.target.checked));
+</script>
+</body>
+</html>
