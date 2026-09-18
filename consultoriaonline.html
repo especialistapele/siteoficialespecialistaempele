@@ -24,6 +24,7 @@
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="stylesheet" href="/assets/css/paginas.css">
+<link rel="stylesheet" href="/assets/css/mobile-nav.css">
 <script type="application/ld+json">
 {
  "@context":"https://schema.org",
@@ -42,7 +43,8 @@
 <header class="site-nav-interna">
   <div class="nav-inner-interna">
     <a href="/" class="logo-interna" aria-label="Especialista em Pele — início"><img src="/assets/logo-especialista.webp" alt="Especialista em Pele"></a>
-    <nav class="nav-links-interna" aria-label="Menu principal">
+    <button type="button" class="nav-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu-principal"><span></span><span></span><span></span></button>
+    <nav class="nav-links-interna" id="menu-principal" aria-label="Menu principal">
       <a href="/pele.html">A Pele</a><a href="/quemsomos.html">Quem Somos</a><a href="/tratamentos/">Regeneração</a><a href="/nanotecnologia.html">Nanotecnologia</a><a href="/blog/">Conhecimento</a><a href="/contato.html">Consulta</a>
     </nav>
     <a class="nav-login-interna" href="/painel/">Login Paciente</a>
@@ -222,4 +224,5 @@ document.querySelectorAll('[data-flip-trigger]').forEach(function(btn){
   });
 });
 </script>
+<script src="/assets/js/mobile-nav.js" defer></script>
 </body></html>

@@ -599,13 +599,15 @@ h2,h3,p{margin-top:0}
 }
 
 .footer-logo{height:52px;width:auto;max-width:220px;object-fit:contain;object-position:left center}\n</style>
+<link rel="stylesheet" href="/assets/css/mobile-nav.css">
 </head>
 <body>
 
 <header class="site-nav">
   <nav class="nav-inner" aria-label="Navegação principal">
     <a href="/" class="nav-logo"><img src="assets/logo-especialista.webp" alt="Especialista em Pele"></a>
-    <div class="nav-links">
+    <button type="button" class="nav-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu-principal"><span></span><span></span><span></span></button>
+    <div class="nav-links" id="menu-principal">
       <a href="/pele.html">A Pele</a>
       <a href="/quemsomos.html">Quem Somos</a>
       <a href="/tratamentos/">Regeneração</a>
@@ -808,5 +810,6 @@ h2,h3,p{margin-top:0}
 })();
 </script>
 <script src="/assets/js/whatsapp.js" defer></script>
+<script src="/assets/js/mobile-nav.js" defer></script>
 </body>
 </html>

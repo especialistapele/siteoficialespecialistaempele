@@ -18,6 +18,7 @@
 <meta name="twitter:description" id="twitter-description" content="Conheça este tratamento regenerativo.">
 <link rel="canonical" id="link-canonical" href="https://www.especialistaempele.com.br/tratamentos/detalhe.html">
 <link rel="stylesheet" href="/assets/css/paginas.css">
+<link rel="stylesheet" href="/assets/css/mobile-nav.css">
 <style>.artigo-corpo p{font-size:17px;line-height:1.7;margin-bottom:18px}</style>
 <link rel="icon" href="/assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
@@ -27,7 +28,8 @@
 <header class="site-nav-interna">
   <div class="nav-inner-interna">
     <a href="/" class="logo-interna"><img src="/assets/logo-especialista.webp" alt="Especialista em Pele"></a>
-    <nav class="nav-links-interna" aria-label="Menu principal">
+    <button type="button" class="nav-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu-principal"><span></span><span></span><span></span></button>
+    <nav class="nav-links-interna" id="menu-principal" aria-label="Menu principal">
       <a href="/pele.html">A Pele</a><a href="/quemsomos.html">Quem Somos</a>
       <a href="/tratamentos/" aria-current="page">Regeneração</a><a href="/nanotecnologia.html">Nanotecnologia</a>
       <a href="/blog/">Conhecimento</a><a href="/contato.html">Consulta</a>
@@ -72,5 +74,6 @@
 <script src="/assets/js/whatsapp.js" defer></script>
 <script type="module" src="/assets/js/cookies.js"></script>
 <script type="module" src="/tratamentos/tratamento-data.js"></script>
+<script src="/assets/js/mobile-nav.js" defer></script>
 </body>
 </html>
