@@ -1,0 +1,42 @@
+name: Atualizar sitemap.xml
+
+on:
+  schedule:
+    # Todo dia às 06:00 (horário de Brasília = 09:00 UTC)
+    - cron: "0 9 * * *"
+  workflow_dispatch: {}   # botão "Run workflow" manual, na aba Actions
+  push:
+    branches: [main]      # também roda quando você fizer deploy do site
+
+permissions:
+  contents: write
+
+jobs:
+  atualizar-sitemap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Gerar sitemap.xml a partir do Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: node scripts/gerar-sitemap.mjs
+
+      - name: Confirmar e enviar, só se algo mudou
+        run: |
+          git config user.name "sitemap-bot"
+          git config user.email "actions@github.com"
+          git add sitemap.xml
+          if git diff --staged --quiet; then
+            echo "Sitemap sem mudanças — nada para enviar."
+          else
+            git commit -m "chore: atualizar sitemap.xml automaticamente"
+            git push
+          fi
