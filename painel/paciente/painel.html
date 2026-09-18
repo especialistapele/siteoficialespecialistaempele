@@ -18,6 +18,9 @@
   .resumo-mini__card{background:#fff;border-radius:12px;box-shadow:var(--sombra);padding:16px;display:flex;flex-direction:column;gap:6px}
   .resumo-mini__card svg{width:20px;height:20px;color:var(--gold)}
   .pac-topbar{display:flex;justify-content:flex-end;margin-bottom:10px}
+  .conteudo-contrato{border:1px solid var(--linha,#ddd7c9);border-radius:8px;padding:16px;max-height:38vh;overflow-y:auto;font-size:14px;line-height:1.6;background:#fff;text-align:left}
+  .assinatura-canvas-wrap{border:1px dashed var(--linha,#ddd7c9);border-radius:8px;background:#fff;margin-top:14px}
+  .assinatura-canvas-wrap canvas{width:100%;height:160px;display:block;touch-action:none;cursor:crosshair}
   .pac-usuario{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700}
 .pac-hero__subtitulo{margin:10px 0 0;color:#fff;font-size:17px;line-height:1.5;max-width:58ch}
 @media (max-width:700px){.pac-hero__overlay{padding:28px 24px 30px}.pac-hero__overlay h1{font-size:32px}.pac-hero__subtitulo{font-size:15px}}
@@ -53,6 +56,10 @@
       <a href="#" data-aba-link="documentos">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v13m0 0-4-4m4 4 4-4"/><path d="M4 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
         <span>Documentos</span>
+      </a>
+      <a href="#" data-aba-link="contratos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 20c4 0 5-2 8-2s3 2 6 2"/><path d="M14.5 3.5l6 6L11 19l-5 1 1-5Z"/></svg>
+        <span>Contratos</span>
       </a>
       <a href="#" data-aba-link="agendar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.5 11.9a8.4 8.4 0 1 1-3.6-6.9L20.5 4l-1 3.4a8.3 8.3 0 0 1 1 4.5Z"/></svg>
@@ -141,6 +148,12 @@
       </div>
     </section>
 
+    <!-- CONTRATOS -->
+    <section class="aba-conteudo" data-conteudo="contratos">
+      <div class="painel-topo"><div><h1>Contratos</h1><p class="texto-suave">Leia e assine seus contratos aqui mesmo, com sua assinatura desenhada.</p></div></div>
+      <div class="painel-card"><div data-lista-contratos><p class="texto-suave">Carregando…</p></div></div>
+    </section>
+
     <!-- AGENDAR -->
     <section class="aba-conteudo" data-conteudo="agendar">
       <div class="painel-card" style="text-align:center;padding:60px 20px">
@@ -151,12 +164,33 @@
       </div>
     </section>
   </main>
+
+  <!-- MODAL: ler e assinar contrato -->
+  <div id="modal-contrato" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
+    <div class="painel-card" style="max-width:640px;width:100%;margin:auto">
+      <h3 data-contrato-titulo>Contrato</h3>
+      <div class="conteudo-contrato" data-contrato-conteudo></div>
+      <label style="display:flex;gap:8px;align-items:flex-start;margin-top:14px;font-size:13.5px">
+        <input type="checkbox" id="contrato-concordo" style="margin-top:3px">
+        <span>Li e estou de acordo com os termos do contrato acima.</span>
+      </label>
+      <p class="texto-suave" style="font-size:12.5px;margin:10px 0 4px">Desenhe sua assinatura abaixo (mouse ou dedo):</p>
+      <div class="assinatura-canvas-wrap"><canvas id="contrato-canvas"></canvas></div>
+      <div class="form-acoes">
+        <button type="button" class="btn-p btn-p-fora" id="contrato-limpar">Limpar assinatura</button>
+        <button type="button" class="btn-p btn-p-dourado" id="contrato-confirmar" disabled>Confirmar e assinar</button>
+        <button type="button" class="btn-p btn-p-fora" id="contrato-cancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="/assets/js/whatsapp.js" defer></script>
 <script type="module">
   import { supabase, exigirPaciente, configurarBotaoSair, mostrarFlash } from "/painel/assets/js/painel-auth.js";
   import { initAntesDepoisSlider } from "/assets/js/antes-depois-slider.js";
+  import { sanitizeRichHtml } from "/assets/js/rich-text.js";
+  import { criarAssinatura } from "/painel/assets/js/assinatura-canvas.js";
 
   const contexto = await exigirPaciente();
   if (!contexto) throw new Error("sem acesso");
@@ -304,6 +338,102 @@
       });
     });
   }
+
+  // Contratos: leitura + assinatura desenhada + download do comprovante assinado
+  const listaContratos = document.querySelector("[data-lista-contratos]");
+  const modalContrato = document.getElementById("modal-contrato");
+  const canvasEl = document.getElementById("contrato-canvas");
+  const assinatura = criarAssinatura(canvasEl);
+  const checkboxConcordo = document.getElementById("contrato-concordo");
+  const botaoConfirmar = document.getElementById("contrato-confirmar");
+  let contratoAtualId = null;
+
+  function atualizarBotaoConfirmar() {
+    botaoConfirmar.disabled = !(checkboxConcordo.checked && !assinatura.estaVazia());
+  }
+  checkboxConcordo.addEventListener("change", atualizarBotaoConfirmar);
+  canvasEl.addEventListener("mouseup", atualizarBotaoConfirmar);
+  canvasEl.addEventListener("touchend", atualizarBotaoConfirmar);
+
+  document.getElementById("contrato-limpar").addEventListener("click", () => {
+    assinatura.limpar();
+    atualizarBotaoConfirmar();
+  });
+  document.getElementById("contrato-cancelar").addEventListener("click", () => {
+    modalContrato.style.display = "none";
+  });
+
+  async function carregarContratos() {
+    const { data, error } = await supabase.from("contracts").select("*").eq("patient_id", patientId).order("created_at", { ascending: false });
+    if (error || !data?.length) {
+      listaContratos.innerHTML = `<p class="texto-suave">Nenhum contrato disponível ainda.</p>`;
+      return;
+    }
+    listaContratos.innerHTML = data.map((c) => `
+      <div class="lista-simples__item">
+        <div><div class="pessoa__nome">${escapeHtml(c.title)}</div><div class="pessoa__sub">${c.status === "assinado" ? "Assinado em " + new Date(c.signed_at).toLocaleDateString("pt-BR") : "Aguardando sua assinatura"}</div></div>
+        ${c.status === "assinado"
+          ? `<button class="btn-p btn-p-mini btn-p-fora" data-baixar-contrato="${c.id}">↓ Baixar contrato (PDF)</button>`
+          : `<button class="btn-p btn-p-mini btn-p-dourado" data-ler-contrato="${c.id}">Ler e assinar</button>`}
+      </div>`).join("");
+
+    listaContratos.querySelectorAll("[data-ler-contrato]").forEach((btn) => btn.addEventListener("click", () => abrirContrato(btn.dataset.lerContrato, data)));
+    listaContratos.querySelectorAll("[data-baixar-contrato]").forEach((btn) => btn.addEventListener("click", () => baixarContrato(btn.dataset.baixarContrato, data)));
+  }
+
+  function abrirContrato(id, lista) {
+    const contrato = lista.find((c) => c.id === id);
+    if (!contrato) return;
+    contratoAtualId = id;
+    document.querySelector("[data-contrato-titulo]").textContent = contrato.title;
+    document.querySelector("[data-contrato-conteudo]").innerHTML = sanitizeRichHtml(contrato.content_html);
+    checkboxConcordo.checked = false;
+    assinatura.limpar();
+    atualizarBotaoConfirmar();
+    modalContrato.style.display = "flex";
+  }
+
+  botaoConfirmar.addEventListener("click", async () => {
+    if (!contratoAtualId || botaoConfirmar.disabled) return;
+    botaoConfirmar.disabled = true;
+    botaoConfirmar.textContent = "Enviando...";
+    try {
+      const blob = await assinatura.paraBlob();
+      const caminho = `${patientId}/assinaturas/${contratoAtualId}-${Date.now()}.png`;
+      const { error: erroUpload } = await supabase.storage.from("documentos-pacientes").upload(caminho, blob, { contentType: "image/png" });
+      if (erroUpload) throw erroUpload;
+
+      const { error: erroAssinar } = await supabase.rpc("assinar_contrato", {
+        p_contract_id: contratoAtualId,
+        p_signature_path: caminho,
+        p_user_agent: navigator.userAgent,
+      });
+      if (erroAssinar) throw erroAssinar;
+
+      modalContrato.style.display = "none";
+      mostrarFlash(flash, "Contrato assinado com sucesso.", "sucesso");
+      carregarContratos();
+    } catch (erro) {
+      alert("Não foi possível assinar o contrato: " + (erro.message || erro));
+    } finally {
+      botaoConfirmar.textContent = "Confirmar e assinar";
+      atualizarBotaoConfirmar();
+    }
+  });
+
+  async function baixarContrato(id, lista) {
+    const contrato = lista.find((c) => c.id === id);
+    if (!contrato) return;
+    let signatureUrl = null;
+    if (contrato.signature_image_path) {
+      const { data: assinada } = await supabase.storage.from("documentos-pacientes").createSignedUrl(contrato.signature_image_path, 300);
+      signatureUrl = assinada?.signedUrl || null;
+    }
+    const { baixarPdfContrato } = await import("/painel/assets/js/contrato-pdf.js");
+    await baixarPdfContrato(contrato, { patientName: contexto.paciente.full_name, signatureUrl });
+  }
+
+  carregarContratos();
 </script>
 </body>
 </html>
