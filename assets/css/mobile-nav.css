@@ -116,4 +116,57 @@ body.nav-scroll-lock{overflow:hidden}
     margin:10px 0 6px;
     border:1px solid rgba(231,201,130,.85);
   }
+
+  /* Barra do menu sólida no mobile (remove o efeito translúcido/blur
+     que "vaza" o conteúdo por trás e deixa a leitura confusa) */
+  .site-nav{
+    background:#16241c;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+  }
+  .site-nav-interna{
+    background:#26312d;
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
+  }
+}
+
+/* ==========================================================
+   SEÇÃO "ATALHOS" (A Pele / Quem Somos / Regeneração...) —
+   no desktop é uma imagem de fundo com os ícones já desenhados
+   nela e o texto sobreposto por porcentagem. Em telas estreitas
+   isso quebra (texto maior que a coluna, sobrepondo o item
+   vizinho). No mobile trocamos por cards empilhados com fundo
+   sólido, sem depender da imagem.
+   ========================================================== */
+@media (max-width:900px){
+  .quick{aspect-ratio:unset; min-height:0; line-height:normal}
+  .quick img{display:none}
+  .quick-grid{
+    position:relative;
+    inset:auto;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:1px;
+    padding:0;
+    background:#16241c;
+  }
+  .quick-item{
+    position:relative;
+    background:#1d2b23;
+    padding:22px 14px;
+    align-items:flex-start;
+    justify-content:flex-start;
+    text-align:left;
+  }
+  .quick-title{font-size:13px; letter-spacing:.07em; margin-bottom:8px}
+  .quick-desc{font-size:11px; max-width:none; min-height:0; margin-bottom:0; line-height:1.4}
+  .quick-link{font-size:9px; margin-top:12px}
+}
+@media (max-width:600px){
+  .quick-grid{grid-template-columns:1fr}
+  .quick-item{padding:20px 18px}
+  .quick-title{font-size:15px}
+  .quick-desc{font-size:12px}
+  .quick-link{font-size:10px}
 }
