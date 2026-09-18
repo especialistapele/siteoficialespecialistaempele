@@ -13,12 +13,18 @@ export function criarAssinatura(canvas) {
   let ultimoX = 0;
   let ultimoY = 0;
 
+  // Prepara a resolução real do canvas a partir do tamanho exibido em tela.
+  // Precisa ser chamada de novo sempre que o canvas ficar visível (ex.: ao
+  // abrir um modal que estava com display:none — nesse momento clientWidth/
+  // clientHeight seriam 0 e o desenho sairia em branco).
   function ajustarResolucao() {
-    const proporcao = window.devicePixelRatio || 1;
     const largura = canvas.clientWidth;
     const altura = canvas.clientHeight;
+    if (!largura || !altura) return; // ainda escondido: não mexe, tenta depois
+    const proporcao = window.devicePixelRatio || 1;
     canvas.width = largura * proporcao;
     canvas.height = altura * proporcao;
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(proporcao, proporcao);
     ctx.lineWidth = 2.2;
     ctx.lineCap = "round";
@@ -68,6 +74,9 @@ export function criarAssinatura(canvas) {
 
   return {
     estaVazia: () => !temTraco,
+    // Chame isso sempre que o modal/aba com o canvas for exibido, antes de
+    // deixar a pessoa desenhar — garante que o canvas tem o tamanho certo.
+    redimensionar: ajustarResolucao,
     limpar() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       temTraco = false;
