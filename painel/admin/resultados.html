@@ -28,12 +28,14 @@
 
     <div id="modal" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
       <div class="painel-card" style="max-width:520px;width:100%;margin:auto">
-        <h3>Novo resultado</h3>
+        <h3 data-modal-titulo>Novo resultado</h3>
         <form id="form-item">
+          <input type="hidden" id="item_id">
           <div class="form-linha">
-            <div class="form-campo"><label for="foto_antes">Foto — antes</label><input type="file" id="foto_antes" accept="image/*" required></div>
-            <div class="form-campo"><label for="foto_depois">Foto — depois</label><input type="file" id="foto_depois" accept="image/*" required></div>
+            <div class="form-campo"><label for="foto_antes">Foto — antes</label><input type="file" id="foto_antes" accept="image/*"></div>
+            <div class="form-campo"><label for="foto_depois">Foto — depois</label><input type="file" id="foto_depois" accept="image/*"></div>
           </div>
+          <p class="texto-suave" id="dica-edicao" style="display:none;font-size:12px;margin:-8px 0 4px">Deixe em branco para manter as fotos atuais, ou escolha um novo arquivo para substituir.</p>
           <div class="form-campo" id="preview-wrap" style="display:none">
             <label>Pré-visualização — como vai aparecer no site</label>
             <div class="antes-depois-slider" data-antes-depois id="preview-slider" style="max-width:260px">
@@ -102,16 +104,51 @@
         </td>
         <td>${r.consent_confirmed ? "✅" : "⚠️"}</td>
         <td><span class="selo-p ${r.published ? "publicado" : "rascunho"}">${r.published ? "Publicado" : "Rascunho"}</span></td>
-        <td><button class="btn-p btn-p-mini btn-p-perigo" data-excluir="${r.id}">Excluir</button></td>
+        <td>
+          <button class="btn-p btn-p-mini btn-p-fora" data-editar="${r.id}">Editar</button>
+          <button class="btn-p btn-p-mini btn-p-perigo" data-excluir="${r.id}">Excluir</button>
+        </td>
       </tr>`).join("") : `<tr><td colspan="5" class="painel-vazio">Nenhum resultado cadastrado.</td></tr>`;
 
     initAntesDepoisSlider(corpo);
 
+    corpo.querySelectorAll("[data-editar]").forEach((btn) => btn.addEventListener("click", () => abrirEdicao(btn.dataset.editar)));
     corpo.querySelectorAll("[data-excluir]").forEach((btn) => btn.addEventListener("click", async () => {
       if (!confirm("Excluir este resultado?")) return;
       await supabase.from("results").delete().eq("id", btn.dataset.excluir);
       carregar();
     }));
+  }
+
+  function abrirNovo() {
+    document.getElementById("form-item").reset();
+    document.getElementById("item_id").value = "";
+    document.querySelector("[data-modal-titulo]").textContent = "Novo resultado";
+    document.getElementById("dica-edicao").style.display = "none";
+    limparPreview();
+    modal.style.display = "flex";
+  }
+
+  function abrirEdicao(id) {
+    const r = todos.find((item) => item.id === id);
+    if (!r) return;
+    document.getElementById("form-item").reset();
+    document.getElementById("item_id").value = r.id;
+    document.querySelector("[data-modal-titulo]").textContent = "Editar resultado";
+    document.getElementById("dica-edicao").style.display = "block";
+    selectTratamento.value = r.treatment_id || "";
+    document.getElementById("description").value = r.description || "";
+    document.getElementById("consent_confirmed").checked = !!r.consent_confirmed;
+    document.getElementById("published").checked = !!r.published;
+
+    limparPreview();
+    if (r.before_image_url && r.after_image_url) {
+      previewAntes.src = r.before_image_url;
+      previewDepois.src = r.after_image_url;
+      previewWrap.style.display = "block";
+      initAntesDepoisSlider(document.getElementById("preview-slider"));
+    }
+    modal.style.display = "flex";
   }
 
   document.getElementById("busca").addEventListener("input", (e) => {
@@ -150,40 +187,55 @@
   inputAntes.addEventListener("change", atualizarPreview);
   inputDepois.addEventListener("change", atualizarPreview);
 
-  document.getElementById("botao-novo").addEventListener("click", () => { limparPreview(); modal.style.display = "flex"; });
+  document.getElementById("botao-novo").addEventListener("click", abrirNovo);
   document.getElementById("botao-fechar").addEventListener("click", () => { modal.style.display = "none"; limparPreview(); document.getElementById("form-item").reset(); });
 
   document.getElementById("form-item").addEventListener("submit", async (e) => {
     e.preventDefault();
+    const editandoId = document.getElementById("item_id").value || null;
+    const antes = document.getElementById("foto_antes").files[0];
+    const depois = document.getElementById("foto_depois").files[0];
+
+    if (!editandoId && (!antes || !depois)) {
+      mostrarFlash(flash, "Selecione as duas fotos (antes e depois).", "erro");
+      return;
+    }
+
     const botao = document.getElementById("botao-salvar");
     botao.disabled = true; botao.textContent = "Enviando…";
     try {
-      const antes = document.getElementById("foto_antes").files[0];
-      const depois = document.getElementById("foto_depois").files[0];
-      const marca = Date.now();
-      const antesOtimizada = await otimizarImagemParaWebP(antes, 1800, 0.82);
-      const depoisOtimizada = await otimizarImagemParaWebP(depois, 1800, 0.82);
-      const caminhoAntes = `resultados/${marca}-antes.webp`;
-      const caminhoDepois = `resultados/${marca}-depois.webp`;
-      let { error: e1 } = await supabase.storage.from("site-media").upload(caminhoAntes, antesOtimizada, { contentType: "image/webp", cacheControl: "31536000" });
-      if (e1) throw e1;
-      let { error: e2 } = await supabase.storage.from("site-media").upload(caminhoDepois, depoisOtimizada, { contentType: "image/webp", cacheControl: "31536000" });
-      if (e2) throw e2;
-      const before_image_url = supabase.storage.from("site-media").getPublicUrl(caminhoAntes).data.publicUrl;
-      const after_image_url = supabase.storage.from("site-media").getPublicUrl(caminhoDepois).data.publicUrl;
-
-      const { error } = await supabase.from("results").insert({
-        before_image_url, after_image_url,
+      const dadosResultado = {
         treatment_id: selectTratamento.value || null,
         description: document.getElementById("description").value.trim(),
         consent_confirmed: document.getElementById("consent_confirmed").checked,
         published: document.getElementById("published").checked,
-      });
+      };
+
+      // Só reprocessa e reenvia as fotos se o admin escolheu um novo arquivo;
+      // ao editar sem trocar a foto, mantém as URLs já salvas.
+      if (antes && depois) {
+        const marca = Date.now();
+        const antesOtimizada = await otimizarImagemParaWebP(antes, 1800, 0.82);
+        const depoisOtimizada = await otimizarImagemParaWebP(depois, 1800, 0.82);
+        const caminhoAntes = `resultados/${marca}-antes.webp`;
+        const caminhoDepois = `resultados/${marca}-depois.webp`;
+        let { error: e1 } = await supabase.storage.from("site-media").upload(caminhoAntes, antesOtimizada, { contentType: "image/webp", cacheControl: "31536000" });
+        if (e1) throw e1;
+        let { error: e2 } = await supabase.storage.from("site-media").upload(caminhoDepois, depoisOtimizada, { contentType: "image/webp", cacheControl: "31536000" });
+        if (e2) throw e2;
+        dadosResultado.before_image_url = supabase.storage.from("site-media").getPublicUrl(caminhoAntes).data.publicUrl;
+        dadosResultado.after_image_url = supabase.storage.from("site-media").getPublicUrl(caminhoDepois).data.publicUrl;
+      }
+
+      const { error } = editandoId
+        ? await supabase.from("results").update(dadosResultado).eq("id", editandoId)
+        : await supabase.from("results").insert(dadosResultado);
       if (error) throw error;
+
       modal.style.display = "none";
       document.getElementById("form-item").reset();
       limparPreview();
-      mostrarFlash(flash, "Resultado salvo com sucesso.", "sucesso");
+      mostrarFlash(flash, editandoId ? "Resultado atualizado com sucesso." : "Resultado salvo com sucesso.", "sucesso");
       carregar();
     } catch (erro) {
       mostrarFlash(flash, "Erro: " + erro.message, "erro");
