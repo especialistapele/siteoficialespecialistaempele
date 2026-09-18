@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Contratos — Painel</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<style>
+  .editor-p-toolbar{display:flex;align-items:center;gap:4px;flex-wrap:wrap;border:1px solid var(--linha,#ddd7c9);border-bottom:none;border-radius:6px 6px 0 0;padding:6px;background:#faf8f3}
+  .editor-p-toolbar button{min-width:30px;height:30px;border:1px solid transparent;border-radius:4px;background:transparent;cursor:pointer;font-size:13px;color:#26312d}
+  .editor-p-toolbar button:hover{background:#efe8d8;border-color:var(--gold,#c9a45b)}
+  .editor-p-toolbar__sep{width:1px;align-self:stretch;background:var(--linha,#ddd7c9);margin:2px 4px}
+  .editor-p-area{min-height:220px;max-height:420px;overflow-y:auto;border:1px solid var(--linha,#ddd7c9);border-radius:0 0 6px 6px;padding:12px;font-size:14px;line-height:1.6;background:#fff}
+  .editor-p-area:empty::before{content:attr(data-placeholder);color:#9a978c}
+  .editor-p-area:focus{outline:none;border-color:var(--gold,#c9a45b)}
+  #modal-ver .conteudo-contrato{border:1px solid var(--linha,#ddd7c9);border-radius:8px;padding:16px;max-height:50vh;overflow-y:auto;font-size:14px;line-height:1.6}
+  #modal-ver img.assinatura{max-width:260px;border:1px solid var(--linha,#ddd7c9);border-radius:8px;background:#fff;padding:8px}
+</style>
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+</head>
+<body>
+<div class="painel-layout">
+  <aside class="painel-sidebar" data-sidebar></aside>
+  <main class="painel-main">
+    <div class="painel-topo">
+      <div><h1>Contratos</h1><p class="texto-suave">Envie contratos para os pacientes lerem e assinarem dentro do próprio painel.</p></div>
+      <button class="btn-p btn-p-dourado" id="botao-novo">+ Novo contrato</button>
+    </div>
+    <div class="aviso-flash" data-flash></div>
+
+    <div class="form-linha" style="margin-bottom:14px;max-width:320px">
+      <div class="form-campo"><label for="filtro_paciente">Filtrar por paciente</label>
+        <select id="filtro_paciente"><option value="">Todos os pacientes</option></select>
+      </div>
+    </div>
+
+    <table class="tabela-p">
+      <thead><tr><th>Paciente</th><th>Título</th><th>Status</th><th>Criado em</th><th>Assinado em</th><th>Ações</th></tr></thead>
+      <tbody data-tabela-corpo><tr><td colspan="6" class="painel-vazio">Carregando…</td></tr></tbody>
+    </table>
+
+    <!-- MODAL: novo contrato -->
+    <div id="modal" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
+      <div class="painel-card" style="max-width:680px;width:100%;margin:auto">
+        <h3>Novo contrato</h3>
+        <form id="form-contrato">
+          <div class="form-linha">
+            <div class="form-campo"><label for="patient_id">Paciente</label><select id="patient_id" required><option value="">Selecione...</option></select></div>
+            <div class="form-campo"><label for="title">Título do contrato</label><input type="text" id="title" required placeholder="Ex.: Contrato de prestação de serviço"></div>
+          </div>
+          <div class="form-campo">
+            <label for="content-editor">Texto do contrato</label>
+            <div class="editor-p-toolbar" role="toolbar" aria-label="Formatação do texto">
+              <button type="button" data-cmd="bold" title="Negrito"><strong>N</strong></button>
+              <button type="button" data-cmd="italic" title="Itálico"><em>I</em></button>
+              <button type="button" data-cmd="font-inc" title="Aumentar fonte">A+</button>
+              <button type="button" data-cmd="font-dec" title="Reduzir fonte">A-</button>
+              <span class="editor-p-toolbar__sep"></span>
+              <button type="button" data-cmd="justifyLeft" title="Alinhar à esquerda">⇤</button>
+              <button type="button" data-cmd="justifyCenter" title="Centralizar">↔</button>
+              <button type="button" data-cmd="justifyRight" title="Alinhar à direita">⇥</button>
+            </div>
+            <div id="content-editor" class="editor-p-area" contenteditable="true" data-placeholder="Cole ou escreva aqui o texto completo do contrato..."></div>
+            <input type="hidden" id="content_html">
+          </div>
+          <div class="form-acoes">
+            <button type="submit" class="btn-p btn-p-dourado">Enviar para o paciente</button>
+            <button type="button" class="btn-p btn-p-fora" id="botao-fechar">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: visualizar contrato -->
+    <div id="modal-ver" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
+      <div class="painel-card" style="max-width:680px;width:100%;margin:auto">
+        <h3 data-ver-titulo>Contrato</h3>
+        <p class="texto-suave" data-ver-status style="margin-top:-8px"></p>
+        <div class="conteudo-contrato" data-ver-conteudo></div>
+        <div data-ver-assinatura style="margin-top:16px"></div>
+        <div class="form-acoes"><button type="button" class="btn-p btn-p-fora" id="botao-fechar-ver">Fechar</button></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+  import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash } from "/painel/assets/js/painel-auth.js";
+  import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
+  import { escapeHtml } from "/painel/assets/js/sanitize.js";
+  import { sanitizeRichHtml } from "/assets/js/rich-text.js";
+
+  const contexto = await exigirAdmin();
+  if (!contexto) throw new Error("sem acesso");
+  document.querySelector("[data-sidebar]").innerHTML = renderSidebarAdmin("contratos", contexto.perfil.full_name);
+  configurarBotaoSair();
+
+  const flash = document.querySelector("[data-flash]");
+  const corpo = document.querySelector("[data-tabela-corpo]");
+  const modal = document.getElementById("modal");
+  const modalVer = document.getElementById("modal-ver");
+  let pacientes = [];
+  let contratos = [];
+
+  // Editor de texto do contrato (mesmo padrão usado em Tratamentos)
+  const editor = document.getElementById("content-editor");
+  const editorHidden = document.getElementById("content_html");
+
+  function sincronizarEditor() {
+    editorHidden.value = sanitizeRichHtml(editor.innerHTML);
+  }
+  editor.addEventListener("input", sincronizarEditor);
+  editor.addEventListener("blur", sincronizarEditor);
+
+  function alterarTamanhoFonte(delta) {
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount || sel.isCollapsed) return;
+    const range = sel.getRangeAt(0);
+    if (!editor.contains(range.commonAncestorContainer)) return;
+    const base = window.getComputedStyle(
+      range.commonAncestorContainer.nodeType === 1 ? range.commonAncestorContainer : range.commonAncestorContainer.parentElement
+    ).fontSize;
+    const novo = Math.max(11, Math.min(34, (parseFloat(base) || 14) + delta));
+    const span = document.createElement("span");
+    span.style.fontSize = novo + "px";
+    try {
+      span.appendChild(range.extractContents());
+      range.insertNode(span);
+    } catch (_) { /* seleção complexa: ignora */ }
+    sincronizarEditor();
+  }
+
+  document.querySelectorAll(".editor-p-toolbar [data-cmd]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      editor.focus();
+      const cmd = btn.dataset.cmd;
+      if (cmd === "font-inc") alterarTamanhoFonte(2);
+      else if (cmd === "font-dec") alterarTamanhoFonte(-2);
+      else document.execCommand(cmd, false, null);
+      sincronizarEditor();
+    });
+  });
+
+  async function carregarPacientes() {
+    const { data } = await supabase.from("patients").select("id, full_name").order("full_name");
+    pacientes = data || [];
+    const opcoes = pacientes.map((p) => `<option value="${p.id}">${escapeHtml(p.full_name)}</option>`).join("");
+    document.getElementById("patient_id").innerHTML = `<option value="">Selecione...</option>${opcoes}`;
+    document.getElementById("filtro_paciente").innerHTML = `<option value="">Todos os pacientes</option>${opcoes}`;
+  }
+
+  function nomePaciente(id) {
+    return pacientes.find((p) => p.id === id)?.full_name || "—";
+  }
+
+  async function carregar() {
+    const { data, error } = await supabase.from("contracts").select("*").order("created_at", { ascending: false });
+    if (error) { corpo.innerHTML = `<tr><td colspan="6" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
+    contratos = data || [];
+    renderizar();
+  }
+
+  function renderizar() {
+    const filtro = document.getElementById("filtro_paciente").value;
+    const lista = filtro ? contratos.filter((c) => c.patient_id === filtro) : contratos;
+
+    corpo.innerHTML = lista.length ? lista.map((c) => `
+      <tr>
+        <td>${escapeHtml(nomePaciente(c.patient_id))}</td>
+        <td>${escapeHtml(c.title)}</td>
+        <td><span class="selo-p ${c.status === "assinado" ? "realizado" : "agendado"}">${c.status === "assinado" ? "Assinado" : "Pendente"}</span></td>
+        <td>${new Date(c.created_at).toLocaleDateString("pt-BR")}</td>
+        <td>${c.signed_at ? new Date(c.signed_at).toLocaleDateString("pt-BR") : "—"}</td>
+        <td>
+          <button class="btn-p btn-p-mini btn-p-fora" data-ver="${c.id}">Ver</button>
+          ${c.status === "pendente" ? `<button class="btn-p btn-p-mini btn-p-perigo" data-excluir="${c.id}">Excluir</button>` : ""}
+        </td>
+      </tr>`).join("") : `<tr><td colspan="6" class="painel-vazio">Nenhum contrato cadastrado.</td></tr>`;
+
+    corpo.querySelectorAll("[data-ver]").forEach((btn) => btn.addEventListener("click", () => abrirVisualizacao(btn.dataset.ver)));
+    corpo.querySelectorAll("[data-excluir]").forEach((btn) => btn.addEventListener("click", async () => {
+      if (!confirm("Excluir este contrato pendente?")) return;
+      const { error } = await supabase.from("contracts").delete().eq("id", btn.dataset.excluir);
+      if (error) { mostrarFlash(flash, error.message, "erro"); return; }
+      mostrarFlash(flash, "Contrato excluído.", "sucesso");
+      carregar();
+    }));
+  }
+
+  async function abrirVisualizacao(id) {
+    const c = contratos.find((item) => item.id === id);
+    if (!c) return;
+    document.querySelector("[data-ver-titulo]").textContent = `${c.title} — ${nomePaciente(c.patient_id)}`;
+    document.querySelector("[data-ver-status]").textContent = c.status === "assinado"
+      ? `Assinado em ${new Date(c.signed_at).toLocaleString("pt-BR")}`
+      : "Ainda não assinado pelo paciente.";
+    document.querySelector("[data-ver-conteudo]").innerHTML = sanitizeRichHtml(c.signed_content_html || c.content_html);
+
+    const blocoAssinatura = document.querySelector("[data-ver-assinatura]");
+    blocoAssinatura.innerHTML = "";
+    if (c.status === "assinado" && c.signature_image_path) {
+      const { data } = await supabase.storage.from("documentos-pacientes").createSignedUrl(c.signature_image_path, 3600);
+      if (data?.signedUrl) {
+        blocoAssinatura.innerHTML = `<strong>Assinatura:</strong><br><img class="assinatura" src="${data.signedUrl}" alt="Assinatura do paciente">`;
+      }
+    }
+    modalVer.style.display = "flex";
+  }
+
+  document.getElementById("filtro_paciente").addEventListener("change", renderizar);
+  document.getElementById("botao-novo").addEventListener("click", () => {
+    document.getElementById("form-contrato").reset();
+    editor.innerHTML = "";
+    editorHidden.value = "";
+    modal.style.display = "flex";
+  });
+  document.getElementById("botao-fechar").addEventListener("click", () => modal.style.display = "none");
+  document.getElementById("botao-fechar-ver").addEventListener("click", () => modalVer.style.display = "none");
+
+  document.getElementById("form-contrato").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    sincronizarEditor();
+    if (!editorHidden.value.trim()) { mostrarFlash(flash, "Escreva o texto do contrato.", "erro"); return; }
+    const { error } = await supabase.from("contracts").insert({
+      patient_id: document.getElementById("patient_id").value,
+      title: document.getElementById("title").value.trim(),
+      content_html: editorHidden.value,
+    });
+    if (error) { mostrarFlash(flash, "Erro ao salvar: " + error.message, "erro"); return; }
+    modal.style.display = "none";
+    mostrarFlash(flash, "Contrato enviado ao paciente.", "sucesso");
+    carregar();
+  });
+
+  await carregarPacientes();
+  carregar();
+</script>
+</body>
+</html>
