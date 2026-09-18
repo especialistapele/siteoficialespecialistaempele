@@ -70,7 +70,7 @@ Deno.serve(async (req: Request) => {
 
       const {error:upd}=await admin.from("patients").update({user_id:id,acesso_painel:true}).eq("id",patient_id);
       if(upd) {
-        await admin.from("profiles").delete().eq("id",id).catch(()=>{});
+        try { await admin.from("profiles").delete().eq("id",id); } catch(_) {}
         await admin.auth.admin.deleteUser(id).catch(()=>{});
         return out({error:"Não foi possível vincular o acesso ao paciente. A operação foi desfeita automaticamente — tente novamente."},500);
       }
@@ -152,14 +152,14 @@ Deno.serve(async (req: Request) => {
         "announcements",
       ];
       for(const tabela of tabelasRelacionadas){
-        await admin.from(tabela).delete().eq("patient_id",patient_id).catch(()=>{});
+        try { await admin.from(tabela).delete().eq("patient_id",patient_id); } catch(_) {}
       }
 
       const {error:erroExcluir}=await admin.from("patients").delete().eq("id",patient_id);
       if(erroExcluir) return out({error:erroExcluir.message||"Não foi possível excluir o paciente."},500);
 
       if(paciente.user_id){
-        await admin.from("profiles").delete().eq("id",paciente.user_id).catch(()=>{});
+        try { await admin.from("profiles").delete().eq("id",paciente.user_id); } catch(_) {}
         await admin.auth.admin.deleteUser(paciente.user_id).catch(()=>{});
       }
 
@@ -190,7 +190,7 @@ Deno.serve(async (req: Request) => {
     }
     const {error:pat}=await admin.from("patients").insert({id,user_id:id,full_name,email,phone:phone||null,status:"ativo",acesso_painel,pre_atendimento_id});
     if(pat) {
-      await admin.from("profiles").delete().eq("id",id).catch(()=>{});
+      try { await admin.from("profiles").delete().eq("id",id); } catch(_) {}
       await admin.auth.admin.deleteUser(id).catch(()=>{});
       return out({error:"Não foi possível criar o cadastro do paciente. A operação foi desfeita automaticamente — tente novamente."},500);
     }
