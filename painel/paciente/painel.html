@@ -151,6 +151,7 @@
     <!-- CONTRATOS -->
     <section class="aba-conteudo" data-conteudo="contratos">
       <div class="painel-topo"><div><h1>Contratos</h1><p class="texto-suave">Leia e assine seus contratos aqui mesmo, com sua assinatura desenhada.</p></div></div>
+      <div class="aviso-flash" data-flash></div>
       <div class="painel-card"><div data-lista-contratos><p class="texto-suave">Carregando…</p></div></div>
     </section>
 
@@ -195,6 +196,7 @@
   const contexto = await exigirPaciente();
   if (!contexto) throw new Error("sem acesso");
   configurarBotaoSair();
+  const flash = document.querySelector("[data-flash]");
 
   const primeiroNome = (contexto.paciente.full_name || "").split(" ")[0];
   document.querySelector("[data-nome-paciente]").textContent = contexto.paciente.full_name;
