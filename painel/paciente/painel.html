@@ -391,8 +391,11 @@
     document.querySelector("[data-contrato-conteudo]").innerHTML = sanitizeRichHtml(contrato.content_html);
     checkboxConcordo.checked = false;
     assinatura.limpar();
-    atualizarBotaoConfirmar();
     modalContrato.style.display = "flex";
+    // só agora o canvas está visível de verdade (display:flex), então dá
+    // pra medir o tamanho certo e ajustar a resolução do desenho.
+    requestAnimationFrame(() => assinatura.redimensionar());
+    atualizarBotaoConfirmar();
   }
 
   botaoConfirmar.addEventListener("click", async () => {
