@@ -117,56 +117,103 @@ body.nav-scroll-lock{overflow:hidden}
     border:1px solid rgba(231,201,130,.85);
   }
 
-  /* Barra do menu sólida no mobile (remove o efeito translúcido/blur
-     que "vaza" o conteúdo por trás e deixa a leitura confusa) */
+  /* Remove a barra do menu no mobile: some o fundo e a logo,
+     fica só o ícone do menu hambúrguer no canto direito, sobre
+     a imagem. Quando o menu abre, volta o fundo sólido para
+     o painel de links ficar legível. */
   .site-nav{
-    background:#16241c;
+    background:transparent;
+    border-bottom:none;
     backdrop-filter:none;
     -webkit-backdrop-filter:none;
   }
+  .site-nav .nav-inner{
+    justify-content:flex-end;
+    background:transparent;
+    padding:14px 16px;
+    min-height:auto;
+  }
+  .site-nav .nav-logo{display:none}
+  .site-nav.nav-open{background:#16241c}
+
   .site-nav-interna{
-    background:#26312d;
+    background:transparent;
+    border-bottom:none;
     backdrop-filter:none;
     -webkit-backdrop-filter:none;
   }
+  .site-nav-interna .nav-inner-interna{
+    justify-content:flex-end;
+    background:transparent;
+    padding:14px 16px;
+    min-height:auto;
+  }
+  .site-nav-interna .logo-interna{display:none}
+  .site-nav-interna.nav-open{background:#26312d}
+}
+
+/* O ícone do hambúrguer precisa de contraste próprio, já que
+   agora fica solto sobre a imagem/vídeo, sem barra atrás */
+.nav-toggle{
+  background:rgba(20,28,23,.45);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
 }
 
 /* ==========================================================
    SEÇÃO "ATALHOS" (A Pele / Quem Somos / Regeneração...) —
-   no desktop é uma imagem de fundo com os ícones já desenhados
-   nela e o texto sobreposto por porcentagem. Em telas estreitas
-   isso quebra (texto maior que a coluna, sobrepondo o item
-   vizinho). No mobile trocamos por cards empilhados com fundo
-   sólido, sem depender da imagem.
+   mantém a imagem de fundo com os ícones. O que quebrava no
+   mobile era o texto (principalmente palavras longas como
+   "Nanotecnologia") vazando para fora da coluna estreita.
+   Aqui só diminuímos bastante a fonte e travamos a quebra de
+   palavra, sem tirar a imagem.
    ========================================================== */
 @media (max-width:900px){
-  .quick{aspect-ratio:unset; min-height:0; line-height:normal}
-  .quick img{display:none}
-  .quick-grid{
-    position:relative;
-    inset:auto;
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:1px;
-    padding:0;
-    background:#16241c;
-  }
+  .quick-grid{padding:6% 1.5% 3%}
   .quick-item{
-    position:relative;
-    background:#1d2b23;
-    padding:22px 14px;
-    align-items:flex-start;
-    justify-content:flex-start;
-    text-align:left;
+    padding-left:2px;
+    padding-right:2px;
+    overflow-wrap:break-word;
+    word-break:break-word;
+    hyphens:auto;
   }
-  .quick-title{font-size:13px; letter-spacing:.07em; margin-bottom:8px}
-  .quick-desc{font-size:11px; max-width:none; min-height:0; margin-bottom:0; line-height:1.4}
-  .quick-link{font-size:9px; margin-top:12px}
+  .quick-title{font-size:6.5px; letter-spacing:.04em; margin-bottom:4px; line-height:1.2}
+  .quick-desc{font-size:5px; line-height:1.25; max-width:none; min-height:0; margin-bottom:4px}
+  .quick-link{font-size:4.5px; margin-top:2px}
+  .quick-whatsapp{width:20px; height:20px; margin-top:3px}
+  .quick-whatsapp svg{width:11px; height:11px}
 }
 @media (max-width:600px){
-  .quick-grid{grid-template-columns:1fr}
-  .quick-item{padding:20px 18px}
-  .quick-title{font-size:15px}
-  .quick-desc{font-size:12px}
-  .quick-link{font-size:10px}
+  .quick-grid{padding-top:4%}
+  .quick-title{font-size:5.5px; margin-bottom:3px}
+  .quick-desc{font-size:4.2px; margin-bottom:3px}
+  .quick-link{font-size:4px; margin-top:2px}
+  .quick-whatsapp{width:16px; height:16px; margin-top:2px}
+  .quick-whatsapp svg{width:9px; height:9px}
+}
+
+/* ==========================================================
+   "REGENERE SUA PELE" / "TRADIÇÃO E TECNOLOGIA" — a caixa é
+   muito baixa (aspect-ratio bem largo) e o botão de cada lado
+   acabava cortado. Damos um pouco mais de altura à seção (a
+   imagem continua cobrindo tudo com object-fit:cover, só corta
+   um pouco mais) e diminuímos bastante a fonte para o botão
+   caber.
+   ========================================================== */
+@media (max-width:900px){
+  .dual{aspect-ratio:2176/640}
+  .dual-card{padding:5%}
+  .dual-card:first-child{padding-left:42%}
+  .dual-card:last-child{padding-left:26%; padding-right:5%}
+  .dual-card h2{font-size:15px; line-height:1.1; margin-bottom:5px}
+  .dual-card p{font-size:8px; line-height:1.3; margin-bottom:6px; max-width:none}
+  .button{font-size:7px; padding:6px 9px; white-space:nowrap}
+}
+@media (max-width:600px){
+  .dual{aspect-ratio:2176/820}
+  .dual-card:first-child{padding-left:36%}
+  .dual-card:last-child{padding-left:20%; padding-right:4%}
+  .dual-card h2{font-size:10.5px; margin-bottom:4px}
+  .dual-card p{font-size:6.5px; margin-bottom:5px}
+  .button{font-size:6px; padding:5px 8px}
 }
