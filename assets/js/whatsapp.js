@@ -19,6 +19,9 @@
     "pre-atendimento": "Olá! Acabei de preencher o formulário de pré-atendimento no site.",
     contato: "Olá! Gostaria de agendar uma consulta.",
     consultoria: "Olá! Conheci a Consultoria de Skincare Regenerativo Online e gostaria de conhecer os programas.",
+    "local-araruama": "Olá! Vi a página de Araruama no site e gostaria de agendar uma consulta.",
+    "local-cabofrio": "Olá! Vi a página de Cabo Frio/Riviera no site e gostaria de agendar uma consulta.",
+    "local-copacabana": "Olá! Vi a página de Copacabana no site e gostaria de agendar uma consulta.",
   };
 
   const pagina = document.body.dataset.pagina || "home";

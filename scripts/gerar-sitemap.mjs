@@ -37,6 +37,9 @@ const PAGINAS_FIXAS = [
   { loc: "/resultados/", changefreq: "monthly", priority: "0.7" },
   { loc: "/depoimentos.html", changefreq: "monthly", priority: "0.6" },
   { loc: "/contato.html", changefreq: "monthly", priority: "0.8" },
+  { loc: "/estetica-regenerativa-araruama.html", changefreq: "monthly", priority: "0.8" },
+  { loc: "/estetica-regenerativa-cabo-frio-riviera.html", changefreq: "monthly", priority: "0.8" },
+  { loc: "/estetica-regenerativa-copacabana.html", changefreq: "monthly", priority: "0.8" },
   { loc: "/pre-atendimento/", changefreq: "monthly", priority: "0.7" },
 ];
 

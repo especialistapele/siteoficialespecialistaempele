@@ -26,25 +26,55 @@
 <link rel="stylesheet" href="/assets/css/mobile-nav.css">
 <script type="application/ld+json">
 {
-  "@context":"https://schema.org",
-  "@type":"MedicalBusiness",
-  "@id":"https://www.especialistaempele.com.br/contato.html#negocio",
-  "name":"Danny Queiroz — Estética Clínica Regenerativa",
-  "image":"https://www.especialistaempele.com.br/assets/hero-fallback.webp",
-  "url":"https://www.especialistaempele.com.br/contato.html",
-  "telephone":"+55 21 99219-7518",
-  "priceRange":"$$",
-  "description":"Atendimento presencial por agendamento, sem endereço público — a localização exata é enviada na confirmação da consulta.",
-  "areaServed":[
-    {"@type":"Place","name":"Centro, Cabo Frio, RJ"},
-    {"@type":"Place","name":"Parque Riviera, Cabo Frio, RJ"},
-    {"@type":"Place","name":"Fazendinha, Araruama, RJ"},
-    {"@type":"Place","name":"Siqueira Campos, Copacabana, Rio de Janeiro, RJ"}
-  ],
-  "makesOffer":{
-    "@type":"Offer",
-    "itemOffered":{"@type":"Service","name":"Consulta presencial de avaliação de pele"}
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebPage",
+   "@id": "https://www.especialistaempele.com.br/contato.html#pagina",
+   "url": "https://www.especialistaempele.com.br/contato.html",
+   "name": "Consulta Presencial em Araruama, Cabo Frio e Copacabana | Especialista em Pele",
+   "inLanguage": "pt-BR",
+   "isPartOf": {
+    "@id": "https://www.especialistaempele.com.br/#website"
+   },
+   "about": {
+    "@id": "https://www.especialistaempele.com.br/#organizacao"
+   }
+  },
+  {
+   "@type": "HealthAndBeautyBusiness",
+   "@id": "https://www.especialistaempele.com.br/#organizacao",
+   "name": "Especialista em Pele",
+   "alternateName": "Danny Queiroz — Estética Clínica Regenerativa",
+   "url": "https://www.especialistaempele.com.br/",
+   "logo": "https://www.especialistaempele.com.br/assets/logo-especialista.webp",
+   "image": "https://www.especialistaempele.com.br/assets/og-image.jpg",
+   "telephone": "+55 21 99219-7518",
+   "priceRange": "$$",
+   "description": "Atendimento presencial por agendamento, com avaliação individual da pele.",
+   "areaServed": [
+    {
+     "@type": "City",
+     "name": "Araruama"
+    },
+    {
+     "@type": "City",
+     "name": "Cabo Frio"
+    },
+    {
+     "@type": "Place",
+     "name": "Copacabana, Rio de Janeiro, RJ"
+    }
+   ],
+   "makesOffer": {
+    "@type": "Offer",
+    "itemOffered": {
+     "@type": "Service",
+     "name": "Consulta presencial de avaliação de pele"
+    }
+   }
   }
+ ]
 }
 </script>
 </head><body data-pagina="contato">
@@ -195,7 +225,9 @@
         <ul>
           <li><a data-whatsapp-link href="#">(21) 99219-7518</a></li>
           <li><a href="https://instagram.com/especialistaempele" target="_blank" rel="noopener">@especialistaempele</a></li>
-          <li>Araruama • Cabo Frio • Copacabana</li>
+          <li><a href="/estetica-regenerativa-araruama.html">Araruama</a></li>
+          <li><a href="/estetica-regenerativa-cabo-frio-riviera.html">Cabo Frio/Riviera</a></li>
+          <li><a href="/estetica-regenerativa-copacabana.html">Copacabana</a></li>
         </ul>
       </div>
     </div>
