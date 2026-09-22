@@ -42,7 +42,11 @@ async function carregar() {
   const tituloCompleto = `${data.name} — Especialista em Pele`;
   const resumoBruto = (data.summary || data.description || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   const descricaoMeta = (resumoBruto.slice(0, 155) || "Tratamento regenerativo — Especialista em Pele.");
-  const urlCanonica = `https://www.especialistaempele.com.br/tratamentos/detalhe.html?slug=${encodeURIComponent(slug)}`;
+  // Mesma regra de slug usada em scripts/gerar-paginas-tratamentos.mjs —
+  // aponta o canonical para a página estática pré-renderizada, para o
+  // Google não tratar esta versão dinâmica como conteúdo duplicado.
+  const slugArquivo = slug.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  const urlCanonica = `https://www.especialistaempele.com.br/tratamentos/${slugArquivo}.html`;
   const imagemMeta = data.cover_image_url || "https://www.especialistaempele.com.br/assets/hero-fallback.webp";
 
   document.getElementById("meta-description")?.setAttribute("content", descricaoMeta);
