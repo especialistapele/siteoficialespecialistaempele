@@ -1,0 +1,39 @@
+/* ============================================================
+   CARROSSEL DE RESULTADOS — antes/depois por tratamento
+   Reaproveita o componente .antes-depois-slider (arraste) dentro
+   de uma faixa com rolagem horizontal e snap, usada nas páginas
+   locais de tratamento (Melasma, Acne, Limpeza de Pele...).
+   ============================================================ */
+.rc-wrap{position:relative;margin-top:40px}
+.rc-track{
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:min(78vw,300px);
+  gap:20px;
+  overflow-x:auto;
+  scroll-snap-type:x proximity;
+  padding:4px 4px 14px;
+  scrollbar-width:thin;
+  scrollbar-color:var(--gold) transparent;
+}
+.rc-track::-webkit-scrollbar{height:6px}
+.rc-track::-webkit-scrollbar-thumb{background:var(--gold);border-radius:999px}
+.rc-card{scroll-snap-align:start;display:flex;flex-direction:column;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 6px 20px rgba(38,49,45,.08)}
+.rc-card .antes-depois-slider{border-radius:10px 10px 0 0}
+.rc-card__corpo{padding:16px 18px 18px;flex:1;display:flex;flex-direction:column;gap:6px}
+.rc-card__corpo p{margin:0;font:400 14px/1.5 Arial,Helvetica,sans-serif;color:var(--ink-soft)}
+.rc-nav{display:flex;gap:10px;margin-top:6px}
+.rc-nav button{
+  width:42px;height:42px;border-radius:50%;border:1px solid var(--linha);
+  background:#fff;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .2s,color .2s;
+}
+.rc-nav button:hover{background:var(--ink);color:#fff}
+.rc-nav button svg{width:18px;height:18px}
+.rc-legenda{font:400 13px/1.5 Arial,Helvetica,sans-serif;color:#5d625d;margin:14px 0 0}
+.rc-vazio,.rc-carregando{font:400 15px/1.6 Arial,Helvetica,sans-serif;color:#5d625d;margin-top:20px}
+
+@media(max-width:600px){
+  .rc-track{grid-auto-columns:80vw}
+  .rc-nav{display:none}
+}
