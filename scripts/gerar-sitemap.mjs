@@ -57,6 +57,19 @@ async function buscarPublicados(tabela) {
   return resp.json();
 }
 
+// Mesma regra de slug usada em scripts/gerar-paginas-tratamentos.mjs e
+// em assets/js/tratamentos-data.js — precisa ficar idêntica nos três
+// lugares, senão os links quebram.
+function slugifyUrl(valor) {
+  return String(valor ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 // A tabela pode ter published_at, created_at ou nenhum dos dois —
 // usa o que existir, e se não existir nenhum, omite o <lastmod>.
 function ultimaData(row) {
@@ -100,8 +113,11 @@ async function main() {
 
   for (const t of tratamentos) {
     if (!t.slug) continue;
+    // Agora aponta para a página estática pré-renderizada em
+    // /tratamentos/<slug>.html (gerada por gerar-paginas-tratamentos.mjs),
+    // em vez da versão dinâmica via query string.
     entradas.push(urlXml({
-      loc: `${SITE}/tratamentos/detalhe.html?slug=${encodeURIComponent(t.slug)}`,
+      loc: `${SITE}/tratamentos/${slugifyUrl(t.slug)}.html`,
       lastmod: ultimaData(t),
       changefreq: "monthly",
       priority: "0.7",
