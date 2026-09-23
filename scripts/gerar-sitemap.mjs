@@ -103,8 +103,10 @@ async function main() {
 
   for (const a of artigos) {
     if (!a.slug) continue;
+    // Aponta para a página estática pré-renderizada em
+    // /blog/artigos/<slug>.html (gerada por gerar-paginas-artigos.mjs).
     entradas.push(urlXml({
-      loc: `${SITE}/blog/artigos/?slug=${encodeURIComponent(a.slug)}`,
+      loc: `${SITE}/blog/artigos/${slugifyUrl(a.slug)}.html`,
       lastmod: ultimaData(a),
       changefreq: "monthly",
       priority: "0.6",
