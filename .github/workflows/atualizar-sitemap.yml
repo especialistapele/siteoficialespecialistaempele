@@ -1,4 +1,4 @@
-name: Atualizar sitemap.xml e páginas de tratamentos
+name: Atualizar sitemap.xml, páginas de tratamentos e de artigos
 
 on:
   schedule:
@@ -29,6 +29,12 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: node scripts/gerar-paginas-tratamentos.mjs
 
+      - name: Gerar páginas estáticas de artigos do blog a partir do Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: node scripts/gerar-paginas-artigos.mjs
+
       - name: Gerar sitemap.xml a partir do Supabase
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -39,10 +45,10 @@ jobs:
         run: |
           git config user.name "sitemap-bot"
           git config user.email "actions@github.com"
-          git add sitemap.xml tratamentos/*.html
+          git add sitemap.xml tratamentos/*.html blog/artigos/*.html
           if git diff --staged --quiet; then
             echo "Nada mudou — nada para enviar."
           else
-            git commit -m "chore: atualizar sitemap.xml e páginas de tratamentos automaticamente"
+            git commit -m "chore: atualizar sitemap.xml, páginas de tratamentos e de artigos automaticamente"
             git push
           fi
