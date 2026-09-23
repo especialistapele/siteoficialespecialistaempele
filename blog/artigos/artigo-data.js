@@ -41,7 +41,11 @@ async function carregar() {
   // ------------------------------------------------------------------
   const tituloCompleto = `${data.title} — Especialista em Pele`;
   const descricaoMeta = (data.excerpt || "").trim() || "Conteúdo educativo sobre saúde da pele — Especialista em Pele.";
-  const urlCanonica = `https://www.especialistaempele.com.br/blog/artigos/?slug=${encodeURIComponent(slug)}`;
+  // Mesma regra de slug usada em scripts/gerar-paginas-artigos.mjs —
+  // aponta o canonical para a página estática pré-renderizada, para o
+  // Google não tratar esta versão dinâmica como conteúdo duplicado.
+  const slugArquivo = slug.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  const urlCanonica = `https://www.especialistaempele.com.br/blog/artigos/${slugArquivo}.html`;
   const imagemMeta = data.cover_image_url || "https://www.especialistaempele.com.br/assets/hero-fallback.webp";
 
   document.getElementById("meta-description")?.setAttribute("content", descricaoMeta);
