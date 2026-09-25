@@ -67,7 +67,7 @@ jobs:
           git config user.name "sitemap-bot"
           git config user.email "actions@github.com"
           # -A registra também as páginas APAGADAS (despublicadas/excluídas)
-          git add -A sitemap.xml tratamentos blog resultados
+          git add -A sitemap.xml publicacao-manifest.json tratamentos blog resultados
           if git diff --staged --quiet; then
             echo "Nada mudou — nada para enviar."
           else
