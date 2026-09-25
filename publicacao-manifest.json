@@ -8,8 +8,18 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 59,
+  "total": 61,
   "items": [
+    {
+      "path": "blog/o-que-e-regeneracao-cutanea.html",
+      "url": "https://www.especialistaempele.com.br/blog/o-que-e-regeneracao-cutanea.html",
+      "id": "BLOG-000002",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/blog/o-que-e-regeneracao-cutanea.html",
+      "redirect_to": null,
+      "sha256": "ece980b6d07cadc17952bc5b6879a78e5a2af7112d891cc409c572e7f70578f1"
+    },
     {
       "path": "blog/por-que-a-acne-persiste.html",
       "url": "https://www.especialistaempele.com.br/blog/por-que-a-acne-persiste.html",
@@ -18,7 +28,17 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/por-que-a-acne-persiste.html",
       "redirect_to": null,
-      "sha256": "0344e1cc285600af31ff2a07d1469f6e9c4811eb501e287041383a1002435a8a"
+      "sha256": "851465b913fd056f764b7e443f08079c33788874813b9340c08e48dab1e574ea"
+    },
+    {
+      "path": "blog/rejuvenescimento-facial-ou-harmonizacao.html",
+      "url": "https://www.especialistaempele.com.br/blog/rejuvenescimento-facial-ou-harmonizacao.html",
+      "id": "BLOG-000003",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/blog/rejuvenescimento-facial-ou-harmonizacao.html",
+      "redirect_to": null,
+      "sha256": "65624feabeefc778dbb186c3fdb4095ab6c9c9039b7be62bd2e8694957973ee2"
     },
     {
       "path": "resultados/clareamento-de-axila-02.html",
@@ -601,5 +621,5 @@
       "sha256": "7beac540a2e9ae78fd3f4ecef95f22db9f1a21f1609d8187965ce83332c57608"
     }
   ],
-  "generated_at": "2026-09-25T21:28:03.276Z"
+  "generated_at": "2026-09-25T22:09:17.679Z"
 }
