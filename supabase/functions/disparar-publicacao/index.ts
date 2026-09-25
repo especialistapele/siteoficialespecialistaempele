@@ -42,8 +42,38 @@ Deno.serve(async (req: Request) => {
 
     const token = Deno.env.get("GH_DISPATCH_TOKEN");
     const repo = Deno.env.get("GH_REPO");
-    if (!token || !repo) return out({ ok: false, error: "GH_DISPATCH_TOKEN/GH_REPO não configurados." }, 200);
+    if (!token || !repo) {
+      await userClient.from("publication_requests")
+        .update({ status: "error", error_message: "GH_DISPATCH_TOKEN/GH_REPO não configurados.", updated_at: new Date().toISOString() })
+        .eq("request_id", requestId);
+      return out({ ok: false, error: "GH_DISPATCH_TOKEN/GH_REPO não configurados.", request_id: requestId }, 200);
+    }
 
+    let body: Record<string, unknown> = {};
+    try { body = await req.json(); } catch (_) {}
+
+    const path = typeof body.path === "string" ? body.path : null;
+    const contentId = typeof body.content_id === "string" ? body.content_id : null;
+    const publicado = typeof body.publicado === "boolean" ? body.publicado : null;
+
+    const { data: requestRow, error: requestError } = await userClient
+      .from("publication_requests")
+      .insert({
+        requested_by: u.user.id,
+        path,
+        content_id: contentId,
+        publicado,
+        status: "requested",
+      })
+      .select("request_id")
+      .single();
+
+    if (requestError || !requestRow?.request_id) {
+      return out({ ok: false, error: "Não foi possível registrar a solicitação de publicação." }, 200);
+    }
+
+    const requestId = requestRow.request_id;
+    const requestedAt = new Date().toISOString();
     const workflow = Deno.env.get("GH_WORKFLOW") || "atualizar-sitemap.yml";
     const ref = Deno.env.get("GH_REF") || "main";
     const resp = await fetch(`https://api.github.com/repos/${repo}/actions/workflows/${workflow}/dispatches`, {
@@ -55,10 +85,29 @@ Deno.serve(async (req: Request) => {
         "Content-Type": "application/json",
         "User-Agent": "especialista-em-pele-painel",
       },
-      body: JSON.stringify({ ref }),
+      body: JSON.stringify({
+        ref,
+        inputs: {
+          request_id: requestId,
+          requested_at: requestedAt,
+          path: path || "",
+          content_id: contentId || "",
+          publicado: publicado === null ? "" : String(publicado),
+        },
+      }),
     });
-    if (resp.status !== 204) return out({ ok: false, error: `GitHub respondeu ${resp.status}` }, 200);
-    return out({ ok: true });
+    if (resp.status !== 204) {
+      await userClient.from("publication_requests")
+        .update({ status: "error", error_message: `GitHub respondeu ${resp.status}`, updated_at: new Date().toISOString() })
+        .eq("request_id", requestId);
+      return out({ ok: false, error: `GitHub respondeu ${resp.status}`, request_id: requestId }, 200);
+    }
+
+    await userClient.from("publication_requests")
+      .update({ status: "dispatched", dispatched_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+      .eq("request_id", requestId);
+
+    return out({ ok: true, request_id: requestId });
   } catch (e) {
     return out({ ok: false, error: String(e) }, 200);
   }
