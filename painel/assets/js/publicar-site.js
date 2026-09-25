@@ -8,6 +8,17 @@ const MANIFEST_URL = "/publicacao-manifest.json";
 const TEMPO_MAXIMO_MS = 150000;
 const INTERVALO_MS = 5000;
 
+async function atualizarSolicitacao(requestId, status) {
+  if (!requestId || !status) return;
+  try {
+    await supabase.from("publication_requests").update({
+      status,
+      ...(status === "confirmed" ? { confirmed_at: new Date().toISOString() } : {}),
+      updated_at: new Date().toISOString(),
+    }).eq("request_id", requestId);
+  } catch (_) {}
+}
+
 async function lerManifesto() {
   try {
     const resposta = await fetch(`${MANIFEST_URL}?t=${Date.now()}`, {
@@ -42,7 +53,9 @@ export async function dispararPublicacao({ path = null, publicado = null } = {})
   const assinaturaAntes = assinatura(antes);
 
   try {
-    const { data, error } = await supabase.functions.invoke("disparar-publicacao", { body: {} });
+    const { data, error } = await supabase.functions.invoke("disparar-publicacao", {
+      body: { path, publicado },
+    });
     if (error || !data?.ok) return { ok: false, confirmado: false };
   } catch (_) {
     return { ok: false, confirmado: false };
@@ -53,11 +66,13 @@ export async function dispararPublicacao({ path = null, publicado = null } = {})
     await new Promise((resolve) => setTimeout(resolve, INTERVALO_MS));
     const atual = await lerManifesto();
     if (atual && assinatura(atual) !== assinaturaAntes && alvoAtingido(atual, { path, publicado })) {
-      return { ok: true, confirmado: true };
+      await atualizarSolicitacao(data?.request_id, "confirmed");
+      return { ok: true, confirmado: true, request_id: data?.request_id || null };
     }
   }
 
-  return { ok: true, confirmado: false };
+  await atualizarSolicitacao(data?.request_id, "timeout");
+  return { ok: true, confirmado: false, request_id: data?.request_id || null };
 }
 
 export const MSG_ATUALIZANDO = "Publicação solicitada. Aguardando confirmação no site…";
