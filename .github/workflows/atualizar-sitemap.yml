@@ -2,17 +2,35 @@ name: Atualizar sitemap.xml e páginas estáticas (tratamentos, artigos e result
 
 on:
   schedule:
-    # De hora em hora (rede de segurança: o painel também dispara este
-    # workflow na hora, via Edge Function "disparar-publicacao").
     - cron: "0 * * * *"
-  workflow_dispatch: {}   # botão "Run workflow" manual, na aba Actions
+  workflow_dispatch:
+    inputs:
+      request_id:
+        description: "ID da solicitação de publicação"
+        required: false
+        type: string
+      requested_at:
+        description: "Data/hora da solicitação"
+        required: false
+        type: string
+      path:
+        description: "Caminho do conteúdo"
+        required: false
+        type: string
+      content_id:
+        description: "ID estável do conteúdo"
+        required: false
+        type: string
+      publicado:
+        description: "Estado esperado: true/false"
+        required: false
+        type: string
   push:
-    branches: [main]      # também roda quando você fizer deploy do site
+    branches: [main]
 
 permissions:
   contents: write
 
-# Uma execução por vez: evita dois builds tentando enviar commits ao mesmo tempo.
 concurrency:
   group: atualizar-site
   cancel-in-progress: false
@@ -66,12 +84,34 @@ jobs:
         run: |
           git config user.name "sitemap-bot"
           git config user.email "actions@github.com"
-          # -A registra também as páginas APAGADAS (despublicadas/excluídas)
           git add -A sitemap.xml publicacao-manifest.json tratamentos blog resultados
           if git diff --staged --quiet; then
             echo "Nada mudou — nada para enviar."
           else
             git commit -m "chore: atualizar sitemap.xml e páginas estáticas (tratamentos, artigos, resultados) automaticamente"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push
+          fi
+
+      - name: Registrar resultado da solicitação
+        if: ${{ always() && inputs.request_id != '' }}
+        env:
+          PUBLICACAO_REQUEST_ID: ${{ inputs.request_id }}
+          PUBLICACAO_REQUESTED_AT: ${{ inputs.requested_at }}
+          PUBLICACAO_PATH: ${{ inputs.path }}
+          PUBLICACAO_ID: ${{ inputs.content_id }}
+          PUBLICACAO_PUBLICADO: ${{ inputs.publicado }}
+          PUBLICACAO_STATUS: ${{ job.status == 'success' && 'success' || 'error' }}
+          PUBLICACAO_TRIGGER: "panel"
+        run: |
+          node scripts/registrar-log-publicacao.mjs
+          git config user.name "sitemap-bot"
+          git config user.email "actions@github.com"
+          git add publicacao-log.json
+          if git diff --staged --quiet; then
+            echo "Nenhum novo evento de publicação para registrar."
+          else
+            git commit -m "chore: registrar resultado da solicitação de publicação"
             git pull --rebase origin "${GITHUB_REF_NAME}"
             git push
           fi
