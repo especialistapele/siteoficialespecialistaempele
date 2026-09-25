@@ -1,0 +1,605 @@
+{
+  "schema_version": 1,
+  "site": "https://www.especialistaempele.com.br",
+  "source": "static-build",
+  "status_codes": {
+    "published": 200,
+    "redirect": 200,
+    "removed": 404,
+    "manual": 200
+  },
+  "total": 59,
+  "items": [
+    {
+      "path": "blog/por-que-a-acne-persiste.html",
+      "url": "https://www.especialistaempele.com.br/blog/por-que-a-acne-persiste.html",
+      "id": "BLOG-000001",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/blog/por-que-a-acne-persiste.html",
+      "redirect_to": null,
+      "sha256": "0344e1cc285600af31ff2a07d1469f6e9c4811eb501e287041383a1002435a8a"
+    },
+    {
+      "path": "resultados/clareamento-de-axila-02.html",
+      "url": "https://www.especialistaempele.com.br/resultados/clareamento-de-axila-02.html",
+      "id": "RESULTADO-000032",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/clareamento-de-axila-02.html",
+      "redirect_to": null,
+      "sha256": "5d30f1fafa7dc08b0a2d7fcadf6fdd0eacedecdd916d5545ad4efc9309558dbf"
+    },
+    {
+      "path": "resultados/clareamento-de-axila.html",
+      "url": "https://www.especialistaempele.com.br/resultados/clareamento-de-axila.html",
+      "id": "RESULTADO-000030",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/clareamento-de-axila.html",
+      "redirect_to": null,
+      "sha256": "fee5d6d12ecbaadedd9ffc4d997ce958c80d7736fd294a0ed875097381c94e73"
+    },
+    {
+      "path": "resultados/clareamento-de-gluteos.html",
+      "url": "https://www.especialistaempele.com.br/resultados/clareamento-de-gluteos.html",
+      "id": "RESULTADO-000031",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/clareamento-de-gluteos.html",
+      "redirect_to": null,
+      "sha256": "052b32651e97c8b56b18afc6ae45c9870ee7ec5996a445ab70f9dbb5c365ba87"
+    },
+    {
+      "path": "resultados/clareamento-de-interno-de-pernas-e-virilha.html",
+      "url": "https://www.especialistaempele.com.br/resultados/clareamento-de-interno-de-pernas-e-virilha.html",
+      "id": "RESULTADO-000029",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/clareamento-de-interno-de-pernas-e-virilha.html",
+      "redirect_to": null,
+      "sha256": "4991bf0beea5b9c8bfc8206c4761cb096dbe06cab5297beed71b892a001dcbc0"
+    },
+    {
+      "path": "resultados/clareamento-facial.html",
+      "url": "https://www.especialistaempele.com.br/resultados/clareamento-facial.html",
+      "id": "RESULTADO-000033",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/clareamento-facial.html",
+      "redirect_to": null,
+      "sha256": "f522f1daf6f940c2d0d27b883d806e8da73085043e1fccb444351451349f9343"
+    },
+    {
+      "path": "resultados/poros-dilatados.html",
+      "url": "https://www.especialistaempele.com.br/resultados/poros-dilatados.html",
+      "id": "RESULTADO-000034",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/poros-dilatados.html",
+      "redirect_to": null,
+      "sha256": "913842cd495a4b0d8c3595ec8e12a3b81763920a7cf78f098eef9f3d7d7c0458"
+    },
+    {
+      "path": "resultados/rejuvenescimento-de-colo.html",
+      "url": "https://www.especialistaempele.com.br/resultados/rejuvenescimento-de-colo.html",
+      "id": "RESULTADO-000038",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/rejuvenescimento-de-colo.html",
+      "redirect_to": null,
+      "sha256": "2b5851a4b282ed6022b4452f84381eee8f26c53550518eeab98e0d3c6e5226ea"
+    },
+    {
+      "path": "resultados/remocao-de-nigras01.html",
+      "url": "https://www.especialistaempele.com.br/resultados/remocao-de-nigras01.html",
+      "id": "RESULTADO-000037",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/remocao-de-nigras01.html",
+      "redirect_to": null,
+      "sha256": "6b5ff5e654134393dca8049ca07534500724a1d3d09f037230b502bb459df6d9"
+    },
+    {
+      "path": "resultados/resultado-com-mais-de-2-meses-de-tratamento.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-com-mais-de-2-meses-de-tratamento.html",
+      "id": "RESULTADO-000036",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-com-mais-de-2-meses-de-tratamento.html",
+      "redirect_to": null,
+      "sha256": "ca6b7d09b2624b6d50e2d8abbba8950ab16f792e0815844c10aca4d04d09dced"
+    },
+    {
+      "path": "resultados/resultado-de-acne-caso-01.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-acne-caso-01.html",
+      "id": "RESULTADO-000001",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-acne-caso-01.html",
+      "redirect_to": null,
+      "sha256": "f35c5703051e62044bf1dd7b275eeb453ca0b518e47e9619e3e2af1bc3a70644"
+    },
+    {
+      "path": "resultados/resultado-de-acne-caso-02.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-acne-caso-02.html",
+      "id": "RESULTADO-000002",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-acne-caso-02.html",
+      "redirect_to": null,
+      "sha256": "957efa81281dd6c0bc8393c41f4592be676f6f622711c9611ff003a255833287"
+    },
+    {
+      "path": "resultados/resultado-de-acne-caso-03.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-acne-caso-03.html",
+      "id": "RESULTADO-000003",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-acne-caso-03.html",
+      "redirect_to": null,
+      "sha256": "db7b98f4ffd5ee9ab8437cc4ae294c2622a6cf24ee4ced7a6007d3393191ee41"
+    },
+    {
+      "path": "resultados/resultado-de-cicatrizes-de-acne-caso-01.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-cicatrizes-de-acne-caso-01.html",
+      "id": "RESULTADO-000023",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-cicatrizes-de-acne-caso-01.html",
+      "redirect_to": null,
+      "sha256": "3ae38cebc49658fbb0fd788a46b870282af1214acae6626b3aa4888f9275e950"
+    },
+    {
+      "path": "resultados/resultado-de-estrias-caso-01.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-estrias-caso-01.html",
+      "id": "RESULTADO-000027",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-estrias-caso-01.html",
+      "redirect_to": null,
+      "sha256": "4993660d1df73d565aec74168c409a0a3d9c44f6c4c477261b23fc822306b20f"
+    },
+    {
+      "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-01.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-01.html",
+      "id": "RESULTADO-000014",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-01.html",
+      "redirect_to": null,
+      "sha256": "433fd71d78b8e2da78d96c089d3d6ae66cd55031284eba8f43afbb36a4cc6bdc"
+    },
+    {
+      "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-02.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-02.html",
+      "id": "RESULTADO-000015",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-02.html",
+      "redirect_to": null,
+      "sha256": "458ef9a878681d7ab480affc57e132fb3cad9f7fa6bd5133eda213d1775514cb"
+    },
+    {
+      "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-03.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-03.html",
+      "id": "RESULTADO-000016",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-03.html",
+      "redirect_to": null,
+      "sha256": "f20bb40afc0557652668f086d34db114f74adc37b8ad83a7457d5b1c7f83f156"
+    },
+    {
+      "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-04.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-04.html",
+      "id": "RESULTADO-000017",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-04.html",
+      "redirect_to": null,
+      "sha256": "1326b407ba08d0070e021e7461e54654c15dd240f5635098691f6e02b1eb4d6d"
+    },
+    {
+      "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-05.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-05.html",
+      "id": "RESULTADO-000018",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-05.html",
+      "redirect_to": null,
+      "sha256": "7b4eaa2141091789741eacb47854e7ac971633da878b191de28aca162733ca7b"
+    },
+    {
+      "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-06.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-06.html",
+      "id": "RESULTADO-000019",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-06.html",
+      "redirect_to": null,
+      "sha256": "8c05103c20e5f21580e88cd4d1a24f282af876f89ff630343b6348b3664ecad9"
+    },
+    {
+      "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-07.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-07.html",
+      "id": "RESULTADO-000020",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-07.html",
+      "redirect_to": null,
+      "sha256": "d621da4c29282b6e7edb0e0694df7da5b0e1cc0619e8c30d142c4eeabaea1a2d"
+    },
+    {
+      "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-08.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-08.html",
+      "id": "RESULTADO-000021",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-08.html",
+      "redirect_to": null,
+      "sha256": "a382c2823812b852b132f7aaeb7c6d49b7b4d93a1dc4fd04924aa387601a8046"
+    },
+    {
+      "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-09.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-09.html",
+      "id": "RESULTADO-000022",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-09.html",
+      "redirect_to": null,
+      "sha256": "b34a4c4d5d3de6412b425df60e1a8b996f3b323e1f1285eeefb4d44433c1baea"
+    },
+    {
+      "path": "resultados/resultado-de-melasma-caso-01.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-melasma-caso-01.html",
+      "id": "RESULTADO-000004",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-melasma-caso-01.html",
+      "redirect_to": null,
+      "sha256": "f68e58bbced1f42c428e2a63ca917f0e298dcc1519d59bf2a62fbdd1e1f1653a"
+    },
+    {
+      "path": "resultados/resultado-de-melasma-caso-02.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-melasma-caso-02.html",
+      "id": "RESULTADO-000005",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-melasma-caso-02.html",
+      "redirect_to": null,
+      "sha256": "3615dfb355d137dead3905090ba34d0e57079e05d105885e323337a6aad5b6c4"
+    },
+    {
+      "path": "resultados/resultado-de-melasma-caso-03.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-melasma-caso-03.html",
+      "id": "RESULTADO-000006",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-melasma-caso-03.html",
+      "redirect_to": null,
+      "sha256": "670a022b6450d9b900d2f2fc6eb896f92baf22be27cdbd52cda8719dde32e1f9"
+    },
+    {
+      "path": "resultados/resultado-de-remocoes-caso-01.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-remocoes-caso-01.html",
+      "id": "RESULTADO-000007",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-remocoes-caso-01.html",
+      "redirect_to": null,
+      "sha256": "9f7e56bc2f81ac44b992c0cd0c3e98903323c5630e7d04a5264863c29a8392bf"
+    },
+    {
+      "path": "resultados/resultado-de-remocoes-caso-02.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-remocoes-caso-02.html",
+      "id": "RESULTADO-000008",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-remocoes-caso-02.html",
+      "redirect_to": null,
+      "sha256": "29b2e6266ee29583be3fb11928c7b22eab3366cbeb9bb4b3918735a579496cbc"
+    },
+    {
+      "path": "resultados/resultado-de-remocoes-caso-03.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-remocoes-caso-03.html",
+      "id": "RESULTADO-000009",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-remocoes-caso-03.html",
+      "redirect_to": null,
+      "sha256": "38d27fce66f90dee093f0a11b18a485d92220ecbbcfa7e91143229caa62f0e65"
+    },
+    {
+      "path": "resultados/resultado-de-remocoes-caso-04.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-remocoes-caso-04.html",
+      "id": "RESULTADO-000010",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-remocoes-caso-04.html",
+      "redirect_to": null,
+      "sha256": "2d91e80f70a555065a9d755d6878930af1dc7c680b3288e188b2c8f532761c60"
+    },
+    {
+      "path": "resultados/resultado-de-remocoes-caso-05.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-remocoes-caso-05.html",
+      "id": "RESULTADO-000011",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-remocoes-caso-05.html",
+      "redirect_to": null,
+      "sha256": "f0a88d9b16d0d0e9babb9857202f97c125753c71707e5b54b2c0868eb801b7b6"
+    },
+    {
+      "path": "resultados/resultado-de-remocoes-caso-06.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-remocoes-caso-06.html",
+      "id": "RESULTADO-000012",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-remocoes-caso-06.html",
+      "redirect_to": null,
+      "sha256": "a12e8fa55f6bc0a5c9b6fee74d5f5b0aebf35feeb20e2f9d6fbd0b62206a6ca1"
+    },
+    {
+      "path": "resultados/resultado-de-remocoes-caso-07.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-remocoes-caso-07.html",
+      "id": "RESULTADO-000013",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-remocoes-caso-07.html",
+      "redirect_to": null,
+      "sha256": "ed79b89e33e6e386146912abe6d4f46fa618f4702984aec9a806f1988aa95c17"
+    },
+    {
+      "path": "resultados/resultado-de-tratamento-contra-celulite-caso-01.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-tratamento-contra-celulite-caso-01.html",
+      "id": "RESULTADO-000024",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-tratamento-contra-celulite-caso-01.html",
+      "redirect_to": null,
+      "sha256": "2045a0dd24ff0230a5133b7275efbb07ec5258349fe28de177e474491d2bffb9"
+    },
+    {
+      "path": "resultados/resultado-de-tratamento-contra-celulite-caso-02.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-tratamento-contra-celulite-caso-02.html",
+      "id": "RESULTADO-000025",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-tratamento-contra-celulite-caso-02.html",
+      "redirect_to": null,
+      "sha256": "176b16a90a26bfac4fb5d7110a35fd82dad35003544c61a6d850efad6a26fac5"
+    },
+    {
+      "path": "resultados/resultado-de-tratamento-contra-celulite-caso-03.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-tratamento-contra-celulite-caso-03.html",
+      "id": "RESULTADO-000026",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-tratamento-contra-celulite-caso-03.html",
+      "redirect_to": null,
+      "sha256": "d5ed056e9fbacc54a2ecfcd0820306414cc12a94d7b4bf0884b998c17d16815a"
+    },
+    {
+      "path": "resultados/resultado-de-tratamento-de-cicatrizes-por-esporotricose-caso-01.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-de-tratamento-de-cicatrizes-por-esporotricose-caso-01.html",
+      "id": "RESULTADO-000028",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-tratamento-de-cicatrizes-por-esporotricose-caso-01.html",
+      "redirect_to": null,
+      "sha256": "65e2f9a59c336fe893bd0d75ecd5f8caec2b8db4e38250a5a5ce9aa7e8ec1e05"
+    },
+    {
+      "path": "resultados/tratamento-de-rejuvenescimento-facial.html",
+      "url": "https://www.especialistaempele.com.br/resultados/tratamento-de-rejuvenescimento-facial.html",
+      "id": "RESULTADO-000035",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/tratamento-de-rejuvenescimento-facial.html",
+      "redirect_to": null,
+      "sha256": "191e4f94baa9fc85a3b4e8a6a0177e66460f4988118e78598bc6f3c741ee8db4"
+    },
+    {
+      "path": "tratamentos/acantose.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/acantose.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/acantose.html",
+      "redirect_to": null,
+      "sha256": "554349b820adab13a3086313d63fec6a06ef6a63b8a2b5f21ac5fe3ddeb6a08f"
+    },
+    {
+      "path": "tratamentos/acne.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/acne.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/acne.html",
+      "redirect_to": null,
+      "sha256": "dccc987465bcd6e88de52cd144e231cbf53f23a296d953671680fc12da78adb1"
+    },
+    {
+      "path": "tratamentos/celulite.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/celulite.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/celulite.html",
+      "redirect_to": null,
+      "sha256": "f2c87811cd6bd224f2cee6cf3c6c3b14c36ff117f92f566ab3d1bda11ee14753"
+    },
+    {
+      "path": "tratamentos/cicatriz.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/cicatriz.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/cicatriz.html",
+      "redirect_to": null,
+      "sha256": "47c584d18597f8f2fcca52032222b35b574b697c6e9bb545c8b4dc89a727e338"
+    },
+    {
+      "path": "tratamentos/clareamento-facial.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/clareamento-facial.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/clareamento-facial.html",
+      "redirect_to": null,
+      "sha256": "c74a6b61b4332910ee813284c50ae2aa99ff5962f374c672bb136826a73c556a"
+    },
+    {
+      "path": "tratamentos/clareamento.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/clareamento.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/clareamento.html",
+      "redirect_to": null,
+      "sha256": "78a19993b20fccbf237761410bb089a52ea417f46b83f12eca7d594d0d241bc4"
+    },
+    {
+      "path": "tratamentos/corporal.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/corporal.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/corporal.html",
+      "redirect_to": null,
+      "sha256": "7385c18219831780f2c56a4cc932350dae05173e6f99e39e9bf19e55eadbdd27"
+    },
+    {
+      "path": "tratamentos/definicao.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/definicao.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/definicao.html",
+      "redirect_to": null,
+      "sha256": "67480dfa1c229a703d48bc0817704c7a487a7da607cc0136aa391e5e8349203d"
+    },
+    {
+      "path": "tratamentos/esporotricose.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/esporotricose.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/esporotricose.html",
+      "redirect_to": null,
+      "sha256": "28bdd829fa01708e6e6374661d52afd085ccc0a5226fa9dac818eaf6704ca714"
+    },
+    {
+      "path": "tratamentos/estrias.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/estrias.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/estrias.html",
+      "redirect_to": null,
+      "sha256": "d636574af3a9845ddeebc8bb253016e4f10da785ad635d282a636f99e5afc0de"
+    },
+    {
+      "path": "tratamentos/flacidez.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/flacidez.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/flacidez.html",
+      "redirect_to": null,
+      "sha256": "f5b3fd1cbc2400cf416ab8ae408aab645256b925e9d53a72a51c4ba0830e0d4b"
+    },
+    {
+      "path": "tratamentos/leucodermia.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/leucodermia.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/leucodermia.html",
+      "redirect_to": null,
+      "sha256": "762e0dbc3efc8ec3d65e67e1c2e7667253e9f1b13364995ad874fe9f3e31c15e"
+    },
+    {
+      "path": "tratamentos/limpeza-de-pele.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/limpeza-de-pele.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/limpeza-de-pele.html",
+      "redirect_to": null,
+      "sha256": "8103990fa9a358055aed45236889d1139b97fa34773d41d43dfaea5a9da82322"
+    },
+    {
+      "path": "tratamentos/melasma.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/melasma.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/melasma.html",
+      "redirect_to": null,
+      "sha256": "b95f15c426086ad4d71f4b6a0258225b28899a29201497fb653fac9e6850cb86"
+    },
+    {
+      "path": "tratamentos/operatorio.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/operatorio.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/operatorio.html",
+      "redirect_to": null,
+      "sha256": "780046aef6f29da31c35a13e817097665f8a646936fe15ce28e18c7676b62753"
+    },
+    {
+      "path": "tratamentos/poros-abertos.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/poros-abertos.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/poros-abertos.html",
+      "redirect_to": null,
+      "sha256": "5e946e6738cf8cffb065dd7dc1b5a6d00056002664599e8a2f684a75b0241e0d"
+    },
+    {
+      "path": "tratamentos/rejuvenescimento.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/rejuvenescimento.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/rejuvenescimento.html",
+      "redirect_to": null,
+      "sha256": "d4851dded0c3dd1a01bfd64ae62e5fb303d657266230281b0ebe970596e086cf"
+    },
+    {
+      "path": "tratamentos/remocoes.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/remocoes.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/remocoes.html",
+      "redirect_to": null,
+      "sha256": "63fabf23b174ed7c9f130e76b8025ca159e7a3f68ca4e8b436060e9392e5cb98"
+    },
+    {
+      "path": "tratamentos/rosacea.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/rosacea.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/rosacea.html",
+      "redirect_to": null,
+      "sha256": "e6b013eb78b6e7e27aee32243375585fb66986d1fb60fa4d3ebfd74a8597c10e"
+    },
+    {
+      "path": "tratamentos/sobrancelha.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/sobrancelha.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/sobrancelha.html",
+      "redirect_to": null,
+      "sha256": "7beac540a2e9ae78fd3f4ecef95f22db9f1a21f1609d8187965ce83332c57608"
+    }
+  ],
+  "generated_at": "2026-09-25T21:28:03.276Z"
+}
