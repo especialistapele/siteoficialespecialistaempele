@@ -20,6 +20,19 @@ async function atualizarSolicitacao(requestId, status) {
   } catch (_) {}
 }
 
+async function reconciliarSolicitacao(requestId) {
+  if (!requestId) return null;
+  try {
+    const { data, error } = await supabase.functions.invoke("reconciliar-publicacao", {
+      body: { request_id: requestId },
+    });
+    if (error || !data?.ok) return null;
+    return data;
+  } catch (_) {
+    return null;
+  }
+}
+
 async function lerManifesto() {
   try {
     const resposta = await fetch(`${MANIFEST_URL}?t=${Date.now()}`, {
@@ -70,13 +83,33 @@ export async function dispararPublicacao({ path = null, publicado = null } = {})
       const atual = await lerManifesto();
       if (atual && assinatura(atual) !== assinaturaAntes && alvoAtingido(atual, { path, publicado })) {
         await atualizarSolicitacao(requestId, "confirmed");
+        window.dispatchEvent(new CustomEvent("publicacao:atualizada"));
         return { ok: true, confirmado: true, request_id: requestId };
       }
     }
 
+    const reconciliacao = await reconciliarSolicitacao(requestId);
+    const confirmado = reconciliacao?.requests?.some(
+      (item) => item.request_id === requestId && item.status === "confirmed"
+    );
+
+    if (confirmado) {
+      window.dispatchEvent(new CustomEvent("publicacao:atualizada"));
+      return { ok: true, confirmado: true, request_id: requestId };
+    }
+
     await atualizarSolicitacao(requestId, "timeout");
+    window.dispatchEvent(new CustomEvent("publicacao:atualizada"));
     return { ok: true, confirmado: false, request_id: requestId };
   } catch (_) {
+    const reconciliacao = await reconciliarSolicitacao(requestId);
+    const confirmado = reconciliacao?.requests?.some(
+      (item) => item.request_id === requestId && item.status === "confirmed"
+    );
+    if (confirmado) {
+      window.dispatchEvent(new CustomEvent("publicacao:atualizada"));
+      return { ok: true, confirmado: true, request_id: requestId };
+    }
     await atualizarSolicitacao(requestId, "error");
     return { ok: false, confirmado: false, request_id: requestId };
   }
