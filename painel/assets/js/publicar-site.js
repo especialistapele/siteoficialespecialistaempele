@@ -51,12 +51,17 @@ function alvoAtingido(manifesto, alvo) {
 export async function dispararPublicacao({ path = null, publicado = null } = {}) {
   const antes = await lerManifesto();
   const assinaturaAntes = assinatura(antes);
+  let requestId = null;
 
   try {
     const { data, error } = await supabase.functions.invoke("disparar-publicacao", {
       body: { path, publicado },
     });
-    if (error || !data?.ok) return { ok: false, confirmado: false };
+    requestId = data?.request_id || null;
+    if (error || !data?.ok) {
+      await atualizarSolicitacao(requestId, "error");
+      return { ok: false, confirmado: false, request_id: requestId };
+    }
   } catch (_) {
     return { ok: false, confirmado: false };
   }
@@ -66,12 +71,12 @@ export async function dispararPublicacao({ path = null, publicado = null } = {})
     await new Promise((resolve) => setTimeout(resolve, INTERVALO_MS));
     const atual = await lerManifesto();
     if (atual && assinatura(atual) !== assinaturaAntes && alvoAtingido(atual, { path, publicado })) {
-      await atualizarSolicitacao(data?.request_id, "confirmed");
-      return { ok: true, confirmado: true, request_id: data?.request_id || null };
+      await atualizarSolicitacao(requestId, "confirmed");
+      return { ok: true, confirmado: true, request_id: requestId };
     }
   }
 
-  await atualizarSolicitacao(data?.request_id, "timeout");
+  await atualizarSolicitacao(requestId, "timeout");
   return { ok: true, confirmado: false, request_id: data?.request_id || null };
 }
 
