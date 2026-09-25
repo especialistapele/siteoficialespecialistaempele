@@ -53,6 +53,12 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: node scripts/gerar-sitemap.mjs
 
+      - name: Validar páginas, IDs e sitemap antes do deploy
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: node scripts/validar-publicacao.mjs
+
       - name: Confirmar e enviar, só se algo mudou
         run: |
           git config user.name "sitemap-bot"
