@@ -91,18 +91,18 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.especialistaempele.com.br/blog/por-que-a-acne-persiste.html</loc>
-    <lastmod>2026-09-24</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-    <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/por-que-a-acne-persiste-1789599184776.webp</image:loc></image:image>
-  </url>
-  <url>
     <loc>https://www.especialistaempele.com.br/blog/o-que-e-regeneracao-cutanea.html</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/o-que-e-regeneracao-cutanea-1790373761962.webp</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://www.especialistaempele.com.br/blog/por-que-a-acne-persiste.html</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/por-que-a-acne-persiste-1789599184776.webp</image:loc></image:image>
   </url>
   <url>
     <loc>https://www.especialistaempele.com.br/blog/rejuvenescimento-facial-ou-harmonizacao.html</loc>

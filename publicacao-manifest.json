@@ -28,7 +28,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/por-que-a-acne-persiste.html",
       "redirect_to": null,
-      "sha256": "851465b913fd056f764b7e443f08079c33788874813b9340c08e48dab1e574ea"
+      "sha256": "9e55a5bf57c5a50b863de61d325ae213d4adc9c48469b76ea2841c728d39918c"
     },
     {
       "path": "blog/rejuvenescimento-facial-ou-harmonizacao.html",
@@ -38,7 +38,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/rejuvenescimento-facial-ou-harmonizacao.html",
       "redirect_to": null,
-      "sha256": "65624feabeefc778dbb186c3fdb4095ab6c9c9039b7be62bd2e8694957973ee2"
+      "sha256": "80fbc0094baa7942631f1d3efefad654548f9f3b717af771f53e47fc74ed47f1"
     },
     {
       "path": "resultados/clareamento-de-axila-02.html",
@@ -621,5 +621,5 @@
       "sha256": "7beac540a2e9ae78fd3f4ecef95f22db9f1a21f1609d8187965ce83332c57608"
     }
   ],
-  "generated_at": "2026-09-25T22:09:17.679Z"
+  "generated_at": "2026-09-25T22:42:24.182Z"
 }
