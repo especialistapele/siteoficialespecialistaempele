@@ -88,6 +88,7 @@
   import { escapeHtml, safeUrl } from "/painel/assets/js/sanitize.js";
   import { sanitizeRichHtml, pareceHtml } from "/assets/js/rich-text.js";
   import { dispararPublicacao, MSG_ATUALIZANDO, MSG_CONFIRMADO, MSG_AGENDADO, slugificar } from "/painel/assets/js/publicar-site.js";
+  import { montarStatusPublicacao } from "/painel/assets/js/status-publicacao.js";
 
   const contexto = await exigirAdmin();
   if (!contexto) throw new Error("sem acesso");
@@ -95,6 +96,7 @@
   configurarBotaoSair();
 
   const flash = document.querySelector("[data-flash]");
+  montarStatusPublicacao({ flash });
   const corpo = document.querySelector("[data-tabela-corpo]");
   const modal = document.getElementById("modal");
   const selectTratamento = document.getElementById("treatment_id");

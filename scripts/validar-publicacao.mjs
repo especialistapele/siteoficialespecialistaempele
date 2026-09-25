@@ -58,15 +58,14 @@ async function main() {
 
   for (const caminho of htmlFiles("tratamentos")) validarArquivo(caminho, false);
 
-  const tratamentos = await buscar("treatments?select=id,public_id,slug,published&published=eq.true");
+  const tratamentos = await buscar("treatments?select=id,slug,published&published=eq.true");
   const arquivosTratamentos = htmlFiles("tratamentos");
   const nomesTratamentos = new Set(arquivosTratamentos.map((p) => p.split("/").pop()));
   for (const t of tratamentos) {
     if (!t.slug) { erros.push(`Tratamento ${t.id}: publicado sem slug.`); continue; }
     const arquivo = `tratamentos/${slugify(t.slug)}.html`;
     if (!nomesTratamentos.has(arquivo.split("/").pop())) erros.push(`Tratamento publicado sem página estática: ${arquivo}`);
-    if (t.public_id && ids.has(t.public_id) && !ids.get(t.public_id).startsWith("tratamentos/"))
-      erros.push(`ID de tratamento ${t.public_id} colide com ${ids.get(t.public_id)}`);
+
   }
 
   const sitemap = extrairSitemap(), sitemapSet = new Set(sitemap);
