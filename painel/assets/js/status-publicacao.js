@@ -134,5 +134,5 @@ export async function montarStatusPublicacao({ flash = null } = {}) {
   await atualizar();\n  await atualizarHistorico(box);
   const timer = setInterval(atualizar, INTERVALO_MS);
   window.addEventListener("beforeunload", () => clearInterval(timer), { once:true });
-  window.addEventListener("publicacao:atualizada", atualizar);
+  window.addEventListener("publicacao:atualizada", async () => { await atualizar(); await atualizarHistorico(box); });
 }
