@@ -56,7 +56,9 @@ async function main() {
     }
   }
 
-  for (const caminho of htmlFiles("tratamentos")) validarArquivo(caminho, false);\n\n  const tratamentos = await buscar("treatments?select=id,public_id,slug,published&published=eq.true");
+  for (const caminho of htmlFiles("tratamentos")) validarArquivo(caminho, false);
+
+  const tratamentos = await buscar("treatments?select=id,public_id,slug,published&published=eq.true");
   const arquivosTratamentos = htmlFiles("tratamentos");
   const nomesTratamentos = new Set(arquivosTratamentos.map((p) => p.split("/").pop()));
   for (const t of tratamentos) {
