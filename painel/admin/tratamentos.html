@@ -89,7 +89,7 @@
   import { otimizarImagemParaWebP } from "/painel/assets/js/imagem-otimizacao.js";
   import { escapeHtml, safeUrl } from "/painel/assets/js/sanitize.js";
   import { sanitizeRichHtml, pareceHtml } from "/assets/js/rich-text.js";
-  import { dispararPublicacao, MSG_ATUALIZANDO, MSG_AGENDADO } from "/painel/assets/js/publicar-site.js";
+  import { dispararPublicacao, MSG_ATUALIZANDO, MSG_CONFIRMADO, MSG_AGENDADO } from "/painel/assets/js/publicar-site.js";
 
   const contexto = await exigirAdmin();
   if (!contexto) throw new Error("sem acesso");
@@ -175,8 +175,9 @@
         mostrarFlash(flash, "Erro ao excluir: " + error.message, "erro");
         return;
       }
-      const publicou = await dispararPublicacao();
-      mostrarFlash(flash, publicou ? MSG_ATUALIZANDO : MSG_AGENDADO, "sucesso");
+      const itemExcluido = todos.find((x) => x.id === btn.dataset.excluir);
+      const resultadoPublicacao = await dispararPublicacao({ path: `tratamentos/${itemExcluido?.slug}.html`, publicado: false });
+      mostrarFlash(flash, resultadoPublicacao.confirmado ? MSG_CONFIRMADO : (resultadoPublicacao.ok ? MSG_ATUALIZANDO : MSG_AGENDADO), "sucesso");
       carregar();
     }));
 
@@ -318,8 +319,8 @@
       const { error } = id ? await supabase.from("treatments").update(payload).eq("id", id) : await supabase.from("treatments").insert(payload);
       if (error) throw error;
       modal.style.display = "none";
-      const publicou = await dispararPublicacao();
-      mostrarFlash(flash, publicou ? MSG_ATUALIZANDO : MSG_AGENDADO, "sucesso");
+      const resultadoPublicacao = await dispararPublicacao({ path: `tratamentos/${payload.slug}.html`, publicado: payload.published });
+      mostrarFlash(flash, resultadoPublicacao.confirmado ? MSG_CONFIRMADO : (resultadoPublicacao.ok ? MSG_ATUALIZANDO : MSG_AGENDADO), "sucesso");
       carregar();
     } catch (erro) {
       mostrarFlash(flash, "Erro: " + erro.message, "erro");
