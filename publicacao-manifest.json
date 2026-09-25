@@ -8,8 +8,18 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 61,
+  "total": 62,
   "items": [
+    {
+      "path": "blog/como-escolher-um-tratamento-para-melasma.html",
+      "url": "https://www.especialistaempele.com.br/blog/como-escolher-um-tratamento-para-melasma.html",
+      "id": "BLOG-000004",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/blog/como-escolher-um-tratamento-para-melasma.html",
+      "redirect_to": null,
+      "sha256": "ccb6a3c7a3c67a54598a2950940420f8187229069c4985051be88348d1578fef"
+    },
     {
       "path": "blog/o-que-e-regeneracao-cutanea.html",
       "url": "https://www.especialistaempele.com.br/blog/o-que-e-regeneracao-cutanea.html",
@@ -18,7 +28,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/o-que-e-regeneracao-cutanea.html",
       "redirect_to": null,
-      "sha256": "ece980b6d07cadc17952bc5b6879a78e5a2af7112d891cc409c572e7f70578f1"
+      "sha256": "a3b8f8bc9b0eb478df50263918f946bdc5ef6f148e06f79663d45e329d1b8a8f"
     },
     {
       "path": "blog/por-que-a-acne-persiste.html",
@@ -28,7 +38,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/por-que-a-acne-persiste.html",
       "redirect_to": null,
-      "sha256": "9e55a5bf57c5a50b863de61d325ae213d4adc9c48469b76ea2841c728d39918c"
+      "sha256": "436995cf1ae56ee87ba96eb621fa5127ee9ad43cff67e3b63df54f71cc7743d5"
     },
     {
       "path": "blog/rejuvenescimento-facial-ou-harmonizacao.html",
@@ -38,7 +48,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/rejuvenescimento-facial-ou-harmonizacao.html",
       "redirect_to": null,
-      "sha256": "80fbc0094baa7942631f1d3efefad654548f9f3b717af771f53e47fc74ed47f1"
+      "sha256": "c4ad0d66db1e9004e63abb2c9467b5a586326c9af07b77eb4b8396eac7edf334"
     },
     {
       "path": "resultados/clareamento-de-axila-02.html",
@@ -621,5 +631,5 @@
       "sha256": "7beac540a2e9ae78fd3f4ecef95f22db9f1a21f1609d8187965ce83332c57608"
     }
   ],
-  "generated_at": "2026-09-25T22:42:24.182Z"
+  "generated_at": "2026-09-25T22:46:15.906Z"
 }
