@@ -51,7 +51,6 @@ for (const dir of dirs) {
       canonical: canonicalUrl,
       redirect_to: moved,
       sha256: sha256(html),
-      updated_at: new Date().toISOString(),
     });
   }
 }
@@ -63,9 +62,8 @@ for (const item of items) {
   byId.set(item.id, item.path);
 }
 
-const manifest = {
+const base = {
   schema_version: 1,
-  generated_at: new Date().toISOString(),
   site: SITE,
   source: "static-build",
   status_codes: {
@@ -76,6 +74,21 @@ const manifest = {
   },
   total: items.length,
   items,
+};
+
+let generatedAt = new Date().toISOString();
+if (existsSync("publicacao-manifest.json")) {
+  try {
+    const anterior = JSON.parse(readFileSync("publicacao-manifest.json", "utf8"));
+    const assinaturaAnterior = JSON.stringify({ ...anterior, generated_at: undefined });
+    const assinaturaAtual = JSON.stringify({ ...base, generated_at: undefined });
+    if (assinaturaAnterior === assinaturaAtual && anterior.generated_at) generatedAt = anterior.generated_at;
+  } catch (_) {}
+}
+
+const manifest = {
+  ...base,
+  generated_at: generatedAt,
 };
 
 writeFileSync("publicacao-manifest.json", JSON.stringify(manifest, null, 2) + "\n", "utf8");
