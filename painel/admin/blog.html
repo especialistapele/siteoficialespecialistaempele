@@ -69,6 +69,12 @@
             <div class="form-campo"><label for="cta_url">URL do botão</label><input type="text" id="cta_url" placeholder="https://... ou /pagina.html"></div>
           </div>
           <p class="texto-suave" style="font-size:12px;margin:-6px 0 10px">O botão aparece sempre ao final do artigo, centralizado. Deixe os dois campos em branco para não exibir nenhum botão.</p>
+          <div class="form-campo">
+            <label>Perguntas frequentes (FAQ)</label>
+            <div id="faq-editor"></div>
+            <button type="button" class="btn-p btn-p-fora" id="faq-adicionar" style="margin-top:8px">+ Adicionar pergunta</button>
+            <small class="texto-suave" style="font-size:11px">As perguntas e respostas serão exibidas no final do artigo e incluídas automaticamente na estrutura SEO da página.</small>
+          </div>
           <div class="form-campo"><label for="imagem">Imagem de capa</label><input type="file" id="imagem" accept="image/*"></div>
           <div class="form-checkbox"><input type="checkbox" id="published"><label for="published">Publicado</label></div>
           <div class="form-acoes">
@@ -102,6 +108,32 @@
   const selectTratamento = document.getElementById("treatment_id");
   let todos = [];
   let imagemAtualUrl = null;
+  const faqEditor = document.getElementById("faq-editor");
+  function faqItens() {
+    return [...faqEditor.querySelectorAll("[data-faq-item]")].map((el) => ({
+      pergunta: el.querySelector("[data-faq-pergunta]").value.trim(),
+      resposta: el.querySelector("[data-faq-resposta]").value.trim()
+    })).filter((x) => x.pergunta || x.resposta);
+  }
+  function renderizarFaq(itens = []) {
+    faqEditor.innerHTML = "";
+    (itens.length ? itens : [{ pergunta: "", resposta: "" }]).forEach(adicionarFaqItem);
+  }
+  function adicionarFaqItem(item = { pergunta: "", resposta: "" }) {
+    const el = document.createElement("div");
+    el.dataset.faqItem = "";
+    el.style.cssText = "border:1px solid var(--linha,#ddd7c9);border-radius:6px;padding:12px;margin-top:10px;background:#faf8f3";
+    el.innerHTML = `<div class="form-campo"><label>Pergunta</label><input type="text" data-faq-pergunta maxlength="250" value="${escapeHtml(item.pergunta)}"></div>
+      <div class="form-campo"><label>Resposta</label><textarea data-faq-resposta rows="4" style="width:100%;resize:vertical"></textarea></div>
+      <button type="button" class="btn-p btn-p-mini btn-p-perigo" data-faq-remover>Remover</button>`;
+    el.querySelector("[data-faq-resposta]").value = item.resposta || "";
+    el.querySelector("[data-faq-remover]").addEventListener("click", () => {
+      el.remove();
+      if (!faqEditor.children.length) adicionarFaqItem();
+    });
+    faqEditor.appendChild(el);
+  }
+  document.getElementById("faq-adicionar").addEventListener("click", () => adicionarFaqItem());
 
   // ------------------------------------------------------------------
   // Pequeno editor de texto para o conteúdo do artigo (negrito, itálico,
@@ -217,6 +249,7 @@
     contentHidden.value = "";
     document.getElementById("cta_label").value = "";
     document.getElementById("cta_url").value = "";
+    renderizarFaq();
     imagemAtualUrl = null;
     document.querySelector("[data-modal-titulo]").textContent = "Novo artigo";
     atualizarPrevia();
@@ -239,6 +272,7 @@
     contentHidden.value = sanitizeRichHtml(contentEditor.innerHTML);
     document.getElementById("cta_label").value = item.cta_label || "";
     document.getElementById("cta_url").value = item.cta_url || "";
+    renderizarFaq(Array.isArray(item.faq) ? item.faq : []);
     document.getElementById("published").checked = !!item.published;
     selectTratamento.value = item.treatment_id || "";
     imagemAtualUrl = item.cover_image_url;
