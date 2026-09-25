@@ -18,7 +18,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/como-escolher-um-tratamento-para-melasma.html",
       "redirect_to": null,
-      "sha256": "ccb6a3c7a3c67a54598a2950940420f8187229069c4985051be88348d1578fef"
+      "sha256": "315b1345e37096bed82383dc161ca9c3f3a43c1accdd2bd31935990c2064762d"
     },
     {
       "path": "blog/o-que-e-regeneracao-cutanea.html",
@@ -28,7 +28,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/o-que-e-regeneracao-cutanea.html",
       "redirect_to": null,
-      "sha256": "a3b8f8bc9b0eb478df50263918f946bdc5ef6f148e06f79663d45e329d1b8a8f"
+      "sha256": "5674a06041daa1d0c3ad2fdd3c77e04eea90d061b2abed997024444e29056f35"
     },
     {
       "path": "blog/por-que-a-acne-persiste.html",
@@ -38,7 +38,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/por-que-a-acne-persiste.html",
       "redirect_to": null,
-      "sha256": "436995cf1ae56ee87ba96eb621fa5127ee9ad43cff67e3b63df54f71cc7743d5"
+      "sha256": "b91f836125746c449bbd0c67d3f0eca4d638777e436220d21383b809563033cb"
     },
     {
       "path": "blog/rejuvenescimento-facial-ou-harmonizacao.html",
@@ -48,7 +48,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/rejuvenescimento-facial-ou-harmonizacao.html",
       "redirect_to": null,
-      "sha256": "c4ad0d66db1e9004e63abb2c9467b5a586326c9af07b77eb4b8396eac7edf334"
+      "sha256": "c5fda19b182c5c677f86bee383ddf1618ee97cb91f101f7b70b15eb38ebbebc3"
     },
     {
       "path": "resultados/clareamento-de-axila-02.html",
@@ -631,5 +631,5 @@
       "sha256": "7beac540a2e9ae78fd3f4ecef95f22db9f1a21f1609d8187965ce83332c57608"
     }
   ],
-  "generated_at": "2026-09-25T22:46:15.906Z"
+  "generated_at": "2026-09-25T23:55:27.808Z"
 }
