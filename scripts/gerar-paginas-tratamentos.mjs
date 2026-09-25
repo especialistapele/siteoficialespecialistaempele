@@ -22,7 +22,7 @@
 // gerar, além delas, uma versão estática em /tratamentos/<slug>.html.
 // ============================================================
 
-import { writeFileSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync, existsSync, readFileSync } from "node:fs";
 
 const SITE = "https://www.especialistaempele.com.br";
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://clwaotfbqwvxpykruwed.supabase.co";
@@ -107,6 +107,7 @@ export function paginaHtml(t) {
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<!-- AUTO-GENERATED:TREATMENT-PAGE -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${escapeHtml(tituloCompleto)}</title>
@@ -215,6 +216,13 @@ async function main() {
     }
     vistos.add(slugArquivo);
     const caminho = `${PASTA_SAIDA}/${slugArquivo}.html`;
+    if (existsSync(caminho)) {
+      const existente = readFileSync(caminho, "utf-8");
+      if (!existente.includes("AUTO-GENERATED:TREATMENT-PAGE")) {
+        console.warn(`Preservado (página HTML manual/SEO): ${caminho}`);
+        continue;
+      }
+    }
     writeFileSync(caminho, paginaHtml(t), "utf-8");
     console.log(`Gerado: ${caminho}`);
   }
