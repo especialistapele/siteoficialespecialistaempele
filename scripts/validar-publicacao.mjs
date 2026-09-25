@@ -46,7 +46,7 @@ function extrairSitemap() {
 async function main() {
   if (!existsSync("sitemap.xml")) erros.push("sitemap.xml não existe.");
   const ids = new Map();
-  for (const dir of ["blog","resultados","tratamentos"]) {
+  for (const dir of ["blog","resultados"]) {
     for (const caminho of htmlFiles(dir)) {
       const id = validarArquivo(caminho);
       if (id) {
