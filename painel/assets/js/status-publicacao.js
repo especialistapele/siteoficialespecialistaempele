@@ -41,7 +41,8 @@ function css() {
     .status-publicacao__grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
     .status-publicacao__item{font-size:11px;color:#777;padding-top:9px;border-top:1px solid var(--linha,#eee)}
     .status-publicacao__item strong{display:block;color:#303733;font-size:12px;margin-top:3px;word-break:break-word}
-    .status-publicacao__vazio{font-size:12px;color:#777;margin:8px 0 0}\n    .historico-publicacao{margin-top:18px;padding-top:16px;border-top:1px solid var(--linha,#eee)}
+    .status-publicacao__vazio{font-size:12px;color:#777;margin:8px 0 0}
+    .historico-publicacao{margin-top:18px;padding-top:16px;border-top:1px solid var(--linha,#eee)}
     .historico-publicacao__titulo{font-weight:700;font-size:14px;color:var(--texto,#26312d);margin-bottom:8px}
     .historico-publicacao__subtitulo,.historico-publicacao__empty{font-size:11px;color:#777;margin:0 0 10px}
     .historico-publicacao__table-wrap{overflow-x:auto}
