@@ -58,6 +58,7 @@ export function paginaHtml(a, { relacionados = [], dimCapa = null } = {}) {
   const modificado = dataISO(a.updated_at) || publicado;
   const trat = a.treatments || null;
   const ctaUrl = a.cta_url ? urlSegura(a.cta_url, { relativa: true }) : "";
+  const faq = Array.isArray(a.faq) ? a.faq.map((item) => ({ pergunta: String(item?.pergunta ?? item?.question ?? "").trim(), resposta: String(item?.resposta ?? item?.answer ?? "").trim() })).filter((item) => item.pergunta && item.resposta) : [];
   const ctaHtml = a.cta_label && ctaUrl
     ? `<p class="texto-centro" style="margin-top:28px"><a class="btn btn-dourado" href="${escapeHtml(ctaUrl)}">${escapeHtml(a.cta_label)}</a></p>` : "";
 
@@ -85,6 +86,7 @@ export function paginaHtml(a, { relacionados = [], dimCapa = null } = {}) {
         wordCount: textoPuro(corpo).split(/\s+/).filter(Boolean).length,
         mainEntityOfPage: { "@type": "WebPage", "@id": urlCanonica },
       },
+      ...(faq.length ? [{ "@type": "FAQPage", "@id": `${urlCanonica}#faq`, mainEntity: faq.map((item) => ({ "@type": "Question", name: item.pergunta, acceptedAnswer: { "@type": "Answer", text: item.resposta } })) }] : []),
       {
         "@type": "BreadcrumbList",
         itemListElement: [
@@ -136,7 +138,7 @@ ${modificado ? `<meta property="article:modified_time" content="${modificado}">`
 <script type="application/ld+json">${JSON.stringify(schema).replace(/</g, "\\u003c")}</script>
 <link rel="stylesheet" href="/assets/css/paginas.css">
 <link rel="stylesheet" href="/assets/css/mobile-nav.css">
-<style>.artigo-corpo p{font-size:17px;line-height:1.7;margin-bottom:18px}.artigo-corpo h2{margin:34px 0 12px}.artigo-corpo h3{margin:26px 0 10px}.artigo-corpo ul,.artigo-corpo ol{margin:0 0 18px 22px;font-size:17px;line-height:1.7}.artigo-mais ul{margin:12px 0 0 20px;line-height:1.9}</style>
+<style>.artigo-faq{margin-top:44px}.artigo-faq h2{margin-bottom:18px}.artigo-faq details{border-top:1px solid #ddd7c9;padding:16px 0}.artigo-faq details:last-child{border-bottom:1px solid #ddd7c9}.artigo-faq summary{cursor:pointer;font-weight:700;font-size:17px}.artigo-faq .faq-resposta{padding:12px 0 2px}.artigo-faq .faq-resposta p:last-child{margin-bottom:0}.artigo-corpo p{font-size:17px;line-height:1.7;margin-bottom:18px}.artigo-corpo h2{margin:34px 0 12px}.artigo-corpo h3{margin:26px 0 10px}.artigo-corpo ul,.artigo-corpo ol{margin:0 0 18px 22px;font-size:17px;line-height:1.7}.artigo-mais ul{margin:12px 0 0 20px;line-height:1.9}</style>
 <link rel="icon" href="/assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -152,6 +154,7 @@ ${cabecalho("blog")}
     ${capa ? `<img src="${escapeHtml(capa)}" alt="${escapeHtml(altCapa)}"${attrDim(dimCapa)} style="width:100%;height:auto;border-radius:10px;margin:24px 0" fetchpriority="high" decoding="async">` : ""}
     <div class="artigo-corpo">${corpo}</div>
     ${ctaHtml}
+    ${faq.length ? `<section class="artigo-faq" aria-labelledby="faq-titulo"><h2 id="faq-titulo">Perguntas frequentes</h2>${faq.map((item) => `<details><summary>${escapeHtml(item.pergunta)}</summary><div class="faq-resposta">${renderizarConteudo(item.resposta)}</div></details>`).join("")}</section>` : ""}
     <aside class="artigo-mais" style="margin-top:44px"><h2 style="font-size:1.25rem">Continue explorando</h2><ul>${maisLinks}</ul></aside>
   </article>
   <section class="secao fundo-escura texto-centro">
