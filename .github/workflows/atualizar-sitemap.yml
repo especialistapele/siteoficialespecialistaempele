@@ -1,15 +1,21 @@
-name: Atualizar sitemap.xml, páginas de tratamentos e de artigos
+name: Atualizar sitemap.xml e páginas estáticas (tratamentos, artigos e resultados)
 
 on:
   schedule:
-    # Todo dia às 06:00 (horário de Brasília = 09:00 UTC)
-    - cron: "0 9 * * *"
+    # De hora em hora (rede de segurança: o painel também dispara este
+    # workflow na hora, via Edge Function "disparar-publicacao").
+    - cron: "0 * * * *"
   workflow_dispatch: {}   # botão "Run workflow" manual, na aba Actions
   push:
     branches: [main]      # também roda quando você fizer deploy do site
 
 permissions:
   contents: write
+
+# Uma execução por vez: evita dois builds tentando enviar commits ao mesmo tempo.
+concurrency:
+  group: atualizar-site
+  cancel-in-progress: false
 
 jobs:
   atualizar-sitemap:
@@ -29,11 +35,17 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: node scripts/gerar-paginas-tratamentos.mjs
 
-      - name: Gerar páginas estáticas de artigos do blog a partir do Supabase
+      - name: Gerar páginas estáticas de artigos do blog (/blog/<slug>.html)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: node scripts/gerar-paginas-artigos.mjs
+
+      - name: Gerar páginas estáticas de resultados (/resultados/<slug>.html)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: node scripts/gerar-paginas-resultados.mjs
 
       - name: Gerar sitemap.xml a partir do Supabase
         env:
@@ -45,10 +57,12 @@ jobs:
         run: |
           git config user.name "sitemap-bot"
           git config user.email "actions@github.com"
-          git add sitemap.xml tratamentos/*.html blog/artigos/*.html
+          # -A registra também as páginas APAGADAS (despublicadas/excluídas)
+          git add -A sitemap.xml tratamentos blog resultados
           if git diff --staged --quiet; then
             echo "Nada mudou — nada para enviar."
           else
-            git commit -m "chore: atualizar sitemap.xml, páginas de tratamentos e de artigos automaticamente"
+            git commit -m "chore: atualizar sitemap.xml e páginas estáticas (tratamentos, artigos, resultados) automaticamente"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
             git push
           fi
