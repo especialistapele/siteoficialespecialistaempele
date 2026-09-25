@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "site": "https://www.especialistaempele.com.br",
+  "events": [
+    {
+      "request_id": "13e453c0-9ab4-4afa-bc4d-a26ed3acfdf0",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/rejuvenescimento-facial-ou-harmonizacao.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-09-25T22:41:58.215Z",
+      "completed_at": "2026-09-25T22:42:27.233Z",
+      "workflow_run_id": "36197944044",
+      "workflow_sha": "823e74cc47a40da7050dc2b26a63f1bc951653e2",
+      "ref": "main"
+    }
+  ],
+  "updated_at": "2026-09-25T22:42:27.233Z",
+  "total": 1
+}
