@@ -22,7 +22,7 @@
 // gerar, além delas, uma versão estática em /tratamentos/<slug>.html.
 // ============================================================
 
-import { writeFileSync, mkdirSync, existsSync, readFileSync } from "node:fs";
+import { writeFileSync, mkdirSync, existsSync, readFileSync, readdirSync, unlinkSync } from "node:fs";
 
 const SITE = "https://www.especialistaempele.com.br";
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://clwaotfbqwvxpykruwed.supabase.co";
@@ -107,7 +107,7 @@ export function paginaHtml(t) {
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<!-- AUTO-GENERATED:TREATMENT-PAGE -->
+<!-- AUTO-GENERATED:TREATMENT-PAGE public_id=${t.public_id || ""} slug=${slugArquivo} -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${escapeHtml(tituloCompleto)}</title>
@@ -206,6 +206,7 @@ async function main() {
   mkdirSync(PASTA_SAIDA, { recursive: true });
 
   const vistos = new Set();
+  const publicados = new Set();
   for (const t of tratamentos) {
     if (!t.slug) continue;
     const slugArquivo = slugifyUrl(t.slug);
@@ -216,6 +217,7 @@ async function main() {
     }
     vistos.add(slugArquivo);
     const caminho = `${PASTA_SAIDA}/${slugArquivo}.html`;
+    publicados.add(slugArquivo);
     if (existsSync(caminho)) {
       const existente = readFileSync(caminho, "utf-8");
       if (!existente.includes("AUTO-GENERATED:TREATMENT-PAGE")) {
@@ -226,6 +228,21 @@ async function main() {
     writeFileSync(caminho, paginaHtml(t), "utf-8");
     console.log(`Gerado: ${caminho}`);
   }
+  // Remove somente páginas que foram geradas automaticamente por este script.
+  // Páginas manuais/SEO por cidade não possuem o marcador e são preservadas.
+  for (const nome of readdirSync(PASTA_SAIDA)) {
+    if (!nome.endsWith(".html")) continue;
+    const slugExistente = nome.slice(0, -5);
+    if (publicados.has(slugExistente)) continue;
+    const caminho = `${PASTA_SAIDA}/${nome}`;
+    let html = "";
+    try { html = readFileSync(caminho, "utf-8"); } catch (_) { continue; }
+    if (html.includes("AUTO-GENERATED:TREATMENT-PAGE")) {
+      unlinkSync(caminho);
+      console.log(`Removida página automática obsoleta: ${caminho}`);
+    }
+  }
+
   console.log(`\n${vistos.size} página(s) de tratamento geradas em /${PASTA_SAIDA}/.`);
 }
 
