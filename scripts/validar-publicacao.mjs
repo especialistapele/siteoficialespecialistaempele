@@ -24,14 +24,14 @@ function htmlFiles(dir) {
     .filter((e) => e.isFile() && e.name.endsWith(".html") && e.name !== "index.html" && e.name !== "detalhe.html")
     .map((e) => `${dir}/${e.name}`);
 }
-function validarArquivo(caminho) {
+function validarArquivo(caminho, exigirId = true) {
   const html = readFileSync(caminho, "utf8");
   const id = /<meta name="conteudo-id" content="([^"]+)">/i.exec(html)?.[1] || null;
   const canon = /<link rel="canonical" href="([^"]+)">/i.exec(html)?.[1] || null;
   const title = /<title>\s*([^<]+?)\s*<\/title>/i.exec(html)?.[1] || null;
   const description = /<meta name="description" content="([^"]*)">/i.exec(html)?.[1] ?? null;
   const robots = /<meta name="robots" content="([^"]+)">/i.exec(html)?.[1] || "";
-  if (!id) erros.push(`${caminho}: falta meta conteudo-id.`);
+  if (!id && exigirId) erros.push(`${caminho}: falta meta conteudo-id.`);
   if (!canon) erros.push(`${caminho}: falta canonical.`);
   if (canon && !canon.startsWith(SITE + "/")) erros.push(`${caminho}: canonical fora do domínio: ${canon}`);
   if (!title) erros.push(`${caminho}: falta title.`);
@@ -56,7 +56,7 @@ async function main() {
     }
   }
 
-  const tratamentos = await buscar("treatments?select=id,public_id,slug,published&published=eq.true");
+  for (const caminho of htmlFiles("tratamentos")) validarArquivo(caminho, false);\n\n  const tratamentos = await buscar("treatments?select=id,public_id,slug,published&published=eq.true");
   const arquivosTratamentos = htmlFiles("tratamentos");
   const nomesTratamentos = new Set(arquivosTratamentos.map((p) => p.split("/").pop()));
   for (const t of tratamentos) {
