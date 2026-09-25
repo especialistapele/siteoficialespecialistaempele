@@ -10,6 +10,11 @@
 //
 // Não precisa de nenhuma dependência além do Node 18+ (usa o
 // fetch nativo).
+//
+// Artigos    -> /blog/<slug>.html        (com a imagem de capa)
+// Resultados -> /resultados/<slug>.html  (com TODAS as fotos do caso)
+// As imagens vão dentro do próprio sitemap.xml (extensão image:image
+// do Google), então não é preciso um sitemap de imagens separado.
 // ============================================================
 
 import { writeFileSync } from "node:fs";
@@ -79,13 +84,18 @@ function ultimaData(row) {
   return Number.isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10);
 }
 
-function urlXml({ loc, lastmod, changefreq, priority }) {
+function esc(v) {
+  return String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function urlXml({ loc, lastmod, changefreq, priority, imagens = [] }) {
   return [
     "  <url>",
-    `    <loc>${loc}</loc>`,
+    `    <loc>${esc(loc)}</loc>`,
     lastmod ? `    <lastmod>${lastmod}</lastmod>` : null,
     changefreq ? `    <changefreq>${changefreq}</changefreq>` : null,
     priority ? `    <priority>${priority}</priority>` : null,
+    ...[...new Set(imagens.filter(Boolean))].map((u) => `    <image:image><image:loc>${esc(u)}</image:loc></image:image>`),
     "  </url>",
   ].filter(Boolean).join("\n");
 }
@@ -96,20 +106,47 @@ async function main() {
     urlXml({ loc: SITE + p.loc, lastmod: hoje, changefreq: p.changefreq, priority: p.priority })
   );
 
-  const [artigos, tratamentos] = await Promise.all([
-    buscarPublicados("articles").catch((e) => { console.error(e.message); return []; }),
-    buscarPublicados("treatments").catch((e) => { console.error(e.message); return []; }),
+  // Se QUALQUER leitura falhar, aborta: gerar um sitemap incompleto tiraria
+  // páginas ativas do sitemap. O sitemap.xml anterior é mantido.
+  const [artigos, tratamentos, resultados, fotosExtras] = await Promise.all([
+    buscarPublicados("articles"),
+    buscarPublicados("treatments"),
+    fetch(`${SUPABASE_URL}/rest/v1/results?select=*&published=eq.true&consent_confirmed=eq.true`, {
+      headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+    }).then(async (r) => { if (!r.ok) throw new Error(`Erro ao buscar "results": ${r.status}`); return r.json(); }),
+    fetch(`${SUPABASE_URL}/rest/v1/result_images?select=*&order=position.asc`, {
+      headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+    }).then(async (r) => { if (!r.ok) throw new Error(`Erro ao buscar "result_images": ${r.status}`); return r.json(); }),
   ]);
 
   for (const a of artigos) {
-    if (!a.slug) continue;
-    // Aponta para a página estática pré-renderizada em
-    // /blog/artigos/<slug>.html (gerada por gerar-paginas-artigos.mjs).
+    if (!a.slug || !a.public_id) continue;
+    // Página estática pré-renderizada em /blog/<slug>.html
+    // (gerada por gerar-paginas-artigos.mjs).
     entradas.push(urlXml({
-      loc: `${SITE}/blog/artigos/${slugifyUrl(a.slug)}.html`,
+      loc: `${SITE}/blog/${slugifyUrl(a.slug)}.html`,
       lastmod: ultimaData(a),
       changefreq: "monthly",
       priority: "0.6",
+      imagens: [a.cover_image_url],
+    }));
+  }
+
+  const extrasPorResultado = new Map();
+  for (const im of fotosExtras) {
+    if (!extrasPorResultado.has(im.result_id)) extrasPorResultado.set(im.result_id, []);
+    extrasPorResultado.get(im.result_id).push(im.url);
+  }
+  for (const r of resultados) {
+    if (!r.slug || !r.public_id) continue;
+    // Página estática em /resultados/<slug>.html (gerada por
+    // gerar-paginas-resultados.mjs), com todas as fotos do caso.
+    entradas.push(urlXml({
+      loc: `${SITE}/resultados/${slugifyUrl(r.slug)}.html`,
+      lastmod: ultimaData(r),
+      changefreq: "monthly",
+      priority: "0.6",
+      imagens: [r.after_image_url, r.before_image_url, ...(extrasPorResultado.get(r.id) || [])],
     }));
   }
 
@@ -126,9 +163,9 @@ async function main() {
     }));
   }
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entradas.join("\n")}\n</urlset>\n`;
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${entradas.join("\n")}\n</urlset>\n`;
   writeFileSync("sitemap.xml", xml, "utf-8");
-  console.log(`sitemap.xml gerado com ${PAGINAS_FIXAS.length} páginas fixas + ${artigos.length} artigos + ${tratamentos.length} tratamentos.`);
+  console.log(`sitemap.xml gerado com ${PAGINAS_FIXAS.length} páginas fixas + ${artigos.length} artigos + ${resultados.length} resultados + ${tratamentos.length} tratamentos.`);
 }
 
 main().catch((e) => {

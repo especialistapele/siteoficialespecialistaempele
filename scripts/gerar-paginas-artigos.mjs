@@ -1,98 +1,89 @@
 // ============================================================
-// Gera uma página HTML estática e completa para cada artigo do
-// blog publicado (buscados direto no Supabase), no mesmo esquema
-// usado em scripts/gerar-paginas-tratamentos.mjs.
+// Gera UMA página HTML estática por artigo do blog publicado,
+// em /blog/<slug>.html (buscados direto no Supabase), no mesmo
+// esquema de scripts/gerar-paginas-tratamentos.mjs.
 //
-// Por quê: /blog/artigos/?slug=... monta o conteúdo via
-// JavaScript, depois que a página já carregou — o HTML que o
-// Google recebe primeiro está vazio, sem título, sem texto, sem
-// dados estruturados. Este script resolve isso gerando, em tempo
-// de build, um arquivo .html por artigo já com tudo pronto.
+//   1 artigo publicado = 1 página estática com SEO próprio.
 //
-// Roda automaticamente pelo GitHub Actions (veja
-// .github/workflows/atualizar-sitemap.yml), mas também pode ser
-// executado manualmente:
+// O que este script também faz (veja scripts/lib/conteudo.mjs):
+//  - artigo despublicado/excluído  -> a página é apagada (404)
+//  - slug alterado                 -> a URL antiga vira redirecionamento
+//                                     para a nova (mesmo ID BLOG-xxxxxx)
+//  - URL antiga /blog/artigos/<slug>.html -> redirecionamento para /blog/<slug>.html
+//  - atualiza a listagem estática em /blog/index.html (links internos
+//    rastreáveis pelo Google, sem depender de JavaScript)
+//
+// Roda pelo GitHub Actions (.github/workflows/atualizar-sitemap.yml)
+// e também manualmente:
 //
 //   SUPABASE_URL=... SUPABASE_ANON_KEY=... node scripts/gerar-paginas-artigos.mjs
-//
-// As páginas antigas (/blog/artigos/?slug=...) continuam
-// funcionando normalmente — este script só passa a gerar, além
-// delas, uma versão estática em /blog/artigos/<slug>.html.
 // ============================================================
 
-import { writeFileSync, mkdirSync } from "node:fs";
+import {
+  SITE, SUPABASE_ANON_KEY, slugifyUrl, escapeHtml, dataBR, dataISO, urlSegura, renderizarConteudo,
+  textoPuro, resumir, buscar, dimensoesImagem, attrDim, cabecalho, rodape, marcadorId,
+  sincronizarPastas, injetarLista,
+} from "./lib/conteudo.mjs";
 
-const SITE = "https://www.especialistaempele.com.br";
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://clwaotfbqwvxpykruwed.supabase.co";
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-const PASTA_SAIDA = "blog/artigos";
+export { slugifyUrl };
 
-// Mesma regra de slug usada em scripts/gerar-paginas-tratamentos.mjs,
-// scripts/gerar-sitemap.mjs e assets/js/blog-data.js.
-export function slugifyUrl(valor) {
-  return String(valor ?? "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+const PASTA = "blog";
+const PASTA_LEGADA = "blog/artigos"; // URL antiga das páginas estáticas de artigo
+const AUTOR = { "@type": "Person", name: "Danielle Brito", url: `${SITE}/quemsomos.html` };
+const EDITORA = {
+  "@type": "Organization", name: "Especialista em Pele", url: `${SITE}/`,
+  logo: { "@type": "ImageObject", url: `${SITE}/assets/logo-especialista.webp` },
+};
+
+export async function buscarArtigosPublicados() {
+  return buscar("articles?select=*,treatments(name,slug)&published=eq.true&order=published_at.desc");
 }
 
-function escapeHtml(str) {
-  return String(str ?? "").replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-  }[c]));
+export function urlDoArtigo(a) { return `${SITE}/blog/${a.slug}.html`; }
+
+function cardArtigo(a) {
+  const img = urlSegura(a.cover_image_url);
+  return `<article class="card"><div class="card__img">${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(a.title)}" style="width:100%;height:100%;object-fit:cover" loading="lazy">` : ""}</div><div class="card__corpo"><span class="card__meta">${escapeHtml(dataBR(a.published_at))}</span><h3>${escapeHtml(a.title)}</h3><p>${escapeHtml(a.excerpt)}</p><a class="card__link" href="/blog/${escapeHtml(a.slug)}.html">Ler artigo →</a></div></article>`;
 }
 
-// Espelha renderizarConteudo() de blog/artigos/artigo-data.js: se o
-// texto salvo já parece HTML (produzido pelo editor do painel), usa
-// como está; se for texto simples antigo, escapa e separa em <p>.
-function pareceHtml(valor) {
-  return /<\/?[a-z][\s\S]*>/i.test(String(valor ?? ""));
-}
-function paragrafar(texto) {
-  return texto.split(/\n\s*\n/).map((p) => `<p>${escapeHtml(p.trim())}</p>`).join("");
-}
-function renderizarConteudo(texto) {
-  return pareceHtml(texto) ? String(texto ?? "") : paragrafar(String(texto ?? ""));
-}
-
-async function buscarArtigosPublicados() {
-  // select=*,treatments(name) traz o nome do tratamento relacionado
-  // (mesmo join usado no site) para exibir "· Acne" etc. na metainfo.
-  const url = `${SUPABASE_URL}/rest/v1/articles?select=*,treatments(name)&published=eq.true`;
-  const resp = await fetch(url, {
-    headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
-  });
-  if (!resp.ok) throw new Error(`Erro ao buscar "articles": ${resp.status} ${await resp.text()}`);
-  return resp.json();
-}
-
-export function paginaHtml(a) {
-  const slugArquivo = slugifyUrl(a.slug);
+export function paginaHtml(a, { relacionados = [], dimCapa = null } = {}) {
   const tituloCompleto = `${a.title} — Especialista em Pele`;
-  const descricaoMeta = (a.excerpt || "").trim() || "Conteúdo educativo sobre saúde da pele — Especialista em Pele.";
-  const urlCanonica = `${SITE}/blog/artigos/${slugArquivo}.html`;
-  const imagemMeta = a.cover_image_url || `${SITE}/assets/hero-fallback.webp`;
-  const dataFormatada = a.published_at
-    ? new Date(a.published_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" })
-    : "";
-  const nomeTratamento = a.treatments?.name || "";
+  const corpo = renderizarConteudo(a.content || "");
+  const descricaoMeta = resumir((a.excerpt || "").trim() || textoPuro(corpo) || "Conteúdo educativo sobre saúde da pele — Especialista em Pele.");
+  const urlCanonica = urlDoArtigo(a);
+  const capa = urlSegura(a.cover_image_url);
+  const imagemMeta = capa || `${SITE}/assets/hero-fallback.webp`;
+  const altCapa = `Imagem de capa do artigo: ${a.title}`;
+  const publicado = dataISO(a.published_at);
+  const modificado = dataISO(a.updated_at) || publicado;
+  const trat = a.treatments || null;
+  const ctaUrl = a.cta_url ? urlSegura(a.cta_url, { relativa: true }) : "";
+  const ctaHtml = a.cta_label && ctaUrl
+    ? `<p class="texto-centro" style="margin-top:28px"><a class="btn btn-dourado" href="${escapeHtml(ctaUrl)}">${escapeHtml(a.cta_label)}</a></p>` : "";
+
+  const imagemSchema = capa
+    ? { "@type": "ImageObject", url: capa, contentUrl: capa, caption: altCapa, ...(dimCapa ? { width: dimCapa.w, height: dimCapa.h } : {}) }
+    : `${SITE}/assets/hero-fallback.webp`;
 
   const schema = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "Article",
-        headline: a.title,
+        "@id": `${urlCanonica}#artigo`,
+        identifier: a.public_id || undefined,
+        headline: a.title.slice(0, 110),
         description: descricaoMeta,
-        image: imagemMeta,
-        datePublished: a.published_at || undefined,
-        dateModified: a.updated_at || a.published_at || undefined,
-        author: { "@type": "Person", name: "Danielle Brito", url: `${SITE}/quemsomos.html` },
-        publisher: { "@type": "Organization", name: "Especialista em Pele", logo: { "@type": "ImageObject", url: `${SITE}/assets/logo-especialista.webp` } },
-        mainEntityOfPage: urlCanonica,
+        image: imagemSchema,
+        datePublished: publicado,
+        dateModified: modificado,
+        author: AUTOR,
+        publisher: EDITORA,
+        inLanguage: "pt-BR",
+        isAccessibleForFree: true,
+        articleSection: trat?.name || undefined,
+        wordCount: textoPuro(corpo).split(/\s+/).filter(Boolean).length,
+        mainEntityOfPage: { "@type": "WebPage", "@id": urlCanonica },
       },
       {
         "@type": "BreadcrumbList",
@@ -105,13 +96,25 @@ export function paginaHtml(a) {
     ],
   };
 
+  const dataTxt = dataBR(a.published_at);
+  const atualizadoTxt = dataBR(a.updated_at);
+  const mostrarAtualizacao = a.updated_at && a.published_at && atualizadoTxt && atualizadoTxt !== dataTxt;
+
+  const maisLinks = [
+    trat?.slug ? `<li><a href="/tratamentos/${escapeHtml(slugifyUrl(trat.slug))}.html">Conheça o tratamento: ${escapeHtml(trat.name)}</a></li>` : "",
+    trat?.slug ? `<li><a href="/resultados/">Veja resultados reais de ${escapeHtml(trat.name)}</a></li>` : `<li><a href="/resultados/">Veja resultados reais</a></li>`,
+    ...relacionados.map((r) => `<li><a href="/blog/${escapeHtml(r.slug)}.html">${escapeHtml(r.title)}</a></li>`),
+  ].filter(Boolean).join("");
+
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${escapeHtml(tituloCompleto)}</title>
+${marcadorId(a.public_id)}
 <meta name="description" content="${escapeHtml(descricaoMeta)}">
+<meta name="author" content="Danielle Brito">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1">
 <meta property="og:type" content="article">
 <meta property="og:title" content="${escapeHtml(tituloCompleto)}">
@@ -119,40 +122,37 @@ export function paginaHtml(a) {
 <meta property="og:site_name" content="Especialista em Pele">
 <meta property="og:url" content="${urlCanonica}">
 <meta property="og:image" content="${escapeHtml(imagemMeta)}">
+${capa ? `<meta property="og:image:alt" content="${escapeHtml(altCapa)}">` : ""}
+${capa && dimCapa ? `<meta property="og:image:width" content="${dimCapa.w}">\n<meta property="og:image:height" content="${dimCapa.h}">` : ""}
 <meta property="og:locale" content="pt_BR">
+${publicado ? `<meta property="article:published_time" content="${publicado}">` : ""}
+${modificado ? `<meta property="article:modified_time" content="${modificado}">` : ""}
+<meta property="article:author" content="Danielle Brito">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${escapeHtml(tituloCompleto)}">
 <meta name="twitter:description" content="${escapeHtml(descricaoMeta)}">
 <meta name="twitter:image" content="${escapeHtml(imagemMeta)}">
 <link rel="canonical" href="${urlCanonica}">
-<script type="application/ld+json">${JSON.stringify(schema)}</script>
+<script type="application/ld+json">${JSON.stringify(schema).replace(/</g, "\\u003c")}</script>
 <link rel="stylesheet" href="/assets/css/paginas.css">
 <link rel="stylesheet" href="/assets/css/mobile-nav.css">
-<style>.artigo-corpo p{font-size:17px;line-height:1.7;margin-bottom:18px}</style>
+<style>.artigo-corpo p{font-size:17px;line-height:1.7;margin-bottom:18px}.artigo-corpo h2{margin:34px 0 12px}.artigo-corpo h3{margin:26px 0 10px}.artigo-corpo ul,.artigo-corpo ol{margin:0 0 18px 22px;font-size:17px;line-height:1.7}.artigo-mais ul{margin:12px 0 0 20px;line-height:1.9}</style>
 <link rel="icon" href="/assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 </head>
 <body data-pagina="blog">
-<header class="site-nav-interna">
-  <div class="nav-inner-interna">
-    <a href="/" class="logo-interna"><img src="/assets/logo-especialista.webp" alt="Especialista em Pele"></a>
-    <button type="button" class="nav-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu-principal"><span></span><span></span><span></span></button>
-    <nav class="nav-links-interna" id="menu-principal" aria-label="Menu principal">
-      <a href="/pele.html">A Pele</a><a href="/quemsomos.html">Quem Somos</a>
-      <a href="/tratamentos/">Regeneração</a><a href="/nanotecnologia.html">Nanotecnologia</a>
-      <a href="/blog/" aria-current="page">Conhecimento</a><a href="/contato.html">Consulta</a>
-    </nav>
-    <a class="nav-login-interna" href="/painel/">Login Paciente</a>
-  </div>
-</header>
+${cabecalho("blog")}
 <main>
-  <nav class="wrap breadcrumb"><a href="/">Início</a> &gt; <a href="/blog/">Conhecimento</a> &gt; <span>${escapeHtml(a.title)}</span></nav>
+  <nav class="wrap breadcrumb" aria-label="Você está em"><a href="/">Início</a> &gt; <a href="/blog/">Conhecimento</a> &gt; <span>${escapeHtml(a.title)}</span></nav>
   <article class="secao wrap" style="max-width:70ch">
-    <p class="card__meta texto-centro">${escapeHtml(dataFormatada)}${nomeTratamento ? " · " + escapeHtml(nomeTratamento) : ""}</p>
+    <p class="card__meta texto-centro">${dataTxt ? `Publicado em <time datetime="${publicado}">${escapeHtml(dataTxt)}</time>` : ""}${mostrarAtualizacao ? ` · Atualizado em <time datetime="${modificado}">${escapeHtml(atualizadoTxt)}</time>` : ""}${trat ? " · " + escapeHtml(trat.name) : ""}</p>
     <h1 class="texto-centro">${escapeHtml(a.title)}</h1>
-    ${a.cover_image_url ? `<img src="${escapeHtml(a.cover_image_url)}" alt="${escapeHtml(a.title)}" style="width:100%;border-radius:10px;margin:24px 0" loading="lazy">` : ""}
-    <div class="artigo-corpo">${renderizarConteudo(a.content || "")}</div>
+    <p class="card__meta texto-centro">Por <a href="/quemsomos.html" rel="author">Danielle Brito</a> — Especialista em Pele</p>
+    ${capa ? `<img src="${escapeHtml(capa)}" alt="${escapeHtml(altCapa)}"${attrDim(dimCapa)} style="width:100%;height:auto;border-radius:10px;margin:24px 0" fetchpriority="high" decoding="async">` : ""}
+    <div class="artigo-corpo">${corpo}</div>
+    ${ctaHtml}
+    <aside class="artigo-mais" style="margin-top:44px"><h2 style="font-size:1.25rem">Continue explorando</h2><ul>${maisLinks}</ul></aside>
   </article>
   <section class="secao fundo-escura texto-centro">
     <div class="wrap">
@@ -161,66 +161,43 @@ export function paginaHtml(a) {
     </div>
   </section>
 </main>
-<footer class="site-footer">
-  <div class="footer-inner">
-    <div class="footer-grid">
-      <div class="footer-col">
-        <a class="footer-brand" href="/"><img class="footer-logo" src="/assets/logo-especialista.webp" alt="Especialista em Pele"></a>
-        <p class="footer-tagline">Araruama • Cabo Frio • Copacabana • Todo Brasil — Consultoria Regenerativa</p>
-        <div class="footer-social">
-          <a href="https://instagram.com/especialistaempele" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r="0.8" fill="currentColor" stroke="none"/></svg></a>
-          <a data-whatsapp-link href="#" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.5 11.9a8.4 8.4 0 1 1-3.6-6.9L20.5 4l-1 3.4a8.3 8.3 0 0 1 1 4.5Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.3 8.3c-.3 1 .4 2.6 1.5 3.9 1.2 1.4 2.7 2.2 3.9 2.1.5 0 1.4-.5 1.6-1l.2-.7-2-1-.5.7c-.9-.2-1.7-.8-2.3-1.6L11.4 10l-1-2-.7.1c-.6.1-1.2.6-1.4 1.2Z" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-        </div>
-      </div>
-      <div class="footer-col"><h4>Navegação</h4><ul><li><a href="/pele.html">A Pele</a></li><li><a href="/quemsomos.html">Quem Somos</a></li><li><a href="/tratamentos/">Regeneração</a></li><li><a href="/blog/">Conhecimento</a></li><li><a href="/resultados/">Resultados</a></li></ul></div>
-      <div class="footer-col"><h4>Institucional</h4><ul><li><a href="/depoimentos.html">Depoimentos</a></li><li><a href="/pre-atendimento/">Pré-atendimento</a></li><li><a href="/privacidade.html">Política de Privacidade</a></li><li><a href="/cookies.html">Política de Cookies</a></li>
-<li><a href="/consultoriaonline.html">Consultoria Online</a></li></ul></div>
-      <div class="footer-col"><h4>Contato</h4><ul><li><a data-whatsapp-link href="#">(21) 99219-7518</a></li><li><a href="https://instagram.com/especialistaempele" target="_blank" rel="noopener">@especialistaempele</a></li><li><a href="/estetica-regenerativa-araruama.html">Araruama</a></li><li><a href="/estetica-regenerativa-cabo-frio-riviera.html">Cabo Frio/Riviera</a></li><li><a href="/estetica-regenerativa-copacabana.html">Copacabana</a></li></ul></div>
-    </div>
-    <p class="footer-base">© 2026 Especialista em Pele — Todos os direitos reservados — Feito por Yansix com <span class="coracao">♥</span></p>
-  </div>
-</footer>
-<a class="whatsapp-flutuante" data-whatsapp-link href="#" aria-label="Falar no WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.5 11.9a8.4 8.4 0 1 1-3.6-6.9L20.5 4l-1 3.4a8.3 8.3 0 0 1 1 4.5Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.3 8.3c-.3 1 .4 2.6 1.5 3.9 1.2 1.4 2.7 2.2 3.9 2.1.5 0 1.4-.5 1.6-1l.2-.7-2-1-.5.7c-.9-.2-1.7-.8-2.3-1.6L11.4 10l-1-2-.7.1c-.6.1-1.2.6-1.4 1.2Z" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
-<div class="cookie-banner" data-cookie-banner>
-  <p>Usamos cookies para melhorar sua experiência. <a href="/cookies.html">Saiba mais</a>.</p>
-  <div class="cookie-banner__acoes"><button class="btn btn-dourado" data-cookie-aceitar>Aceitar</button><button class="btn btn-fora" data-cookie-recusar>Recusar</button></div>
-</div>
-<script src="/assets/js/whatsapp.js" defer></script>
-<script type="module" src="/assets/js/cookies.js"></script>
-<script src="/assets/js/mobile-nav.js" defer></script>
+${rodape()}
 </body>
 </html>
 `;
 }
 
-async function main() {
-  if (!SUPABASE_ANON_KEY) {
-    console.error("Faltou a variável de ambiente SUPABASE_ANON_KEY.");
-    process.exit(1);
-  }
-  const artigos = await buscarArtigosPublicados();
-  mkdirSync(PASTA_SAIDA, { recursive: true });
+export async function gerar({ log = console.log } = {}) {
+  const artigos = (await buscarArtigosPublicados()).filter((a) => a.public_id && a.slug);
 
-  const vistos = new Set();
+  const itens = [];
   for (const a of artigos) {
-    if (!a.slug) continue;
-    const slugArquivo = slugifyUrl(a.slug);
-    if (!slugArquivo) continue;
-    if (vistos.has(slugArquivo)) {
-      console.warn(`Aviso: slug duplicado após normalização: "${a.slug}" -> ${slugArquivo}.html (pulando).`);
-      continue;
-    }
-    vistos.add(slugArquivo);
-    const caminho = `${PASTA_SAIDA}/${slugArquivo}.html`;
-    writeFileSync(caminho, paginaHtml(a), "utf-8");
-    console.log(`Gerado: ${caminho}`);
+    const relacionados = artigos
+      .filter((o) => o.id !== a.id)
+      .sort((x, y) => (Number(y.treatment_id === a.treatment_id && !!a.treatment_id) - Number(x.treatment_id === a.treatment_id && !!a.treatment_id)))
+      .slice(0, 3);
+    const dimCapa = await dimensoesImagem(urlSegura(a.cover_image_url));
+    itens.push({ id: a.public_id, slug: a.slug, html: paginaHtml(a, { relacionados, dimCapa }) });
   }
-  console.log(`\n${vistos.size} página(s) de artigo geradas em /${PASTA_SAIDA}/.`);
+
+  // arquivos antigos de /blog/artigos/<slug>.html (sem marcador) -> reconhecidos pelo slug
+  const idPorSlug = new Map(artigos.map((a) => [a.slug, a.public_id]));
+  const rel = sincronizarPastas({
+    pastas: [PASTA, PASTA_LEGADA], urlBase: `${SITE}/blog`, itens,
+    resolverLegado: (slug) => idPorSlug.get(slug) || null, log,
+  });
+
+  const lista = artigos.length
+    ? artigos.map(cardArtigo).join("")
+    : `<p class="texto-suave">Nenhum artigo publicado no momento.</p>`;
+  if (injetarLista(`${PASTA}/index.html`, lista)) log(`Listagem estática de /blog/ atualizada (${artigos.length} artigo(s)).`);
+
+  log(`\n${itens.length} página(s) de artigo em /${PASTA}/.`);
+  return rel;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  main().catch((e) => {
-    console.error(e);
-    process.exit(1);
-  });
+  if (!SUPABASE_ANON_KEY) { console.error("Faltou a variável de ambiente SUPABASE_ANON_KEY."); process.exit(1); }
+  gerar().then((rel) => { if (rel.erros.length) { console.error("\nERROS:\n" + rel.erros.join("\n")); process.exit(1); } })
+    .catch((e) => { console.error(e); process.exit(1); });
 }
