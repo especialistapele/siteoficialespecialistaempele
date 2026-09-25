@@ -40,7 +40,18 @@ function css() {
     .status-publicacao__grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
     .status-publicacao__item{font-size:11px;color:#777;padding-top:9px;border-top:1px solid var(--linha,#eee)}
     .status-publicacao__item strong{display:block;color:#303733;font-size:12px;margin-top:3px;word-break:break-word}
-    .status-publicacao__vazio{font-size:12px;color:#777;margin:8px 0 0}
+    .status-publicacao__vazio{font-size:12px;color:#777;margin:8px 0 0}\n    .historico-publicacao{margin-top:18px;padding-top:16px;border-top:1px solid var(--linha,#eee)}
+    .historico-publicacao__titulo{font-weight:700;font-size:14px;color:var(--texto,#26312d);margin-bottom:8px}
+    .historico-publicacao__subtitulo,.historico-publicacao__empty{font-size:11px;color:#777;margin:0 0 10px}
+    .historico-publicacao__table-wrap{overflow-x:auto}
+    .historico-publicacao__table{width:100%;border-collapse:collapse;font-size:11px;min-width:720px}
+    .historico-publicacao__table th{text-align:left;color:#777;font-weight:600;padding:8px;border-bottom:1px solid var(--linha,#ddd7c9)}
+    .historico-publicacao__table td{padding:9px 8px;border-bottom:1px solid var(--linha,#eee);vertical-align:top}
+    .historico-publicacao__path{font-weight:600;max-width:260px;word-break:break-word}
+    .historico-publicacao__id{font-family:monospace;font-size:10px;white-space:nowrap}
+    .historico-publicacao__erro{display:block;color:#8b2424;margin-top:3px;max-width:260px;word-break:break-word}
+    .historico-publicacao__status{white-space:nowrap}
+
     @media(max-width:760px){.status-publicacao__grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
   `;
   document.head.appendChild(style);
@@ -96,7 +107,31 @@ export async function montarStatusPublicacao({ flash = null } = {}) {
     ].map(([k,v]) => `<div class="status-publicacao__item">${k}<strong>${v}</strong></div>`).join("");
     box.appendChild(grid);
   }
-  await atualizar();
+  async function atualizarHistorico(box) {
+    let secao = box.querySelector(".historico-publicacao");
+    if (!secao) {
+      secao = document.createElement("section");
+      secao.className = "historico-publicacao";
+      box.appendChild(secao);
+    }
+    const { data, error } = await supabase.from("publication_requests")
+      .select("request_id,path,content_id,publicado,status,requested_at,error_message")
+      .order("requested_at", { ascending: false }).limit(20);
+    secao.innerHTML = '<div class="historico-publicacao__titulo">Histórico recente</div>';
+    if (error || !data?.length) {
+      secao.insertAdjacentHTML("beforeend", '<div class="historico-publicacao__empty">' + (error ? "Não foi possível carregar o histórico." : "Ainda não há solicitações registradas.") + '</div>');
+      return;
+    }
+    const rows = data.map(item => {
+      const [, classe] = STATUS[item.status] || ["", "aviso"];
+      const acao = item.publicado === true ? "Publicar / Atualizar" : "Despublicar";
+      const erro = item.error_message ? '<small class="historico-publicacao__erro">' + escapeHtml(item.error_message) + '</small>' : "";
+      return '<tr><td>' + escapeHtml(dataBR(item.requested_at)) + '</td><td class="historico-publicacao__path">/' + escapeHtml(normalizarPath(item.path)) + erro + '</td><td>' + escapeHtml(acao) + '</td><td><span class="historico-publicacao__status status-publicacao__badge ' + classe + '">' + escapeHtml(statusBR(item.status)) + '</span></td><td class="historico-publicacao__id">' + escapeHtml(String(item.request_id || "").slice(0,8) || "—") + '</td><td class="historico-publicacao__id">' + escapeHtml(item.content_id || "—") + '</td></tr>';
+    }).join("");
+    secao.insertAdjacentHTML("beforeend", '<div class="historico-publicacao__subtitulo">Últimas 20 solicitações registradas pelo sistema.</div><div class="historico-publicacao__table-wrap"><table class="historico-publicacao__table"><thead><tr><th>Data</th><th>Página</th><th>Ação</th><th>Status</th><th>ID</th><th>Conteúdo</th></tr></thead><tbody>' + rows + '</tbody></table></div>');
+  }
+
+  await atualizar();\n  await atualizarHistorico(box);
   const timer = setInterval(atualizar, INTERVALO_MS);
   window.addEventListener("beforeunload", () => clearInterval(timer), { once:true });
   window.addEventListener("publicacao:atualizada", atualizar);
