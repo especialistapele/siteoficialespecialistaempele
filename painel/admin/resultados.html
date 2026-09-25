@@ -22,12 +22,12 @@
     <div class="aviso-flash" data-flash></div>
     <div class="busca-campo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="busca" placeholder="Buscar resultado..."></div>
     <table class="tabela-p">
-      <thead><tr><th>Tratamento</th><th>Antes / Depois</th><th>Consentimento</th><th>Status</th><th>Ações</th></tr></thead>
-      <tbody data-tabela-corpo><tr><td colspan="5" class="painel-vazio">Carregando…</td></tr></tbody>
+      <thead><tr><th>Caso</th><th>ID / endereço</th><th>Antes / Depois</th><th>Consentimento</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody data-tabela-corpo><tr><td colspan="6" class="painel-vazio">Carregando…</td></tr></tbody>
     </table>
 
     <div id="modal" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
-      <div class="painel-card" style="max-width:520px;width:100%;margin:auto">
+      <div class="painel-card" style="max-width:560px;width:100%;margin:auto">
         <h3 data-modal-titulo>Novo resultado</h3>
         <form id="form-item">
           <input type="hidden" id="item_id">
@@ -51,6 +51,16 @@
             <div class="form-campo"><label for="treatment_id">Tratamento</label><select id="treatment_id"><option value="">— nenhum —</option></select></div>
             <div class="form-campo"><label for="description">Legenda</label><input type="text" id="description" maxlength="200"></div>
           </div>
+          <div class="form-campo"><label for="title">Título da página do resultado</label><input type="text" id="title" maxlength="120" placeholder="Ex.: Resultado de melasma — caso 01 (em branco = gerado automaticamente)"></div>
+          <div class="form-campo"><label for="slug">Slug (endereço)</label><input type="text" id="slug" pattern="[a-z0-9-]+" placeholder="gerado a partir do título"><small class="texto-suave" style="font-size:11px">Endereço: /resultados/<span id="slug-previa">…</span>.html. Se já estiver publicado e você mudar o slug, o endereço antigo passa a redirecionar para o novo.</small></div>
+          <div class="form-campo"><label for="content">Texto do caso (opcional)</label><textarea id="content" rows="4" placeholder="Descreva o caso: queixa, tratamento realizado, tempo, cuidados… Separe parágrafos com uma linha em branco."></textarea></div>
+          <div class="form-campo">
+            <label>Fotos extras do caso (opcional)</label>
+            <div id="extras-existentes"></div>
+            <div id="extras-novas"></div>
+            <input type="file" id="fotos_extras" accept="image/*" multiple>
+            <p class="texto-suave" style="font-size:12px;margin:4px 0 0">Todas as fotos ficam ligadas a este resultado e aparecem na página dele, com texto alternativo (para acessibilidade e Google Imagens).</p>
+          </div>
           <div class="form-checkbox"><input type="checkbox" id="consent_confirmed" required><label for="consent_confirmed">Tenho o consentimento da paciente para publicar</label></div>
           <div class="form-checkbox"><input type="checkbox" id="published"><label for="published">Publicar imediatamente</label></div>
           <div class="form-acoes">
@@ -69,6 +79,7 @@
   import { otimizarImagemParaWebP } from "/painel/assets/js/imagem-otimizacao.js";
   import { escapeHtml, safeUrl } from "/painel/assets/js/sanitize.js";
   import { initAntesDepoisSlider } from "/assets/js/antes-depois-slider.js";
+  import { dispararPublicacao, MSG_ATUALIZANDO, MSG_AGENDADO, slugificar } from "/painel/assets/js/publicar-site.js";
 
   const contexto = await exigirAdmin();
   if (!contexto) throw new Error("sem acesso");
@@ -86,7 +97,7 @@
 
   async function carregar() {
     const { data, error } = await supabase.from("results").select("*, treatments(name)").order("created_at", { ascending: false });
-    if (error) { corpo.innerHTML = `<tr><td colspan="5" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
+    if (error) { corpo.innerHTML = `<tr><td colspan="6" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
     todos = data || [];
     renderizar(todos);
   }
@@ -94,7 +105,8 @@
   function renderizar(lista) {
     corpo.innerHTML = lista.length ? lista.map((r) => `
       <tr>
-        <td>${escapeHtml(r.treatments?.name || "—")}</td>
+        <td>${escapeHtml(r.title || r.treatments?.name || "—")}<br><span class="texto-suave" style="font-size:12px">${escapeHtml(r.treatments?.name || "")}</span></td>
+        <td style="font-size:12px"><strong>${escapeHtml(r.public_id || "—")}</strong><br>${(r.published && r.consent_confirmed) ? `<a href="/resultados/${escapeHtml(r.slug)}.html" target="_blank" rel="noopener">/resultados/${escapeHtml(r.slug)}.html</a>` : `<span class="texto-suave">/resultados/${escapeHtml(r.slug)}.html (fora do ar)</span>`}</td>
         <td>
           <div class="antes-depois-slider antes-depois-slider--mini" data-antes-depois style="width:64px" title="Arraste para ver o efeito antes/depois">
             <img class="ad-depois" src="${safeUrl(r.after_image_url)}" alt="Depois">
@@ -106,21 +118,83 @@
         <td><span class="selo-p ${r.published ? "publicado" : "rascunho"}">${r.published ? "Publicado" : "Rascunho"}</span></td>
         <td>
           <button class="btn-p btn-p-mini btn-p-fora" data-editar="${r.id}">Editar</button>
+          <button class="btn-p btn-p-mini btn-p-fora" data-alternar="${r.id}">${r.published ? "Despublicar" : "Publicar"}</button>
           <button class="btn-p btn-p-mini btn-p-perigo" data-excluir="${r.id}">Excluir</button>
         </td>
-      </tr>`).join("") : `<tr><td colspan="5" class="painel-vazio">Nenhum resultado cadastrado.</td></tr>`;
+      </tr>`).join("") : `<tr><td colspan="6" class="painel-vazio">Nenhum resultado cadastrado.</td></tr>`;
 
     initAntesDepoisSlider(corpo);
 
     corpo.querySelectorAll("[data-editar]").forEach((btn) => btn.addEventListener("click", () => abrirEdicao(btn.dataset.editar)));
     corpo.querySelectorAll("[data-excluir]").forEach((btn) => btn.addEventListener("click", async () => {
-      if (!confirm("Excluir este resultado?")) return;
-      await supabase.from("results").delete().eq("id", btn.dataset.excluir);
+      if (!confirm("Excluir este resultado definitivamente? A página sai do site e do sitemap. O ID nunca será reutilizado.")) return;
+      const { error } = await supabase.from("results").delete().eq("id", btn.dataset.excluir);
+      if (error) { mostrarFlash(flash, "Erro: " + error.message, "erro"); return; }
+      const ok = await dispararPublicacao();
+      mostrarFlash(flash, "Resultado excluído. " + (ok ? MSG_ATUALIZANDO : MSG_AGENDADO), "sucesso");
+      carregar();
+    }));
+    corpo.querySelectorAll("[data-alternar]").forEach((btn) => btn.addEventListener("click", async () => {
+      const item = todos.find((x) => x.id === btn.dataset.alternar);
+      if (!item) return;
+      const publicar = !item.published;
+      if (publicar && !item.consent_confirmed) { mostrarFlash(flash, "Confirme o consentimento da paciente (Editar) antes de publicar.", "erro"); return; }
+      if (!publicar && !confirm("Despublicar este resultado? A página sai do ar (404), do sitemap e da listagem.")) return;
+      const { error } = await supabase.from("results").update({ published: publicar }).eq("id", item.id);
+      if (error) { mostrarFlash(flash, "Erro: " + error.message, "erro"); return; }
+      const ok = await dispararPublicacao();
+      mostrarFlash(flash, (publicar ? "Resultado publicado. " : "Resultado despublicado. ") + (ok ? MSG_ATUALIZANDO : MSG_AGENDADO), "sucesso");
       carregar();
     }));
   }
 
+  const campoTitulo = document.getElementById("title");
+  const campoSlug = document.getElementById("slug");
+  const slugPrevia = document.getElementById("slug-previa");
+  const extrasExistentesEl = document.getElementById("extras-existentes");
+  const extrasNovasEl = document.getElementById("extras-novas");
+  const inputExtras = document.getElementById("fotos_extras");
+  let slugManual = false;
+  let extrasAtuais = [];      // linhas de result_images já salvas: { id, url, alt, remover }
+  let extrasNovas = [];       // { arquivo, alt }
+
+  function atualizarPrevia() {
+    const base = campoTitulo.value.trim() || `resultado-de-${selectTratamento.selectedOptions[0]?.textContent || "tratamento"}`;
+    slugPrevia.textContent = campoSlug.value || slugificar(base) || "…";
+  }
+  campoSlug.addEventListener("input", () => { slugManual = true; atualizarPrevia(); });
+  campoTitulo.addEventListener("input", () => {
+    if (!document.getElementById("item_id").value && !slugManual) campoSlug.value = slugificar(campoTitulo.value);
+    atualizarPrevia();
+  });
+  selectTratamento.addEventListener("change", atualizarPrevia);
+
+  function desenharExtras() {
+    extrasExistentesEl.innerHTML = extrasAtuais.map((e, i) => `
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;${e.remover ? "opacity:.4" : ""}">
+        <img src="${safeUrl(e.url)}" alt="" style="width:48px;height:48px;object-fit:cover;border-radius:6px">
+        <input type="text" data-alt-existente="${i}" value="${escapeHtml(e.alt || "")}" placeholder="Texto alternativo (descreva a foto)" style="flex:1" ${e.remover ? "disabled" : ""}>
+        <button type="button" class="btn-p btn-p-mini btn-p-perigo" data-remover-extra="${i}">${e.remover ? "Desfazer" : "Remover"}</button>
+      </div>`).join("");
+    extrasNovasEl.innerHTML = extrasNovas.map((e, i) => `
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+        <span class="texto-suave" style="font-size:12px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(e.arquivo.name)}</span>
+        <input type="text" data-alt-nova="${i}" value="${escapeHtml(e.alt)}" placeholder="Texto alternativo (descreva a foto)" style="flex:1">
+        <button type="button" class="btn-p btn-p-mini btn-p-fora" data-cancelar-nova="${i}">Tirar</button>
+      </div>`).join("");
+    extrasExistentesEl.querySelectorAll("[data-alt-existente]").forEach((el) => el.addEventListener("input", () => { extrasAtuais[el.dataset.altExistente].alt = el.value; }));
+    extrasExistentesEl.querySelectorAll("[data-remover-extra]").forEach((el) => el.addEventListener("click", () => { const e = extrasAtuais[el.dataset.removerExtra]; e.remover = !e.remover; desenharExtras(); }));
+    extrasNovasEl.querySelectorAll("[data-alt-nova]").forEach((el) => el.addEventListener("input", () => { extrasNovas[el.dataset.altNova].alt = el.value; }));
+    extrasNovasEl.querySelectorAll("[data-cancelar-nova]").forEach((el) => el.addEventListener("click", () => { extrasNovas.splice(Number(el.dataset.cancelarNova), 1); desenharExtras(); }));
+  }
+  inputExtras.addEventListener("change", () => {
+    [...inputExtras.files].forEach((arquivo) => extrasNovas.push({ arquivo, alt: "" }));
+    inputExtras.value = "";
+    desenharExtras();
+  });
+
   function abrirNovo() {
+    slugManual = false; extrasAtuais = []; extrasNovas = []; desenharExtras(); atualizarPrevia();
     document.getElementById("form-item").reset();
     document.getElementById("item_id").value = "";
     document.querySelector("[data-modal-titulo]").textContent = "Novo resultado";
@@ -129,15 +203,23 @@
     modal.style.display = "flex";
   }
 
-  function abrirEdicao(id) {
+  async function abrirEdicao(id) {
     const r = todos.find((item) => item.id === id);
     if (!r) return;
+    extrasNovas = [];
+    const { data: extras } = await supabase.from("result_images").select("*").eq("result_id", id).order("position");
+    extrasAtuais = (extras || []).map((e) => ({ id: e.id, url: e.url, alt: e.alt || "", remover: false }));
+    desenharExtras();
     document.getElementById("form-item").reset();
     document.getElementById("item_id").value = r.id;
     document.querySelector("[data-modal-titulo]").textContent = "Editar resultado";
     document.getElementById("dica-edicao").style.display = "block";
     selectTratamento.value = r.treatment_id || "";
     document.getElementById("description").value = r.description || "";
+    campoTitulo.value = r.title || "";
+    campoSlug.value = r.slug || "";
+    document.getElementById("content").value = r.content || "";
+    slugManual = true; atualizarPrevia();
     document.getElementById("consent_confirmed").checked = !!r.consent_confirmed;
     document.getElementById("published").checked = !!r.published;
 
@@ -153,7 +235,7 @@
 
   document.getElementById("busca").addEventListener("input", (e) => {
     const t = e.target.value.toLowerCase();
-    renderizar(todos.filter((r) => (r.treatments?.name || "").toLowerCase().includes(t)));
+    renderizar(todos.filter((r) => `${r.treatments?.name || ""} ${r.title || ""} ${r.public_id || ""}`.toLowerCase().includes(t)));
   });
 
   const previewWrap = document.getElementById("preview-wrap");
@@ -204,8 +286,17 @@
     const botao = document.getElementById("botao-salvar");
     botao.disabled = true; botao.textContent = "Enviando…";
     try {
+      const atual = editandoId ? todos.find((x) => x.id === editandoId) : null;
+      const slugNovo = campoSlug.value.trim().toLowerCase();
+      if (atual && atual.published && slugNovo && slugNovo !== atual.slug &&
+          !confirm(`Este resultado já está publicado em /resultados/${atual.slug}.html.\nAo mudar o slug, o endereço antigo passará a redirecionar para o novo. Continuar?`)) {
+        botao.disabled = false; botao.textContent = "Salvar resultado"; return;
+      }
       const dadosResultado = {
         treatment_id: selectTratamento.value || null,
+        title: campoTitulo.value.trim(),
+        slug: slugNovo,
+        content: document.getElementById("content").value.trim() || null,
         description: document.getElementById("description").value.trim(),
         consent_confirmed: document.getElementById("consent_confirmed").checked,
         published: document.getElementById("published").checked,
@@ -217,8 +308,10 @@
         const marca = Date.now();
         const antesOtimizada = await otimizarImagemParaWebP(antes, 1800, 0.82);
         const depoisOtimizada = await otimizarImagemParaWebP(depois, 1800, 0.82);
-        const caminhoAntes = `resultados/${marca}-antes.webp`;
-        const caminhoDepois = `resultados/${marca}-depois.webp`;
+        // nome de arquivo legível (bom para Google Imagens): <slug>-antes-<timestamp>.webp
+        const base = slugNovo || slugificar(campoTitulo.value) || "resultado";
+        const caminhoAntes = `resultados/${base}-antes-${marca}.webp`;
+        const caminhoDepois = `resultados/${base}-depois-${marca}.webp`;
         let { error: e1 } = await supabase.storage.from("site-media").upload(caminhoAntes, antesOtimizada, { contentType: "image/webp", cacheControl: "31536000" });
         if (e1) throw e1;
         let { error: e2 } = await supabase.storage.from("site-media").upload(caminhoDepois, depoisOtimizada, { contentType: "image/webp", cacheControl: "31536000" });
@@ -227,15 +320,38 @@
         dadosResultado.after_image_url = supabase.storage.from("site-media").getPublicUrl(caminhoDepois).data.publicUrl;
       }
 
-      const { error } = editandoId
-        ? await supabase.from("results").update(dadosResultado).eq("id", editandoId)
-        : await supabase.from("results").insert(dadosResultado);
+      // O banco define ID (RESULTADO-xxxxxx), título padrão e slug final (único).
+      const consulta = editandoId
+        ? supabase.from("results").update(dadosResultado).eq("id", editandoId)
+        : supabase.from("results").insert(dadosResultado);
+      const { data: salvo, error } = await consulta.select("id, public_id, slug, published, consent_confirmed").single();
       if (error) throw error;
+
+      // Fotos extras: remove vínculos marcados, atualiza textos alternativos e envia as novas.
+      // (Os arquivos já enviados ao storage nunca são apagados.)
+      for (const e of extrasAtuais) {
+        if (e.remover) await supabase.from("result_images").delete().eq("id", e.id);
+        else await supabase.from("result_images").update({ alt: e.alt.trim() || null }).eq("id", e.id);
+      }
+      let posicao = extrasAtuais.filter((e) => !e.remover).length;
+      for (const n of extrasNovas) {
+        const otimizada = await otimizarImagemParaWebP(n.arquivo, 1800, 0.82);
+        const caminho = `resultados/${salvo.slug}-foto-${posicao + 1}-${Date.now()}.webp`;
+        const { error: eUp } = await supabase.storage.from("site-media").upload(caminho, otimizada, { contentType: "image/webp", cacheControl: "31536000" });
+        if (eUp) throw eUp;
+        const url = supabase.storage.from("site-media").getPublicUrl(caminho).data.publicUrl;
+        const { error: eIns } = await supabase.from("result_images").insert({ result_id: salvo.id, url, alt: n.alt.trim() || null, position: posicao });
+        if (eIns) throw eIns;
+        posicao += 1;
+      }
 
       modal.style.display = "none";
       document.getElementById("form-item").reset();
       limparPreview();
-      mostrarFlash(flash, editandoId ? "Resultado atualizado com sucesso." : "Resultado salvo com sucesso.", "sucesso");
+      extrasAtuais = []; extrasNovas = [];
+      const noAr = salvo.published && salvo.consent_confirmed;
+      const ok = await dispararPublicacao();
+      mostrarFlash(flash, `Resultado salvo (${salvo.public_id}). ` + (noAr ? `Endereço: /resultados/${salvo.slug}.html. ` : "Fora do ar (rascunho ou sem consentimento). ") + (ok ? MSG_ATUALIZANDO : MSG_AGENDADO), "sucesso");
       carregar();
     } catch (erro) {
       mostrarFlash(flash, "Erro: " + erro.message, "erro");

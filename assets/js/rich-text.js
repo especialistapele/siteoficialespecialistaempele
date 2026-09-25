@@ -4,7 +4,7 @@
 // que apenas a formatação permitida pelo pequeno editor (negrito, itálico,
 // tamanho de fonte e alinhamento) sobreviva — nunca HTML/JS arbitrário.
 
-const ALLOWED_TAGS = new Set(["B", "STRONG", "I", "EM", "U", "SPAN", "P", "BR", "DIV"]);
+const ALLOWED_TAGS = new Set(["B", "STRONG", "I", "EM", "U", "SPAN", "P", "BR", "DIV", "H2", "H3", "UL", "OL", "LI"]);
 const ALLOWED_STYLE_PROPS = new Set(["font-size", "text-align", "font-weight", "font-style"]);
 
 function limparEstilo(el) {

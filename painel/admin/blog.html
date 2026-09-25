@@ -30,8 +30,8 @@
     <div class="aviso-flash" data-flash></div>
     <div class="busca-campo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="busca" placeholder="Buscar artigo..."></div>
     <table class="tabela-p">
-      <thead><tr><th>Título</th><th>Data</th><th>Status</th><th>Ações</th></tr></thead>
-      <tbody data-tabela-corpo><tr><td colspan="4" class="painel-vazio">Carregando…</td></tr></tbody>
+      <thead><tr><th>Título</th><th>ID / endereço</th><th>Data</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody data-tabela-corpo><tr><td colspan="5" class="painel-vazio">Carregando…</td></tr></tbody>
     </table>
 
     <div id="modal" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
@@ -41,7 +41,7 @@
           <input type="hidden" id="item_id">
           <div class="form-campo"><label for="title">Título</label><input type="text" id="title" required></div>
           <div class="form-linha">
-            <div class="form-campo"><label for="slug">Slug</label><input type="text" id="slug" required pattern="[a-z0-9-]+"></div>
+            <div class="form-campo"><label for="slug">Slug</label><input type="text" id="slug" pattern="[a-z0-9-]+" placeholder="gerado a partir do título"><small class="texto-suave" style="font-size:11px">Endereço: /blog/<span id="slug-previa">…</span>.html. Se já estiver publicado e você mudar o slug, o endereço antigo passa a redirecionar para o novo.</small></div>
             <div class="form-campo"><label for="treatment_id">Tratamento relacionado</label><select id="treatment_id"><option value="">— nenhum —</option></select></div>
           </div>
           <div class="form-campo"><label for="excerpt">Resumo curto</label><input type="text" id="excerpt" maxlength="200"></div>
@@ -52,6 +52,10 @@
               <button type="button" data-cmd="italic" title="Itálico"><em>I</em></button>
               <button type="button" data-cmd="font-inc" title="Aumentar fonte">A+</button>
               <button type="button" data-cmd="font-dec" title="Reduzir fonte">A-</button>
+              <span class="editor-p-toolbar__sep"></span>
+              <button type="button" data-cmd="h2" title="Título de seção (H2)">H2</button>
+              <button type="button" data-cmd="h3" title="Subtítulo (H3)">H3</button>
+              <button type="button" data-cmd="insertUnorderedList" title="Lista">• Lista</button>
               <span class="editor-p-toolbar__sep"></span>
               <button type="button" data-cmd="justifyLeft" title="Alinhar à esquerda">⇤</button>
               <button type="button" data-cmd="justifyCenter" title="Centralizar">↔</button>
@@ -83,6 +87,7 @@
   import { otimizarImagemParaWebP } from "/painel/assets/js/imagem-otimizacao.js";
   import { escapeHtml, safeUrl } from "/painel/assets/js/sanitize.js";
   import { sanitizeRichHtml, pareceHtml } from "/assets/js/rich-text.js";
+  import { dispararPublicacao, MSG_ATUALIZANDO, MSG_AGENDADO, slugificar } from "/painel/assets/js/publicar-site.js";
 
   const contexto = await exigirAdmin();
   if (!contexto) throw new Error("sem acesso");
@@ -134,6 +139,7 @@
       const cmd = btn.dataset.cmd;
       if (cmd === "font-inc") alterarTamanhoFonte(2);
       else if (cmd === "font-dec") alterarTamanhoFonte(-2);
+      else if (cmd === "h2" || cmd === "h3") document.execCommand("formatBlock", false, cmd);
       else document.execCommand(cmd, false, null);
       sincronizarConteudo();
     });
@@ -144,7 +150,7 @@
 
   async function carregar() {
     const { data, error } = await supabase.from("articles").select("*").order("created_at", { ascending: false });
-    if (error) { corpo.innerHTML = `<tr><td colspan="4" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
+    if (error) { corpo.innerHTML = `<tr><td colspan="5" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
     todos = data || [];
     renderizar(todos);
   }
@@ -153,18 +159,34 @@
     corpo.innerHTML = lista.length ? lista.map((a) => `
       <tr>
         <td>${escapeHtml(a.title)}</td>
+        <td style="font-size:12px"><strong>${escapeHtml(a.public_id || "—")}</strong><br>${a.published ? `<a href="/blog/${escapeHtml(a.slug)}.html" target="_blank" rel="noopener">/blog/${escapeHtml(a.slug)}.html</a>` : `<span class="texto-suave">/blog/${escapeHtml(a.slug)}.html (fora do ar)</span>`}</td>
         <td>${a.published_at ? new Date(a.published_at).toLocaleDateString("pt-BR") : "—"}</td>
         <td><span class="selo-p ${a.published ? "publicado" : "rascunho"}">${a.published ? "Publicado" : "Rascunho"}</span></td>
         <td>
           <button class="btn-p btn-p-mini btn-p-fora" data-editar="${a.id}">Editar</button>
+          <button class="btn-p btn-p-mini btn-p-fora" data-alternar="${a.id}">${a.published ? "Despublicar" : "Publicar"}</button>
           <button class="btn-p btn-p-mini btn-p-perigo" data-excluir="${a.id}">Excluir</button>
         </td>
-      </tr>`).join("") : `<tr><td colspan="4" class="painel-vazio">Nenhum artigo cadastrado.</td></tr>`;
+      </tr>`).join("") : `<tr><td colspan="5" class="painel-vazio">Nenhum artigo cadastrado.</td></tr>`;
 
     corpo.querySelectorAll("[data-editar]").forEach((btn) => btn.addEventListener("click", () => abrirEdicao(btn.dataset.editar)));
     corpo.querySelectorAll("[data-excluir]").forEach((btn) => btn.addEventListener("click", async () => {
-      if (!confirm("Excluir este artigo?")) return;
-      await supabase.from("articles").delete().eq("id", btn.dataset.excluir);
+      if (!confirm("Excluir este artigo definitivamente? A página sai do site e do sitemap. O ID nunca será reutilizado.")) return;
+      const { error } = await supabase.from("articles").delete().eq("id", btn.dataset.excluir);
+      if (error) { mostrarFlash(flash, "Erro: " + error.message, "erro"); return; }
+      const ok = await dispararPublicacao();
+      mostrarFlash(flash, "Artigo excluído. " + (ok ? MSG_ATUALIZANDO : MSG_AGENDADO), "sucesso");
+      carregar();
+    }));
+    corpo.querySelectorAll("[data-alternar]").forEach((btn) => btn.addEventListener("click", async () => {
+      const item = todos.find((x) => x.id === btn.dataset.alternar);
+      if (!item) return;
+      const publicar = !item.published;
+      if (!publicar && !confirm("Despublicar este artigo? A página sai do ar (404), do sitemap e da listagem.")) return;
+      const { error } = await supabase.from("articles").update({ published: publicar }).eq("id", item.id);
+      if (error) { mostrarFlash(flash, "Erro: " + error.message, "erro"); return; }
+      const ok = await dispararPublicacao();
+      mostrarFlash(flash, (publicar ? "Artigo publicado. " : "Artigo despublicado. ") + (ok ? MSG_ATUALIZANDO : MSG_AGENDADO), "sucesso");
       carregar();
     }));
   }
@@ -174,7 +196,19 @@
     renderizar(todos.filter((a) => a.title.toLowerCase().includes(t)));
   });
 
+  const campoTitulo = document.getElementById("title");
+  const campoSlug = document.getElementById("slug");
+  const slugPrevia = document.getElementById("slug-previa");
+  let slugManual = false;
+  function atualizarPrevia() { slugPrevia.textContent = campoSlug.value || slugificar(campoTitulo.value) || "…"; }
+  campoSlug.addEventListener("input", () => { slugManual = true; atualizarPrevia(); });
+  campoTitulo.addEventListener("input", () => {
+    if (!document.getElementById("item_id").value && !slugManual) campoSlug.value = slugificar(campoTitulo.value);
+    atualizarPrevia();
+  });
+
   function abrirNovo() {
+    slugManual = false;
     document.getElementById("form-item").reset();
     document.getElementById("item_id").value = "";
     contentEditor.innerHTML = "";
@@ -183,6 +217,7 @@
     document.getElementById("cta_url").value = "";
     imagemAtualUrl = null;
     document.querySelector("[data-modal-titulo]").textContent = "Novo artigo";
+    atualizarPrevia();
     modal.style.display = "flex";
   }
 
@@ -206,6 +241,8 @@
     selectTratamento.value = item.treatment_id || "";
     imagemAtualUrl = item.cover_image_url;
     document.querySelector("[data-modal-titulo]").textContent = "Editar artigo";
+    slugManual = true;
+    atualizarPrevia();
     modal.style.display = "flex";
   }
 
@@ -225,7 +262,7 @@
       if (arquivo) {
         // Otimiza a imagem no navegador antes do upload: redimensiona e converte para WebP.
         const imagemOtimizada = await otimizarImagemParaWebP(arquivo, 2000, 0.82);
-        const caminho = `blog/${document.getElementById("slug").value}-${Date.now()}.webp`;
+        const caminho = `blog/${document.getElementById("slug").value || slugificar(document.getElementById("title").value) || "artigo"}-${Date.now()}.webp`;
         const { error: erroUpload } = await supabase.storage.from("site-media").upload(caminho, imagemOtimizada, {
           upsert: true,
           contentType: "image/webp",
@@ -240,9 +277,15 @@
       const ctaUrl = ctaUrlBruta ? safeUrl(ctaUrlBruta) : "";
       if (ctaUrlBruta && !ctaUrl) throw new Error("URL do botão inválida. Use um endereço http(s) ou um caminho interno como /contato.html.");
       const published = document.getElementById("published").checked;
+      const atual = id ? todos.find((x) => x.id === id) : null;
+      const slugNovo = document.getElementById("slug").value.trim().toLowerCase();
+      if (atual && atual.published && slugNovo && slugNovo !== atual.slug &&
+          !confirm(`Este artigo já está publicado em /blog/${atual.slug}.html.\nAo mudar o slug, o endereço antigo passará a redirecionar para o novo. Continuar?`)) {
+        botao.disabled = false; botao.textContent = "Salvar"; return;
+      }
       const payload = {
         title: document.getElementById("title").value.trim(),
-        slug: document.getElementById("slug").value.trim().toLowerCase(),
+        slug: slugNovo,
         excerpt: document.getElementById("excerpt").value.trim(),
         content: document.getElementById("content").value.trim(),
         cta_label: ctaLabel && ctaUrl ? ctaLabel : null,
@@ -250,13 +293,15 @@
         treatment_id: selectTratamento.value || null,
         published, cover_image_url,
       };
-      if (published) payload.published_at = new Date().toISOString();
-
-      const { error } = id ? await supabase.from("articles").update(payload).eq("id", id) : await supabase.from("articles").insert(payload);
+      // published_at (data da PRIMEIRA publicação) e o slug final (único) são
+      // definidos pelo banco; aqui só lemos de volta o que ficou salvo.
+      const consulta = id ? supabase.from("articles").update(payload).eq("id", id) : supabase.from("articles").insert(payload);
+      const { data: salvo, error } = await consulta.select("public_id, slug, published").single();
       if (error) throw error;
 
       modal.style.display = "none";
-      mostrarFlash(flash, "Artigo salvo com sucesso.", "sucesso");
+      const ok = await dispararPublicacao();
+      mostrarFlash(flash, `Artigo salvo (${salvo.public_id}). ` + (salvo.published ? `Endereço: /blog/${salvo.slug}.html. ` : "Rascunho: não aparece no site. ") + (ok ? MSG_ATUALIZANDO : MSG_AGENDADO), "sucesso");
       carregar();
     } catch (erro) {
       mostrarFlash(flash, "Erro: " + erro.message, "erro");

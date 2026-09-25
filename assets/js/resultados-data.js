@@ -8,14 +8,14 @@ function cardResultado(r) {
   const before = safeUrl(r.before_image_url), after = safeUrl(r.after_image_url);
   const slider = (before && after)
     ? `<div class="antes-depois-slider" data-antes-depois>
-         <img class="ad-depois" src="${escapeHtml(after)}" alt="Depois">
-         <img class="ad-antes" src="${escapeHtml(before)}" alt="Antes">
+         <img class="ad-depois" src="${escapeHtml(after)}" alt="Depois — ${escapeHtml(r.title || '')}">
+         <img class="ad-antes" src="${escapeHtml(before)}" alt="Antes — ${escapeHtml(r.title || '')}">
          <span class="ad-tag ad-tag-antes">Antes</span>
          <span class="ad-tag ad-tag-depois">Depois</span>
          <div class="ad-handle"><span class="ad-handle-grip"></span></div>
        </div>`
     : "";
-  return `<article class="card">${slider}<div class="card__corpo">${r.treatments ? `<span class="selo">${escapeHtml(r.treatments.name)}</span>` : ""}<p>${escapeHtml(r.description)}</p></div></article>`;
+  return `<article class="card">${slider}<div class="card__corpo">${r.treatments ? `<span class="selo">${escapeHtml(r.treatments.name)}</span>` : ""}${r.title ? `<h3>${escapeHtml(r.title)}</h3>` : ""}<p>${escapeHtml(r.description)}</p>${r.slug ? `<a class="card__link" href="/resultados/${encodeURIComponent(r.slug)}.html">Ver caso completo →</a>` : ""}</div></article>`;
 }
 
 (function iniciar() {
