@@ -42,7 +42,12 @@ Deno.serve(async (req: Request) => {
 
     const token = Deno.env.get("GH_DISPATCH_TOKEN");
     const repo = Deno.env.get("GH_REPO");
-    if (!token || !repo) return out({ ok: false, error: "GH_DISPATCH_TOKEN/GH_REPO não configurados." }, 200);
+    if (!token || !repo) {
+      await userClient.from("publication_requests")
+        .update({ status: "error", error_message: "GH_DISPATCH_TOKEN/GH_REPO não configurados.", updated_at: new Date().toISOString() })
+        .eq("request_id", requestId);
+      return out({ ok: false, error: "GH_DISPATCH_TOKEN/GH_REPO não configurados.", request_id: requestId }, 200);
+    }
 
     let body: Record<string, unknown> = {};
     try { body = await req.json(); } catch (_) {}
