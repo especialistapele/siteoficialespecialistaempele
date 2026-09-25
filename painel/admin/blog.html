@@ -87,7 +87,7 @@
   import { otimizarImagemParaWebP } from "/painel/assets/js/imagem-otimizacao.js";
   import { escapeHtml, safeUrl } from "/painel/assets/js/sanitize.js";
   import { sanitizeRichHtml, pareceHtml } from "/assets/js/rich-text.js";
-  import { dispararPublicacao, MSG_ATUALIZANDO, MSG_AGENDADO, slugificar } from "/painel/assets/js/publicar-site.js";
+  import { dispararPublicacao, MSG_ATUALIZANDO, MSG_CONFIRMADO, MSG_AGENDADO, slugificar } from "/painel/assets/js/publicar-site.js";
 
   const contexto = await exigirAdmin();
   if (!contexto) throw new Error("sem acesso");
@@ -174,8 +174,8 @@
       if (!confirm("Excluir este artigo definitivamente? A página sai do site e do sitemap. O ID nunca será reutilizado.")) return;
       const { error } = await supabase.from("articles").delete().eq("id", btn.dataset.excluir);
       if (error) { mostrarFlash(flash, "Erro: " + error.message, "erro"); return; }
-      const ok = await dispararPublicacao();
-      mostrarFlash(flash, "Artigo excluído. " + (ok ? MSG_ATUALIZANDO : MSG_AGENDADO), "sucesso");
+      const resultadoPublicacao = await dispararPublicacao({ path: `blog/${todos.find((x) => x.id === btn.dataset.excluir)?.slug}.html`, publicado: false });
+      mostrarFlash(flash, "Artigo excluído. " + (resultadoPublicacao.confirmado ? MSG_CONFIRMADO : (resultadoPublicacao.ok ? MSG_ATUALIZANDO : MSG_AGENDADO)), "sucesso");
       carregar();
     }));
     corpo.querySelectorAll("[data-alternar]").forEach((btn) => btn.addEventListener("click", async () => {
@@ -185,8 +185,8 @@
       if (!publicar && !confirm("Despublicar este artigo? A página sai do ar (404), do sitemap e da listagem.")) return;
       const { error } = await supabase.from("articles").update({ published: publicar }).eq("id", item.id);
       if (error) { mostrarFlash(flash, "Erro: " + error.message, "erro"); return; }
-      const ok = await dispararPublicacao();
-      mostrarFlash(flash, (publicar ? "Artigo publicado. " : "Artigo despublicado. ") + (ok ? MSG_ATUALIZANDO : MSG_AGENDADO), "sucesso");
+      const resultadoPublicacao = await dispararPublicacao({ path: `blog/${item.slug}.html`, publicado: publicar });
+      mostrarFlash(flash, (publicar ? "Artigo publicado. " : "Artigo despublicado. ") + (resultadoPublicacao.confirmado ? MSG_CONFIRMADO : (resultadoPublicacao.ok ? MSG_ATUALIZANDO : MSG_AGENDADO)), "sucesso");
       carregar();
     }));
   }
@@ -300,8 +300,8 @@
       if (error) throw error;
 
       modal.style.display = "none";
-      const ok = await dispararPublicacao();
-      mostrarFlash(flash, `Artigo salvo (${salvo.public_id}). ` + (salvo.published ? `Endereço: /blog/${salvo.slug}.html. ` : "Rascunho: não aparece no site. ") + (ok ? MSG_ATUALIZANDO : MSG_AGENDADO), "sucesso");
+      const resultadoPublicacao = await dispararPublicacao({ path: `blog/${salvo.slug}.html`, publicado: salvo.published });
+      mostrarFlash(flash, `Artigo salvo (${salvo.public_id}). ` + (salvo.published ? `Endereço: /blog/${salvo.slug}.html. ` : "Rascunho: não aparece no site. ") + (resultadoPublicacao.confirmado ? MSG_CONFIRMADO : (resultadoPublicacao.ok ? MSG_ATUALIZANDO : MSG_AGENDADO)), "sucesso");
       carregar();
     } catch (erro) {
       mostrarFlash(flash, "Erro: " + erro.message, "erro");
