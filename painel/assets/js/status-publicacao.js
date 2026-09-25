@@ -28,6 +28,16 @@ async function lerManifesto() {
     return r.ok ? await r.json() : null;
   } catch (_) { return null; }
 }
+async function reconciliarSolicitacao(requestId) {
+  if (!requestId) return;
+  try {
+    await supabase.functions.invoke("reconciliar-publicacao", {
+      body: { request_id: requestId },
+    });
+  } catch (_) {
+    // A consulta do painel continua mesmo se a reconciliação estiver temporariamente indisponível.
+  }
+}
 function css() {
   if (document.getElementById("status-publicacao-css")) return;
   const style = document.createElement("style");
@@ -69,16 +79,30 @@ export async function montarStatusPublicacao({ flash = null } = {}) {
   if (flash) flash.insertAdjacentElement("afterend", box); else alvo.prepend(box);
 
   async function atualizar() {
-    const badge = box.querySelector(".status-publicacao__badge");
-    const vazio = box.querySelector(".status-publicacao__vazio");
-    const { data, error } = await supabase.from("publication_requests")
+    let { data, error } = await supabase.from("publication_requests")
       .select("request_id,path,content_id,publicado,status,requested_at,dispatched_at,confirmed_at,updated_at,error_message")
       .order("requested_at", { ascending:false }).limit(1).maybeSingle();
     if (error) {
+      const badge = box.querySelector(".status-publicacao__badge");
+      const vazio = box.querySelector(".status-publicacao__vazio");
       badge.className = "status-publicacao__badge erro"; badge.textContent = "Não foi possível consultar";
       vazio.textContent = "O histórico de publicação ainda não pôde ser carregado.";
       return;
     }
+
+    // Se a última solicitação ainda estiver pendente, o próprio painel executa a
+    // reconciliação server-side e depois relê o registro para refletir o estado final.
+    if (data && ["requested", "dispatched", "timeout"].includes(data.status)) {
+      await reconciliarSolicitacao(data.request_id);
+      const refreshed = await supabase.from("publication_requests")
+        .select("request_id,path,content_id,publicado,status,requested_at,dispatched_at,confirmed_at,updated_at,error_message")
+        .eq("request_id", data.request_id)
+        .maybeSingle();
+      if (!refreshed.error && refreshed.data) data = refreshed.data;
+    }
+
+    const badge = box.querySelector(".status-publicacao__badge");
+    const vazio = box.querySelector(".status-publicacao__vazio");
     if (!data) {
       badge.className = "status-publicacao__badge aguardando"; badge.textContent = "Sem solicitações";
       vazio.textContent = "Ainda não há uma publicação registrada pelo painel.";
