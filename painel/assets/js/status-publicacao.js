@@ -12,6 +12,7 @@ const STATUS = {
   error: ["Erro na publicação", "erro"],
 };
 
+function statusBR(status) { return STATUS[status]?.[0] || status || "Desconhecido"; }
 function escapeHtml(v) {
   return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 }
@@ -131,7 +132,8 @@ export async function montarStatusPublicacao({ flash = null } = {}) {
     secao.insertAdjacentHTML("beforeend", '<div class="historico-publicacao__subtitulo">Últimas 20 solicitações registradas pelo sistema.</div><div class="historico-publicacao__table-wrap"><table class="historico-publicacao__table"><thead><tr><th>Data</th><th>Página</th><th>Ação</th><th>Status</th><th>ID</th><th>Conteúdo</th></tr></thead><tbody>' + rows + '</tbody></table></div>');
   }
 
-  await atualizar();\n  await atualizarHistorico(box);
+  await atualizar();
+  await atualizarHistorico(box);
   const timer = setInterval(atualizar, INTERVALO_MS);
   window.addEventListener("beforeunload", () => clearInterval(timer), { once:true });
   window.addEventListener("publicacao:atualizada", async () => { await atualizar(); await atualizarHistorico(box); });
