@@ -12,6 +12,7 @@ const STATUS = {
   error: ["Erro na publicação", "erro"],
 };
 
+function statusBR(status) { return STATUS[status]?.[0] || status || "Desconhecido"; }
 function escapeHtml(v) {
   return String(v ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 }
@@ -40,7 +41,8 @@ function css() {
     .status-publicacao__grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
     .status-publicacao__item{font-size:11px;color:#777;padding-top:9px;border-top:1px solid var(--linha,#eee)}
     .status-publicacao__item strong{display:block;color:#303733;font-size:12px;margin-top:3px;word-break:break-word}
-    .status-publicacao__vazio{font-size:12px;color:#777;margin:8px 0 0}\n    .historico-publicacao{margin-top:18px;padding-top:16px;border-top:1px solid var(--linha,#eee)}
+    .status-publicacao__vazio{font-size:12px;color:#777;margin:8px 0 0}
+    .historico-publicacao{margin-top:18px;padding-top:16px;border-top:1px solid var(--linha,#eee)}
     .historico-publicacao__titulo{font-weight:700;font-size:14px;color:var(--texto,#26312d);margin-bottom:8px}
     .historico-publicacao__subtitulo,.historico-publicacao__empty{font-size:11px;color:#777;margin:0 0 10px}
     .historico-publicacao__table-wrap{overflow-x:auto}
@@ -131,7 +133,8 @@ export async function montarStatusPublicacao({ flash = null } = {}) {
     secao.insertAdjacentHTML("beforeend", '<div class="historico-publicacao__subtitulo">Últimas 20 solicitações registradas pelo sistema.</div><div class="historico-publicacao__table-wrap"><table class="historico-publicacao__table"><thead><tr><th>Data</th><th>Página</th><th>Ação</th><th>Status</th><th>ID</th><th>Conteúdo</th></tr></thead><tbody>' + rows + '</tbody></table></div>');
   }
 
-  await atualizar();\n  await atualizarHistorico(box);
+  await atualizar();
+  await atualizarHistorico(box);
   const timer = setInterval(atualizar, INTERVALO_MS);
   window.addEventListener("beforeunload", () => clearInterval(timer), { once:true });
   window.addEventListener("publicacao:atualizada", async () => { await atualizar(); await atualizarHistorico(box); });
