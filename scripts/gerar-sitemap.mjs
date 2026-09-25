@@ -17,7 +17,7 @@
 // do Google), então não é preciso um sitemap de imagens separado.
 // ============================================================
 
-import { writeFileSync } from "node:fs";
+import { writeFileSync, readdirSync, readFileSync } from "node:fs";
 
 const SITE = "https://www.especialistaempele.com.br";
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://clwaotfbqwvxpykruwed.supabase.co";
@@ -88,6 +88,23 @@ function esc(v) {
   return String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
+
+function paginasTratamentosEstatisticas() {
+  const dir = "tratamentos";
+  const ignorar = new Set(["index.html", "detalhe.html"]);
+  const paginas = [];
+  for (const nome of readdirSync(dir, { withFileTypes: true })) {
+    if (!nome.isFile() || !nome.name.toLowerCase().endsWith(".html")) continue;
+    if (ignorar.has(nome.name.toLowerCase())) continue;
+    const caminho = `${dir}/${nome.name}`;
+    let html = "";
+    try { html = readFileSync(caminho, "utf-8"); } catch (_) { continue; }
+    if (/<meta[^>]+name=["']robots["'][^>]+content=["'][^"']*noindex/i.test(html)) continue;
+    paginas.push({ loc: `${SITE}/tratamentos/${nome.name}`, nome: nome.name });
+  }
+  return paginas;
+}
+
 function urlXml({ loc, lastmod, changefreq, priority, imagens = [] }) {
   return [
     "  <url>",
@@ -150,17 +167,22 @@ async function main() {
     }));
   }
 
+  const urlsTratamentos = new Set();
   for (const t of tratamentos) {
     if (!t.slug) continue;
-    // Agora aponta para a página estática pré-renderizada em
-    // /tratamentos/<slug>.html (gerada por gerar-paginas-tratamentos.mjs),
-    // em vez da versão dinâmica via query string.
-    entradas.push(urlXml({
-      loc: `${SITE}/tratamentos/${slugifyUrl(t.slug)}.html`,
-      lastmod: ultimaData(t),
-      changefreq: "monthly",
-      priority: "0.7",
-    }));
+    const loc = `${SITE}/tratamentos/${slugifyUrl(t.slug)}.html`;
+    if (urlsTratamentos.has(loc)) continue;
+    urlsTratamentos.add(loc);
+    entradas.push(urlXml({ loc, lastmod: ultimaData(t), changefreq: "monthly", priority: "0.7" }));
+  }
+
+  // Também inclui páginas HTML de tratamento criadas diretamente no GitHub
+  // (por exemplo, páginas SEO específicas por cidade), sem exigir cadastro
+  // no painel/Supabase. index.html e detalhe.html são páginas de estrutura.
+  for (const pagina of paginasTratamentosEstatisticas()) {
+    if (urlsTratamentos.has(pagina.loc)) continue;
+    urlsTratamentos.add(pagina.loc);
+    entradas.push(urlXml({ loc: pagina.loc, changefreq: "monthly", priority: "0.7" }));
   }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${entradas.join("\n")}\n</urlset>\n`;

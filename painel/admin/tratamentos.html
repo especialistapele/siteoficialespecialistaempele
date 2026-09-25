@@ -89,6 +89,7 @@
   import { otimizarImagemParaWebP } from "/painel/assets/js/imagem-otimizacao.js";
   import { escapeHtml, safeUrl } from "/painel/assets/js/sanitize.js";
   import { sanitizeRichHtml, pareceHtml } from "/assets/js/rich-text.js";
+  import { dispararPublicacao, MSG_ATUALIZANDO, MSG_AGENDADO } from "/painel/assets/js/publicar-site.js";
 
   const contexto = await exigirAdmin();
   if (!contexto) throw new Error("sem acesso");
@@ -169,7 +170,13 @@
     corpo.querySelectorAll("[data-editar]").forEach((btn) => btn.addEventListener("click", () => abrirEdicao(btn.dataset.editar)));
     corpo.querySelectorAll("[data-excluir]").forEach((btn) => btn.addEventListener("click", async () => {
       if (!confirm("Excluir este tratamento?")) return;
-      await supabase.from("treatments").delete().eq("id", btn.dataset.excluir);
+      const { error } = await supabase.from("treatments").delete().eq("id", btn.dataset.excluir);
+      if (error) {
+        mostrarFlash(flash, "Erro ao excluir: " + error.message, "erro");
+        return;
+      }
+      const publicou = await dispararPublicacao();
+      mostrarFlash(flash, publicou ? MSG_ATUALIZANDO : MSG_AGENDADO, "sucesso");
       carregar();
     }));
 
@@ -311,7 +318,8 @@
       const { error } = id ? await supabase.from("treatments").update(payload).eq("id", id) : await supabase.from("treatments").insert(payload);
       if (error) throw error;
       modal.style.display = "none";
-      mostrarFlash(flash, "Tratamento salvo com sucesso.", "sucesso");
+      const publicou = await dispararPublicacao();
+      mostrarFlash(flash, publicou ? MSG_ATUALIZANDO : MSG_AGENDADO, "sucesso");
       carregar();
     } catch (erro) {
       mostrarFlash(flash, "Erro: " + erro.message, "erro");
