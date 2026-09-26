@@ -105,6 +105,30 @@ function paginasTratamentosEstatisticas() {
   return paginas;
 }
 
+// Páginas regionais de tratamento (SEO por cidade), criadas direto no
+// GitHub, ficam na RAIZ do projeto com o padrão
+// "<tratamento>-araruama.html", "<tratamento>-cabo-frio-riviera.html" e
+// "<tratamento>-copacabana.html" — por exemplo acne-araruama.html,
+// rosacea-copacabana.html. Não existem como registro no Supabase, então
+// sem isto elas nunca entrariam no sitemap. As páginas
+// "estetica-regenerativa-*" ficam de fora daqui porque já estão em
+// PAGINAS_FIXAS.
+function paginasRegionaisEstaticas() {
+  const SUFIXOS_CIDADE = ["-araruama.html", "-cabo-frio-riviera.html", "-copacabana.html"];
+  const paginas = [];
+  for (const nome of readdirSync(".", { withFileTypes: true })) {
+    if (!nome.isFile() || !nome.name.toLowerCase().endsWith(".html")) continue;
+    const lower = nome.name.toLowerCase();
+    if (lower.startsWith("estetica-regenerativa-")) continue;
+    if (!SUFIXOS_CIDADE.some((sufixo) => lower.endsWith(sufixo))) continue;
+    let html = "";
+    try { html = readFileSync(nome.name, "utf-8"); } catch (_) { continue; }
+    if (/<meta[^>]+name=["']robots["'][^>]+content=["'][^"']*noindex/i.test(html)) continue;
+    paginas.push({ loc: `${SITE}/${nome.name}`, nome: nome.name });
+  }
+  return paginas;
+}
+
 function urlXml({ loc, lastmod, changefreq, priority, imagens = [] }) {
   return [
     "  <url>",
@@ -180,6 +204,14 @@ async function main() {
   // (por exemplo, páginas SEO específicas por cidade), sem exigir cadastro
   // no painel/Supabase. index.html e detalhe.html são páginas de estrutura.
   for (const pagina of paginasTratamentosEstatisticas()) {
+    if (urlsTratamentos.has(pagina.loc)) continue;
+    urlsTratamentos.add(pagina.loc);
+    entradas.push(urlXml({ loc: pagina.loc, changefreq: "monthly", priority: "0.7" }));
+  }
+
+  // Páginas regionais de tratamento (SEO por cidade: Araruama, Cabo Frio,
+  // Copacabana), criadas direto no GitHub, na raiz do projeto.
+  for (const pagina of paginasRegionaisEstaticas()) {
     if (urlsTratamentos.has(pagina.loc)) continue;
     urlsTratamentos.add(pagina.loc);
     entradas.push(urlXml({ loc: pagina.loc, changefreq: "monthly", priority: "0.7" }));
