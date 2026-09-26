@@ -478,7 +478,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/clareamento-facial.html",
       "redirect_to": null,
-      "sha256": "c74a6b61b4332910ee813284c50ae2aa99ff5962f374c672bb136826a73c556a"
+      "sha256": "0cbba0d447c93765a373b63eed5b259a1ef364cf2872329149769d20e507dff8"
     },
     {
       "path": "tratamentos/clareamento.html",
@@ -588,7 +588,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/poros-abertos.html",
       "redirect_to": null,
-      "sha256": "5e946e6738cf8cffb065dd7dc1b5a6d00056002664599e8a2f684a75b0241e0d"
+      "sha256": "bc389012cd2e78cd47893ae68f0539db3a77ee8d151f69c762f5f0a5560b2396"
     },
     {
       "path": "tratamentos/rejuvenescimento.html",
@@ -631,5 +631,5 @@
       "sha256": "d39bfaa70c55413c91e6dc3299c44f3e024cde39c6c33a03edae79bac9ba9693"
     }
   ],
-  "generated_at": "2026-09-26T01:25:59.372Z"
+  "generated_at": "2026-09-26T13:22:45.214Z"
 }
