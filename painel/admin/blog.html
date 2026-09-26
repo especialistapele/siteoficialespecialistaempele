@@ -336,6 +336,12 @@
       const { data: salvo, error } = await consulta.select("public_id, slug, published").single();
       if (error) throw error;
 
+      // Confirma primeiro que o artigo e o FAQ foram persistidos no banco.
+      // Só depois disso a publicação é disparada para o GitHub.
+      const faqSalvo = Array.isArray(salvo?.faq) ? salvo.faq : faqItens();
+      const faqQuantidade = faqSalvo.filter((x) => x?.pergunta?.trim() && x?.resposta?.trim()).length;
+      mostrarFlash(flash, faqQuantidade ? `FAQ salvo: ${faqQuantidade} pergunta(s). Artigo salvo com sucesso. Preparando publicação…` : "Artigo salvo com sucesso. Preparando publicação…", "sucesso");
+
       modal.style.display = "none";
       const resultadoPublicacao = await dispararPublicacao({ path: `blog/${salvo.slug}.html`, publicado: salvo.published });
       mostrarFlash(flash, `Artigo salvo (${salvo.public_id}). ` + (salvo.published ? `Endereço: /blog/${salvo.slug}.html. ` : "Rascunho: não aparece no site. ") + (resultadoPublicacao.confirmado ? MSG_CONFIRMADO : (resultadoPublicacao.ok ? MSG_ATUALIZANDO : MSG_AGENDADO)), "sucesso");
