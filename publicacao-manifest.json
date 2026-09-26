@@ -18,7 +18,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/como-escolher-um-tratamento-para-melasma.html",
       "redirect_to": null,
-      "sha256": "315b1345e37096bed82383dc161ca9c3f3a43c1accdd2bd31935990c2064762d"
+      "sha256": "daa11294785b41d65ed7dfb981b8bcb171f9f6ad2db92e9379403138f62a07ef"
     },
     {
       "path": "blog/o-que-e-regeneracao-cutanea.html",
@@ -631,5 +631,5 @@
       "sha256": "7beac540a2e9ae78fd3f4ecef95f22db9f1a21f1609d8187965ce83332c57608"
     }
   ],
-  "generated_at": "2026-09-25T23:55:27.808Z"
+  "generated_at": "2026-09-26T00:01:15.048Z"
 }
