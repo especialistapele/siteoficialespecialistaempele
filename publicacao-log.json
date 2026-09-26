@@ -27,8 +27,21 @@
       "workflow_run_id": "36198235983",
       "workflow_sha": "cc0e61d4b7a30c676d95c9e9d86ab2983b55e73d",
       "ref": "main"
+    },
+    {
+      "request_id": "80073624-072a-4f85-b40d-e016f142f9f9",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/como-escolher-um-tratamento-para-melasma.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-09-26T00:00:22.632Z",
+      "completed_at": "2026-09-26T00:01:17.473Z",
+      "workflow_run_id": "36203176169",
+      "workflow_sha": "54c2d57fdb1a63f624fe429341d685698e04ec2f",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-09-25T22:46:18.444Z",
-  "total": 2
+  "updated_at": "2026-09-26T00:01:17.473Z",
+  "total": 3
 }
