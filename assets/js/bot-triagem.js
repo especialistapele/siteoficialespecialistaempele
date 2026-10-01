@@ -17,27 +17,26 @@
 
   const aliases = {
     acne:["acne","espinha","espinhas","cravo","cravos"],
-    manchas:["mancha","manchas","melasma","pigmentacao","pigmentacao","escura","escuras"],
+    manchas:["mancha","manchas","melasma","pigmentacao"],
     cicatrizes:["cicatriz","cicatrizes","marca de acne","marcas de acne"],
     rosacea:["rosacea","vermelhidao","vermelhida"],
     rejuvenescimento:["rejuvenescimento","rugas","linhas","flacidez facial","envelhecimento"],
     poros:["poro","poros","poro dilatado","poros dilatados"],
-    nanotecnologia:["nanotecnologia","limpeza nanotecnologica","limpeza de pele"],
+    nanotecnologia:["nanotecnologia"],
     clareamento:["clareamento","virilha","coxas","axila","gluteos"],
     remocoes:["remocao","remover","sinal","sinais","verruga","nevo","nigras","milium","xantelasma","siringoma"],
-    corporal:["celulite","estria","estrias","flacidez","corporal","definicao"],
+    corporal:["corporal"],
     operatorio:["operatorio","pos operatorio","pos-operatorio"],
-    sobrancelha:["sobrancelha","sobrancelhas","despigmentacao de sobrancelha"],
+    sobrancelha:["sobrancelha","sobrancelhas","despigmentacao de sobrancelha","despigmentação de sobrancelha","tirar a micropigmentacao","tirar a micropigmentação","sobrancelha manchada"],
     "clareamento-facial":["clareamento facial","clarear o rosto","manchas no rosto"],
     "clareamento-corporal":["clareamento corporal","clarear virilha","clarear axila","clarear coxas","clarear gluteos"],
-    "limpeza-de-pele":["limpeza de pele","limpeza nanotecnologica","limpeza nanotecnologica"],
+    "limpeza-de-pele":["limpeza de pele","limpeza nanotecnologica"],
     celulite:["celulite"],
-    esporotricose:["esporotricose"],
+    esporotricose:["esporotricose","cicatriz de esporotricose","cicatrizes por esporotricose"],
     leucodermia:["leucodermia","leucodermia solar"],
-    acantose:["acantose","acantose nigricans"],
+    acantose:["acantose","acantose nigricans","pescoco escuro","pescoço escuro","pele escura nas dobras"],
     "gordura-localizada":["gordura localizada","gordura abdominal","gordura"],
-    "definicao-corporal":["definicao corporal","definição corporal","definicao"],
-    "sobrancelha":["sobrancelha","sobrancelhas","despigmentacao de sobrancelha","despigmentação de sobrancelha","tirar a micropigmentacao","tirar a micropigmentação","sobrancelha manchada"]
+    "definicao-corporal":["definicao corporal","definição corporal","definicao"]
   };
 
   // A ordem é intencional: regras específicas têm prioridade sobre intenções genéricas.
