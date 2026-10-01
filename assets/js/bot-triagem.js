@@ -30,17 +30,19 @@
     sobrancelha:["sobrancelha","sobrancelhas"]
   };
 
+  // A ordem é intencional: regras específicas têm prioridade sobre intenções genéricas.
+  // Ex.: "quanto custa a taxa?" deve ser taxa, e "sou paciente e quero agendar" deve ser paciente.
   const intents = {
-    booking:["quero marcar","quero agendar","quero consulta","quero atendimento","quero comecar","como faco para marcar","marcar consulta","agendar consulta"],
-    price:["quanto custa","qual valor","preco","preço","investimento","quanto e","quanto é","valor da consulta","valor do atendimento"],
-    location:["onde atende","local","cidade","onde fica","atende onde"],
-    address:["endereco","endereço","endereco completo","endereço completo","rua","numero","número"],
     patient:["ja sou paciente","já sou paciente","area do paciente","área do paciente","meu prontuario","meu prontuário","login","acessar meu painel"],
-    online:["online","moro longe","sou de outro estado","nao moro no rio","não moro no rio","fora do rio","consultoria online"],
-    appointmentFee:["taxa de agendamento","taxa para agendar","taxa","pagamento da taxa"],
+    appointmentFee:["taxa de agendamento","taxa para agendar","quanto custa a taxa","qual o valor da taxa","taxa","pagamento da taxa"],
     reschedule:["reagendar","reagendamento","remarcar","mudar a consulta"],
     delay:["atraso","atrasar","tolerancia","tolerância"],
     refund:["devolucao","devolução","reembolso","devolver a taxa"],
+    address:["endereco","endereço","endereco completo","endereço completo","rua","numero","número"],
+    booking:["quero marcar","quero agendar","quero consulta","quero atendimento","quero comecar","como faco para marcar","marcar consulta","agendar consulta"],
+    price:["quanto custa","qual valor","preco","preço","investimento","quanto e","quanto é","valor da consulta","valor do atendimento"],
+    location:["onde atende","local","cidade","onde fica","atende onde"],
+    online:["online","moro longe","sou de outro estado","nao moro no rio","não moro no rio","fora do rio","consultoria online"],
     information:["como funciona","como funciona o atendimento","quero saber mais","só queria saber","so queria saber","informacao","informação","duvida","dúvida"]
   };
 
