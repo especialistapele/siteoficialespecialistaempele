@@ -287,6 +287,26 @@ for (const [input, expectedTopic] of homeCarePriceCases) {
 expect(bot.includes('if (state.intent === "homeCare")'), "fluxo de cuidado domiciliar não encontrado");
 expect(bot.includes("if (!mode || mode.consultoria === true)"), "elegibilidade da consultoria não é verificada no cuidado domiciliar");
 
+// Combinações de intenção + tratamento: preço/consulta/consultoria não podem vazar
+// entre modalidades diferentes.
+const priceLeakCases = [
+  ["Quero saber o valor da celulite", "celulite", false],
+  ["Quanto custa tratar estrias?", "estrias", false],
+  ["Quanto custa a limpeza de pele?", "limpeza-de-pele", false],
+  ["Quanto custa tratar cicatriz de acne?", "cicatrizes", false],
+  ["Quanto custa tratar acne?", "acne", true],
+  ["Quanto custa tratar melasma?", "manchas", true],
+  ["Quanto custa a consultoria online para acne?", "acne", true]
+];
+for (const [input, expectedTopic, consultoriaEligible] of priceLeakCases) {
+  expect(detectTopic(input) === expectedTopic, input + ': tratamento incorreto na pergunta de preço');
+  const modeLine = config.split("\n").find((line) => line.includes(expectedTopic + ":") || line.includes('"' + expectedTopic + '":'));
+  expect(Boolean(modeLine), input + ': modalidade ausente na pergunta de preço');
+  if (!consultoriaEligible) {
+    expect(!modeLine.includes("consultoria: true"), input + ': tratamento inelegível marcado como consultoria');
+  }
+}
+
 // Trocas de assunto devem ocorrer antes dos estágios que poderiam herdar a rota anterior.
 expect(bot.indexOf('if (topic && topic !== previousContext)') < bot.indexOf('if (state.stage === "presential")'), "troca de assunto não antecede estágio presencial");
 expect(bot.indexOf('if (topic && topic !== previousContext)') < bot.indexOf('if (state.stage === "online-consulta")'), "troca de assunto não antecede estágio de consulta online");
