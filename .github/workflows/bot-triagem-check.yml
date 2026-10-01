@@ -5,6 +5,7 @@ on:
     branches:
       - feature/bot-triagem-deterministico
       - feature/bot-auditor-instalacao
+      - feature/bot-instalador-automatico
   pull_request:
     branches:
       - main
@@ -21,6 +22,8 @@ jobs:
         run: |
           node --check assets/js/bot-config.js
           node --check assets/js/bot-triagem.js
+          node --check assets/js/bot-tratamentos-auto.js
+          node --check scripts/instalar-bot-tratamentos.mjs
           node --check assets/js/whatsapp.js
           node --check tests/bot-triagem-rotas.mjs
           node --check tests/bot-triagem-cobertura.mjs
