@@ -134,9 +134,9 @@
 
       // A conversa permanece a mesma, mas o contexto acompanha a nova página.
       // Isso permite sair de Acne e entrar em Melasma sem apagar o histórico.
-      if (saved.lastPath !== path && pageContext !== "home") {
+      if (saved.lastPath !== path) {
         state.context = pageContext;
-        state.stage = "explore";
+        state.stage = pageContext === "home" ? "understand" : "explore";
         state.intent = null;
         state.lastText = "";
       }
