@@ -96,7 +96,7 @@
     reschedule:["reagendar","reagendamento","remarcar","mudar a consulta"],
     delay:["atraso","atrasar","tolerancia","tolerância"],
     refund:["devolucao","devolução","reembolso","devolver a taxa"],
-    address:["endereco","endereço","endereco completo","endereço completo","rua","numero","número"],
+    address:["endereco exato","endereço exato","endereco da unidade","endereço da unidade","endereco completo","endereço completo","endereco","endereço","rua","numero","número"],
     booking:["quero marcar","quero agendar","quero consulta","quero atendimento","quero comecar","como faco para marcar","marcar consulta","agendar consulta"],
     consultaOnline:["consulta online","consulta de avaliacao","consulta de avaliação"],
     consultoria:["consultoria online","consultoria","programa essencial","programa premium"],
@@ -584,6 +584,16 @@
     }
   }
 
+  function askTreatmentLocation() {
+    state.stage = "location";
+    reply("Antes de te passar os detalhes do atendimento, preciso saber de onde você é. Qual é a sua cidade?");
+  }
+
+  function answerTreatmentLocationInfo() {
+    reply("Temos três polos de atendimento presencial: Araruama, Cabo Frio e Copacabana.");
+    reply("Quando o atendimento é encaminhado pelo WhatsApp, a equipe confirma a unidade adequada e passa o endereço completo no momento em que o agendamento é efetuado.");
+  }
+
   function answerPrice() {
     const mode = treatmentMode();
     const explicitOnline = matchesPhrase(state.lastText, "online");
@@ -607,6 +617,11 @@
       } else {
         explainHomeCare();
       }
+      return;
+    }
+
+    if (mode && mode.presential && !state.location && !explicitOnline && !explicitConsultoria && state.intent !== "homeCare") {
+      askTreatmentLocation();
       return;
     }
 
@@ -735,18 +750,19 @@
     }
 
     if (intent === "address") {
-      if (state.location) {
-        reply("O atendimento acontece na região de " + locationLabel(state.location) + ". O endereço completo é informado após a realização do agendamento.");
-      } else {
-        reply("Posso informar a região de atendimento, mas o endereço completo é informado após a realização do agendamento. Você está em qual cidade?");
-        state.stage = "location";
-      }
+      answerTreatmentLocationInfo();
       return;
     }
 
     if (intent === "location") {
-      if (state.location) routeByLocation();
-      else { reply("Você está em qual cidade?"); state.stage = "location"; }
+      if (matchesPhrase(n, "onde atende") || matchesPhrase(n, "onde fica")) {
+        answerTreatmentLocationInfo();
+      } else if (state.location) {
+        routeByLocation();
+      } else {
+        reply("Você está em qual cidade?");
+        state.stage = "location";
+      }
       return;
     }
 
