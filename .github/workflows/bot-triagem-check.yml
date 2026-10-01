@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/bot-triagem-deterministico
+      - feature/bot-auditor-instalacao
   pull_request:
     branches:
       - main
@@ -25,6 +26,7 @@ jobs:
           node --check tests/bot-triagem-cobertura.mjs
           node --check tests/bot-triagem-comportamento.mjs
           node --check tests/bot-triagem-cenarios.mjs
+          node --check tests/bot-triagem-auditor.mjs
       - name: Teste — rotas de tratamento
         run: node tests/bot-triagem-rotas.mjs
       - name: Teste — cobertura das páginas
@@ -33,3 +35,5 @@ jobs:
         run: node tests/bot-triagem-comportamento.mjs
       - name: Teste — cenários e fluxo
         run: node tests/bot-triagem-cenarios.mjs
+      - name: Auditoria — instalação e configuração
+        run: node tests/bot-triagem-auditor.mjs
