@@ -75,6 +75,9 @@ const botSource = read("assets/js/bot-triagem.js");
 const whatsappSource = read("assets/js/whatsapp.js");
 const config = parseGlobalConfig(configSource);
 const aliases = parseAliases(botSource);
+const autoPath = path.join(ROOT, "assets/js/bot-tratamentos-auto.js");
+const autoSource = fs.existsSync(autoPath) ? read("assets/js/bot-tratamentos-auto.js") : "";
+const auto = autoSource ? parseGlobalConfig(autoSource.replace("window.ESPECIALISTA_PELE_BOT_AUTO", "window.ESPECIALISTA_PELE_BOT_CONFIG")) : {};
 
 const treatmentDir = path.join(ROOT, "tratamentos");
 const treatmentFiles = fs.readdirSync(treatmentDir)
@@ -82,7 +85,7 @@ const treatmentFiles = fs.readdirSync(treatmentDir)
   .sort();
 
 const treatmentPaths = treatmentFiles.map((file) => "/tratamentos/" + file);
-const configuredTreatmentPaths = Object.entries(config.pageContexts)
+const configuredTreatmentPaths = Object.entries(effectiveContexts)
   .filter(([, context]) => context)
   .map(([pagePath]) => pagePath)
   .filter((pagePath) => pagePath.startsWith("/tratamentos/"))
@@ -111,8 +114,19 @@ if (!whatsappSource.includes('engine.src = "/assets/js/bot-triagem.js"')) {
 if (!whatsappSource.includes("data-ep-bot-engine")) {
   fail("whatsapp.js não possui proteção contra carregamento duplicado do motor.");
 }
+if (!whatsappSource.includes('src = "/assets/js/bot-tratamentos-auto.js"')) {
+  fail("whatsapp.js não carrega o manifesto automático de tratamentos.");
+}
+if (!fs.existsSync(autoPath)) {
+  fail("bot-tratamentos-auto.js não foi gerado.");
+}
 
-const modes = config.treatmentModes || {};
+const effectiveModes = { ...(config.treatmentModes || {}), ...(auto.treatmentModes || {}) };
+const effectiveContexts = { ...(effectiveContexts || {}), ...(auto.pageContexts || {}) };
+const effectiveGreetings = { ...(effectiveGreetings || {}), ...(auto.greetings || {}) };
+const effectiveLabels = { ...(effectiveLabels || {}), ...(auto.labels || {}) };
+const effectiveAliases = { ...aliases, ...(auto.aliases || {}) };
+const modes = effectiveModes;
 const modeKeys = Object.keys(modes).sort();
 if (modeKeys.length !== treatmentFiles.length) {
   fail(
@@ -127,10 +141,10 @@ if (modeKeys.length !== treatmentFiles.length) {
 for (const file of treatmentFiles) {
   const pagePath = "/tratamentos/" + file;
   const html = read("tratamentos/" + file);
-  const context = config.pageContexts[pagePath];
+  const context = effectiveContexts[pagePath];
 
   if (!context) {
-    fail(pagePath + ": sem contexto em config.pageContexts.");
+    fail(pagePath + ": sem contexto em effectiveContexts.");
     continue;
   }
 
@@ -169,15 +183,15 @@ for (const file of treatmentFiles) {
     fail(pagePath + ": consulta online sem requiresPreAttendance=true.");
   }
 
-  if (!config.greetings?.[context]) {
+  if (!effectiveGreetings?.[context]) {
     fail(pagePath + ": contexto '" + context + "' sem saudação específica.");
   }
 
-  if (!config.labels?.[context]) {
+  if (!effectiveLabels?.[context]) {
     fail(pagePath + ": contexto '" + context + "' sem label específico.");
   }
 
-  if (!Array.isArray(aliases[context]) || aliases[context].length === 0) {
+  if (!Array.isArray(effectiveAliases[context]) || effectiveAliases[context].length === 0) {
     fail(pagePath + ": contexto '" + context + "' sem alias no motor.");
   }
 }
@@ -190,28 +204,28 @@ for (const pagePath of configuredTreatmentPaths) {
 }
 
 for (const context of modeKeys) {
-  const hasPage = Object.entries(config.pageContexts)
+  const hasPage = Object.entries(effectiveContexts)
     .some(([pagePath, value]) => pagePath.startsWith("/tratamentos/") && value === context);
 
   if (!hasPage) {
     fail("Modalidade '" + context + "' existe no bot, mas não está vinculada a nenhuma página de tratamento.");
   }
 
-  if (!config.greetings?.[context]) {
+  if (!effectiveGreetings?.[context]) {
     fail("Modalidade '" + context + "' sem greeting.");
   }
 
-  if (!config.labels?.[context]) {
+  if (!effectiveLabels?.[context]) {
     fail("Modalidade '" + context + "' sem label.");
   }
 
-  if (!Array.isArray(aliases[context]) || aliases[context].length === 0) {
+  if (!Array.isArray(effectiveAliases[context]) || effectiveAliases[context].length === 0) {
     fail("Modalidade '" + context + "' sem alias.");
   }
 }
 
 const treatmentPageContexts = treatmentPaths
-  .map((pagePath) => config.pageContexts[pagePath])
+  .map((pagePath) => effectiveContexts[pagePath])
   .filter(Boolean);
 const duplicateContexts = treatmentPageContexts.filter(
   (context, index, list) => list.indexOf(context) !== index
@@ -236,6 +250,7 @@ const result = {
   treatmentPages: treatmentFiles.length,
   configuredTreatmentPaths: configuredTreatmentPaths.length,
   treatmentModes: modeKeys.length,
+  autoTreatmentPages: Object.keys(auto.pageContexts || {}).length,
   errors,
   warnings
 };
