@@ -89,7 +89,6 @@ const treatmentPaths = treatmentFiles.map((file) => "/tratamentos/" + file);
 console.log("=== Auditor do Atendente Virtual — Camada 2A ===");
 
 console.log("Páginas de tratamento encontradas:", treatmentFiles.length);
-console.log("Contextos de tratamento configurados:", configuredTreatmentPaths.length);
 
 if (!fs.existsSync(path.join(ROOT, "assets/js/bot-config.js"))) {
   fail("bot-config.js não encontrado.");
@@ -127,6 +126,7 @@ const configuredTreatmentPaths = Object.entries(effectiveContexts)
   .map(([pagePath]) => pagePath)
   .filter((pagePath) => pagePath.startsWith("/tratamentos/"))
   .sort();
+console.log("Contextos de tratamento configurados:", configuredTreatmentPaths.length);
 const modes = effectiveModes;
 const modeKeys = Object.keys(modes).sort();
 if (modeKeys.length !== treatmentFiles.length) {
