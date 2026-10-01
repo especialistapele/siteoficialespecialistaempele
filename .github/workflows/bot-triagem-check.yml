@@ -22,4 +22,6 @@ jobs:
           node --check assets/js/bot-triagem.js
           node --check assets/js/whatsapp.js
       - name: Validar rotas de tratamento
-        run: node tests/bot-triagem-rotas.mjs
+        run: |
+          node tests/bot-triagem-rotas.mjs
+          node tests/bot-triagem-cobertura.mjs
