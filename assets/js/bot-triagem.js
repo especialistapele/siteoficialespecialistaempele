@@ -532,10 +532,10 @@
     }
 
     if (state.stage === "online") {
-      if (n.includes("diferenca") || n.includes("diferença") || n.includes("programa") || n.includes("essencial") || n.includes("premium")) {
+      if (matchesPhrase(n, "diferenca") || matchesPhrase(n, "programa") || matchesPhrase(n, "essencial") || matchesPhrase(n, "premium")) {
         reply("O Essencial custa R$ " + CONFIG.onlineConsultation.essential + " e inclui pagamento da taxa de agendamento, ficha de anamnese, primeira consulta, segunda consulta 30 dias depois, análise e ajustes. O Premium custa R$ " + CONFIG.onlineConsultation.premium + " e inclui primeira consulta, segunda consulta em até 6 dias, material personalizado/informativo, acompanhamento durante 30 dias e terceira consulta para feedback e ajuste da rotina.");
         reply("Se quiser iniciar o atendimento, posso te encaminhar para o WhatsApp.", currentWhatsApp());
-      } else if (n.includes("sim") || n.includes("quero") || n.includes("pode")) {
+      } else if (matchesPhrase(n, "sim") || matchesPhrase(n, "quero") || matchesPhrase(n, "pode")) {
         reply("Posso te explicar os dois programas: Essencial por R$ " + CONFIG.onlineConsultation.essential + " e Premium por R$ " + CONFIG.onlineConsultation.premium + ". Quer comparar os dois?");
       } else {
         reply("Posso te explicar os programas, informar os valores públicos ou encaminhar você para o WhatsApp quando quiser iniciar.");
