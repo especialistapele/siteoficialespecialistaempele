@@ -33,6 +33,42 @@ for (const context of expected) {
   }
 }
 
+const expectedModes = {
+  acantose: { presential: true, online: "consulta" },
+  acne: { presential: true, online: "consulta", requiresPreAttendance: true, consultoria: true },
+  celulite: { presential: true, online: false },
+  cicatrizes: { presential: true, online: false },
+  "clareamento-facial": { presential: true, online: "consulta", requiresPreAttendance: true, consultoria: true },
+  "clareamento-corporal": { presential: true, online: "consulta", requiresPreAttendance: true },
+  "gordura-localizada": { presential: true, online: false },
+  "definicao-corporal": { presential: true, online: false },
+  esporotricose: { presential: true, online: false },
+  estrias: { presential: true, online: false },
+  flacidez: { presential: true, online: false },
+  leucodermia: { presential: true, online: false },
+  "limpeza-de-pele": { presential: true, online: false },
+  manchas: { presential: true, online: "consulta", requiresPreAttendance: true, consultoria: true },
+  operatorio: { presential: true, online: false },
+  poros: { presential: true, online: "consulta", requiresPreAttendance: true, consultoria: true },
+  rejuvenescimento: { presential: true, online: "consulta", requiresPreAttendance: true, consultoria: true },
+  remocoes: { presential: true, online: false },
+  rosacea: { presential: true, online: "consulta", requiresPreAttendance: true, consultoria: true },
+  sobrancelha: { presential: true, online: false }
+};
+
+for (const [context, expectedMode] of Object.entries(expectedModes)) {
+  const actual = config.treatmentModes[context];
+  if (!actual) {
+    errors.push(`Modalidade ausente para ${context}.`);
+    continue;
+  }
+  for (const [key, value] of Object.entries(expectedMode)) {
+    if (actual[key] !== value) {
+      errors.push(`Modalidade de ${context}: ${key} esperado "${value}", obtido "${actual[key]}".`);
+    }
+  }
+}
+
 if (errors.length) {
   console.error("ERROS DE ROTAS DO BOT:");
   errors.forEach((e) => console.error("-", e));
