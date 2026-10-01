@@ -9,6 +9,7 @@
   // é persistido separadamente no Supabase para consulta exclusiva do admin.
   let supabaseClient = null;
   let conversationId = null;
+  let conversationPromise = null;
   let sessionId = null;
 
   async function getSupabaseClient() {
@@ -169,26 +170,36 @@
 
   async function ensureConversation() {
     if (conversationId) return conversationId;
-    const client = await getSupabaseClient();
-    if (!client) return null;
+    if (conversationPromise) return conversationPromise;
 
-    const { data, error } = await client
-      .from("bot_conversations")
-      .insert({
-        session_id: getSessionId(),
-        treatment_context: state.context,
-        treatment_name: CONFIG.labels[state.context] || state.context,
-        page_path: path
-      })
-      .select("id")
-      .single();
+    conversationPromise = (async () => {
+      const client = await getSupabaseClient();
+      if (!client) return null;
 
-    if (error) {
-      console.warn("[Bot] Não foi possível abrir histórico:", error.message);
-      return null;
+      const { data, error } = await client
+        .from("bot_conversations")
+        .insert({
+          session_id: getSessionId(),
+          treatment_context: state.context,
+          treatment_name: CONFIG.labels[state.context] || state.context,
+          page_path: path
+        })
+        .select("id")
+        .single();
+
+      if (error) {
+        console.warn("[Bot] Não foi possível abrir histórico:", error.message);
+        return null;
+      }
+      conversationId = data.id;
+      return conversationId;
+    })();
+
+    try {
+      return await conversationPromise;
+    } finally {
+      if (!conversationId) conversationPromise = null;
     }
-    conversationId = data.id;
-    return conversationId;
   }
 
   function logMessage(text, sender) {
