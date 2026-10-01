@@ -36,7 +36,8 @@
     leucodermia:["leucodermia","leucodermia solar"],
     acantose:["acantose","acantose nigricans"],
     "gordura-localizada":["gordura localizada","gordura abdominal","gordura"],
-    "definicao-corporal":["definicao corporal","definição corporal","definicao"]
+    "definicao-corporal":["definicao corporal","definição corporal","definicao"],
+    "sobrancelha":["sobrancelha","sobrancelhas","despigmentacao de sobrancelha","despigmentação de sobrancelha","tirar a micropigmentacao","tirar a micropigmentação","sobrancelha manchada"]
   };
 
   // A ordem é intencional: regras específicas têm prioridade sobre intenções genéricas.
@@ -101,10 +102,23 @@
 
   function detectTopic(text) {
     const n = normalize(text);
+    let best = null;
+    let bestLength = 0;
+
+    // Escolhe a expressão específica mais longa entre os assuntos encontrados.
+    // Isso evita que um termo genérico roube o contexto de um tratamento específico:
+    // "definição corporal" > "corporal", "limpeza nanotecnológica" > "nanotecnologia",
+    // "cicatriz de acne" > "acne", "clareamento facial" > "clareamento".
     for (const [topic, words] of Object.entries(aliases)) {
-      if (words.some((w) => n.includes(normalize(w)))) return topic;
+      for (const word of words) {
+        const phrase = normalize(word);
+        if (phrase && n.includes(phrase) && phrase.length > bestLength) {
+          best = topic;
+          bestLength = phrase.length;
+        }
+      }
     }
-    return null;
+    return best;
   }
 
   function detectLocation(text) {
