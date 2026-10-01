@@ -197,6 +197,7 @@ expect(bot.includes("function isNearbyPresential"), "regiões próximas não est
 expect(bot.includes('if (state.context === "limpeza-de-pele")'), "limpeza de pele não possui roteamento geográfico específico");
 expect(bot.includes("Araruama, Cabo Frio e Copacabana"), "limpeza de pele não informa as três unidades presenciais");
 expect(bot.includes("function typeReply(text, link, linkLabel)"), "respostas graduais não estão implementadas");
+expect(bot.includes('if (state.context === "limpeza-de-pele" && !state.location)'), "limpeza de pele deve pedir a cidade antes de orientar");
 expect(bot.includes("let responseQueue = Promise.resolve()"), "fila de respostas não protege a escrita gradual contra sobreposição");
 
 // Regras de prioridade: intenção explícita deve prevalecer sobre roteamento geográfico.
