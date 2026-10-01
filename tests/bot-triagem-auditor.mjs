@@ -222,9 +222,9 @@ if (duplicateContexts.length) {
 }
 
 const loaderCoverage = {
-  botCss: /bot-triagem\\.css/.test(whatsappSource),
-  botConfig: /bot-config\\.js/.test(whatsappSource),
-  botEngine: /bot-triagem\\.js/.test(whatsappSource)
+  botCss: /bot-triagem\.css/.test(whatsappSource),
+  botConfig: /bot-config\.js/.test(whatsappSource),
+  botEngine: /bot-triagem\.js/.test(whatsappSource)
 };
 
 if (!loaderCoverage.botCss) fail("Loader central sem bot-triagem.css.");
