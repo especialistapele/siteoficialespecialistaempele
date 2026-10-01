@@ -521,6 +521,12 @@
         <button class="ep-bot__send" type="submit" aria-label="Enviar">→</button>
       </form>
     </div>
+    <div class="ep-bot__teaser" role="status" aria-live="polite">
+      <button class="ep-bot__teaser-close" type="button" aria-label="Fechar mensagem">×</button>
+      <div class="ep-bot__teaser-title">Atendente Virtual</div>
+      <div class="ep-bot__teaser-text"></div>
+      <button class="ep-bot__teaser-action" type="button">Quero saber mais →</button>
+    </div>
     <button class="ep-bot__toggle" type="button" aria-label="Abrir assistente">✦</button>
   `;
   document.body.appendChild(root);
@@ -533,8 +539,46 @@
     messages: root.querySelector(".ep-bot__messages"),
     quick: root.querySelector(".ep-bot__quick"),
     form: root.querySelector(".ep-bot__form"),
-    input: root.querySelector(".ep-bot__input")
+    input: root.querySelector(".ep-bot__input"),
+    teaser: root.querySelector(".ep-bot__teaser"),
+    teaserText: root.querySelector(".ep-bot__teaser-text"),
+    teaserAction: root.querySelector(".ep-bot__teaser-action"),
+    teaserClose: root.querySelector(".ep-bot__teaser-close")
   };
+
+  function contextualTeaser() {
+    const label = CONFIG.labels[state.context];
+    if (label && state.context !== "home") {
+      return "Vi que você está conhecendo nosso conteúdo sobre " + label + ". Posso te ajudar com informações ou orientar o próximo passo.";
+    }
+    if (state.context === "consultoria") {
+      return "Vi que você está conhecendo nossa consultoria online. Posso explicar como funciona e quais são as opções.";
+    }
+    if (state.context === "pele") {
+      return "Vi que você está conhecendo nossa abordagem para a saúde da pele. Posso ajudar a encontrar o caminho mais adequado.";
+    }
+    return "Olá! Posso ajudar você a entender os atendimentos e encontrar o caminho mais adequado para o que está buscando.";
+  }
+
+  function showContextualTeaser() {
+    if (!els.teaser || state.started || root.classList.contains("is-open")) return;
+    try {
+      if (sessionStorage.getItem("ep-bot-teaser:" + path) === "1") return;
+      sessionStorage.setItem("ep-bot-teaser:" + path, "1");
+    } catch {}
+    els.teaserText.textContent = contextualTeaser();
+    els.teaser.classList.add("is-visible");
+  }
+
+  function openAssistant() {
+    els.teaser.classList.remove("is-visible");
+    root.classList.add("is-open");
+    if (!state.started) {
+      state.started = true;
+      setTimeout(greeting, 120);
+    }
+    els.input.focus();
+  }
 
   function quickButtons() {
     const items = [
@@ -550,15 +594,21 @@
     });
   }
 
-  els.toggle.addEventListener("click", () => {
-    root.classList.add("is-open");
-    if (!state.started) {
-      state.started = true;
-      setTimeout(greeting, 120);
-    }
-    els.input.focus();
-  });
+  els.toggle.addEventListener("click", openAssistant);
+  els.teaserAction.addEventListener("click", openAssistant);
+  els.teaserClose.addEventListener("click", () => els.teaser.classList.remove("is-visible"));
   els.close.addEventListener("click", () => root.classList.remove("is-open"));
+
+  // A abordagem contextual é o gatilho visual inicial do assistente.
+  // Não abre o chat sozinho: apresenta uma mensagem relacionada à página
+  // e deixa a decisão de iniciar a conversa com o visitante.
+  const teaserTimer = window.setTimeout(showContextualTeaser, 4500);
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > Math.max(240, document.documentElement.scrollHeight * 0.18)) {
+      showContextualTeaser();
+      window.clearTimeout(teaserTimer);
+    }
+  }, { passive: true });
   els.form.addEventListener("submit", (e) => {
     e.preventDefault();
     const value=els.input.value.trim();
