@@ -77,3 +77,30 @@ with check (exists (select 1 from public.profiles p where p.id = (select auth.ui
 drop policy if exists "Admins can delete messages" on public.bot_messages;
 create policy "Admins can delete messages" on public.bot_messages for delete to authenticated
 using (exists (select 1 from public.profiles p where p.id = (select auth.uid()) and p.role = 'admin'));
+
+
+create or replace function public.bot_messages_after_insert()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.bot_conversations
+  set
+    message_count = message_count + 1,
+    last_message_at = new.created_at,
+    city = coalesce(new.city, city),
+    route = coalesce(new.route, route),
+    intent = coalesce(new.intent, intent),
+    whatsapp_handoff = case when new.sender = 'system' and new.message = 'whatsapp_handoff' then true else whatsapp_handoff end,
+    status = case when new.sender = 'system' and new.message = 'whatsapp_handoff' then 'whatsapp' else status end
+  where id = new.conversation_id;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_bot_messages_after_insert on public.bot_messages;
+create trigger trg_bot_messages_after_insert
+after insert on public.bot_messages
+for each row execute function public.bot_messages_after_insert();
