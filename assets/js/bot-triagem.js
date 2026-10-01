@@ -7,8 +7,6 @@
 
   // Registro das conversas: o motor continua determinístico e o histórico
   // é persistido separadamente no Supabase para consulta exclusiva do admin.
-  const SUPABASE_URL = "https://clwaotfbqwvxpykruwed.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzcHViYXNlIiwicmVmIjoiY2x3YW90ZmJxend4cHlrcnV3ZWQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4ODgwNzQ5MywiZXhwIjoyMTA0MzgzNDkzfQ.Cw9zJU8UIkxhzjI-adNHoRTyNuGingHpTHZ6pjJBgBc";
   let supabaseClient = null;
   let conversationId = null;
   let sessionId = null;
@@ -16,8 +14,8 @@
   async function getSupabaseClient() {
     if (supabaseClient) return supabaseClient;
     try {
-      const mod = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
-      supabaseClient = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const mod = await import("/painel/assets/js/painel-auth.js");
+      supabaseClient = mod.supabase;
       return supabaseClient;
     } catch (error) {
       console.warn("[Bot] Histórico indisponível:", error);
