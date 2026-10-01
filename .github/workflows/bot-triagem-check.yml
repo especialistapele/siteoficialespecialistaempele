@@ -25,3 +25,4 @@ jobs:
         run: |
           node tests/bot-triagem-rotas.mjs
           node tests/bot-triagem-cobertura.mjs
+          node tests/bot-triagem-comportamento.mjs
