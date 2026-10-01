@@ -27,7 +27,16 @@
     remocoes:["remocao","remover","sinal","sinais","verruga","nevo","nigras","milium","xantelasma","siringoma"],
     corporal:["celulite","estria","estrias","flacidez","corporal","definicao"],
     operatorio:["operatorio","pos operatorio","pos-operatorio"],
-    sobrancelha:["sobrancelha","sobrancelhas"]
+    sobrancelha:["sobrancelha","sobrancelhas","despigmentacao de sobrancelha"],
+    "clareamento-facial":["clareamento facial","clarear o rosto","manchas no rosto"],
+    "clareamento-corporal":["clareamento corporal","clarear virilha","clarear axila","clarear coxas","clarear gluteos"],
+    "limpeza-de-pele":["limpeza de pele","limpeza nanotecnologica","limpeza nanotecnologica"],
+    celulite:["celulite"],
+    esporotricose:["esporotricose"],
+    leucodermia:["leucodermia","leucodermia solar"],
+    acantose:["acantose","acantose nigricans"],
+    "gordura-localizada":["gordura localizada","gordura abdominal","gordura"],
+    "definicao-corporal":["definicao corporal","definição corporal","definicao"]
   };
 
   // A ordem é intencional: regras específicas têm prioridade sobre intenções genéricas.
@@ -63,12 +72,20 @@
     if (m) {
       const slug = m[1];
       if (slug === "acne") return "acne";
-      if (slug === "melasma" || slug === "clareamento-facial") return "manchas";
-      if (slug === "cicatriz" || slug === "esporotricose") return "cicatrizes";
+      if (slug === "melasma") return "manchas";
+      if (slug === "clareamento-facial") return "clareamento-facial";
+      if (slug === "cicatriz") return "cicatrizes";
+      if (slug === "esporotricose") return "esporotricose";
       if (slug === "poros-abertos") return "poros";
       if (slug === "rosacea") return "rosacea";
       if (slug === "rejuvenescimento") return "rejuvenescimento";
-      if (slug === "limpeza-de-pele") return "nanotecnologia";
+      if (slug === "limpeza-de-pele") return "limpeza-de-pele";
+      if (slug === "clareamento") return "clareamento-corporal";
+      if (slug === "celulite") return "celulite";
+      if (slug === "leucodermia") return "leucodermia";
+      if (slug === "acantose") return "acantose";
+      if (slug === "corporal") return "gordura-localizada";
+      if (slug === "definicao") return "definicao-corporal";
       return slug;
     }
     return "home";
