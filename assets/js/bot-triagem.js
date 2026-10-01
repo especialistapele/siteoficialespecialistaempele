@@ -695,6 +695,10 @@
     }
 
     if (topic && topic !== previousContext) {
+      // Ao trocar de tratamento, a cidade continua sendo contexto geográfico,
+      // mas rota e intenção anterior não podem contaminar o novo tratamento.
+      state.route = null;
+      state.intent = intent || null;
       state.started = true;
       state.stage = "explore";
       reply("Entendi. Vamos mudar o foco da conversa para " + (CONFIG.labels[state.context] || state.context) + ".");
