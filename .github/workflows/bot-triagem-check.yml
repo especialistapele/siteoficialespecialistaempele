@@ -38,5 +38,7 @@ jobs:
         run: node tests/bot-triagem-comportamento.mjs
       - name: Teste — cenários e fluxo
         run: node tests/bot-triagem-cenarios.mjs
+      - name: Teste — instalador automático
+        run: node tests/bot-triagem-instalador.mjs
       - name: Auditoria — instalação e configuração
         run: node tests/bot-triagem-auditor.mjs
