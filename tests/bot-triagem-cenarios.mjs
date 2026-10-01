@@ -145,7 +145,7 @@ const routeCases = [
   ["São Pedro da Aldeia", "estou em São Pedro da Aldeia", "presential"],
   ["Arraial do Cabo", "moro em Arraial do Cabo", "presential"],
   ["Búzios", "sou de Búzios", "presential"],
-  ["São Gonçalo", "estou em São Gonçalo", "presential"]
+  ["São Gonçalo", "estou em São Gonçalo", "online"]
 ];
 
 for (const [name, input, expected] of routeCases) {
@@ -161,7 +161,7 @@ expect(bot.includes("Preencher pré-atendimento →"), "CTA do pré-atendimento 
 expect(bot.includes("function isNearbyPresential"), "regiões próximas não estão configuradas como atendimento presencial");
 
 // Preço online deve considerar cidade não local, mesmo sem a palavra "online".
-expect(bot.includes('const nonLocalCity = state.location && !["araruama","cabo frio","copacabana"].includes(state.location);'),
+expect(bot.includes("const nonLocalCity = state.location && !isPresentialArea(state.location);"),
   "answerPrice não considera cidade não local");
 expect(bot.includes("|| nonLocalCity) {"), "answerPrice não usa cidade não local na condição online");
 
