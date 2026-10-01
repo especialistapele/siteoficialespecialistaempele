@@ -858,7 +858,7 @@
       <div class="ep-bot__teaser-text"></div>
       <button class="ep-bot__teaser-action" type="button">Quero saber mais →</button>
     </div>
-    <button class="ep-bot__toggle" type="button" aria-label="Abrir assistente">✦</button>
+    <button class="ep-bot__toggle" type="button" aria-label="Abrir assistente"><span class="ep-bot__toggle-icon" aria-hidden="true"><svg viewBox="0 0 24 24" role="img"><path d="M5 5.5h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-7l-4.5 3v-3H5a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z"></path><path d="M7 9h10M7 12h7" class="ep-bot__toggle-line"></path></svg></span></button>
   `;
   document.body.appendChild(root);
 
