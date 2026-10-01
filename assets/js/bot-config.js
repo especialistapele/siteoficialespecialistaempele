@@ -5,6 +5,28 @@ window.ESPECIALISTA_PELE_BOT_CONFIG = {
     essential: 220,
     premium: 350
   },
+  treatmentModes: {
+    acantose: { presential: true, online: "consulta", requiresPreAttendance: true },
+    acne: { presential: true, online: "consulta", requiresPreAttendance: true },
+    celulite: { presential: true, online: false },
+    cicatrizes: { presential: true, online: false },
+    "clareamento-facial": { presential: true, online: "consulta", requiresPreAttendance: true },
+    "clareamento-corporal": { presential: true, online: "consulta", requiresPreAttendance: true },
+    "gordura-localizada": { presential: true, online: false },
+    "definicao-corporal": { presential: true, online: false },
+    esporotricose: { presential: true, online: false },
+    estrias: { presential: true, online: false },
+    flacidez: { presential: true, online: false },
+    leucodermia: { presential: true, online: false },
+    "limpeza-de-pele": { presential: true, online: false },
+    manchas: { presential: true, online: "consulta", requiresPreAttendance: true },
+    operatorio: { presential: true, online: false },
+    poros: { presential: true, online: "consulta", requiresPreAttendance: true },
+    rejuvenescimento: { presential: true, online: "consulta", requiresPreAttendance: true },
+    remocoes: { presential: true, online: false },
+    rosacea: { presential: true, online: "consulta", requiresPreAttendance: true },
+    sobrancelha: { presential: true, online: false }
+  },
   locations: {
     araruama: "Fazendinha",
     "cabo frio": "Riviera",
