@@ -1,21 +1,21 @@
 import { readFileSync } from "node:fs";
 
 const source = readFileSync("assets/js/bot-triagem.js", "utf8");
-const aliasesBlock = source.match(/const aliases = \{([\\s\\S]*?)\\n  \};/)?.[1];
+const aliasesBlock = source.match(/const aliases = \{([\s\S]*?)\n  \};/)?.[1];
 if (!aliasesBlock) throw new Error("Não foi possível localizar aliases no bot.");
 
 const aliases = {};
 for (const line of aliasesBlock.split("\n")) {
-  const match = line.match(/^\\s*"?([^":]+)"?\\s*:\\s*\\[(.*)\\],?$/);
+  const match = line.match(/^\s*"?([^":]+)"?\s*:\s*\[(.*)\],?$/);
   if (!match) continue;
   aliases[match[1]] = [...match[2].matchAll(/"([^"]*)"/g)].map((m) => m[1]);
 }
 
 const normalize = (value) => String(value || "")
   .toLowerCase()
-  .normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
-  .replace(/[^a-z0-9\\s-]/g, " ")
-  .replace(/\\s+/g, " ").trim();
+  .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  .replace(/[^a-z0-9\s-]/g, " ")
+  .replace(/\s+/g, " ").trim();
 
 function detectTopic(text) {
   const n = normalize(text);
