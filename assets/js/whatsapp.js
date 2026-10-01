@@ -33,4 +33,47 @@
     el.setAttribute("target", "_blank");
     el.setAttribute("rel", "noopener");
   });
+
+  // O bot usa o link já resolvido por este arquivo, evitando duplicar
+  // número/configuração de WhatsApp em outra parte do site.
+  const botExclusions = [/^\/painel(?:\/|$)/, /^\/pre-atendimento(?:\/|$)/, /^\/privacidade\.html$/, /^\/cookies\.html$/];
+  if (!botExclusions.some((rx) => rx.test(window.location.pathname))) {
+    const loadBot = () => {
+      if (!document.querySelector('link[data-ep-bot-css]')) {
+        const css = document.createElement("link");
+        css.rel = "stylesheet";
+        css.href = "/assets/css/bot-triagem.css";
+        css.dataset.epBotCss = "true";
+        document.head.appendChild(css);
+      }
+      if (!document.querySelector('script[data-ep-bot-config]')) {
+        const cfg = document.createElement("script");
+        cfg.src = "/assets/js/bot-config.js";
+        cfg.dataset.epBotConfig = "true";
+        cfg.onload = () => {
+          if (!document.querySelector('script[data-ep-bot-auto]')) {
+            const auto = document.createElement("script");
+            auto.src = "/assets/js/bot-tratamentos-auto.js";
+            auto.dataset.epBotAuto = "true";
+            auto.onload = () => {
+              if (!document.querySelector('script[data-ep-bot-engine]')) {
+                const engine = document.createElement("script");
+                engine.src = "/assets/js/bot-triagem.js";
+                engine.defer = true;
+                engine.dataset.epBotEngine = "true";
+                document.body.appendChild(engine);
+              }
+            };
+            document.head.appendChild(auto);
+          }
+        };
+        document.head.appendChild(cfg);
+      }
+    };
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", loadBot, { once: true });
+    } else {
+      loadBot();
+    }
+  }
 })();

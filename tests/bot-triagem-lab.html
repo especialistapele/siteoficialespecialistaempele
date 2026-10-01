@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Laboratório — Bot de Triagem</title>
+<style>
+body{margin:0;background:#f4f0e8;color:#24302b;font-family:Arial,sans-serif}
+.lab{max-width:900px;margin:0 auto;padding:32px}
+.lab h1{margin:0 0 8px}.lab p{line-height:1.5}.lab__card{background:#fff;border:1px solid #ddd4c5;border-radius:18px;padding:20px;margin-top:20px}
+.lab code{background:#eee8dc;padding:2px 5px;border-radius:5px}
+[data-whatsapp-link]{display:none}
+</style>
+</head>
+<body data-pagina="tratamentos">
+<main class="lab">
+<h1>Laboratório do Bot de Triagem</h1>
+<p>Ambiente isolado para validação funcional. Esta página não faz parte do fluxo público do site.</p>
+<div class="lab__card">
+<strong>Contexto de teste:</strong> <code>/tratamentos/acne.html</code><br>
+<strong>WhatsApp:</strong> mock local para validar o encaminhamento sem abrir o número real.
+</div>
+<a data-whatsapp-link href="https://wa.me/5521992197518?text=TESTE%20BOT">WhatsApp mock</a>
+</main>
+<script>
+window.history.replaceState({}, "", "/tratamentos/acne.html");
+</script>
+<script src="/assets/js/whatsapp.js"></script>
+</body>
+</html>
