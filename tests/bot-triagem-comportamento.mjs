@@ -71,7 +71,7 @@ function matchesPhrase(text, phrase) {
   const value = normalize(text);
   const target = normalize(phrase);
   if (!value || !target) return false;
-  const escaped = target.replace(/[.*+?^\${}()|[\\]\\]/g, "\\const errors = [];");
+  const escaped = target.replace(/[.*+?^${}()|[\\]\\]/g, "\\  const escaped = target.replace(/[.*+?^\${}()|[\\]\\]/g, "\\const errors = [];");");
   return new RegExp("(^|\\s)" + escaped + "(?=\\s|$)").test(value);
 }
 
