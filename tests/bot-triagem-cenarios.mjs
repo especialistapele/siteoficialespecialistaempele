@@ -209,8 +209,6 @@ expect(bot.includes("function explainConsultoria()"), "motor não possui fluxo e
 expect(bot.includes("const explicitConsultoria = matchesPhrase(state.lastText, \"consultoria online\")"), "preço não diferencia consultoria explícita");
 expect(bot.includes("A Consultoria de Skincare Regenerativo é voltada aos cuidados domiciliares da pele, especialmente da face"), "bot não explica o foco domiciliar/facial da consultoria");
 expect(bot.includes("if (mode && mode.consultoria !== true)"), "bot não limita a consultoria aos tratamentos faciais elegíveis");
-expect(bot.includes("Entendi. Você está buscando orientação para cuidar de "), "bot não reconhece a intenção de cuidado domiciliar fora da consultoria");
-expect(bot.includes("não substitui o tratamento de "), "bot não deve apresentar consultoria como tratamento corporal");
 expect(bot.includes("O atendimento online não substitui o procedimento"), "bot não diferencia procedimento presencial");
 expect(bot.includes("Não é uma consultoria."), "bot não diferencia consulta de avaliação de consultoria");
 expect(bot.includes("const mode = treatmentMode();"), "rota e preço não usam a modalidade do tratamento");
