@@ -430,6 +430,7 @@
     }
 
     if (topic) {
+      state.started = true;
       reply("Entendi. Então vamos considerar " + (CONFIG.labels[state.context] || state.context) + " como o assunto principal desta conversa.");
       if (state.location) routeByLocation();
       else nextQuestion();
