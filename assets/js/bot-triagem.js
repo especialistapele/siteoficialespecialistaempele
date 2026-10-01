@@ -80,7 +80,7 @@
     refund:["devolucao","devolução","reembolso","devolver a taxa"],
     address:["endereco","endereço","endereco completo","endereço completo","rua","numero","número"],
     booking:["quero marcar","quero agendar","quero consulta","quero atendimento","quero comecar","como faco para marcar","marcar consulta","agendar consulta"],
-    price:["quanto custa","qual valor","preco","preço","investimento","quanto e","quanto é","valor da consulta","valor do atendimento"],
+    price:["quanto custa","qual valor","preco","preço","investimento","quanto e","quanto é","valor da consulta","valor do atendimento","quanto custa a consultoria online","valor da consultoria online","preco da consultoria online","preço da consultoria online"],
     location:["onde atende","local","cidade","onde fica","atende onde"],
     online:["online","moro longe","sou de outro estado","nao moro no rio","não moro no rio","fora do rio","consultoria online"],
     information:["como funciona","como funciona o atendimento","quero saber mais","só queria saber","so queria saber","informacao","informação","duvida","dúvida"]
@@ -95,7 +95,8 @@
     need: null,
     goal: null,
     asked: new Set(),
-    started: false
+    started: false,
+    lastText: ""
   };
 
   function inferContext(urlPath) {
