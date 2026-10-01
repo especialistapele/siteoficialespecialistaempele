@@ -137,6 +137,7 @@ const mixedCases = [
   ["Quero consultoria online", null, "consultoria"],
   ["Quero cuidar do melasma em casa", "manchas", "homeCare"],
   ["Quero uma rotina de skincare para minha pele", null, "homeCare"],
+  ["Quero cuidar da minha celulite em casa", "celulite", "homeCare"],
   ["Quero uma consulta online para melasma", "manchas", "consultaOnline"],
   ["Quero tratar melasma online", "manchas", "online"],
   ["Moro em São Paulo e quero agendar acne", "acne", "booking"]
@@ -190,10 +191,12 @@ expect(bot.includes("|| nonLocalCity) {"), "answerPrice não usa cidade não loc
 
 // Modalidade por tratamento.
 expect(config.includes('acantose: { presential: true, online: "consulta"'), "acantose deve usar consulta online");
-expect(config.includes('acne: { presential: true, online: "consulta"'), "acne deve usar consulta online");
+expect(config.includes('acne: { presential: true, online: "consulta", requiresPreAttendance: true, consultoria: true }'), "acne deve permitir indicação de consultoria para cuidados domiciliares");
 expect(config.includes('"limpeza-de-pele": { presential: true, online: false }'), "limpeza de pele deve ser presencial");
 expect(config.includes('manchas: { presential: true, online: "consulta"'), "melasma deve usar consulta online");
-expect(config.includes('rosacea: { presential: true, online: "consulta"'), "rosácea deve usar consulta online");
+expect(config.includes('rosacea: { presential: true, online: "consulta", requiresPreAttendance: true, consultoria: true }'), "rosácea deve permitir indicação de consultoria para cuidados domiciliares");
+expect(config.includes('"clareamento-corporal": { presential: true, online: "consulta", requiresPreAttendance: true }'), "clareamento corporal não deve ser tratado como consultoria facial");
+expect(config.includes('acantose: { presential: true, online: "consulta", requiresPreAttendance: true }'), "acantose deve permanecer consulta específica, sem indicação automática de consultoria facial");
 expect(config.includes('remocoes: { presential: true, online: false }'), "remoções devem ser presenciais");
 expect(config.includes('sobrancelha: { presential: true, online: false }'), "despigmentação de sobrancelhas deve ser presencial");
 expect(config.includes('celulite: { presential: true, online: false }'), "celulite deve ser presencial");
@@ -204,7 +207,8 @@ expect(bot.includes('state.route = "presential-required"'), "tratamento exclusiv
 expect(bot.includes('state.route = "consultoria"'), "consultoria não possui rota própria");
 expect(bot.includes("function explainConsultoria()"), "motor não possui fluxo específico para consultoria");
 expect(bot.includes("const explicitConsultoria = matchesPhrase(state.lastText, \"consultoria online\")"), "preço não diferencia consultoria explícita");
-expect(bot.includes("A Consultoria de Skincare Regenerativo é voltada aos cuidados em casa"), "bot não explica o foco domiciliar da consultoria");
+expect(bot.includes("A Consultoria de Skincare Regenerativo é voltada aos cuidados domiciliares da pele, especialmente da face"), "bot não explica o foco domiciliar/facial da consultoria");
+expect(bot.includes("if (mode && mode.consultoria !== true)"), "bot não limita a consultoria aos tratamentos faciais elegíveis");
 expect(bot.includes("O atendimento online não substitui o procedimento"), "bot não diferencia procedimento presencial");
 expect(bot.includes("Não é uma consultoria."), "bot não diferencia consulta de avaliação de consultoria");
 expect(bot.includes("const mode = treatmentMode();"), "rota e preço não usam a modalidade do tratamento");
