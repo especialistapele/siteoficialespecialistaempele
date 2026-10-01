@@ -82,7 +82,7 @@
     booking:["quero marcar","quero agendar","quero consulta","quero atendimento","quero comecar","como faco para marcar","marcar consulta","agendar consulta"],
     consultaOnline:["consulta online","consulta de avaliacao","consulta de avaliação"],
     consultoria:["consultoria online","consultoria","programa essencial","programa premium"],
-    homeCare:["cuidar em casa","cuidados em casa","rotina de skincare","rotina para minha pele","rotina de cuidados","produtos para usar","o que usar em casa","orientacao para cuidar em casa","orientação para cuidar em casa"],
+    homeCare:["cuidar em casa","cuidar da minha pele em casa","cuidados em casa","rotina de skincare","rotina para minha pele","rotina de cuidados","produtos para usar","o que usar em casa","orientacao para cuidar em casa","orientação para cuidar em casa"],
     price:["quanto custa","qual valor","preco","preço","investimento","quanto e","quanto é","valor da consulta","valor do atendimento","quanto custa a consultoria online","valor da consultoria online","preco da consultoria online","preço da consultoria online"],
     location:["onde atende","local","cidade","onde fica","atende onde"],
     presential:["presencial","presencialmente","atendimento presencial","consulta presencial"],
