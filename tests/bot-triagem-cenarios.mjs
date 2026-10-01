@@ -51,7 +51,14 @@ function detectBest(map, text) {
   return best;
 }
 
-const detectIntent = (text) => detectBest(intents, text);
+const detectIntent = (text) => {
+  const best = detectBest(intents, text);
+  if (!best) {
+    const normalizedText = normalized(text);
+    if (/\bcuidar\b.*\bem casa\b/.test(normalizedText) || /\bcuidados?\b.*\bem casa\b/.test(normalizedText)) return "homeCare";
+  }
+  return best;
+};
 const detectTopic = (text) => detectBest(aliases, text);
 
 const cityPhrases = [
