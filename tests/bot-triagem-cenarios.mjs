@@ -338,6 +338,12 @@ for (const [name, input, shouldRouteToWhatsApp] of cleaningCities) {
   expect(Boolean(regional) === shouldRouteToWhatsApp, name + ": roteamento geográfico incorreto para limpeza de pele");
 }
 
+// Agendamento: a cidade deve ser conhecida antes de qualquer encaminhamento ao WhatsApp.
+const bookingBlock = bot.slice(bot.indexOf('if (intent === "booking")'), bot.indexOf('if (intent === "price")'));
+expect(bookingBlock.includes("if (!state.location)"), "agendamento não exige cidade antes do encaminhamento");
+expect(bookingBlock.includes("Qual é a sua cidade?"), "agendamento não pergunta a cidade");
+expect(bookingBlock.includes("routeByLocation();"), "agendamento não passa pelo roteamento após identificar a cidade");
+
 // Limites.
 expect(bot.includes("O endereço completo é informado após o agendamento"), "proteção do endereço não encontrada");
 expect(!/diagnostico\s+definitivo|prescrev|receita\s+de/i.test(bot), "padrão de diagnóstico/prescrição encontrado no motor");
