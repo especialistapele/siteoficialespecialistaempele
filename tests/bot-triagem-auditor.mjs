@@ -221,6 +221,16 @@ if (duplicateContexts.length) {
   warn("Contextos repetidos entre páginas: " + [...new Set(duplicateContexts)].join(", "));
 }
 
+const loaderCoverage = {
+  botCss: /bot-triagem\\.css/.test(whatsappSource),
+  botConfig: /bot-config\\.js/.test(whatsappSource),
+  botEngine: /bot-triagem\\.js/.test(whatsappSource)
+};
+
+if (!loaderCoverage.botCss) fail("Loader central sem bot-triagem.css.");
+if (!loaderCoverage.botConfig) fail("Loader central sem bot-config.js.");
+if (!loaderCoverage.botEngine) fail("Loader central sem bot-triagem.js.");
+
 const result = {
   status: errors.length ? "fail" : "ok",
   treatmentPages: treatmentFiles.length,
