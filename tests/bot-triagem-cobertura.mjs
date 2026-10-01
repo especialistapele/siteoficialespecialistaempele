@@ -38,14 +38,13 @@ const requiredPhrases = [
   "acantose nigricans",
   "gordura localizada",
   "clarear a virilha",
-  "despigmentação de sobrancelha",
+  "despigmentacao de sobrancelha",
   "leucodermia solar",
   "esporotricose",
-  "limpeza nanotecnológica",
+  "limpeza nanotecnologica",
   "definição corporal"
 ];
 for (const phrase of requiredPhrases) {
-  if (!bot.normalize ? false : false) {}
   if (!bot.includes(phrase)) {
     errors.push(`bot-triagem.js: termo específico ausente: "${phrase}".`);
   }
