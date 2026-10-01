@@ -143,7 +143,7 @@ for (const [input, expectedTopic, expectedIntent] of mixedCases) {
 }
 
 // Roteamento.
-const localCities = new Set(["araruama", "cabo frio", "copacabana", "saquarema", "iguaba grande", "sao pedro da aldeia", "arraial do cabo", "armacao dos buzios"]);
+const localCities = new Set(["araruama", "cabo frio", "copacabana", "saquarema", "iguaba grande", "sao pedro da aldeia", "arraial do cabo", "armacao dos buzios", "niteroi", "sao goncalo"]);
 const routeCases = [
   ["Araruama", "moro em Araruama", "presential"],
   ["Cabo Frio", "estou em Cabo Frio", "presential"],
