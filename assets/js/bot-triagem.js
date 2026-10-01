@@ -418,7 +418,8 @@
     const mode = treatmentMode();
 
     if (mode && mode.consultoria !== true) {
-      reply("A Consultoria de Skincare Regenerativo é voltada aos cuidados domiciliares da pele, especialmente da face. Para " + (CONFIG.labels[state.context] || state.context) + ", o caminho principal é o atendimento específico indicado para esse tratamento.");
+      reply("Entendi. Você está buscando orientação para cuidar de " + (CONFIG.labels[state.context] || state.context) + " em casa.");
+      reply("A Consultoria de Skincare Regenerativo é voltada aos cuidados domiciliares da pele, especialmente da face, e não substitui o tratamento de " + (CONFIG.labels[state.context] || state.context) + ".");
       explainOnlineTreatment();
       return;
     }
