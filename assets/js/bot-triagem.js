@@ -80,10 +80,13 @@
     refund:["devolucao","devolução","reembolso","devolver a taxa"],
     address:["endereco","endereço","endereco completo","endereço completo","rua","numero","número"],
     booking:["quero marcar","quero agendar","quero consulta","quero atendimento","quero comecar","como faco para marcar","marcar consulta","agendar consulta"],
+    consultaOnline:["consulta online","consulta de avaliacao","consulta de avaliação"],
+    consultoria:["consultoria online","consultoria","programa essencial","programa premium"],
+    homeCare:["cuidar em casa","cuidados em casa","rotina de skincare","rotina para minha pele","rotina de cuidados","produtos para usar","o que usar em casa","orientacao para cuidar em casa","orientação para cuidar em casa"],
     price:["quanto custa","qual valor","preco","preço","investimento","quanto e","quanto é","valor da consulta","valor do atendimento","quanto custa a consultoria online","valor da consultoria online","preco da consultoria online","preço da consultoria online"],
     location:["onde atende","local","cidade","onde fica","atende onde"],
     presential:["presencial","presencialmente","atendimento presencial","consulta presencial"],
-    online:["online","moro longe","sou de outro estado","nao moro no rio","não moro no rio","fora do rio","consultoria online"],
+    online:["online","moro longe","sou de outro estado","nao moro no rio","não moro no rio","fora do rio"],
     information:["como funciona","como funciona o atendimento","quero saber mais","só queria saber","so queria saber","informacao","informação","duvida","dúvida"]
   };
 
@@ -411,6 +414,13 @@
     return CONFIG.treatmentModes?.[state.context] || null;
   }
 
+  function explainConsultoria() {
+    state.route = "consultoria";
+    state.stage = "consultoria";
+    reply("A Consultoria de Skincare Regenerativo é voltada aos cuidados em casa. A partir da avaliação da sua pele, orientamos a rotina, ativos e dermocosméticos e acompanhamos os ajustes necessários.");
+    reply("Ela pode ser uma opção quando o objetivo é organizar os cuidados domiciliares. Quando você procura um tratamento específico, o caminho pode ser uma consulta de avaliação para verificarmos qual atendimento é adequado ao seu caso.");
+  }
+
   function explainOnlineTreatment() {
     const mode = treatmentMode();
     if (!mode) {
@@ -474,6 +484,12 @@
     const mode = treatmentMode();
     const explicitOnline = matchesPhrase(state.lastText, "online") || matchesPhrase(state.lastText, "consultoria online");
     const nonLocalCity = state.location && !isPresentialArea(state.location);
+
+    if (state.intent === "consultoria" || state.intent === "homeCare" || state.route === "consultoria" || state.context === "consultoria") {
+      reply("A Consultoria de Skincare Regenerativo tem dois programas: Essencial por R$ " + CONFIG.onlineConsultation.essential + " e Premium por R$ " + CONFIG.onlineConsultation.premium + ".");
+      state.stage = "consultoria";
+      return;
+    }
 
     if (mode?.online === "consulta") {
       reply("Para " + (CONFIG.labels[state.context] || state.context) + ", o atendimento online começa por uma consulta de avaliação. O valor da consulta não está sendo informado pelo bot; posso te encaminhar para o WhatsApp para receber o valor correto e as orientações sobre o pré-atendimento.", currentWhatsApp());
@@ -557,6 +573,16 @@
     logMessage(text, "visitor");
 
     if (answerRule(intent)) return;
+
+    if (intent === "consultoria" || intent === "homeCare") {
+      explainConsultoria();
+      return;
+    }
+
+    if (intent === "consultaOnline") {
+      explainOnlineTreatment();
+      return;
+    }
 
     if (intent === "booking") {
       reply("Perfeito. Para dar continuidade ao seu agendamento, vou te encaminhar para o WhatsApp. Por lá você poderá enviar seus dados e receber as orientações para seguir com o atendimento.", currentWhatsApp());
@@ -644,6 +670,16 @@
         reply("Perfeito. O próximo passo é preencher o pré-atendimento para que a equipe avalie suas informações e oriente a consulta.", CONFIG.routes.preAttendance, "Preencher pré-atendimento →");
       } else {
         reply("Essa consulta serve para avaliar o seu caso e verificar se o tratamento pode ser conduzido online. Se quiser seguir, posso te encaminhar para o pré-atendimento.");
+      }
+      return;
+    }
+
+    if (state.stage === "consultoria") {
+      if (matchesPhrase(n, "diferenca") || matchesPhrase(n, "diferença") || matchesPhrase(n, "programa") || matchesPhrase(n, "essencial") || matchesPhrase(n, "premium")) {
+        reply("O Essencial custa R$ " + CONFIG.onlineConsultation.essential + " e inclui pagamento da taxa de agendamento, ficha de anamnese, primeira consulta, segunda consulta 30 dias depois, análise e ajustes. O Premium custa R$ " + CONFIG.onlineConsultation.premium + " e inclui primeira consulta, segunda consulta em até 6 dias, material personalizado/informativo, acompanhamento durante 30 dias e terceira consulta para feedback e ajuste da rotina.");
+        reply("Se quiser iniciar a consultoria, posso te encaminhar para o WhatsApp.", currentWhatsApp());
+      } else {
+        reply("A consultoria é voltada aos cuidados domiciliares. Se você estiver buscando tratar uma condição específica, também posso explicar quando o caminho é uma consulta de avaliação.");
       }
       return;
     }
