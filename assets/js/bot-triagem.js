@@ -305,7 +305,7 @@
     }
     els.messages.appendChild(bubble);
     els.messages.scrollTop = els.messages.scrollHeight;
-    if (who === "user" || who === "bot") logMessage(text, who === "user" ? "visitor" : "bot");
+    if (who === "bot") logMessage(text, "bot");
     if (link) logWhatsAppHandoff();
   }
 
@@ -406,6 +406,10 @@
     }
     if (loc) state.location = loc;
     if (intent) state.intent = intent;
+
+    // Registra a mensagem do visitante somente depois de atualizar contexto,
+    // intenção, cidade e estado, para que o histórico reflita a decisão real do motor.
+    logMessage(text, "visitor");
 
     if (answerRule(intent)) return;
 
