@@ -59,13 +59,12 @@ const expectedModes = {
 // Cada tratamento publicado precisa existir também no motor de linguagem e na apresentação.
 // Isso evita página sem contexto reconhecível, saudação ou label.
 const botSource = readFileSync("assets/js/bot-triagem.js", "utf8");
-const aliasesBlock = botSource.match(/const aliases = \{([\\s\\S]*?)\\n  \};/)?.[1] || "";
-const aliasKeys = new Set([...aliasesBlock.matchAll(/^\s*"?(\\S+?)"?\s*:\s*\[/gm)].map((m) => m[1].replace(/^"|"$/g, "")));
 const greetingSource = config.greetings || {};
 const labelSource = config.labels || {};
 
 for (const context of expected) {
-  if (!aliasKeys.has(context)) errors.push(`Tratamento ${context}: sem aliases no motor.`);
+  const aliasNeedle = context.includes("-") ? `"${context}":` : `${context}:`;
+  if (!botSource.includes(aliasNeedle)) errors.push(`Tratamento ${context}: sem aliases no motor.`);
   if (!greetingSource[context]) errors.push(`Tratamento ${context}: sem saudação específica.`);
   if (!labelSource[context]) errors.push(`Tratamento ${context}: sem label.`);
 }
