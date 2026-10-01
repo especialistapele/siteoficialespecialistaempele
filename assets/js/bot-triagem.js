@@ -699,8 +699,15 @@
     }
 
     if (intent === "booking") {
-      reply("Perfeito. Para dar continuidade ao seu agendamento, vou te encaminhar para o WhatsApp. Por lá você poderá enviar seus dados e receber as orientações para seguir com o atendimento.", currentWhatsApp());
-      state.stage = "next";
+      // O agendamento sempre precisa passar pela localização antes do encaminhamento.
+      // Assim o bot não envia a pessoa direto para o WhatsApp sem saber de onde ela é.
+      if (!state.location) {
+        state.stage = "location";
+        reply("Perfeito. Antes de te encaminhar para o agendamento, preciso saber de onde você é. Qual é a sua cidade?");
+        return;
+      }
+
+      routeByLocation();
       return;
     }
 
