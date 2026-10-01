@@ -690,6 +690,14 @@
       return;
     }
 
+    // Limpeza de pele: a cidade é obrigatória antes de encaminhar ou explicar a rota.
+    if (state.context === "limpeza-de-pele" && !state.location) {
+      state.started = true;
+      state.stage = "location";
+      reply("Entendi. Para a Limpeza de Pele Nanotecnológica, primeiro preciso saber de onde você é. Qual é a sua cidade?");
+      return;
+    }
+
     if (intent === "booking") {
       reply("Perfeito. Para dar continuidade ao seu agendamento, vou te encaminhar para o WhatsApp. Por lá você poderá enviar seus dados e receber as orientações para seguir com o atendimento.", currentWhatsApp());
       state.stage = "next";
