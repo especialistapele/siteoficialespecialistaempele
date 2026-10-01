@@ -36,7 +36,7 @@
 
   // O bot usa o link já resolvido por este arquivo, evitando duplicar
   // número/configuração de WhatsApp em outra parte do site.
-  const botExclusions = [/^\\/painel(?:\\/|$)/, /^\\/pre-atendimento(?:\\/|$)/, /^\\/privacidade\\.html$/, /^\\/cookies\\.html$/];
+  const botExclusions = [/^\/painel(?:\/|$)/, /^\/pre-atendimento(?:\/|$)/, /^\/privacidade\.html$/, /^\/cookies\.html$/];
   if (!botExclusions.some((rx) => rx.test(window.location.pathname))) {
     const loadBot = () => {
       if (!document.querySelector('link[data-ep-bot-css]')) {
