@@ -82,6 +82,7 @@
     booking:["quero marcar","quero agendar","quero consulta","quero atendimento","quero comecar","como faco para marcar","marcar consulta","agendar consulta"],
     price:["quanto custa","qual valor","preco","preço","investimento","quanto e","quanto é","valor da consulta","valor do atendimento","quanto custa a consultoria online","valor da consultoria online","preco da consultoria online","preço da consultoria online"],
     location:["onde atende","local","cidade","onde fica","atende onde"],
+    presential:["presencial","presencialmente","atendimento presencial","consulta presencial"],
     online:["online","moro longe","sou de outro estado","nao moro no rio","não moro no rio","fora do rio","consultoria online"],
     information:["como funciona","como funciona o atendimento","quero saber mais","só queria saber","so queria saber","informacao","informação","duvida","dúvida"]
   };
@@ -241,7 +242,13 @@
       ["niteroi", ["niteroi"]],
       ["petropolis", ["petropolis"]],
       ["marica", ["marica"]],
-      ["macae", ["macae"]]
+      ["macae", ["macae"]],
+      ["saquarema", ["saquarema"]],
+      ["iguaba grande", ["iguaba grande"]],
+      ["sao pedro da aldeia", ["sao pedro da aldeia"]],
+      ["arraial do cabo", ["arraial do cabo"]],
+      ["armacao dos buzios", ["armacao dos buzios", "buzios"]],
+      ["sao goncalo", ["sao goncalo"]]
     ];
 
     let best = null;
@@ -264,6 +271,21 @@
     if (key === "cabo frio") return "Cabo Frio, na região da Riviera";
     if (key === "copacabana") return "Copacabana, na região de Siqueira Campos";
     return key ? key.replace(/-/g," ").replace(/\b\w/g, c => c.toUpperCase()) : "";
+  }
+
+  function isPresentialArea(location) {
+    return [
+      "araruama", "cabo frio", "copacabana",
+      "saquarema", "iguaba grande", "sao pedro da aldeia",
+      "arraial do cabo", "armacao dos buzios", "niteroi", "sao goncalo"
+    ].includes(location);
+  }
+
+  function isNearbyPresential(location) {
+    return [
+      "saquarema", "iguaba grande", "sao pedro da aldeia",
+      "arraial do cabo", "armacao dos buzios", "niteroi", "sao goncalo"
+    ].includes(location);
   }
 
   async function ensureConversation() {
@@ -340,7 +362,7 @@
     })();
   }
 
-  function renderMessage(text, who, link) {
+  function renderMessage(text, who, link, linkLabel) {
     const bubble = document.createElement("div");
     bubble.className = "ep-bot__msg ep-bot__msg--" + who;
     bubble.textContent = text;
@@ -350,7 +372,7 @@
       a.href = link;
       a.target = "_blank";
       a.rel = "noopener";
-      a.textContent = "Continuar pelo WhatsApp →";
+      a.textContent = linkLabel || "Continuar pelo WhatsApp →";
       bubble.appendChild(a);
     }
     els.messages.appendChild(bubble);
@@ -358,20 +380,20 @@
     return bubble;
   }
 
-  function addMessage(text, who, link) {
-    renderMessage(text, who, link);
+  function addMessage(text, who, link, linkLabel) {
+    renderMessage(text, who, link, linkLabel);
     transcript.push({ text: String(text), who, link: link || null });
     saveSession();
     if (who === "bot") logMessage(text, "bot");
-    if (link) logWhatsAppHandoff();
+    if (link && (!linkLabel || linkLabel === "Continuar pelo WhatsApp →")) logWhatsAppHandoff();
   }
 
   function restoreTranscript() {
     transcript.forEach((item) => renderMessage(item.text, item.who, item.link));
   }
 
-  function reply(text, link) {
-    addMessage(text, "bot", link);
+  function reply(text, link, linkLabel) {
+    addMessage(text, "bot", link, linkLabel);
   }
 
   function currentWhatsApp() {
@@ -392,9 +414,16 @@
       return;
     }
     const local = ["araruama","cabo frio","copacabana"].includes(state.location);
-    if (local) {
+    const nearby = isNearbyPresential(state.location);
+    if (local || nearby) {
       state.route = "presential";
-      reply("Temos atendimento em " + locationLabel(state.location) + ". O endereço completo é informado após o agendamento. Você gostaria de conhecer como funciona o atendimento presencial?");
+      if (nearby) {
+        reply("Entendi. Você está em " + locationLabel(state.location) + ", uma região próxima das áreas onde temos atendimento presencial. Para verificarmos a melhor possibilidade para o seu caso, recomendo preencher o pré-atendimento do site.");
+        reply("Depois do envio do formulário, a equipe poderá analisar seus dados e orientar o próximo passo.", CONFIG.routes.preAttendance, "Preencher pré-atendimento →");
+      } else {
+        reply("Temos atendimento em " + locationLabel(state.location) + ". O endereço completo é informado após o agendamento. Se você quiser atendimento presencial, recomendo começar pelo pré-atendimento do site.");
+        reply("O formulário ajuda a organizar as informações antes da orientação da equipe.", CONFIG.routes.preAttendance, "Preencher pré-atendimento →");
+      }
       state.stage = "presential";
     } else {
       state.route = "online";
@@ -405,7 +434,7 @@
 
   function answerPrice() {
     const explicitOnline = matchesPhrase(state.lastText, "online") || matchesPhrase(state.lastText, "consultoria online");
-    const nonLocalCity = state.location && !["araruama","cabo frio","copacabana"].includes(state.location);
+    const nonLocalCity = state.location && !isPresentialArea(state.location);
     if (state.route === "online" || state.context === "consultoria" || explicitOnline || nonLocalCity) {
       reply("Hoje temos dois programas de consultoria online: o Essencial, de R$ " + CONFIG.onlineConsultation.essential + ", e o Premium, de R$ " + CONFIG.onlineConsultation.premium + ". Cada um possui uma proposta de acompanhamento diferente. Posso te explicar as diferenças.");
       state.stage = "online";
@@ -501,6 +530,17 @@
     if (intent === "location") {
       if (state.location) routeByLocation();
       else { reply("Você está em qual cidade?"); state.stage = "location"; }
+      return;
+    }
+
+    if (intent === "presential") {
+      state.route = "presential";
+      if (state.location) {
+        routeByLocation();
+      } else {
+        reply("Claro. Para eu verificar a melhor orientação para atendimento presencial, você está em qual cidade?");
+        state.stage = "location";
+      }
       return;
     }
 
