@@ -180,6 +180,38 @@ expect(bot.includes("const nonLocalCity = state.location && !isPresentialArea(st
   "answerPrice não considera cidade não local");
 expect(bot.includes("|| nonLocalCity) {"), "answerPrice não usa cidade não local na condição online");
 
+// Modalidade por tratamento.
+expect(config.includes('acantose: { presential: true, online: "consulta"'), "acantose deve usar consulta online");
+expect(config.includes('acne: { presential: true, online: "consulta"'), "acne deve usar consulta online");
+expect(config.includes('"limpeza-de-pele": { presential: true, online: false }'), "limpeza de pele deve ser presencial");
+expect(config.includes('manchas: { presential: true, online: "consulta"'), "melasma deve usar consulta online");
+expect(config.includes('rosacea: { presential: true, online: "consulta"'), "rosácea deve usar consulta online");
+expect(config.includes('remocoes: { presential: true, online: false }'), "remoções devem ser presenciais");
+expect(config.includes('sobrancelha: { presential: true, online: false }'), "despigmentação de sobrancelhas deve ser presencial");
+expect(config.includes('celulite: { presential: true, online: false }'), "celulite deve ser presencial");
+expect(config.includes('operatorio: { presential: true, online: false }'), "pós-operatório deve ser presencial");
+expect(bot.includes("function treatmentMode()"), "motor não consulta a matriz de modalidades");
+expect(bot.includes('state.route = "online-consulta"'), "consulta online não possui rota própria");
+expect(bot.includes('state.route = "presential-required"'), "tratamento exclusivamente presencial não possui rota própria");
+expect(bot.includes("O atendimento online não substitui o procedimento"), "bot não diferencia procedimento presencial");
+expect(bot.includes("Não é uma consultoria."), "bot não diferencia consulta de avaliação de consultoria");
+expect(bot.includes("const mode = treatmentMode();"), "rota e preço não usam a modalidade do tratamento");
+
+const modalityCases = [
+  ["Quero limpeza de pele online", "limpeza-de-pele", "presential-required"],
+  ["Quero tratar acne online", "acne", "online-consulta"],
+  ["Quero tratar melasma online", "manchas", "online-consulta"],
+  ["Quero remover um siringoma online", "remocoes", "presential-required"],
+  ["Quero despigmentar minha sobrancelha online", "sobrancelha", "presential-required"]
+];
+for (const [input, expectedTopic, expectedStage] of modalityCases) {
+  expect(detectTopic(input) === expectedTopic, input + ': tópico de modalidade incorreto');
+  const modeLine = config.split("\n").find((line) => line.includes(expectedTopic + ":") || line.includes('"' + expectedTopic + '":'));
+  expect(Boolean(modeLine), input + ': modalidade não encontrada na configuração');
+  if (expectedStage === "online-consulta") expect(modeLine.includes('online: "consulta"'), input + ': deveria exigir consulta online');
+  if (expectedStage === "presential-required") expect(modeLine.includes("online: false"), input + ': deveria exigir execução presencial');
+}
+
 // Limites.
 expect(bot.includes("O endereço completo é informado após o agendamento"), "proteção do endereço não encontrada");
 expect(!/diagnostico\s+definitivo|prescrev|receita\s+de/i.test(bot), "padrão de diagnóstico/prescrição encontrado no motor");
