@@ -105,6 +105,7 @@
     lastText: ""
   };
   let transcript = [];
+  let responseQueue = Promise.resolve();
 
   function saveSession() {
     try {
@@ -401,8 +402,50 @@
     transcript.forEach((item) => renderMessage(item.text, item.who, item.link));
   }
 
+  function wait(ms) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
+  }
+
+  async function typeReply(text, link, linkLabel) {
+    const typing = document.createElement("div");
+    typing.className = "ep-bot__typing";
+    typing.setAttribute("aria-label", "Atendente escrevendo");
+    typing.innerHTML = "<span></span><span></span><span></span>";
+    els.messages.appendChild(typing);
+    els.messages.scrollTop = els.messages.scrollHeight;
+    await wait(420);
+    typing.remove();
+
+    const bubble = document.createElement("div");
+    bubble.className = "ep-bot__msg ep-bot__msg--bot";
+    els.messages.appendChild(bubble);
+    let visible = "";
+    for (const char of Array.from(String(text))) {
+      visible += char;
+      bubble.textContent = visible;
+      els.messages.scrollTop = els.messages.scrollHeight;
+      await wait(char === " " ? 8 : 18);
+    }
+
+    if (link) {
+      const a = document.createElement("a");
+      a.className = "ep-bot__link";
+      a.href = link;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.textContent = linkLabel || "Continuar pelo WhatsApp →";
+      bubble.appendChild(a);
+    }
+
+    transcript.push({ text: String(text), who: "bot", link: link || null });
+    saveSession();
+    logMessage(text, "bot");
+    if (link && (!linkLabel || linkLabel === "Continuar pelo WhatsApp →")) logWhatsAppHandoff();
+  }
+
   function reply(text, link, linkLabel) {
-    addMessage(text, "bot", link, linkLabel);
+    responseQueue = responseQueue.then(() => typeReply(text, link, linkLabel));
+    return responseQueue;
   }
 
   function currentWhatsApp() {
@@ -487,6 +530,20 @@
     }
 
     const mode = treatmentMode();
+    if (state.context === "limpeza-de-pele") {
+      if (isPresentialArea(state.location) || isNearbyPresential(state.location)) {
+        state.route = "presential";
+        state.stage = "next";
+        reply("A Limpeza de Pele Nanotecnológica é realizada presencialmente. Como você está em " + locationLabel(state.location) + ", posso te encaminhar para o WhatsApp para verificar o atendimento e o agendamento.", currentWhatsApp());
+      } else {
+        state.route = "presential-required";
+        state.stage = "next";
+        reply("A Limpeza de Pele Nanotecnológica é realizada somente de forma presencial. O atendimento ocorre nas unidades de Araruama, Cabo Frio e Copacabana.");
+        reply("Se você estiver em uma dessas regiões ou puder se deslocar até uma das unidades, posso te encaminhar para o WhatsApp para receber as orientações.");
+      }
+      return;
+    }
+
     if (mode?.online === "consulta" && !isPresentialArea(state.location) && !isNearbyPresential(state.location)) {
       explainOnlineTreatment();
       return;
