@@ -311,6 +311,11 @@ for (const [input, expectedTopic, consultoriaEligible] of priceLeakCases) {
 expect(bot.indexOf('if (topic && topic !== previousContext)') < bot.indexOf('if (state.stage === "presential")'), "troca de assunto não antecede estágio presencial");
 expect(bot.indexOf('if (topic && topic !== previousContext)') < bot.indexOf('if (state.stage === "online-consulta")'), "troca de assunto não antecede estágio de consulta online");
 
+// Troca de tratamento deve invalidar a rota anterior para não herdar
+// online/presencial de outro contexto.
+expect(bot.includes("state.route = null;"), "troca de tratamento não reseta a rota anterior");
+expect(bot.includes("state.intent = intent || null;"), "troca de tratamento não reseta a intenção anterior quando não há nova intenção");
+
 // Limites.
 expect(bot.includes("O endereço completo é informado após o agendamento"), "proteção do endereço não encontrada");
 expect(!/diagnostico\s+definitivo|prescrev|receita\s+de/i.test(bot), "padrão de diagnóstico/prescrição encontrado no motor");
