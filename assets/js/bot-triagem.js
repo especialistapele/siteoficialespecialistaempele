@@ -123,11 +123,20 @@
   }
 
   function matchesPhrase(text, phrase) {
-    const value = normalize(text);
-    const target = normalize(phrase);
-    if (!value || !target) return false;
-    const escaped = target.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&");
-    return new RegExp("(^|\\s)" + escaped + "(?=\\s|$)").test(value);
+    const value = normalize(text).split(" ").filter(Boolean);
+    const target = normalize(phrase).split(" ").filter(Boolean);
+    if (!value.length || !target.length || target.length > value.length) return false;
+    for (let i = 0; i <= value.length - target.length; i++) {
+      let matches = true;
+      for (let j = 0; j < target.length; j++) {
+        if (value[i + j] !== target[j]) {
+          matches = false;
+          break;
+        }
+      }
+      if (matches) return true;
+    }
+    return false;
   }
 
   function detectIntent(text) {
