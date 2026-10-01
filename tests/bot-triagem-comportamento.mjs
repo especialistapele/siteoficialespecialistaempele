@@ -18,13 +18,12 @@ const normalize = (value) => String(value || "")
   .replace(/\s+/g, " ").trim();
 
 function detectTopic(text) {
-  const n = normalize(text);
   let best = null;
   let bestLength = 0;
   for (const [topic, words] of Object.entries(aliases)) {
     for (const word of words) {
       const phrase = normalize(word);
-      if (phrase && n.includes(phrase) && phrase.length > bestLength) {
+      if (phrase && matchesPhrase(text, phrase) && phrase.length > bestLength) {
         best = topic;
         bestLength = phrase.length;
       }
@@ -122,6 +121,53 @@ const falsePositiveCases = [
   ["local dentro de palavra", "localidade", null],
   ["valor dentro de palavra", "valorização", null]
 ];
+
+const locationCases = [
+  ["Araruama", "moro em Araruama", "araruama"],
+  ["Fazendinha", "sou da Fazendinha", "araruama"],
+  ["Cabo Frio", "estou em Cabo Frio", "cabo frio"],
+  ["Rio de Janeiro", "moro no Rio de Janeiro", "copacabana"],
+  ["São Paulo", "sou de São Paulo", "sao paulo"],
+  ["Belo Horizonte", "moro em Belo Horizonte", "belo horizonte"],
+  ["Niterói", "sou de Niterói", "niteroi"],
+  ["cidade dentro de palavra", "araruamense", null],
+  ["cidade dentro de palavra", "paulistano", null]
+];
+
+function detectLocation(text) {
+  const locations = [
+    ["araruama", ["araruama", "fazendinha"]],
+    ["cabo frio", ["cabo frio", "riviera"]],
+    ["copacabana", ["copacabana", "siqueira campos", "rio de janeiro"]],
+    ["sao paulo", ["sao paulo"]],
+    ["curitiba", ["curitiba"]],
+    ["belo horizonte", ["belo horizonte"]],
+    ["vitoria", ["vitoria"]],
+    ["brasilia", ["brasilia"]],
+    ["salvador", ["salvador"]],
+    ["niteroi", ["niteroi"]],
+    ["petropolis", ["petropolis"]],
+    ["marica", ["marica"]],
+    ["macae", ["macae"]]
+  ];
+
+  let best = null;
+  let bestLength = 0;
+  for (const [location, phrases] of locations) {
+    for (const phrase of phrases) {
+      if (matchesPhrase(text, phrase) && phrase.length > bestLength) {
+        best = location;
+        bestLength = phrase.length;
+      }
+    }
+  }
+  return best;
+}
+
+for (const [name, input, expected] of locationCases) {
+  const got = detectLocation(input);
+  if (got !== expected) errors.push(`${name}: esperado "${expected}", obtido "${got}".`);
+}
 
 for (const [name, input, expected] of falsePositiveCases) {
   const got = detectIntent(input);
