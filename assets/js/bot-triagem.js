@@ -407,12 +407,52 @@
     state.stage = state.context === "home" ? "understand" : "explore";
   }
 
+  function treatmentMode() {
+    return CONFIG.treatmentModes?.[state.context] || null;
+  }
+
+  function explainOnlineTreatment() {
+    const mode = treatmentMode();
+    if (!mode) {
+      state.route = "online";
+      reply("A Consultoria de Skincare Regenerativo Online atende todo o Brasil. Hoje existem os programas Essencial e Premium. Se quiser, posso te explicar as diferenças ou informar os valores.");
+      state.stage = "online";
+      return;
+    }
+
+    if (mode.online === "consulta") {
+      state.route = "online-consulta";
+      reply("Para " + (CONFIG.labels[state.context] || state.context) + ", o atendimento online começa por uma consulta de avaliação. Nessa consulta, verificamos se o seu caso pode ser conduzido de forma online. Não é uma consultoria.");
+      if (mode.requiresPreAttendance) {
+        reply("Antes da consulta, é necessário preencher o pré-atendimento para que a equipe possa analisar suas informações.", CONFIG.routes.preAttendance, "Preencher pré-atendimento →");
+      }
+      state.stage = "online-consulta";
+      return;
+    }
+
+    state.route = "presential-required";
+    reply("Para " + (CONFIG.labels[state.context] || state.context) + ", a execução do tratamento é presencial. O atendimento online não substitui o procedimento.");
+    if (state.location && (isPresentialArea(state.location) || isNearbyPresential(state.location))) {
+      reply("Como você está em " + locationLabel(state.location) + ", podemos orientar o caminho para atendimento presencial pelo pré-atendimento.", CONFIG.routes.preAttendance, "Preencher pré-atendimento →");
+    } else {
+      reply("Se você puder realizar o atendimento presencial, posso te orientar pelo WhatsApp sobre as possibilidades e a região de atendimento.", currentWhatsApp());
+    }
+    state.stage = "presential";
+  }
+
   function routeByLocation() {
     if (!state.location) {
       reply("Para eu te orientar sobre o caminho de atendimento, você está em qual cidade?");
       state.stage = "location";
       return;
     }
+
+    const mode = treatmentMode();
+    if (mode?.online === "consulta" && !isPresentialArea(state.location) && !isNearbyPresential(state.location)) {
+      explainOnlineTreatment();
+      return;
+    }
+
     const local = ["araruama","cabo frio","copacabana"].includes(state.location);
     const nearby = isNearbyPresential(state.location);
     if (local || nearby) {
@@ -426,15 +466,27 @@
       }
       state.stage = "presential";
     } else {
-      state.route = "online";
-      reply("Entendi. Como você está em " + locationLabel(state.location) + ", uma possibilidade é a Consultoria de Skincare Regenerativo Online, que atende todo o Brasil. Você gostaria que eu te explique como funciona?");
-      state.stage = "online";
+      explainOnlineTreatment();
     }
   }
 
   function answerPrice() {
+    const mode = treatmentMode();
     const explicitOnline = matchesPhrase(state.lastText, "online") || matchesPhrase(state.lastText, "consultoria online");
     const nonLocalCity = state.location && !isPresentialArea(state.location);
+
+    if (mode?.online === "consulta") {
+      reply("Para " + (CONFIG.labels[state.context] || state.context) + ", o atendimento online começa por uma consulta de avaliação. O valor da consulta não está sendo informado pelo bot; posso te encaminhar para o WhatsApp para receber o valor correto e as orientações sobre o pré-atendimento.", currentWhatsApp());
+      state.stage = "next";
+      return;
+    }
+
+    if (mode && mode.online === false) {
+      reply("Para " + (CONFIG.labels[state.context] || state.context) + ", o tratamento é presencial. O valor depende do atendimento indicado para o seu caso. Posso te encaminhar para o WhatsApp.", currentWhatsApp());
+      state.stage = "next";
+      return;
+    }
+
     if (state.route === "online" || state.context === "consultoria" || explicitOnline || nonLocalCity) {
       reply("Hoje temos dois programas de consultoria online: o Essencial, de R$ " + CONFIG.onlineConsultation.essential + ", e o Premium, de R$ " + CONFIG.onlineConsultation.premium + ". Cada um possui uma proposta de acompanhamento diferente. Posso te explicar as diferenças.");
       state.stage = "online";
@@ -534,6 +586,12 @@
     }
 
     if (intent === "presential") {
+      const mode = treatmentMode();
+      if (mode && mode.presential === false) {
+        reply("No momento, " + (CONFIG.labels[state.context] || state.context) + " não está configurado para atendimento presencial.");
+        state.stage = "next";
+        return;
+      }
       state.route = "presential";
       if (state.location) {
         routeByLocation();
@@ -545,9 +603,7 @@
     }
 
     if (intent === "online") {
-      state.route = "online";
-      reply("A Consultoria de Skincare Regenerativo Online atende todo o Brasil. Hoje existem os programas Essencial e Premium. Se quiser, posso te explicar as diferenças ou informar os valores.");
-      state.stage = "online";
+      explainOnlineTreatment();
       return;
     }
 
@@ -579,6 +635,15 @@
         state.stage = "next";
       } else {
         nextQuestion();
+      }
+      return;
+    }
+
+    if (state.stage === "online-consulta") {
+      if (matchesPhrase(n, "sim") || matchesPhrase(n, "quero") || matchesPhrase(n, "pode")) {
+        reply("Perfeito. O próximo passo é preencher o pré-atendimento para que a equipe avalie suas informações e oriente a consulta.", CONFIG.routes.preAttendance, "Preencher pré-atendimento →");
+      } else {
+        reply("Essa consulta serve para avaliar o seu caso e verificar se o tratamento pode ser conduzido online. Se quiser seguir, posso te encaminhar para o pré-atendimento.");
       }
       return;
     }
