@@ -24,8 +24,10 @@ jobs:
           node --check tests/bot-triagem-rotas.mjs
           node --check tests/bot-triagem-cobertura.mjs
           node --check tests/bot-triagem-comportamento.mjs
+          node --check tests/bot-triagem-cenarios.mjs
       - name: Validar rotas de tratamento
         run: |
           node tests/bot-triagem-rotas.mjs
           node tests/bot-triagem-cobertura.mjs
           node tests/bot-triagem-comportamento.mjs
+          node tests/bot-triagem-cenarios.mjs
