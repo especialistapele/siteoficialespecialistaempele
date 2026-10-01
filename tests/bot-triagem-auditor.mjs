@@ -85,13 +85,14 @@ const treatmentFiles = fs.readdirSync(treatmentDir)
   .sort();
 
 const treatmentPaths = treatmentFiles.map((file) => "/tratamentos/" + file);
+
+console.log("=== Auditor do Atendente Virtual — Camada 2A ===");
 const configuredTreatmentPaths = Object.entries(effectiveContexts)
   .filter(([, context]) => context)
   .map(([pagePath]) => pagePath)
   .filter((pagePath) => pagePath.startsWith("/tratamentos/"))
   .sort();
 
-console.log("=== Auditor do Atendente Virtual — Camada 2A ===");
 console.log("Páginas de tratamento encontradas:", treatmentFiles.length);
 console.log("Contextos de tratamento configurados:", configuredTreatmentPaths.length);
 
@@ -121,11 +122,11 @@ if (!fs.existsSync(autoPath)) {
   fail("bot-tratamentos-auto.js não foi gerado.");
 }
 
-const effectiveModes = { ...(config.treatmentModes || {}), ...(auto.treatmentModes || {}) };
-const effectiveContexts = { ...(effectiveContexts || {}), ...(auto.pageContexts || {}) };
-const effectiveGreetings = { ...(effectiveGreetings || {}), ...(auto.greetings || {}) };
-const effectiveLabels = { ...(effectiveLabels || {}), ...(auto.labels || {}) };
-const effectiveAliases = { ...aliases, ...(auto.aliases || {}) };
+const effectiveModes = { ...(auto.treatmentModes || {}), ...(config.treatmentModes || {}) };
+const effectiveContexts = { ...(auto.pageContexts || {}), ...(config.pageContexts || {}) };
+const effectiveGreetings = { ...(auto.greetings || {}), ...(config.greetings || {}) };
+const effectiveLabels = { ...(auto.labels || {}), ...(config.labels || {}) };
+const effectiveAliases = { ...(auto.aliases || {}), ...aliases };
 const modes = effectiveModes;
 const modeKeys = Object.keys(modes).sort();
 if (modeKeys.length !== treatmentFiles.length) {
