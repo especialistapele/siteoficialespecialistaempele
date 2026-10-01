@@ -207,6 +207,12 @@
         }
       }
     }
+    if (!best) {
+      const normalizedText = normalize(text);
+      if (/\bcuidar\b.*\bem casa\b/.test(normalizedText) || /\bcuidados?\b.*\bem casa\b/.test(normalizedText)) {
+        return "homeCare";
+      }
+    }
     return best;
   }
 
