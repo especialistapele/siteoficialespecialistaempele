@@ -235,6 +235,39 @@ for (const [input, expectedTopic, expectedStage] of modalityCases) {
   if (expectedStage === "presential-required") expect(modeLine.includes("online: false"), input + ': deveria exigir execução presencial');
 }
 
+// Combinações de tratamento + cidade + intenção.
+// A cidade não deve alterar a natureza do atendimento: apenas o caminho geográfico.
+const combinationCases = [
+  ["Quero tratar acne online e moro em São Paulo", "acne", "online-consulta", true],
+  ["Quero tratar acne online e moro em Araruama", "acne", "online-consulta", true],
+  ["Quero tratar celulite online e moro em São Paulo", "celulite", "presential-required", false],
+  ["Quero tratar celulite online e moro em Araruama", "celulite", "presential-required", false],
+  ["Quero tratar melasma online e moro em Belo Horizonte", "manchas", "online-consulta", true],
+  ["Quero tratar melasma online e moro em Araruama", "manchas", "online-consulta", true],
+  ["Quero limpeza de pele online e moro em São Paulo", "limpeza-de-pele", "presential-required", false],
+  ["Quero limpeza de pele online e moro em Araruama", "limpeza-de-pele", "presential-required", false]
+];
+for (const [input, expectedTopic, expectedRoute, requiresPreAttendance] of combinationCases) {
+  expect(detectTopic(input) === expectedTopic, input + ': tratamento incorreto');
+  const modeLine = config.split("\n").find((line) => line.includes(expectedTopic + ":") || line.includes('"' + expectedTopic + '":'));
+  expect(Boolean(modeLine), input + ': modalidade ausente');
+  if (expectedRoute === "online-consulta") {
+    expect(modeLine.includes('online: "consulta"'), input + ': deveria iniciar por consulta online');
+    if (requiresPreAttendance) expect(modeLine.includes("requiresPreAttendance: true"), input + ': deveria exigir pré-atendimento');
+  }
+  if (expectedRoute === "presential-required") {
+    expect(modeLine.includes("online: false"), input + ': deveria permanecer presencial');
+  }
+}
+
+// Cuidado domiciliar não pode transformar tratamentos inelegíveis em consultoria.
+expect(bot.includes('if (state.intent === "homeCare")'), "fluxo de cuidado domiciliar não encontrado");
+expect(bot.includes("if (!mode || mode.consultoria === true)"), "elegibilidade da consultoria não é verificada no cuidado domiciliar");
+
+// Trocas de assunto devem ocorrer antes dos estágios que poderiam herdar a rota anterior.
+expect(bot.indexOf('if (topic && topic !== previousContext)') < bot.indexOf('if (state.stage === "presential")'), "troca de assunto não antecede estágio presencial");
+expect(bot.indexOf('if (topic && topic !== previousContext)') < bot.indexOf('if (state.stage === "online-consulta")'), "troca de assunto não antecede estágio de consulta online");
+
 // Limites.
 expect(bot.includes("O endereço completo é informado após o agendamento"), "proteção do endereço não encontrada");
 expect(!/diagnostico\s+definitivo|prescrev|receita\s+de/i.test(bot), "padrão de diagnóstico/prescrição encontrado no motor");
