@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Atendente Virtual — Painel</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<style>
+.avt-grid{display:grid;grid-template-columns:minmax(320px,.9fr) minmax(420px,1.4fr);gap:20px}
+.avt-list{display:flex;flex-direction:column;gap:8px;max-height:650px;overflow:auto}
+.avt-item{border:1px solid #e7e1d8;background:#fff;border-radius:12px;padding:14px;text-align:left;cursor:pointer;width:100%}
+.avt-item:hover,.avt-item.ativo{border-color:#c9a45b;box-shadow:0 4px 16px rgba(0,0,0,.05)}
+.avt-item__top{display:flex;justify-content:space-between;gap:10px}
+.avt-item__title{font-weight:700;color:#26312d}
+.avt-item__meta{font-size:12px;color:#7a7a73;margin-top:5px}
+.avt-badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:700;background:#f2eee7;color:#5d574d}
+.avt-badge.whatsapp{background:#e7f3e9;color:#3d6944}
+.avt-messages{display:flex;flex-direction:column;gap:10px;max-height:650px;overflow:auto;padding-right:4px}
+.avt-msg{max-width:82%;padding:11px 13px;border-radius:12px;line-height:1.45;font-size:14px;white-space:pre-wrap}
+.avt-msg.visitor{align-self:flex-end;background:#26312d;color:#fff;border-bottom-right-radius:4px}
+.avt-msg.bot{align-self:flex-start;background:#f4f1eb;color:#26312d;border-bottom-left-radius:4px}
+.avt-msg.system{align-self:center;background:#fbf6e8;color:#7b6330;font-size:12px}
+.avt-msg__time{display:block;font-size:10px;opacity:.65;margin-top:5px}
+.avt-detail{min-height:250px}
+.avt-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.avt-kpi{padding:16px;border:1px solid #e7e1d8;border-radius:12px;background:#fff}
+.avt-kpi strong{display:block;font-size:25px;margin-top:5px}
+.avt-empty{padding:40px;text-align:center;color:#888}
+@media(max-width:900px){.avt-grid{grid-template-columns:1fr}.avt-kpis{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="painel-layout">
+  <aside class="painel-sidebar" data-sidebar></aside>
+  <main class="painel-main">
+    <div class="painel-topo">
+      <div>
+        <h1>Atendente Virtual</h1>
+        <p class="texto-suave">Histórico das conversas do assistente de triagem do site.</p>
+      </div>
+      <span class="data-hoje" data-data-hoje></span>
+    </div>
+    <div class="aviso-flash" data-flash></div>
+
+    <div class="avt-kpis">
+      <div class="avt-kpi"><span class="texto-suave">Conversas hoje</span><strong data-hoje>0</strong></div>
+      <div class="avt-kpi"><span class="texto-suave">Total de conversas</span><strong data-total>0</strong></div>
+      <div class="avt-kpi"><span class="texto-suave">WhatsApp</span><strong data-whatsapp>0</strong></div>
+      <div class="avt-kpi"><span class="texto-suave">Mensagens</span><strong data-mensagens>0</strong></div>
+    </div>
+
+    <div class="avt-grid">
+      <section class="painel-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px">
+          <div><h3 style="margin:0">Conversas recentes</h3><small class="texto-suave">Clique em uma conversa para abrir o histórico.</small></div>
+          <button class="btn-secundario" type="button" data-recarregar>Atualizar</button>
+        </div>
+        <div class="avt-list" data-lista><div class="avt-empty">Carregando…</div></div>
+      </section>
+
+      <section class="painel-card avt-detail">
+        <div data-detalhe><div class="avt-empty">Selecione uma conversa.</div></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash } from "/painel/assets/js/painel-auth.js";
+import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
+import { escapeHtml } from "/painel/assets/js/sanitize.js";
+
+const contexto = await exigirAdmin();
+if (!contexto) throw new Error("sem acesso");
+document.querySelector("[data-sidebar]").innerHTML = renderSidebarAdmin("atendente-virtual", contexto.perfil.full_name);
+configurarBotaoSair();
+document.querySelector("[data-data-hoje]").textContent = new Date().toLocaleDateString("pt-BR",{day:"2-digit",month:"long",year:"numeric"});
+
+const lista=document.querySelector("[data-lista]");
+const detalhe=document.querySelector("[data-detalhe]");
+let conversas=[];
+
+const fmt=(d)=>new Date(d).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});
+const nome=(c)=>c.treatment_name || c.treatment_context || "Atendimento geral";
+
+async function carregar(){
+  lista.innerHTML='<div class="avt-empty">Carregando…</div>';
+  const {data,error}=await supabase.from("bot_conversations")
+    .select("id,session_id,treatment_context,treatment_name,page_path,city,route,intent,status,started_at,last_message_at,whatsapp_handoff,created_at")
+    .order("last_message_at",{ascending:false}).limit(100);
+  if(error){lista.innerHTML='<div class="avt-empty">Não foi possível carregar o histórico.</div>';mostrarFlash(document.querySelector("[data-flash]"),error.message,"erro");return;}
+  conversas=data||[];
+  const ids=conversas.map(c=>c.id);
+  let mensagens=[];
+  if(ids.length){
+    const r=await supabase.from("bot_messages").select("conversation_id,sender,message,created_at").in("conversation_id",ids).order("created_at",{ascending:false}).limit(1000);
+    if(!r.error) mensagens=r.data||[];
+  }
+  const hojeInicio=new Date(); hojeInicio.setHours(0,0,0,0);
+  const totalMensagens=mensagens.length;
+  document.querySelector("[data-total]").textContent=conversas.length;
+  document.querySelector("[data-hoje]").textContent=conversas.filter(c=>new Date(c.started_at)>=hojeInicio).length;
+  document.querySelector("[data-whatsapp]").textContent=mensagens.filter(m=>m.sender==="system"&&m.message==="whatsapp_handoff").length;
+  document.querySelector("[data-mensagens]").textContent=totalMensagens;
+
+  const porConversa=new Map();
+  mensagens.forEach(m=>porConversa.set(m.conversation_id,(porConversa.get(m.conversation_id)||0)+1));
+  lista.innerHTML=conversas.length?conversas.map(c=>{
+    const wa=mensagens.some(m=>m.conversation_id===c.id&&m.sender==="system"&&m.message==="whatsapp_handoff");
+    return `<button type="button" class="avt-item" data-id="${c.id}">
+      <div class="avt-item__top"><span class="avt-item__title">${escapeHtml(nome(c))}</span><span class="avt-badge ${wa?"whatsapp":""}">${wa?"WhatsApp":"Conversa"}</span></div>
+      <div class="avt-item__meta">${escapeHtml(c.city||"Cidade não informada")} · ${porConversa.get(c.id)||0} mensagens · ${fmt(c.last_message_at)}</div>
+    </button>`;
+  }).join(""):'<div class="avt-empty">Ainda não existem conversas registradas.</div>';
+
+  lista.querySelectorAll("[data-id]").forEach(b=>b.addEventListener("click",()=>abrir(b.dataset.id)));
+  if(conversas.length) abrir(conversas[0].id);
+}
+
+async function abrir(id){
+  const c=conversas.find(x=>x.id===id);
+  if(!c)return;
+  lista.querySelectorAll(".avt-item").forEach(x=>x.classList.toggle("ativo",x.dataset.id===id));
+  const {data,error}=await supabase.from("bot_messages").select("sender,message,treatment_context,intent,stage,route,city,created_at").eq("conversation_id",id).order("created_at",{ascending:true});
+  if(error){detalhe.innerHTML='<div class="avt-empty">Não foi possível abrir esta conversa.</div>';return;}
+  detalhe.innerHTML=`
+    <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px">
+      <div><h3 style="margin:0 0 6px">${escapeHtml(nome(c))}</h3><div class="texto-suave">${fmt(c.started_at)} · ${escapeHtml(c.page_path||"/")}</div></div>
+      <span class="avt-badge ${data.some(m=>m.sender==="system"&&m.message==="whatsapp_handoff")?"whatsapp":""}">${data.some(m=>m.sender==="system"&&m.message==="whatsapp_handoff")?"Encaminhada ao WhatsApp":"Histórico"}</span>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+      <span class="avt-badge">Assunto: ${escapeHtml(c.treatment_name||c.treatment_context||"geral")}</span>
+      <span class="avt-badge">Cidade: ${escapeHtml(c.city||"não informada")}</span>
+      <span class="avt-badge">Rota: ${escapeHtml(c.route||"não definida")}</span>
+      <span class="avt-badge">Intenção: ${escapeHtml(c.intent||"não definida")}</span>
+    </div>
+    <div class="avt-messages">${data.map(m=>`<div class="avt-msg ${m.sender}">${escapeHtml(m.message)}<span class="avt-msg__time">${m.sender==="visitor"?"Cliente":m.sender==="bot"?"Atendente Virtual":"Sistema"} · ${fmt(m.created_at)}</span></div>`).join("")||'<div class="avt-empty">Nenhuma mensagem registrada.</div>'}</div>`;
+}
+
+document.querySelector("[data-recarregar]").addEventListener("click",carregar);
+carregar();
+</script>
+</body>
+</html>
