@@ -78,12 +78,12 @@ const aliases = parseAliases(botSource);
 
 const treatmentDir = path.join(ROOT, "tratamentos");
 const treatmentFiles = fs.readdirSync(treatmentDir)
-  .filter((file) => file.endsWith(".html"))
+  .filter((file) => file.endsWith(".html") && file !== "index.html")
   .sort();
 
 const treatmentPaths = treatmentFiles.map((file) => "/tratamentos/" + file);
 const configuredTreatmentPaths = Object.entries(config.pageContexts)
-  .filter(([, context]) => context && treatmentFiles.length >= 0)
+  .filter(([, context]) => context)
   .map(([pagePath]) => pagePath)
   .filter((pagePath) => pagePath.startsWith("/tratamentos/"))
   .sort();
