@@ -23,7 +23,8 @@ const phrase = (text, target) => {
 
 function parseMap(block) {
   const map = {};
-  for (const line of block.split("\n")) {
+  for (const line of block.split("
+")) {
     const match = line.match(/^\s*"?([^":]+)"?\s*:\s*\[(.*)\],?$/);
     if (!match) continue;
     map[match[1]] = [...match[2].matchAll(/"([^"]*)"/g)].map((m) => m[1]);
@@ -31,8 +32,10 @@ function parseMap(block) {
   return map;
 }
 
-const intentsBlock = bot.match(/const intents = \{([\s\S]*?)\n  \};/)?.[1] || "";
-const aliasesBlock = bot.match(/const aliases = \{([\s\S]*?)\n  \};/)?.[1] || "";
+const intentsBlock = bot.match(/const intents = \{([\s\S]*?)
+  \};/)?.[1] || "";
+const aliasesBlock = bot.match(/const aliases = \{([\s\S]*?)
+  \};/)?.[1] || "";
 const intents = parseMap(intentsBlock);
 const aliases = parseMap(aliasesBlock);
 
@@ -92,12 +95,20 @@ function detectLocation(text) {
 }
 
 // Entrada contextual: os contextos publicados precisam ter label e saudação.
-const contextBlock = config.match(/pageContexts:\s*\{([\s\S]*?)\n  \},\n  greetings:/)?.[1] || "";
-const greetingBlock = config.match(/greetings:\s*\{([\s\S]*?)\n  \},\n  labels:/)?.[1] || "";
-const labelBlock = config.match(/labels:\s*\{([\s\S]*?)\n  \}\n\};/)?.[1] || "";
+const contextBlock = config.match(/pageContexts:\s*\{([\s\S]*?)
+  \},
+  greetings:/)?.[1] || "";
+const greetingBlock = config.match(/greetings:\s*\{([\s\S]*?)
+  \},
+  labels:/)?.[1] || "";
+const labelBlock = config.match(/labels:\s*\{([\s\S]*?)
+  \}
+\};/)?.[1] || "";
 const contexts = [...contextBlock.matchAll(/"([^"]+)"\s*:\s*"([^"]+)"/g)].map((m) => m[2]);
-const greetingKeys = new Set([...greetingBlock.matchAll(/(?:^|\n)\s*"?([^":]+)"?\s*:/g)].map((m) => m[1].trim()));
-const labelKeys = new Set([...labelBlock.matchAll(/(?:^|\n)\s*"?([^":]+)"?\s*:/g)].map((m) => m[1].trim()));
+const greetingKeys = new Set([...greetingBlock.matchAll(/(?:^|
+)\s*"?([^":]+)"?\s*:/g)].map((m) => m[1].trim()));
+const labelKeys = new Set([...labelBlock.matchAll(/(?:^|
+)\s*"?([^":]+)"?\s*:/g)].map((m) => m[1].trim()));
 
 for (const context of contexts.filter((value) => value !== "home")) {
   expect(greetingKeys.has(context), 'contexto "' + context + '" sem saudação específica');
@@ -208,7 +219,8 @@ expect(bot.includes('state.route = "consultoria"'), "consultoria não possui rot
 expect(bot.includes("function explainConsultoria()"), "motor não possui fluxo específico para consultoria");
 expect(bot.includes("const explicitConsultoria = matchesPhrase(state.lastText, \"consultoria online\")"), "preço não diferencia consultoria explícita");
 expect(bot.includes("A Consultoria de Skincare Regenerativo é voltada aos cuidados domiciliares da pele, especialmente da face"), "bot não explica o foco domiciliar/facial da consultoria");
-expect(bot.includes("if (mode && mode.consultoria !== true)"), "bot não limita a consultoria aos tratamentos faciais elegíveis");\nexpect(bot.includes("Entendi. Você está buscando orientação para cuidar de "), "bot não reconhece a intenção de cuidado domiciliar fora da consultoria");
+expect(bot.includes("if (mode && mode.consultoria !== true)"), "bot não limita a consultoria aos tratamentos faciais elegíveis");
+expect(bot.includes("Entendi. Você está buscando orientação para cuidar de "), "bot não reconhece a intenção de cuidado domiciliar fora da consultoria");
 expect(bot.includes("não substitui o tratamento de "), "bot não deve apresentar consultoria como tratamento corporal");
 expect(bot.includes("O atendimento online não substitui o procedimento"), "bot não diferencia procedimento presencial");
 expect(bot.includes("Não é uma consultoria."), "bot não diferencia consulta de avaliação de consultoria");
@@ -223,7 +235,8 @@ const modalityCases = [
 ];
 for (const [input, expectedTopic, expectedStage] of modalityCases) {
   expect(detectTopic(input) === expectedTopic, input + ': tópico de modalidade incorreto');
-  const modeLine = config.split("\n").find((line) => line.includes(expectedTopic + ":") || line.includes('"' + expectedTopic + '":'));
+  const modeLine = config.split("
+").find((line) => line.includes(expectedTopic + ":") || line.includes('"' + expectedTopic + '":'));
   expect(Boolean(modeLine), input + ': modalidade não encontrada na configuração');
   if (expectedStage === "online-consulta") expect(modeLine.includes('online: "consulta"'), input + ': deveria exigir consulta online');
   if (expectedStage === "presential-required") expect(modeLine.includes("online: false"), input + ': deveria exigir execução presencial');
