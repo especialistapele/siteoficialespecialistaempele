@@ -171,6 +171,18 @@ const routeCases = [
   ["São Gonçalo", "estou em São Gonçalo", "presential"]
 ];
 
+// Regiões próximas que o roteamento considera presenciais não devem receber
+// automaticamente os preços da consultoria online.
+const nearbyPriceCases = [
+  ["Niterói", "sou de Niterói", "presential"],
+  ["São Gonçalo", "sou de São Gonçalo", "presential"]
+];
+for (const [name, input, expected] of nearbyPriceCases) {
+  const location = detectLocation(input);
+  const route = location ? (localCities.has(location) ? "presential" : "online") : null;
+  expect(route === expected, name + ': região próxima deve permanecer na rota presencial');
+}
+
 for (const [name, input, expected] of routeCases) {
   const location = detectLocation(input);
   const route = location ? (localCities.has(location) ? "presential" : "online") : null;
@@ -192,8 +204,8 @@ expect(detectIntent("sou de Araruama e quero agendar") === "booking", "agendamen
 expect(detectIntent("quero atendimento presencial") === "presential", "atendimento presencial explícito não reconhecido");
 
  // Preço online deve considerar cidade não local, mesmo sem a palavra "online".
-expect(bot.includes("const nonLocalCity = state.location && !isPresentialArea(state.location);"),
-  "answerPrice não considera cidade não local");
+expect(bot.includes("const nonLocalCity = state.location && !isPresentialArea(state.location) && !isNearbyPresential(state.location);"),
+  "answerPrice deve tratar regiões próximas como presenciais");
 expect(bot.includes("|| nonLocalCity) {"), "answerPrice não usa cidade não local na condição online");
 
 // Modalidade por tratamento.
