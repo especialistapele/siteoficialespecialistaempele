@@ -51,12 +51,20 @@
         cfg.src = "/assets/js/bot-config.js";
         cfg.dataset.epBotConfig = "true";
         cfg.onload = () => {
-          if (!document.querySelector('script[data-ep-bot-engine]')) {
-            const engine = document.createElement("script");
-            engine.src = "/assets/js/bot-triagem.js";
-            engine.defer = true;
-            engine.dataset.epBotEngine = "true";
-            document.body.appendChild(engine);
+          if (!document.querySelector('script[data-ep-bot-auto]')) {
+            const auto = document.createElement("script");
+            auto.src = "/assets/js/bot-tratamentos-auto.js";
+            auto.dataset.epBotAuto = "true";
+            auto.onload = () => {
+              if (!document.querySelector('script[data-ep-bot-engine]')) {
+                const engine = document.createElement("script");
+                engine.src = "/assets/js/bot-triagem.js";
+                engine.defer = true;
+                engine.dataset.epBotEngine = "true";
+                document.body.appendChild(engine);
+              }
+            };
+            document.head.appendChild(auto);
           }
         };
         document.head.appendChild(cfg);
