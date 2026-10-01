@@ -482,10 +482,11 @@
 
   function answerPrice() {
     const mode = treatmentMode();
-    const explicitOnline = matchesPhrase(state.lastText, "online") || matchesPhrase(state.lastText, "consultoria online");
+    const explicitOnline = matchesPhrase(state.lastText, "online");
+    const explicitConsultoria = matchesPhrase(state.lastText, "consultoria online") || matchesPhrase(state.lastText, "consultoria");
     const nonLocalCity = state.location && !isPresentialArea(state.location);
 
-    if (state.intent === "consultoria" || state.intent === "homeCare" || state.route === "consultoria" || state.context === "consultoria") {
+    if (explicitConsultoria || state.intent === "consultoria" || state.intent === "homeCare" || state.route === "consultoria" || state.context === "consultoria") {
       reply("A Consultoria de Skincare Regenerativo tem dois programas: Essencial por R$ " + CONFIG.onlineConsultation.essential + " e Premium por R$ " + CONFIG.onlineConsultation.premium + ".");
       state.stage = "consultoria";
       return;
