@@ -513,7 +513,7 @@
     const mode = treatmentMode();
     const explicitOnline = matchesPhrase(state.lastText, "online");
     const explicitConsultoria = matchesPhrase(state.lastText, "consultoria online") || matchesPhrase(state.lastText, "consultoria");
-    const nonLocalCity = state.location && !isPresentialArea(state.location);
+    const nonLocalCity = state.location && !isPresentialArea(state.location) && !isNearbyPresential(state.location);
 
     if (explicitConsultoria || state.intent === "consultoria") {
       if (!mode || mode.consultoria === true || state.context === "consultoria") {
