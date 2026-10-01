@@ -1,0 +1,240 @@
+import fs from "node:fs";
+import path from "node:path";
+import vm from "node:vm";
+
+const ROOT = process.cwd();
+const errors = [];
+const warnings = [];
+
+function fail(message) {
+  errors.push(message);
+}
+
+function warn(message) {
+  warnings.push(message);
+}
+
+function read(relativePath) {
+  return fs.readFileSync(path.join(ROOT, relativePath), "utf8");
+}
+
+function parseGlobalConfig(source) {
+  const sandbox = { window: {} };
+  vm.runInNewContext(source, sandbox, { timeout: 1000 });
+  return sandbox.window.ESPECIALISTA_PELE_BOT_CONFIG;
+}
+
+function extractObject(source, marker) {
+  const start = source.indexOf(marker);
+  if (start < 0) throw new Error("Bloco não encontrado: " + marker);
+  const open = source.indexOf("{", start);
+  if (open < 0) throw new Error("Abertura do objeto não encontrada: " + marker);
+
+  let depth = 0;
+  let quote = null;
+  let escaped = false;
+
+  for (let i = open; i < source.length; i++) {
+    const char = source[i];
+
+    if (quote) {
+      if (escaped) {
+        escaped = false;
+      } else if (char === "\\") {
+        escaped = true;
+      } else if (char === quote) {
+        quote = null;
+      }
+      continue;
+    }
+
+    if (char === "'" || char === '"' || char === "`") {
+      quote = char;
+      continue;
+    }
+
+    if (char === "{") depth++;
+    if (char === "}") {
+      depth--;
+      if (depth === 0) {
+        return source.slice(open, i + 1);
+      }
+    }
+  }
+
+  throw new Error("Fim do objeto não encontrado: " + marker);
+}
+
+function parseAliases(source) {
+  const objectSource = extractObject(source, "const aliases =");
+  return Function('"use strict"; return (' + objectSource + ");")();
+}
+
+const configSource = read("assets/js/bot-config.js");
+const botSource = read("assets/js/bot-triagem.js");
+const whatsappSource = read("assets/js/whatsapp.js");
+const config = parseGlobalConfig(configSource);
+const aliases = parseAliases(botSource);
+
+const treatmentDir = path.join(ROOT, "tratamentos");
+const treatmentFiles = fs.readdirSync(treatmentDir)
+  .filter((file) => file.endsWith(".html"))
+  .sort();
+
+const treatmentPaths = treatmentFiles.map((file) => "/tratamentos/" + file);
+const configuredTreatmentPaths = Object.entries(config.pageContexts)
+  .filter(([, context]) => context && treatmentFiles.length >= 0)
+  .map(([pagePath]) => pagePath)
+  .filter((pagePath) => pagePath.startsWith("/tratamentos/"))
+  .sort();
+
+console.log("=== Auditor do Atendente Virtual — Camada 2A ===");
+console.log("Páginas de tratamento encontradas:", treatmentFiles.length);
+console.log("Contextos de tratamento configurados:", configuredTreatmentPaths.length);
+
+if (!fs.existsSync(path.join(ROOT, "assets/js/bot-config.js"))) {
+  fail("bot-config.js não encontrado.");
+}
+if (!fs.existsSync(path.join(ROOT, "assets/js/bot-triagem.js"))) {
+  fail("bot-triagem.js não encontrado.");
+}
+if (!fs.existsSync(path.join(ROOT, "assets/js/whatsapp.js"))) {
+  fail("whatsapp.js não encontrado.");
+}
+
+if (!whatsappSource.includes('src = "/assets/js/bot-config.js"')) {
+  fail("whatsapp.js não carrega bot-config.js.");
+}
+if (!whatsappSource.includes('engine.src = "/assets/js/bot-triagem.js"')) {
+  fail("whatsapp.js não carrega bot-triagem.js.");
+}
+if (!whatsappSource.includes("data-ep-bot-engine")) {
+  fail("whatsapp.js não possui proteção contra carregamento duplicado do motor.");
+}
+
+const modes = config.treatmentModes || {};
+const modeKeys = Object.keys(modes).sort();
+if (modeKeys.length !== treatmentFiles.length) {
+  fail(
+    "Quantidade divergente: " +
+    modeKeys.length +
+    " modalidades no bot para " +
+    treatmentFiles.length +
+    " páginas em /tratamentos."
+  );
+}
+
+for (const file of treatmentFiles) {
+  const pagePath = "/tratamentos/" + file;
+  const html = read("tratamentos/" + file);
+  const context = config.pageContexts[pagePath];
+
+  if (!context) {
+    fail(pagePath + ": sem contexto em config.pageContexts.");
+    continue;
+  }
+
+  if (context === "home" || context === "consultoria" || context === "consulta" || context === "pele" || context === "profissional") {
+    fail(pagePath + ": contexto '" + context + "' não representa um tratamento.");
+  }
+
+  if (!html.match(/<script[^>]+src=["']\/assets\/js\/whatsapp\.js["'][^>]*>/i)) {
+    fail(pagePath + ": não carrega /assets/js/whatsapp.js.");
+  }
+
+  if (/<script[^>]+src=["'][^"']*bot-triagem\.js["'][^>]*>/i.test(html)) {
+    fail(pagePath + ": carrega bot-triagem.js diretamente; a instalação deve ser feita pelo loader central.");
+  }
+
+  const bodyMatch = html.match(/<body\b[^>]*data-pagina=["']([^"']+)["']/i);
+  if (!bodyMatch) {
+    warn(pagePath + ": body sem data-pagina; o loader ainda pode funcionar, mas a página perdeu seu identificador geral.");
+  }
+
+  const mode = modes[context];
+  if (!mode) {
+    fail(pagePath + ": contexto '" + context + "' não existe em treatmentModes.");
+    continue;
+  }
+
+  if (mode.presential !== true) {
+    fail(pagePath + ": tratamento sem presential=true.");
+  }
+
+  if (mode.online !== false && mode.online !== "consulta") {
+    fail(pagePath + ": modalidade online inválida: " + String(mode.online));
+  }
+
+  if (mode.online === "consulta" && mode.requiresPreAttendance !== true) {
+    fail(pagePath + ": consulta online sem requiresPreAttendance=true.");
+  }
+
+  if (!config.greetings?.[context]) {
+    fail(pagePath + ": contexto '" + context + "' sem saudação específica.");
+  }
+
+  if (!config.labels?.[context]) {
+    fail(pagePath + ": contexto '" + context + "' sem label específico.");
+  }
+
+  if (!Array.isArray(aliases[context]) || aliases[context].length === 0) {
+    fail(pagePath + ": contexto '" + context + "' sem alias no motor.");
+  }
+}
+
+for (const pagePath of configuredTreatmentPaths) {
+  const file = pagePath.replace(/^\/tratamentos\//, "");
+  if (!treatmentFiles.includes(file)) {
+    fail("Configuração aponta para página inexistente: " + pagePath);
+  }
+}
+
+for (const context of modeKeys) {
+  const hasPage = Object.entries(config.pageContexts)
+    .some(([pagePath, value]) => pagePath.startsWith("/tratamentos/") && value === context);
+
+  if (!hasPage) {
+    fail("Modalidade '" + context + "' existe no bot, mas não está vinculada a nenhuma página de tratamento.");
+  }
+
+  if (!config.greetings?.[context]) {
+    fail("Modalidade '" + context + "' sem greeting.");
+  }
+
+  if (!config.labels?.[context]) {
+    fail("Modalidade '" + context + "' sem label.");
+  }
+
+  if (!Array.isArray(aliases[context]) || aliases[context].length === 0) {
+    fail("Modalidade '" + context + "' sem alias.");
+  }
+}
+
+const treatmentPageContexts = treatmentPaths
+  .map((pagePath) => config.pageContexts[pagePath])
+  .filter(Boolean);
+const duplicateContexts = treatmentPageContexts.filter(
+  (context, index, list) => list.indexOf(context) !== index
+);
+
+if (duplicateContexts.length) {
+  warn("Contextos repetidos entre páginas: " + [...new Set(duplicateContexts)].join(", "));
+}
+
+const result = {
+  status: errors.length ? "fail" : "ok",
+  treatmentPages: treatmentFiles.length,
+  configuredTreatmentPaths: configuredTreatmentPaths.length,
+  treatmentModes: modeKeys.length,
+  errors,
+  warnings
+};
+
+console.log(JSON.stringify(result, null, 2));
+
+if (errors.length) {
+  console.error("\nAUDITORIA DO BOT: FALHOU");
+  process.exit(1);
+}
+
+console.log("\nAUDITORIA DO BOT: OK — todas as páginas de tratamento estão integradas ao loader e possuem configuração contextual.");
