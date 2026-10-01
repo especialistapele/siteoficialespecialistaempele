@@ -194,6 +194,10 @@ expect(detectIntent("quero atendimento presencial") === "presential", "intençã
 expect(bot.includes("CONFIG.routes.preAttendance"), "rota de pré-atendimento não utilizada pelo fluxo presencial");
 expect(bot.includes("Preencher pré-atendimento →"), "CTA do pré-atendimento não encontrado");
 expect(bot.includes("function isNearbyPresential"), "regiões próximas não estão configuradas como atendimento presencial");
+expect(bot.includes('if (state.context === "limpeza-de-pele")'), "limpeza de pele não possui roteamento geográfico específico");
+expect(bot.includes("Araruama, Cabo Frio e Copacabana"), "limpeza de pele não informa as três unidades presenciais");
+expect(bot.includes("function typeReply(text, link, linkLabel)"), "respostas graduais não estão implementadas");
+expect(bot.includes("let responseQueue = Promise.resolve()"), "fila de respostas não protege a escrita gradual contra sobreposição");
 
 // Regras de prioridade: intenção explícita deve prevalecer sobre roteamento geográfico.
 expect(detectIntent("sou de Araruama mas quero consultoria online") === "consultoria", "consultoria explícita não deve ser perdida em cidade presencial");
@@ -315,6 +319,23 @@ expect(bot.indexOf('if (topic && topic !== previousContext)') < bot.indexOf('if 
 // online/presencial de outro contexto.
 expect(bot.includes("state.route = null;"), "troca de tratamento não reseta a rota anterior");
 expect(bot.includes("state.intent = intent || null;"), "troca de tratamento não reseta a intenção anterior quando não há nova intenção");
+
+// Limpeza de pele: regiões atendidas/próximas seguem para WhatsApp; fora da área,
+ // o bot informa as três unidades presenciais.
+const cleaningCities = [
+  ["Araruama", "limpeza de pele em Araruama", true],
+  ["Cabo Frio", "quero limpeza de pele e moro em Cabo Frio", true],
+  ["Copacabana", "quero limpeza de pele no Rio de Janeiro", true],
+  ["Niterói", "quero limpeza de pele e moro em Niterói", true],
+  ["São Gonçalo", "quero limpeza de pele e moro em São Gonçalo", true],
+  ["São Paulo", "quero limpeza de pele e moro em São Paulo", false]
+];
+for (const [name, input, shouldRouteToWhatsApp] of cleaningCities) {
+  expect(detectTopic(input) === "limpeza-de-pele", name + ": limpeza de pele não reconhecida");
+  const location = detectLocation(input);
+  const regional = location && localCities.has(location);
+  expect(Boolean(regional) === shouldRouteToWhatsApp, name + ": roteamento geográfico incorreto para limpeza de pele");
+}
 
 // Limites.
 expect(bot.includes("O endereço completo é informado após o agendamento"), "proteção do endereço não encontrada");
