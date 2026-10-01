@@ -338,6 +338,17 @@ for (const [name, input, shouldRouteToWhatsApp] of cleaningCities) {
   expect(Boolean(regional) === shouldRouteToWhatsApp, name + ": roteamento geográfico incorreto para limpeza de pele");
 }
 
+// Atendimento presencial: antes de informar valor ou encaminhar, a cidade deve ser conhecida.
+const treatmentPriceBlock = bot.slice(bot.indexOf("function answerPrice()"), bot.indexOf("function answerRule("));
+expect(treatmentPriceBlock.includes("if (mode && mode.presential && !state.location"), "preço de tratamento presencial não exige cidade antes da resposta");
+expect(treatmentPriceBlock.includes("askTreatmentLocation();"), "preço de tratamento presencial não chama a coleta de cidade");
+
+// Localização institucional não deve depender da cidade do visitante.
+expect(bot.includes("Temos três polos de atendimento presencial: Araruama, Cabo Frio e Copacabana."), "resposta dos três polos não encontrada");
+expect(bot.includes("endereco exato"), "intenção de endereço exato não configurada");
+expect(bot.includes("endereço exato"), "variação acentuada de endereço exato não configurada");
+expect(bot.includes("passa o endereço completo após o agendamento ser efetuado"), "regra de endereço após agendamento não encontrada");
+
 // Agendamento: a cidade deve ser conhecida antes de qualquer encaminhamento ao WhatsApp.
 const bookingBlock = bot.slice(bot.indexOf('if (intent === "booking")'), bot.indexOf('if (intent === "price")'));
 expect(bookingBlock.includes("if (!state.location)"), "agendamento não exige cidade antes do encaminhamento");
