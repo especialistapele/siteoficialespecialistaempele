@@ -290,6 +290,7 @@
         return null;
       }
       conversationId = data.id;
+      saveSession();
       return conversationId;
     })();
 
