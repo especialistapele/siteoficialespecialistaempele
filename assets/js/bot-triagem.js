@@ -122,12 +122,30 @@
     return "home";
   }
 
+  function matchesPhrase(text, phrase) {
+    const value = normalize(text);
+    const target = normalize(phrase);
+    if (!value || !target) return false;
+    const escaped = target.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&");
+    return new RegExp("(^|\\s)" + escaped + "(?=\\s|$)").test(value);
+  }
+
   function detectIntent(text) {
-    const n = normalize(text);
+    // Entre intenções encontradas, escolhe a expressão mais específica.
+    // Isso evita que "quanto custa a taxa" seja tratado apenas como preço,
+    // e reduz falsos positivos por palavras genéricas embutidas em outras.
+    let best = null;
+    let bestLength = 0;
     for (const [intent, words] of Object.entries(intents)) {
-      if (words.some((w) => n.includes(normalize(w)))) return intent;
+      for (const word of words) {
+        const phrase = normalize(word);
+        if (phrase && matchesPhrase(text, phrase) && phrase.length > bestLength) {
+          best = intent;
+          bestLength = phrase.length;
+        }
+      }
     }
-    return null;
+    return best;
   }
 
   function detectTopic(text) {
@@ -142,7 +160,7 @@
     for (const [topic, words] of Object.entries(aliases)) {
       for (const word of words) {
         const phrase = normalize(word);
-        if (phrase && n.includes(phrase) && phrase.length > bestLength) {
+        if (phrase && matchesPhrase(n, phrase) && phrase.length > bestLength) {
           best = topic;
           bestLength = phrase.length;
         }
