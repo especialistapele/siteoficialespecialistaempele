@@ -179,13 +179,35 @@
   }
 
   function detectLocation(text) {
-    const n = normalize(text);
-    if (n.includes("araruama") || n.includes("fazendinha")) return "araruama";
-    if (n.includes("cabo frio") || n.includes("riviera")) return "cabo frio";
-    if (n.includes("copacabana") || n.includes("siqueira campos") || n.includes("rio de janeiro")) return "copacabana";
-    const cities = ["sao paulo","curitiba","belo horizonte","vitoria","brasilia","salvador","niteroi","petropolis","marica","macae"];
-    const found = cities.find(c => n.includes(c));
-    return found ? found : null;
+    const locations = [
+      ["araruama", ["araruama", "fazendinha"]],
+      ["cabo frio", ["cabo frio", "riviera"]],
+      ["copacabana", ["copacabana", "siqueira campos", "rio de janeiro"]],
+      ["sao paulo", ["sao paulo"]],
+      ["curitiba", ["curitiba"]],
+      ["belo horizonte", ["belo horizonte"]],
+      ["vitoria", ["vitoria"]],
+      ["brasilia", ["brasilia"]],
+      ["salvador", ["salvador"]],
+      ["niteroi", ["niteroi"]],
+      ["petropolis", ["petropolis"]],
+      ["marica", ["marica"]],
+      ["macae", ["macae"]]
+    ];
+
+    let best = null;
+    let bestLength = 0;
+
+    for (const [location, phrases] of locations) {
+      for (const phrase of phrases) {
+        if (matchesPhrase(text, phrase) && phrase.length > bestLength) {
+          best = location;
+          bestLength = phrase.length;
+        }
+      }
+    }
+
+    return best;
   }
 
   function locationLabel(key) {
