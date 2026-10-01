@@ -129,7 +129,11 @@ const configuredTreatmentPaths = Object.entries(effectiveContexts)
 console.log("Contextos de tratamento configurados:", configuredTreatmentPaths.length);
 const modes = effectiveModes;
 const modeKeys = Object.keys(modes).sort();
-const linkedContexts = [...new Set(Object.values(effectiveContexts).filter((context) => context))].sort();
+const linkedContexts = [...new Set(
+  configuredTreatmentPaths
+    .map((pagePath) => effectiveContexts[pagePath])
+    .filter((context) => context)
+)].sort();
 if (linkedContexts.length !== treatmentFiles.length) {
   fail(
     "Quantidade divergente: " +
