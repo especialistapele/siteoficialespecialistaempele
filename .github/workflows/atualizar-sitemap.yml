@@ -53,6 +53,9 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: node scripts/gerar-paginas-tratamentos.mjs
 
+      - name: Instalar configuração automática do bot para tratamentos publicados
+        run: node scripts/instalar-bot-tratamentos.mjs
+
       - name: Gerar páginas estáticas de artigos do blog (/blog/<slug>.html)
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -84,7 +87,7 @@ jobs:
         run: |
           git config user.name "sitemap-bot"
           git config user.email "actions@github.com"
-          git add -A sitemap.xml publicacao-manifest.json tratamentos blog resultados
+          git add -A sitemap.xml publicacao-manifest.json tratamentos blog resultados assets/js/bot-tratamentos-auto.js
           if git diff --staged --quiet; then
             echo "Nada mudou — nada para enviar."
           else
