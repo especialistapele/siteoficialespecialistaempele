@@ -591,7 +591,7 @@
 
   function answerTreatmentLocationInfo() {
     reply("Temos três polos de atendimento presencial: Araruama, Cabo Frio e Copacabana.");
-    reply("Quando o atendimento é encaminhado pelo WhatsApp, a equipe confirma a unidade adequada e passa o endereço completo no momento em que o agendamento é efetuado.");
+    reply("Quando o atendimento é encaminhado pelo WhatsApp, a equipe confirma a unidade adequada e passa o endereço completo após o agendamento ser efetuado.");
   }
 
   function answerPrice() {
