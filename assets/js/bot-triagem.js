@@ -277,7 +277,7 @@
     return [
       "araruama", "cabo frio", "copacabana",
       "saquarema", "iguaba grande", "sao pedro da aldeia",
-      "arraial do cabo", "armacao dos buzios"
+      "arraial do cabo", "armacao dos buzios", "niteroi", "sao goncalo"
     ].includes(location);
   }
 
