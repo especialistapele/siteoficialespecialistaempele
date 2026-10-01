@@ -5,6 +5,36 @@
   const CONFIG = window.ESPECIALISTA_PELE_BOT_CONFIG;
   if (!CONFIG) return;
 
+  // Registro das conversas: o motor continua determinístico e o histórico
+  // é persistido separadamente no Supabase para consulta exclusiva do admin.
+  const SUPABASE_URL = "https://clwaotfbqwvxpykruwed.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzcHViYXNlIiwicmVmIjoiY2x3YW90ZmJxend4cHlrcnV3ZWQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc4ODgwNzQ5MywiZXhwIjoyMTA0MzgzNDkzfQ.Cw9zJU8UIkxhzjI-adNHoRTyNuGingHpTHZ6pjJBgBc";
+  let supabaseClient = null;
+  let conversationId = null;
+  let sessionId = null;
+
+  async function getSupabaseClient() {
+    if (supabaseClient) return supabaseClient;
+    try {
+      const mod = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
+      supabaseClient = mod.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      return supabaseClient;
+    } catch (error) {
+      console.warn("[Bot] Histórico indisponível:", error);
+      return null;
+    }
+  }
+
+  function getSessionId() {
+    if (sessionId) return sessionId;
+    try {
+      sessionId = crypto.randomUUID();
+    } catch {
+      sessionId = "sess-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+    }
+    return sessionId;
+  }
+
   const path = window.location.pathname.replace(/\/+$/, "") || "/";
   const excluded = [/^\/painel(?:\/|$)/, /^\/pre-atendimento(?:\/|$)/, /^\/privacidade\.html$/, /^\/cookies\.html$/];
   if (excluded.some((rx) => rx.test(path))) return;
@@ -139,6 +169,69 @@
     return key ? key.replace(/-/g," ").replace(/\b\w/g, c => c.toUpperCase()) : "";
   }
 
+  async function ensureConversation() {
+    if (conversationId) return conversationId;
+    const client = await getSupabaseClient();
+    if (!client) return null;
+
+    const { data, error } = await client
+      .from("bot_conversations")
+      .insert({
+        session_id: getSessionId(),
+        treatment_context: state.context,
+        treatment_name: CONFIG.labels[state.context] || state.context,
+        page_path: path
+      })
+      .select("id")
+      .single();
+
+    if (error) {
+      console.warn("[Bot] Não foi possível abrir histórico:", error.message);
+      return null;
+    }
+    conversationId = data.id;
+    return conversationId;
+  }
+
+  function logMessage(text, sender) {
+    void (async () => {
+      const client = await getSupabaseClient();
+      const id = await ensureConversation();
+      if (!client || !id || !text) return;
+
+      const { error } = await client.from("bot_messages").insert({
+        conversation_id: id,
+        sender,
+        message: String(text).slice(0, 4000),
+        treatment_context: state.context,
+        intent: state.intent,
+        stage: state.stage,
+        route: state.route,
+        city: state.location
+      });
+
+      if (error) console.warn("[Bot] Não foi possível registrar mensagem:", error.message);
+    })();
+  }
+
+  function logWhatsAppHandoff() {
+    void (async () => {
+      const client = await getSupabaseClient();
+      const id = await ensureConversation();
+      if (!client || !id) return;
+      await client.from("bot_messages").insert({
+        conversation_id: id,
+        sender: "system",
+        message: "whatsapp_handoff",
+        treatment_context: state.context,
+        intent: state.intent,
+        stage: state.stage,
+        route: state.route,
+        city: state.location
+      });
+    })();
+  }
+
   function addMessage(text, who, link) {
     const bubble = document.createElement("div");
     bubble.className = "ep-bot__msg ep-bot__msg--" + who;
@@ -154,6 +247,8 @@
     }
     els.messages.appendChild(bubble);
     els.messages.scrollTop = els.messages.scrollHeight;
+    if (who === "user" || who === "bot") logMessage(text, who === "user" ? "visitor" : "bot");
+    if (link) logWhatsAppHandoff();
   }
 
   function reply(text, link) {
