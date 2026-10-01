@@ -108,7 +108,9 @@ const intentCases = [
   ["Reembolso", "quero saber sobre reembolso", "refund"],
   ["Endereço", "qual o endereço?", "address"],
   ["Local", "onde atende?", "location"],
-  ["Online", "quero consultoria online", "online"]
+  ["Online", "quero consultoria online", "online"],
+  ["Preço da consultoria online", "quanto custa a consultoria online", "price"],
+  ["Valor da consultoria online", "qual o valor da consultoria online", "price"]
 ];
 
 for (const [name, input, expected] of intentCases) {
