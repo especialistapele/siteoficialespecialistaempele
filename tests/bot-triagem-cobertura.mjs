@@ -8,6 +8,8 @@ const config = sandbox.window.ESPECIALISTA_PELE_BOT_CONFIG;
 
 const bot = readFileSync("assets/js/bot-triagem.js", "utf8");
 const whatsapp = readFileSync("assets/js/whatsapp.js", "utf8");
+const errors = [];
+
 const actualTreatmentRoutes = readdirSync("tratamentos")
   .filter((name) => name.endsWith(".html") && name !== "index.html")
   .map((name) => "/tratamentos/" + name);
@@ -27,8 +29,6 @@ for (const route of configuredTreatmentRoutes) {
 if (actualTreatmentRoutes.length !== 20) {
   errors.push(`Esperados 20 arquivos de tratamento; encontrados ${actualTreatmentRoutes.length}.`);
 }
-
-const errors = [];
 
 for (const [route, context] of Object.entries(config.pageContexts)) {
   if (!route.startsWith("/tratamentos/")) continue;
