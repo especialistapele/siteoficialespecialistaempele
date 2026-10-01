@@ -104,6 +104,8 @@ expect(bot.includes('if (saved.lastPath !== path) {'), "retorno para home não r
 expect(bot.includes('state.stage = pageContext === "home" ? "understand" : "explore";'), "retorno para home não ressincroniza o estágio");
 expect(bot.includes("const previousContext = state.context"), "troca de tratamento durante o fluxo não registra contexto anterior");
 expect(bot.includes('if (topic && topic !== previousContext)'), "troca de tratamento durante o fluxo não interrompe o estágio anterior");
+expect(bot.indexOf('if (topic && topic !== previousContext)') < bot.indexOf('if (state.stage === "presential")'), "troca de tratamento deve ocorrer antes do estágio presencial");
+expect(bot.indexOf('if (topic && topic !== previousContext)') < bot.indexOf('if (state.stage === "online")'), "troca de tratamento deve ocorrer antes do estágio online");
 expect(bot.includes("transcript = Array.isArray(saved.transcript)"), "restauração do histórico não encontrada");
 expect(bot.includes("conversationId = data.id;"), "conversationId não é preservado após criação");
 expect(bot.includes('sessionStorage.setItem("ep-bot-teaser:" + path, "1")'), "teaser não está protegido contra repetição na mesma página");
