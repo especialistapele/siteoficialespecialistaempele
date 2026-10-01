@@ -57,6 +57,68 @@ const cases = [
 ];
 
 const errors = [];
+const intentsBlock = source.match(/const intents = \{([\s\S]*?)\n  \};/)?.[1];
+if (!intentsBlock) throw new Error("Não foi possível localizar intents no bot.");
+
+const intents = {};
+for (const line of intentsBlock.split("\n")) {
+  const match = line.match(/^\s*"?([^":]+)"?\s*:\s*\[(.*)\],?$/);
+  if (!match) continue;
+  intents[match[1]] = [...match[2].matchAll(/"([^"]*)"/g)].map((m) => m[1]);
+}
+
+function matchesPhrase(text, phrase) {
+  const value = normalize(text);
+  const target = normalize(phrase);
+  if (!value || !target) return false;
+  const escaped = target.replace(/[.*+?^\${}()|[\\]\\]/g, "\\const errors = [];");
+  return new RegExp("(^|\\s)" + escaped + "(?=\\s|$)").test(value);
+}
+
+function detectIntent(text) {
+  let best = null;
+  let bestLength = 0;
+  for (const [intent, words] of Object.entries(intents)) {
+    for (const word of words) {
+      const phrase = normalize(word);
+      if (phrase && matchesPhrase(text, phrase) && phrase.length > bestLength) {
+        best = intent;
+        bestLength = phrase.length;
+      }
+    }
+  }
+  return best;
+}
+
+const intentCases = [
+  ["Taxa específica", "quanto custa a taxa?", "appointmentFee"],
+  ["Preço genérico", "quanto custa?", "price"],
+  ["Agendamento", "quero agendar minha consulta", "booking"],
+  ["Paciente", "já sou paciente e quero acessar meu painel", "patient"],
+  ["Reagendamento", "preciso remarcar", "reschedule"],
+  ["Atraso", "qual a tolerância de atraso?", "delay"],
+  ["Reembolso", "quero saber sobre reembolso", "refund"],
+  ["Endereço", "qual o endereço?", "address"],
+  ["Local", "onde atende?", "location"],
+  ["Online", "quero consultoria online", "online"]
+];
+
+for (const [name, input, expected] of intentCases) {
+  const got = detectIntent(input);
+  if (got !== expected) errors.push(`${name}: esperado "${expected}", obtido "${got}".`);
+}
+
+const falsePositiveCases = [
+  ["taxa dentro de palavra", "taxativo", null],
+  ["local dentro de palavra", "localidade", null],
+  ["valor dentro de palavra", "valorização", null]
+];
+
+for (const [name, input, expected] of falsePositiveCases) {
+  const got = detectIntent(input);
+  if (got !== expected) errors.push(`${name}: esperado "${expected}", obtido "${got}".`);
+}
+
 for (const [name, input, expected] of cases) {
   const got = detectTopic(input);
   if (got !== expected) errors.push(`${name}: esperado "${expected}", obtido "${got}".`);
