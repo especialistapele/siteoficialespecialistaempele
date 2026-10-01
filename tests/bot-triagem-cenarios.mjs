@@ -100,6 +100,8 @@ for (const context of contexts.filter((value) => value !== "home")) {
 
 expect(bot.includes("sessionStorage.setItem(STORAGE_KEY"), "persistência da sessão não encontrada");
 expect(bot.includes("state.context = pageContext"), "troca de contexto entre páginas não encontrada");
+expect(bot.includes("const previousContext = state.context"), "troca de tratamento durante o fluxo não registra contexto anterior");
+expect(bot.includes('if (topic && topic !== previousContext)'), "troca de tratamento durante o fluxo não interrompe o estágio anterior");
 expect(bot.includes("transcript = Array.isArray(saved.transcript)"), "restauração do histórico não encontrada");
 expect(bot.includes("conversationId = data.id;"), "conversationId não é preservado após criação");
 expect(bot.includes('sessionStorage.setItem("ep-bot-teaser:" + path, "1")'), "teaser não está protegido contra repetição na mesma página");
