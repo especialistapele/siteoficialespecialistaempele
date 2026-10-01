@@ -5,15 +5,15 @@
   const CONFIG = window.ESPECIALISTA_PELE_BOT_CONFIG;
   if (!CONFIG) return;
 
-  const path = window.location.pathname.replace(/\\/+$/, "") || "/";
-  const excluded = [/^\\/painel(?:\\/|$)/, /^\\/pre-atendimento(?:\\/|$)/, /^\\/privacidade\\.html$/, /^\\/cookies\\.html$/];
+  const path = window.location.pathname.replace(/\/+$/, "") || "/";
+  const excluded = [/^\/painel(?:\/|$)/, /^\/pre-atendimento(?:\/|$)/, /^\/privacidade\.html$/, /^\/cookies\.html$/];
   if (excluded.some((rx) => rx.test(path))) return;
 
   const normalize = (value) => String(value || "")
     .toLowerCase()
-    .normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
-    .replace(/[^a-z0-9\\s-]/g, " ")
-    .replace(/\\s+/g, " ").trim();
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, " ")
+    .replace(/\s+/g, " ").trim();
 
   const aliases = {
     acne:["acne","espinha","espinhas","cravo","cravos"],
@@ -56,7 +56,7 @@
   };
 
   function inferContext(urlPath) {
-    const m = urlPath.match(/\\/tratamentos\\/([^/]+)\\.html$/);
+    const m = urlPath.match(/\/tratamentos\/([^/]+)\.html$/);
     if (m) {
       const slug = m[1];
       if (slug === "acne") return "acne";
@@ -101,7 +101,7 @@
     if (key === "araruama") return "Araruama, na região da Fazendinha";
     if (key === "cabo frio") return "Cabo Frio, na região da Riviera";
     if (key === "copacabana") return "Copacabana, na região de Siqueira Campos";
-    return key ? key.replace(/-/g," ").replace(/\\b\\w/g, c => c.toUpperCase()) : "";
+    return key ? key.replace(/-/g," ").replace(/\b\w/g, c => c.toUpperCase()) : "";
   }
 
   function addMessage(text, who, link) {
@@ -127,7 +127,7 @@
 
   function currentWhatsApp() {
     const link = document.querySelector("[data-whatsapp-link]")?.getAttribute("href");
-    return link && /^https:\\/\\/wa\\.me\\//.test(link) ? link : null;
+    return link && /^https:\/\/wa\.me\//.test(link) ? link : null;
   }
 
   function greeting() {
