@@ -33,7 +33,8 @@
   const intents = {
     booking:["quero marcar","quero agendar","quero consulta","quero atendimento","quero comecar","como faco para marcar","marcar consulta","agendar consulta"],
     price:["quanto custa","qual valor","preco","preço","investimento","quanto e","quanto é","valor da consulta","valor do atendimento"],
-    location:["onde atende","endereco","endereço","local","cidade","onde fica","atende onde"],
+    location:["onde atende","local","cidade","onde fica","atende onde"],
+    address:["endereco","endereço","endereco completo","endereço completo","rua","numero","número"],
     patient:["ja sou paciente","já sou paciente","area do paciente","área do paciente","meu prontuario","meu prontuário","login","acessar meu painel"],
     online:["online","moro longe","sou de outro estado","nao moro no rio","não moro no rio","fora do rio","consultoria online"],
     appointmentFee:["taxa de agendamento","taxa para agendar","taxa","pagamento da taxa"],
@@ -229,6 +230,16 @@
 
     if (intent === "price") {
       answerPrice();
+      return;
+    }
+
+    if (intent === "address") {
+      if (state.location) {
+        reply("O atendimento acontece na região de " + locationLabel(state.location) + ". O endereço completo é informado após a realização do agendamento.");
+      } else {
+        reply("Posso informar a região de atendimento, mas o endereço completo é informado após a realização do agendamento. Você está em qual cidade?");
+        state.stage = "location";
+      }
       return;
     }
 
