@@ -273,6 +273,17 @@ for (const [input, expectedTopic, expectedRoute, requiresPreAttendance] of combi
 }
 
 // Cuidado domiciliar não pode transformar tratamentos inelegíveis em consultoria.
+const homeCarePriceCases = [
+  ["Quero cuidar da minha celulite em casa", "celulite"],
+  ["Quero cuidar das minhas estrias em casa", "estrias"],
+  ["Quero cuidar da flacidez em casa", "flacidez"],
+  ["Quero cuidar da gordura localizada em casa", "gordura-localizada"],
+  ["Quero cuidar das minhas cicatrizes em casa", "cicatrizes"],
+  ["Quero cuidar da limpeza de pele em casa", "limpeza-de-pele"]
+];
+for (const [input, expectedTopic] of homeCarePriceCases) {
+  expect(detectTopic(input) === expectedTopic, input + ': cuidado domiciliar perdeu o tratamento específico');
+}
 expect(bot.includes('if (state.intent === "homeCare")'), "fluxo de cuidado domiciliar não encontrado");
 expect(bot.includes("if (!mode || mode.consultoria === true)"), "elegibilidade da consultoria não é verificada no cuidado domiciliar");
 
