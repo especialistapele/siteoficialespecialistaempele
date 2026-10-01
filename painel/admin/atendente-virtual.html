@@ -87,9 +87,15 @@ const nome=(c)=>c.treatment_name || c.treatment_context || "Atendimento geral";
 
 async function carregar(){
   lista.innerHTML='<div class="avt-empty">Carregando…</div>';
-  const {data,error}=await supabase.from("bot_conversations")
-    .select("id,session_id,treatment_context,treatment_name,page_path,city,route,intent,status,started_at,last_message_at,whatsapp_handoff,created_at")
-    .order("last_message_at",{ascending:false}).limit(100);
+  const [listaResult,totalResult,mensagensResult,whatsappResult]=await Promise.all([
+    supabase.from("bot_conversations")
+      .select("id,session_id,treatment_context,treatment_name,page_path,city,route,intent,status,started_at,last_message_at,whatsapp_handoff,created_at")
+      .order("last_message_at",{ascending:false}).limit(100),
+    supabase.from("bot_conversations").select("id",{count:"exact",head:true}),
+    supabase.from("bot_messages").select("id",{count:"exact",head:true}),
+    supabase.from("bot_messages").select("id",{count:"exact",head:true}).eq("sender","system").eq("message","whatsapp_handoff")
+  ]);
+  const {data,error}=listaResult;
   if(error){lista.innerHTML='<div class="avt-empty">Não foi possível carregar o histórico.</div>';mostrarFlash(document.querySelector("[data-flash]"),error.message,"erro");return;}
   conversas=data||[];
   const ids=conversas.map(c=>c.id);
@@ -99,11 +105,10 @@ async function carregar(){
     if(!r.error) mensagens=r.data||[];
   }
   const hojeInicio=new Date(); hojeInicio.setHours(0,0,0,0);
-  const totalMensagens=mensagens.length;
-  document.querySelector("[data-total]").textContent=conversas.length;
+  document.querySelector("[data-total]").textContent=totalResult.count||0;
   document.querySelector("[data-hoje]").textContent=conversas.filter(c=>new Date(c.started_at)>=hojeInicio).length;
-  document.querySelector("[data-whatsapp]").textContent=mensagens.filter(m=>m.sender==="system"&&m.message==="whatsapp_handoff").length;
-  document.querySelector("[data-mensagens]").textContent=totalMensagens;
+  document.querySelector("[data-whatsapp]").textContent=whatsappResult.count||0;
+  document.querySelector("[data-mensagens]").textContent=mensagensResult.count||0;
 
   const porConversa=new Map();
   mensagens.forEach(m=>porConversa.set(m.conversation_id,(porConversa.get(m.conversation_id)||0)+1));
