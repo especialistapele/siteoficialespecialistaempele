@@ -87,11 +87,6 @@ const treatmentFiles = fs.readdirSync(treatmentDir)
 const treatmentPaths = treatmentFiles.map((file) => "/tratamentos/" + file);
 
 console.log("=== Auditor do Atendente Virtual — Camada 2A ===");
-const configuredTreatmentPaths = Object.entries(effectiveContexts)
-  .filter(([, context]) => context)
-  .map(([pagePath]) => pagePath)
-  .filter((pagePath) => pagePath.startsWith("/tratamentos/"))
-  .sort();
 
 console.log("Páginas de tratamento encontradas:", treatmentFiles.length);
 console.log("Contextos de tratamento configurados:", configuredTreatmentPaths.length);
@@ -127,6 +122,11 @@ const effectiveContexts = { ...(auto.pageContexts || {}), ...(config.pageContext
 const effectiveGreetings = { ...(auto.greetings || {}), ...(config.greetings || {}) };
 const effectiveLabels = { ...(auto.labels || {}), ...(config.labels || {}) };
 const effectiveAliases = { ...(auto.aliases || {}), ...aliases };
+const configuredTreatmentPaths = Object.entries(effectiveContexts)
+  .filter(([, context]) => context)
+  .map(([pagePath]) => pagePath)
+  .filter((pagePath) => pagePath.startsWith("/tratamentos/"))
+  .sort();
 const modes = effectiveModes;
 const modeKeys = Object.keys(modes).sort();
 if (modeKeys.length !== treatmentFiles.length) {
