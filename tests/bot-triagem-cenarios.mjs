@@ -67,7 +67,13 @@ const cityPhrases = [
   ["niteroi", ["niteroi"]],
   ["petropolis", ["petropolis"]],
   ["marica", ["marica"]],
-  ["macae", ["macae"]]
+  ["macae", ["macae"]],
+  ["saquarema", ["saquarema"]],
+  ["iguaba grande", ["iguaba grande"]],
+  ["sao pedro da aldeia", ["sao pedro da aldeia"]],
+  ["arraial do cabo", ["arraial do cabo"]],
+  ["armacao dos buzios", ["armacao dos buzios", "buzios"]],
+  ["sao goncalo", ["sao goncalo"]]
 ];
 
 function detectLocation(text) {
@@ -127,13 +133,19 @@ for (const [input, expectedTopic, expectedIntent] of mixedCases) {
 }
 
 // Roteamento.
-const localCities = new Set(["araruama", "cabo frio", "copacabana"]);
+const localCities = new Set(["araruama", "cabo frio", "copacabana", "saquarema", "iguaba grande", "sao pedro da aldeia", "arraial do cabo", "armacao dos buzios", "sao goncalo"]);
 const routeCases = [
   ["Araruama", "moro em Araruama", "presential"],
   ["Cabo Frio", "estou em Cabo Frio", "presential"],
   ["Copacabana", "moro no Rio de Janeiro", "presential"],
   ["São Paulo", "sou de São Paulo", "online"],
-  ["Belo Horizonte", "moro em Belo Horizonte", "online"]
+  ["Belo Horizonte", "moro em Belo Horizonte", "online"],
+  ["Saquarema", "moro em Saquarema", "presential"],
+  ["Iguaba Grande", "sou de Iguaba Grande", "presential"],
+  ["São Pedro da Aldeia", "estou em São Pedro da Aldeia", "presential"],
+  ["Arraial do Cabo", "moro em Arraial do Cabo", "presential"],
+  ["Búzios", "sou de Búzios", "presential"],
+  ["São Gonçalo", "estou em São Gonçalo", "presential"]
 ];
 
 for (const [name, input, expected] of routeCases) {
@@ -141,6 +153,12 @@ for (const [name, input, expected] of routeCases) {
   const route = location ? (localCities.has(location) ? "presential" : "online") : null;
   expect(route === expected, name + ': rota esperada "' + expected + '", obtida "' + route + '"');
 }
+
+// Atendimento presencial explícito e regiões próximas devem permanecer presenciais.
+expect(detectIntent("quero atendimento presencial") === "presential", "intenção de atendimento presencial não reconhecida");
+expect(bot.includes("CONFIG.routes.preAttendance"), "rota de pré-atendimento não utilizada pelo fluxo presencial");
+expect(bot.includes("Preencher pré-atendimento →"), "CTA do pré-atendimento não encontrado");
+expect(bot.includes("function isNearbyPresential"), "regiões próximas não estão configuradas como atendimento presencial");
 
 // Preço online deve considerar cidade não local, mesmo sem a palavra "online".
 expect(bot.includes('const nonLocalCity = state.location && !["araruama","cabo frio","copacabana"].includes(state.location);'),
