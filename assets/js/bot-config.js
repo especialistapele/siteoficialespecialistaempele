@@ -20,7 +20,7 @@ window.ESPECIALISTA_PELE_BOT_CONFIG = {
   },
   routes: {
     patientLogin: "/painel/",
-    preAttendance: "/pre-atendimento/",
+    preAttendance: "https://www.especialistaempele.com.br/pre-atendimento/",
     onlineConsultation: "/consultoriaonline.html"
   },
   pageContexts: {
