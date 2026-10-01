@@ -1,6 +1,6 @@
 /* Bot de Triagem — Especialista em Pele */
-.ep-bot{position:fixed;right:22px;bottom:22px;z-index:80;font-family:Arial,Helvetica,sans-serif;color:#26312d}
-.ep-bot__toggle{width:58px;height:58px;border:0;border-radius:50%;background:#c9a45b;color:#26312d;box-shadow:0 10px 28px rgba(38,49,45,.25);cursor:pointer;display:grid;place-items:center;font-size:24px;transition:.2s ease}
+.ep-bot{position:fixed!important;right:22px;bottom:22px;z-index:2147483000!important;font-family:Arial,Helvetica,sans-serif;color:#26312d}
+.ep-bot__toggle{width:58px;height:58px;border:0;position:relative!important;display:grid!important;visibility:visible!important;opacity:1!important;border-radius:50%;background:#c9a45b;color:#26312d;box-shadow:0 10px 28px rgba(38,49,45,.25);cursor:pointer;display:grid;place-items:center;font-size:24px;transition:.2s ease}
 .ep-bot__toggle:hover{transform:translateY(-2px);background:#e4c77f}
 .ep-bot__panel{display:none;width:min(390px,calc(100vw - 30px));height:min(600px,calc(100vh - 105px));margin-bottom:12px;background:#f4eee3;border:1px solid rgba(201,164,91,.55);border-radius:18px;overflow:hidden;box-shadow:0 18px 55px rgba(22,36,28,.25)}
 .ep-bot.is-open .ep-bot__panel{display:flex;flex-direction:column}
@@ -58,3 +58,5 @@
   0%,60%,100%{opacity:.3;transform:translateY(0)}
   30%{opacity:1;transform:translateY(-2px)}
 }
+
+.ep-bot__toggle-icon{display:grid;place-items:center;width:28px;height:28px}.ep-bot__toggle-icon svg{display:block;width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.ep-bot__toggle-icon .ep-bot__toggle-line{stroke-width:1.6}
