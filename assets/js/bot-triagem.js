@@ -2,8 +2,18 @@
 (function () {
   "use strict";
 
-  const CONFIG = window.ESPECIALISTA_PELE_BOT_CONFIG;
-  if (!CONFIG) return;
+  const BASE_CONFIG = window.ESPECIALISTA_PELE_BOT_CONFIG;
+  const AUTO_CONFIG = window.ESPECIALISTA_PELE_BOT_AUTO || {};
+  if (!BASE_CONFIG) return;
+
+  // O instalador automático pode acrescentar tratamentos publicados sem
+  // sobrescrever as regras manuais já existentes no bot.
+  const CONFIG = BASE_CONFIG;
+  for (const section of ["treatmentModes", "pageContexts", "greetings", "labels"]) {
+    if (AUTO_CONFIG[section] && typeof AUTO_CONFIG[section] === "object") {
+      CONFIG[section] = { ...(CONFIG[section] || {}), ...AUTO_CONFIG[section] };
+    }
+  }
 
   // Registro das conversas: o motor continua determinístico e o histórico
   // é persistido separadamente no Supabase para consulta exclusiva do admin.
@@ -69,6 +79,14 @@
     "gordura-localizada":["gordura localizada","gordura abdominal","gordura"],
     "definicao-corporal":["definicao corporal","definição corporal","definicao"]
   };
+
+  // Aliases gerados automaticamente para novos tratamentos publicados.
+  if (AUTO_CONFIG.aliases && typeof AUTO_CONFIG.aliases === "object") {
+    for (const [context, words] of Object.entries(AUTO_CONFIG.aliases)) {
+      if (!Array.isArray(words) || !words.length) continue;
+      aliases[context] = [...new Set([...(aliases[context] || []), ...words])];
+    }
+  }
 
   // A ordem é intencional: regras específicas têm prioridade sobre intenções genéricas.
   // Ex.: "quanto custa a taxa?" deve ser taxa, e "sou paciente e quero agendar" deve ser paciente.
