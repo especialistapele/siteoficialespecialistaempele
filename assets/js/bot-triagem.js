@@ -424,8 +424,7 @@
     const mode = treatmentMode();
 
     if (mode && mode.consultoria !== true) {
-      reply("Entendi. Você está buscando orientação para cuidar de " + (CONFIG.labels[state.context] || state.context) + " em casa.");
-      reply("A Consultoria de Skincare Regenerativo é voltada aos cuidados domiciliares da pele, especialmente da face, e não substitui o tratamento de " + (CONFIG.labels[state.context] || state.context) + ".");
+      reply("A Consultoria de Skincare Regenerativo é voltada aos cuidados domiciliares da pele, especialmente da face. Para " + (CONFIG.labels[state.context] || state.context) + ", ela não é o atendimento indicado.");
       explainOnlineTreatment();
       return;
     }
@@ -434,6 +433,21 @@
     state.stage = "consultoria";
     reply("A Consultoria de Skincare Regenerativo é voltada aos cuidados domiciliares da pele, especialmente da face. A partir da avaliação da sua pele, orientamos a rotina, ativos e dermocosméticos e acompanhamos os ajustes necessários.");
     reply("Ela pode ser uma opção quando o objetivo é organizar os cuidados em casa. Quando você procura um tratamento específico, o caminho pode ser uma consulta de avaliação para verificarmos se o caso pode ser conduzido online.");
+  }
+
+  function explainHomeCare() {
+    const mode = treatmentMode();
+
+    if (!mode || mode.consultoria === true) {
+      explainConsultoria();
+      return;
+    }
+
+    const label = CONFIG.labels[state.context] || state.context;
+    reply("Entendi. Você está buscando orientação para cuidar de " + label + " em casa.");
+    reply("A Consultoria de Skincare Regenerativo é voltada aos cuidados domiciliares da pele, especialmente da face, então não é o caminho indicado para " + label + ".");
+
+    explainOnlineTreatment();
   }
 
   function explainOnlineTreatment() {
@@ -590,8 +604,13 @@
 
     if (answerRule(intent)) return;
 
-    if (intent === "consultoria" || intent === "homeCare") {
+    if (intent === "consultoria") {
       explainConsultoria();
+      return;
+    }
+
+    if (intent === "homeCare") {
+      explainHomeCare();
       return;
     }
 
