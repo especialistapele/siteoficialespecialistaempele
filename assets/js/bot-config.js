@@ -83,6 +83,8 @@ window.ESPECIALISTA_PELE_BOT_CONFIG = {
     "definicao-corporal": "Vi que você está conhecendo nosso conteúdo sobre definição corporal. O que despertou seu interesse?"
   },
   labels: {
+    consultoria: "consultoria online",
+    consulta: "atendimento",
     acne: "acne",
     manchas: "manchas",
     cicatrizes: "cicatrizes",
