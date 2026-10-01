@@ -1,0 +1,23 @@
+name: Bot triagem — validação
+
+on:
+  push:
+    branches:
+      - feature/bot-triagem-deterministico
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Validar JavaScript do bot
+        run: |
+          node --check assets/js/bot-config.js
+          node --check assets/js/bot-triagem.js
+          node --check assets/js/whatsapp.js
