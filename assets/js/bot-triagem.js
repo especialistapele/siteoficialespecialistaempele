@@ -523,6 +523,15 @@
       return;
     }
 
+    if (topic && topic !== previousContext) {
+      state.started = true;
+      state.stage = "explore";
+      reply("Entendi. Vamos mudar o foco da conversa para " + (CONFIG.labels[state.context] || state.context) + ".");
+      if (state.location) routeByLocation();
+      else nextQuestion();
+      return;
+    }
+
     if (state.stage === "presential") {
       if (/^(sim|s|quero|claro|pode|presencial)/i.test(n)) {
         reply("O atendimento presencial funciona mediante agendamento. Existe uma taxa de agendamento, cujo valor varia conforme o tipo de consulta. Após o pagamento, você recebe a ficha de anamnese online e o informativo de preparação. A ficha deve ser preenchida até 3 dias antes da consulta.");
@@ -531,15 +540,6 @@
       } else {
         nextQuestion();
       }
-      return;
-    }
-
-    if (topic && topic !== previousContext) {
-      state.started = true;
-      state.stage = "explore";
-      reply("Entendi. Vamos mudar o foco da conversa para " + (CONFIG.labels[state.context] || state.context) + ".");
-      if (state.location) routeByLocation();
-      else nextQuestion();
       return;
     }
 
