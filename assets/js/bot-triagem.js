@@ -404,7 +404,9 @@
   }
 
   function answerPrice() {
-    if (state.route === "online" || state.context === "consultoria" || normalize(state.lastText).includes("online")) {
+    const explicitOnline = matchesPhrase(state.lastText, "online") || matchesPhrase(state.lastText, "consultoria online");
+    const nonLocalCity = state.location && !["araruama","cabo frio","copacabana"].includes(state.location);
+    if (state.route === "online" || state.context === "consultoria" || explicitOnline || nonLocalCity) {
       reply("Hoje temos dois programas de consultoria online: o Essencial, de R$ " + CONFIG.onlineConsultation.essential + ", e o Premium, de R$ " + CONFIG.onlineConsultation.premium + ". Cada um possui uma proposta de acompanhamento diferente. Posso te explicar as diferenças.");
       state.stage = "online";
     } else {
