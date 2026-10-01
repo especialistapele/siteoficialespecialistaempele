@@ -133,7 +133,12 @@ const mixedCases = [
   ["Quanto custa o tratamento de melasma em São Paulo?", "manchas", "price"],
   ["Quero agendar acne em Araruama", "acne", "booking"],
   ["Quero saber o valor da consultoria online para melasma", "manchas", "price"],
-  ["Sou de Araruama mas quero consultoria online para acne", "acne", "online"],
+  ["Sou de Araruama mas quero consultoria online para acne", "acne", "consultoria"],
+  ["Quero consultoria online", null, "consultoria"],
+  ["Quero cuidar do melasma em casa", "manchas", "homeCare"],
+  ["Quero uma rotina de skincare para minha pele", null, "homeCare"],
+  ["Quero uma consulta online para melasma", "manchas", "consultaOnline"],
+  ["Quero tratar melasma online", "manchas", "online"],
   ["Moro em São Paulo e quero agendar acne", "acne", "booking"]
 ];
 
@@ -171,7 +176,10 @@ expect(bot.includes("Preencher pré-atendimento →"), "CTA do pré-atendimento 
 expect(bot.includes("function isNearbyPresential"), "regiões próximas não estão configuradas como atendimento presencial");
 
 // Regras de prioridade: intenção explícita deve prevalecer sobre roteamento geográfico.
-expect(detectIntent("sou de Araruama mas quero consultoria online") === "online", "online explícito não deve ser perdido em cidade presencial");
+expect(detectIntent("sou de Araruama mas quero consultoria online") === "consultoria", "consultoria explícita não deve ser perdida em cidade presencial");
+expect(detectIntent("quanto custa a consultoria online para melasma") === "price", "pergunta de preço deve continuar sendo preço, com consultoria reconhecida no tratamento da resposta");
+expect(detectIntent("quero uma consulta online para melasma") === "consultaOnline", "consulta online deve ser distinta de consultoria");
+expect(detectIntent("quero cuidar do melasma em casa") === "homeCare", "cuidado domiciliar deve permitir indicação da consultoria");
 expect(detectIntent("sou de Araruama e quero agendar") === "booking", "agendamento não reconhecido em cidade presencial");
 expect(detectIntent("quero atendimento presencial") === "presential", "atendimento presencial explícito não reconhecido");
 
@@ -193,6 +201,10 @@ expect(config.includes('operatorio: { presential: true, online: false }'), "pós
 expect(bot.includes("function treatmentMode()"), "motor não consulta a matriz de modalidades");
 expect(bot.includes('state.route = "online-consulta"'), "consulta online não possui rota própria");
 expect(bot.includes('state.route = "presential-required"'), "tratamento exclusivamente presencial não possui rota própria");
+expect(bot.includes('state.route = "consultoria"'), "consultoria não possui rota própria");
+expect(bot.includes("function explainConsultoria()"), "motor não possui fluxo específico para consultoria");
+expect(bot.includes("const explicitConsultoria = matchesPhrase(state.lastText, \"consultoria online\")"), "preço não diferencia consultoria explícita");
+expect(bot.includes("A Consultoria de Skincare Regenerativo é voltada aos cuidados em casa"), "bot não explica o foco domiciliar da consultoria");
 expect(bot.includes("O atendimento online não substitui o procedimento"), "bot não diferencia procedimento presencial");
 expect(bot.includes("Não é uma consultoria."), "bot não diferencia consulta de avaliação de consultoria");
 expect(bot.includes("const mode = treatmentMode();"), "rota e preço não usam a modalidade do tratamento");
