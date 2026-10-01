@@ -124,7 +124,17 @@ const mixedCases = [
   ["Quanto custa o tratamento de melasma?", "manchas", "price"],
   ["Moro em Araruama e quero saber sobre acne", "acne", null],
   ["Sou de São Paulo, quanto custa a consultoria?", null, "price"],
-  ["Quero clarear a virilha", "clareamento-corporal", null]
+  ["Quero clarear a virilha", "clareamento-corporal", null],
+  ["Quero limpeza nanotecnológica em São Paulo", "limpeza-de-pele", null],
+  ["Tenho cicatriz de acne e estou em Cabo Frio", "cicatrizes", null],
+  ["Quero definição corporal e moro em Araruama", "definicao-corporal", null],
+  ["Quero clarear a virilha e moro em Belo Horizonte", "clareamento-corporal", null],
+  ["Quero tratar rosácea, onde atende?", "rosacea", "location"],
+  ["Quanto custa o tratamento de melasma em São Paulo?", "manchas", "price"],
+  ["Quero agendar acne em Araruama", "acne", "booking"],
+  ["Quero saber o valor da consultoria online para melasma", "manchas", "price"],
+  ["Sou de Araruama mas quero consultoria online para acne", "acne", "online"],
+  ["Moro em São Paulo e quero agendar acne", "acne", "booking"]
 ];
 
 for (const [input, expectedTopic, expectedIntent] of mixedCases) {
@@ -145,7 +155,7 @@ const routeCases = [
   ["São Pedro da Aldeia", "estou em São Pedro da Aldeia", "presential"],
   ["Arraial do Cabo", "moro em Arraial do Cabo", "presential"],
   ["Búzios", "sou de Búzios", "presential"],
-  ["São Gonçalo", "estou em São Gonçalo", "online"]
+  ["São Gonçalo", "estou em São Gonçalo", "presential"]
 ];
 
 for (const [name, input, expected] of routeCases) {
@@ -160,7 +170,12 @@ expect(bot.includes("CONFIG.routes.preAttendance"), "rota de pré-atendimento n�
 expect(bot.includes("Preencher pré-atendimento →"), "CTA do pré-atendimento não encontrado");
 expect(bot.includes("function isNearbyPresential"), "regiões próximas não estão configuradas como atendimento presencial");
 
-// Preço online deve considerar cidade não local, mesmo sem a palavra "online".
+// Regras de prioridade: intenção explícita deve prevalecer sobre roteamento geográfico.
+expect(detectIntent("sou de Araruama mas quero consultoria online") === "online", "online explícito não deve ser perdido em cidade presencial");
+expect(detectIntent("sou de Araruama e quero agendar") === "booking", "agendamento não reconhecido em cidade presencial");
+expect(detectIntent("quero atendimento presencial") === "presential", "atendimento presencial explícito não reconhecido");
+
+ // Preço online deve considerar cidade não local, mesmo sem a palavra "online".
 expect(bot.includes("const nonLocalCity = state.location && !isPresentialArea(state.location);"),
   "answerPrice não considera cidade não local");
 expect(bot.includes("|| nonLocalCity) {"), "answerPrice não usa cidade não local na condição online");
