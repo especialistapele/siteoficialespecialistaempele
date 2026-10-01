@@ -1,0 +1,94 @@
+// Configuração central do Bot de Triagem — Especialista em Pele
+// Motor determinístico: sem IA, API de LLM, RAG ou serviço externo.
+window.ESPECIALISTA_PELE_BOT_CONFIG = {
+  onlineConsultation: {
+    essential: 220,
+    premium: 350
+  },
+  locations: {
+    araruama: "Fazendinha",
+    "cabo frio": "Riviera",
+    "cabo-frio": "Riviera",
+    "rio de janeiro": "Siqueira Campos",
+    copacabana: "Siqueira Campos"
+  },
+  appointment: {
+    rescheduleHours: 24,
+    latenessMinutes: 10,
+    refund: false,
+    anamnesisDeadlineDays: 3
+  },
+  routes: {
+    patientLogin: "/painel/",
+    preAttendance: "/pre-atendimento/",
+    onlineConsultation: "/consultoriaonline.html"
+  },
+  pageContexts: {
+    "/": "home",
+    "/index.html": "home",
+    "/consultoriaonline.html": "consultoria",
+    "/contato.html": "consulta",
+    "/pele.html": "pele",
+    "/quemsomos.html": "profissional",
+    "/nanotecnologia.html": "nanotecnologia",
+    "/tratamentos/acne.html": "acne",
+    "/tratamentos/melasma.html": "manchas",
+    "/tratamentos/rosacea.html": "rosacea",
+    "/tratamentos/cicatriz.html": "cicatrizes",
+    "/tratamentos/poros-abertos.html": "poros",
+    "/tratamentos/rejuvenescimento.html": "rejuvenescimento",
+    "/tratamentos/limpeza-de-pele.html": "nanotecnologia",
+    "/tratamentos/clareamento.html": "clareamento",
+    "/tratamentos/clareamento-facial.html": "manchas",
+    "/tratamentos/remocoes.html": "remocoes",
+    "/tratamentos/celulite.html": "celulite",
+    "/tratamentos/estrias.html": "estrias",
+    "/tratamentos/flacidez.html": "flacidez",
+    "/tratamentos/esporotricose.html": "cicatrizes",
+    "/tratamentos/leucodermia.html": "manchas",
+    "/tratamentos/acantose.html": "manchas",
+    "/tratamentos/corporal.html": "corporal",
+    "/tratamentos/definicao.html": "corporal",
+    "/tratamentos/operatorio.html": "operatorio",
+    "/tratamentos/sobrancelha.html": "sobrancelha"
+  },
+  greetings: {
+    home: "Olá! 💙 Posso te ajudar a entender qual atendimento pode fazer mais sentido para o que você está buscando.",
+    acne: "Vi que você está conhecendo nosso conteúdo sobre acne. 💙 O que fez você procurar esse assunto?",
+    manchas: "Vi que você está conhecendo nosso conteúdo sobre manchas. O que mais te incomoda nas manchas que você percebe na sua pele?",
+    cicatrizes: "Vi que você está conhecendo nossa abordagem para cicatrizes. Você gostaria de me contar um pouco sobre o que está buscando melhorar?",
+    rejuvenescimento: "Vi que você está conhecendo nossa proposta de regeneração e rejuvenescimento. O que você gostaria de melhorar na sua pele?",
+    poros: "Vi que você está conhecendo nosso conteúdo sobre poros. Isso é algo que já te incomoda há bastante tempo?",
+    nanotecnologia: "Vi que você está conhecendo nossa abordagem com nanotecnologia. O que despertou seu interesse?",
+    consultoria: "Vi que você está conhecendo nossa consultoria online. Você está buscando atendimento para você ou está apenas conhecendo como funciona?",
+    consulta: "Vi que você está buscando informações sobre atendimento. Posso te ajudar a entender qual opção pode fazer mais sentido para você.",
+    profissional: "Posso te explicar melhor a abordagem da Especialista em Pele, a metodologia ou como funciona o atendimento. O que você gostaria de conhecer?",
+    pele: "Vi que você está conhecendo nossa forma de compreender a pele. O que despertou seu interesse?",
+    rosacea: "Vi que você está conhecendo nosso conteúdo sobre rosácea. O que fez você procurar esse assunto?",
+    clareamento: "Vi que você está conhecendo nosso conteúdo sobre clareamento. O que você gostaria de entender melhor?",
+    remocoes: "Vi que você está conhecendo nossa abordagem para remoções. O que você gostaria de saber?",
+    corporal: "Vi que você está conhecendo nossos cuidados corporais. O que você está buscando melhorar?",
+    estrias: "Vi que você está conhecendo nosso conteúdo sobre estrias. O que você gostaria de melhorar?",
+    flacidez: "Vi que você está conhecendo nosso conteúdo sobre flacidez. O que despertou seu interesse?",
+    operatorio: "Vi que você está conhecendo nosso conteúdo sobre cuidados no período pós-operatório. O que você gostaria de entender?",
+    sobrancelha: "Vi que você está conhecendo nosso conteúdo sobre sobrancelhas. O que despertou seu interesse?"
+  },
+  labels: {
+    acne: "acne",
+    manchas: "manchas",
+    cicatrizes: "cicatrizes",
+    rosacea: "rosácea",
+    rejuvenescimento: "rejuvenescimento",
+    poros: "poros",
+    nanotecnologia: "nanotecnologia",
+    clareamento: "clareamento",
+    remocoes: "remoções",
+    corporal: "cuidados corporais",
+    estrias: "estrias",
+    flacidez: "flacidez",
+    operatorio: "cuidados pós-operatórios",
+    sobrancelha: "sobrancelhas",
+    pele: "saúde da pele",
+    profissional: "a profissional e a metodologia"
+  }
+};
