@@ -463,6 +463,7 @@
     const intent = detectIntent(text);
     const topic = detectTopic(text);
     const loc = detectLocation(text);
+    const previousContext = state.context;
 
     if (topic && topic !== state.context) {
       state.context = topic;
@@ -530,6 +531,15 @@
       } else {
         nextQuestion();
       }
+      return;
+    }
+
+    if (topic && topic !== previousContext) {
+      state.started = true;
+      state.stage = "explore";
+      reply("Entendi. Vamos mudar o foco da conversa para " + (CONFIG.labels[state.context] || state.context) + ".");
+      if (state.location) routeByLocation();
+      else nextQuestion();
       return;
     }
 
