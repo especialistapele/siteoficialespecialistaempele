@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import vm from "node:vm";
 
 const configSource = readFileSync("assets/js/bot-config.js", "utf8");
@@ -8,6 +8,26 @@ const config = sandbox.window.ESPECIALISTA_PELE_BOT_CONFIG;
 
 const bot = readFileSync("assets/js/bot-triagem.js", "utf8");
 const whatsapp = readFileSync("assets/js/whatsapp.js", "utf8");
+const actualTreatmentRoutes = readdirSync("tratamentos")
+  .filter((name) => name.endsWith(".html") && name !== "index.html")
+  .map((name) => "/tratamentos/" + name);
+const configuredTreatmentRoutes = Object.keys(config.pageContexts)
+  .filter((route) => route.startsWith("/tratamentos/"));
+
+for (const route of actualTreatmentRoutes) {
+  if (!configuredTreatmentRoutes.includes(route)) {
+    errors.push(`${route}: arquivo de tratamento existe, mas não possui contexto no bot.`);
+  }
+}
+for (const route of configuredTreatmentRoutes) {
+  if (!actualTreatmentRoutes.includes(route)) {
+    errors.push(`${route}: contexto configurado, mas o arquivo de tratamento não existe.`);
+  }
+}
+if (actualTreatmentRoutes.length !== 20) {
+  errors.push(`Esperados 20 arquivos de tratamento; encontrados ${actualTreatmentRoutes.length}.`);
+}
+
 const errors = [];
 
 for (const [route, context] of Object.entries(config.pageContexts)) {
