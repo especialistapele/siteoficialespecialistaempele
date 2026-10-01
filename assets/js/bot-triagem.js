@@ -86,8 +86,10 @@
     information:["como funciona","como funciona o atendimento","quero saber mais","só queria saber","so queria saber","informacao","informação","duvida","dúvida"]
   };
 
+  const pageContext = CONFIG.pageContexts[path] || inferContext(path);
+  const STORAGE_KEY = "ep-bot-session-v1";
   const state = {
-    context: CONFIG.pageContexts[path] || inferContext(path),
+    context: pageContext,
     stage: "start",
     location: null,
     route: null,
@@ -98,6 +100,52 @@
     started: false,
     lastText: ""
   };
+  let transcript = [];
+
+  function saveSession() {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+        sessionId,
+        conversationId,
+        lastPath: path,
+        state: {
+          ...state,
+          asked: Array.from(state.asked)
+        },
+        transcript
+      }));
+    } catch (error) {
+      console.warn("[Bot] Não foi possível preservar a conversa:", error);
+    }
+  }
+
+  function restoreSession() {
+    try {
+      const raw = sessionStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw);
+      if (!saved?.state) return;
+
+      sessionId = saved.sessionId || null;
+      conversationId = saved.conversationId || null;
+      Object.assign(state, saved.state);
+      state.asked = new Set(saved.state.asked || []);
+      transcript = Array.isArray(saved.transcript) ? saved.transcript : [];
+
+      // A conversa permanece a mesma, mas o contexto acompanha a nova página.
+      // Isso permite sair de Acne e entrar em Melasma sem apagar o histórico.
+      if (saved.lastPath !== path && pageContext !== "home") {
+        state.context = pageContext;
+        state.stage = "explore";
+        state.intent = null;
+        state.lastText = "";
+      }
+    } catch (error) {
+      console.warn("[Bot] Não foi possível restaurar a conversa:", error);
+    }
+  }
+
+  restoreSession();
 
   function inferContext(urlPath) {
     const m = urlPath.match(/\/tratamentos\/([^/]+)\.html$/);
@@ -291,7 +339,7 @@
     })();
   }
 
-  function addMessage(text, who, link) {
+  function renderMessage(text, who, link) {
     const bubble = document.createElement("div");
     bubble.className = "ep-bot__msg ep-bot__msg--" + who;
     bubble.textContent = text;
@@ -306,8 +354,19 @@
     }
     els.messages.appendChild(bubble);
     els.messages.scrollTop = els.messages.scrollHeight;
+    return bubble;
+  }
+
+  function addMessage(text, who, link) {
+    renderMessage(text, who, link);
+    transcript.push({ text: String(text), who, link: link || null });
+    saveSession();
     if (who === "bot") logMessage(text, "bot");
     if (link) logWhatsAppHandoff();
+  }
+
+  function restoreTranscript() {
+    transcript.forEach((item) => renderMessage(item.text, item.who, item.link));
   }
 
   function reply(text, link) {
@@ -594,6 +653,9 @@
     });
   }
 
+  restoreTranscript();
+  saveSession();
+
   els.toggle.addEventListener("click", openAssistant);
   els.teaserAction.addEventListener("click", openAssistant);
   els.teaserClose.addEventListener("click", () => els.teaser.classList.remove("is-visible"));
@@ -609,6 +671,9 @@
       window.clearTimeout(teaserTimer);
     }
   }, { passive: true });
+  window.addEventListener("pagehide", saveSession);
+  window.addEventListener("beforeunload", saveSession);
+
   els.form.addEventListener("submit", (e) => {
     e.preventDefault();
     const value=els.input.value.trim();
