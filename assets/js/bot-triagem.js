@@ -11,7 +11,7 @@
   const CONFIG = BASE_CONFIG;
   for (const section of ["treatmentModes", "pageContexts", "greetings", "labels"]) {
     if (AUTO_CONFIG[section] && typeof AUTO_CONFIG[section] === "object") {
-      CONFIG[section] = { ...(CONFIG[section] || {}), ...AUTO_CONFIG[section] };
+      CONFIG[section] = { ...(AUTO_CONFIG[section] || {}), ...(CONFIG[section] || {}) };
     }
   }
 
