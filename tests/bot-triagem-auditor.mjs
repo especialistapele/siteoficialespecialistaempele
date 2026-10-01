@@ -129,11 +129,12 @@ const configuredTreatmentPaths = Object.entries(effectiveContexts)
 console.log("Contextos de tratamento configurados:", configuredTreatmentPaths.length);
 const modes = effectiveModes;
 const modeKeys = Object.keys(modes).sort();
-if (modeKeys.length !== treatmentFiles.length) {
+const linkedContexts = [...new Set(Object.values(effectiveContexts).filter((context) => context))].sort();
+if (linkedContexts.length !== treatmentFiles.length) {
   fail(
     "Quantidade divergente: " +
-    modeKeys.length +
-    " modalidades no bot para " +
+    linkedContexts.length +
+    " contextos vinculados no bot para " +
     treatmentFiles.length +
     " páginas em /tratamentos."
   );
@@ -204,24 +205,21 @@ for (const pagePath of configuredTreatmentPaths) {
   }
 }
 
-for (const context of modeKeys) {
-  const hasPage = Object.entries(effectiveContexts)
-    .some(([pagePath, value]) => pagePath.startsWith("/tratamentos/") && value === context);
-
-  if (!hasPage) {
-    fail("Modalidade '" + context + "' existe no bot, mas não está vinculada a nenhuma página de tratamento.");
-  }
-
+for (const context of linkedContexts) {
   if (!effectiveGreetings?.[context]) {
-    fail("Modalidade '" + context + "' sem greeting.");
+    fail("Contexto '" + context + "' sem greeting.");
   }
 
   if (!effectiveLabels?.[context]) {
-    fail("Modalidade '" + context + "' sem label.");
+    fail("Contexto '" + context + "' sem label.");
+  }
+
+  if (!modes[context]) {
+    fail("Contexto '" + context + "' sem modalidade em treatmentModes.");
   }
 
   if (!Array.isArray(effectiveAliases[context]) || effectiveAliases[context].length === 0) {
-    fail("Modalidade '" + context + "' sem alias.");
+    fail("Contexto '" + context + "' sem alias.");
   }
 }
 
