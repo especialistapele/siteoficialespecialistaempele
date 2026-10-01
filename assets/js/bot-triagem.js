@@ -515,9 +515,23 @@
     const explicitConsultoria = matchesPhrase(state.lastText, "consultoria online") || matchesPhrase(state.lastText, "consultoria");
     const nonLocalCity = state.location && !isPresentialArea(state.location);
 
-    if (explicitConsultoria || state.intent === "consultoria" || state.intent === "homeCare" || state.route === "consultoria" || state.context === "consultoria") {
-      reply("A Consultoria de Skincare Regenerativo tem dois programas: Essencial por R$ " + CONFIG.onlineConsultation.essential + " e Premium por R$ " + CONFIG.onlineConsultation.premium + ".");
-      state.stage = "consultoria";
+    if (explicitConsultoria || state.intent === "consultoria") {
+      if (!mode || mode.consultoria === true || state.context === "consultoria") {
+        reply("A Consultoria de Skincare Regenerativo tem dois programas: Essencial por R$ " + CONFIG.onlineConsultation.essential + " e Premium por R$ " + CONFIG.onlineConsultation.premium + ".");
+        state.stage = "consultoria";
+      } else {
+        explainConsultoria();
+      }
+      return;
+    }
+
+    if (state.intent === "homeCare") {
+      if (!mode || mode.consultoria === true) {
+        reply("A Consultoria de Skincare Regenerativo tem dois programas: Essencial por R$ " + CONFIG.onlineConsultation.essential + " e Premium por R$ " + CONFIG.onlineConsultation.premium + ".");
+        state.stage = "consultoria";
+      } else {
+        explainHomeCare();
+      }
       return;
     }
 
