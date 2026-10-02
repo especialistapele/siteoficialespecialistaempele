@@ -118,9 +118,22 @@
       resposta: el.querySelector("[data-faq-resposta]").value.trim()
     })).filter((x) => x.pergunta || x.resposta);
   }
+  // O banco possui artigos de versões diferentes do cadastro de FAQ.
+  // Algumas entradas antigas usam "question"/"answer", enquanto o formulário
+  // trabalha com "pergunta"/"resposta". Normalizamos somente na leitura para
+  // que todo FAQ já salvo apareça no editor sem perder nenhum conteúdo.
+  function normalizarFaq(itens) {
+    if (!Array.isArray(itens)) return [];
+    return itens.map((item) => ({
+      pergunta: String(item?.pergunta ?? item?.question ?? "").trim(),
+      resposta: String(item?.resposta ?? item?.answer ?? "").trim()
+    }));
+  }
+
   function renderizarFaq(itens = []) {
     faqEditor.innerHTML = "";
-    (itens.length ? itens : [{ pergunta: "", resposta: "" }]).forEach(adicionarFaqItem);
+    const normalizados = normalizarFaq(itens);
+    (normalizados.length ? normalizados : [{ pergunta: "", resposta: "" }]).forEach(adicionarFaqItem);
   }
   function adicionarFaqItem(item = { pergunta: "", resposta: "" }) {
     const el = document.createElement("div");
