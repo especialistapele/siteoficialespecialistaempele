@@ -285,21 +285,44 @@
     const box = document.querySelector("[data-lista-anamneses-paciente]");
     const { data, error } = await supabase
       .from("anamnesis_versions")
-      .select("id,version_number,status,released_at,submitted_at,locked_at,anamnesis_types(code,name,description)")
+      .select("id,version_number,status,released_at,submitted_at,locked_at,created_at,anamnesis_types(code,name,description)")
       .eq("patient_id", patientId)
       .order("created_at", { ascending: false });
     if (error) { box.innerHTML = '<p class="texto-suave">Não foi possível carregar suas fichas.</p>'; return; }
     if (!data?.length) { box.innerHTML = '<p class="texto-suave">Nenhuma ficha de anamnese disponível no momento.</p>'; return; }
+
+    const versionIds = data.map(v => v.id);
+    const { data: permissoes } = await supabase
+      .from("anamnesis_edit_permissions")
+      .select("anamnesis_version_id,status,expires_at")
+      .eq("patient_id", patientId)
+      .in("anamnesis_version_id", versionIds);
+
+    const agora = Date.now();
+    const permissaoPorVersao = new Map((permissoes || [])
+      .filter(p => p.status === "active" && (!p.expires_at || new Date(p.expires_at).getTime() > agora))
+      .map(p => [p.anamnesis_version_id, p]));
+
     box.innerHTML = data.map(v => {
       const t = v.anamnesis_types || {};
       const pendente = v.status === "draft";
       const bloqueada = ["submitted","locked"].includes(v.status);
-      const label = pendente ? "Preencher ficha" : bloqueada ? "Consultar ficha" : "Abrir ficha";
-      const detalhe = pendente ? "Aguardando preenchimento" : v.submitted_at ? "Preenchida em " + new Date(v.submitted_at).toLocaleDateString("pt-BR") : "Disponível";
+      const autorizada = !!permissaoPorVersao.get(v.id);
+      const label = pendente ? "Preencher ficha" : autorizada ? "Editar ficha" : bloqueada ? "Consultar ficha" : "Abrir ficha";
+      const detalhe = pendente
+        ? "Aguardando preenchimento"
+        : autorizada
+          ? "Edição autorizada"
+          : v.submitted_at
+            ? "Preenchida em " + new Date(v.submitted_at).toLocaleDateString("pt-BR")
+            : "Disponível";
+      const classe = pendente || autorizada ? "btn-p-dourado" : "btn-p-fora";
       return `<div class="lista-simples__item">
-        <div><div class="pessoa__nome">${escapeHtml(t.name || "Anamnese")} · v${escapeHtml(v.version_number)}</div>
-        <div class="pessoa__sub">${escapeHtml(detalhe)}</div></div>
-        <a class="btn-p btn-p-mini ${pendente ? "btn-p-dourado" : "btn-p-fora"}" href="/painel/paciente/anamnese.html?version=${encodeURIComponent(v.id)}">${label} →</a>
+        <div>
+          <div class="pessoa__nome">${escapeHtml(t.name || "Anamnese")} · v${escapeHtml(v.version_number)}</div>
+          <div class="pessoa__sub">${escapeHtml(detalhe)}</div>
+        </div>
+        <a class="btn-p btn-p-mini ${classe}" href="/painel/paciente/anamnese.html?version=${encodeURIComponent(v.id)}">${label} →</a>
       </div>`;
     }).join("");
   }
