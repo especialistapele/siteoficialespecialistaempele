@@ -84,7 +84,7 @@ function renderField(q){
   }
   if(d.field_type==="numeric") return '<input type="number" id="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(current)+'"'+req+'>';
   if(d.field_type==="scale") return '<input type="number" id="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(current)+'" min="'+escapeHtml(d.validation?.min??0)+'" max="'+escapeHtml(d.validation?.max??10)+'" step="1"'+req+'>';
-  if(d.field_type==="upload") return '<input type="file" id="'+id+'" data-upload-q="'+d.id+'" accept="image/*,.pdf">';
+  if(d.field_type==="upload") return '<input type="file" id="'+id+'" data-upload-q="'+d.id+'" accept="image/*,.pdf" multiple> <div class="anamnese-help">Você poderá selecionar mais de um arquivo.</div>';
   const multiline=d.field_type==="long_text";
   return multiline?'<textarea id="'+id+'" data-q="'+d.id+'" rows="5"'+req+'>'+escapeHtml(current)+'</textarea>':'<input type="text" id="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(current)+'"'+req+'>';
 }
@@ -133,9 +133,32 @@ submitBtn.onclick=async()=>{
  if(assinatura.estaVazia()){alert("Desenhe sua assinatura antes de enviar a ficha."); return;}
  submitBtn.disabled=true; submitBtn.textContent="Enviando…";
  try{
-  const respostas=qList.filter(q=>visible(q)).map(q=>({question_definition_id:q.question_definitions.id,clinical_concept_id:q.question_definitions.clinical_concept_id||null,value:readValue(q.question_definitions),source:"anamnese"}));
+  const respostas=[];
+  for (const q of qList.filter(q=>visible(q))) {
+    const d=q.question_definitions;
+    if (d.field_type==="upload") {
+      const input=root.querySelector('[data-upload-q="'+d.id+'"]');
+      const files=[...(input?.files||[])];
+      if (q.required && !files.length) throw new Error("É necessário anexar os arquivos solicitados.");
+      const paths=[];
+      for (const file of files) {
+        const safeName=file.name.replace(/[^a-zA-Z0-9._-]+/g,"_");
+        const filePath=patientId+"/anamneses/"+versionId+"/"+Date.now()+"-"+safeName;
+        const {error}=await supabase.storage.from("documentos-pacientes").upload(filePath,file,{contentType:file.type||"application/octet-stream",upsert:false});
+        if(error) throw error;
+        paths.push(filePath);
+        const {error:attErr}=await supabase.from("anamnesis_attachments").insert({
+          anamnesis_version_id:versionId,patient_id:patientId,file_path:filePath,file_name:file.name,mime_type:file.type||null,file_size:file.size
+        });
+        if(attErr) throw attErr;
+      }
+      respostas.push({question_definition_id:d.id,clinical_concept_id:d.clinical_concept_id||null,value:paths,source:"upload"});
+    } else {
+      respostas.push({question_definition_id:d.id,clinical_concept_id:d.clinical_concept_id||null,value:readValue(d),source:"anamnese"});
+    }
+  }
   const blob=await assinatura.paraBlob();
-  const path=patientId+"/anamneses/"+versionId+"-"+Date.now()+".png";
+  const path=patientId+"/assinaturas/anamnese-"+versionId+"-"+Date.now()+".png";
   const {error:upErr}=await supabase.storage.from("documentos-pacientes").upload(path,blob,{contentType:"image/png",upsert:false}); if(upErr)throw upErr;
   const {error:rpcErr}=await supabase.rpc("submit_anamnesis",{p_version_id:versionId,p_responses:respostas,p_signature_path:path,p_user_agent:navigator.userAgent}); if(rpcErr)throw rpcErr;
   root.innerHTML='<div class="anamnese-status"><strong>Anamnese enviada com sucesso.</strong><p style="margin:6px 0 0">Sua ficha foi registrada e assinada. Esta versão ficará disponível no seu prontuário.</p><a class="btn-p btn-p-dourado" style="margin-top:12px" href="/painel/paciente/painel.html">Voltar ao Meu espaço</a></div>';
