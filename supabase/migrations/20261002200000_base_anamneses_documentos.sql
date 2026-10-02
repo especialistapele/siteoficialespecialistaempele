@@ -275,3 +275,30 @@ insert into public.clinical_concepts(code,name,data_type) values
 ('HISTORICO_CIRURGICO','Histórico cirúrgico','text'),
 ('PROCEDIMENTOS_ANTERIORES','Procedimentos anteriores','json')
 on conflict (code) do update set name=excluded.name,data_type=excluded.data_type;
+
+-- Histórico assinado/respostas não pode ser alterado nem apagado.
+create or replace function public.protect_anamnesis_history()
+returns trigger
+language plpgsql
+set search_path = public
+as $$
+begin
+  raise exception 'Registro histórico imutável: %', tg_table_name;
+end;
+$$;
+
+drop trigger if exists protect_anamnesis_signatures on public.anamnesis_signatures;
+create trigger protect_anamnesis_signatures before update or delete on public.anamnesis_signatures
+for each row execute function public.protect_anamnesis_history();
+
+drop trigger if exists protect_anamnesis_responses on public.anamnesis_responses;
+create trigger protect_anamnesis_responses before update or delete on public.anamnesis_responses
+for each row execute function public.protect_anamnesis_history();
+
+drop trigger if exists protect_document_snapshots on public.document_snapshots;
+create trigger protect_document_snapshots before update or delete on public.document_snapshots
+for each row execute function public.protect_anamnesis_history();
+
+drop trigger if exists protect_document_signatures on public.document_signatures;
+create trigger protect_document_signatures before update or delete on public.document_signatures
+for each row execute function public.protect_anamnesis_history();
