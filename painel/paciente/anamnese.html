@@ -182,8 +182,9 @@ submitBtn.onclick=async()=>{
   const blob=await assinatura.paraBlob();
   const path=patientId+"/assinaturas/anamnese-"+versionId+"-"+Date.now()+".png";
   const {error:upErr}=await supabase.storage.from("documentos-pacientes").upload(path,blob,{contentType:"image/png",upsert:false}); if(upErr)throw upErr;
-  const {error:rpcErr}=await supabase.rpc("submit_anamnesis",{p_version_id:versionId,p_responses:respostas,p_signature_path:path,p_user_agent:navigator.userAgent}); if(rpcErr)throw rpcErr;
-  root.innerHTML='<div class="anamnese-status"><strong>Anamnese enviada com sucesso.</strong><p style="margin:6px 0 0">Sua ficha foi registrada e assinada. Esta versão ficará disponível no seu prontuário.</p><a class="btn-p btn-p-dourado" style="margin-top:12px" href="/painel/paciente/painel.html">Voltar ao Meu espaço</a></div>';
+  const {data:resultado, error:rpcErr}=await supabase.rpc("submit_anamnesis",{p_version_id:versionId,p_responses:respostas,p_signature_path:path,p_user_agent:navigator.userAgent}); if(rpcErr)throw rpcErr;
+  const novaVersao=resultado?.version_id && resultado.version_id!==versionId ? '<p style="margin:6px 0 0">A edição autorizada gerou uma nova versão histórica; a versão anterior foi preservada.</p>' : "";
+  root.innerHTML='<div class="anamnese-status"><strong>Anamnese enviada com sucesso.</strong><p style="margin:6px 0 0">Sua ficha foi registrada e assinada. Esta versão ficará disponível no seu prontuário.</p>'+novaVersao+'<a class="btn-p btn-p-dourado" style="margin-top:12px" href="/painel/paciente/painel.html">Voltar ao Meu espaço</a></div>';
  }catch(e){submitBtn.disabled=false;submitBtn.textContent="Enviar anamnese";alert("Não foi possível enviar a ficha: "+(e.message||e));}
 };
 </script>
