@@ -190,7 +190,9 @@ export async function carregarNotificacoes(supabase) {
   });
 }
 
-function escapeHtml(value) { const el = document.createElement('div'); el.textContent = value == null ? '' : String(value); return el.innerHTML; }\n\nexport function renderNotificacao(item) {
+function escapeHtml(value) { const el = document.createElement('div'); el.textContent = value == null ? '' : String(value); return el.innerHTML; }
+
+export function renderNotificacao(item) {
   return `
     <article class="notificacao-item notificacao-item--${item.prioridade}" data-notificacao-id="${escapeHtml(item.id)}">
       <div class="notificacao-item__icone" aria-hidden="true">${ICONES[item.tipo] || "•"}</div>
