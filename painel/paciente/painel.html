@@ -123,7 +123,11 @@
     <!-- PRONTUÁRIO -->
     <section class="aba-conteudo" data-conteudo="prontuario">
       <div class="painel-topo"><div><h1>Seu Prontuário</h1><p class="texto-suave">Seu prontuário está disponível em ambiente seguro.</p></div></div>
-      <div class="painel-card" style="text-align:center;padding:50px 20px" data-bloco-prontuario>
+      <div class="painel-card" style="margin-top:22px">
+  <h3>Fichas de anamnese</h3>
+  <p class="texto-suave">Aqui ficam as fichas que você já preencheu e as novas fichas liberadas para você.</p>
+  <div data-lista-anamneses-paciente style="display:grid;gap:10px;margin-top:14px"><p class="texto-suave">Carregando…</p></div>
+</div>\n      <div class="painel-card" style="text-align:center;padding:50px 20px" data-bloco-prontuario>
         <p class="texto-suave">Carregando…</p>
       </div>
       <div class="painel-card" style="margin-top:22px">
@@ -263,6 +267,31 @@
   } else {
     prontuarioBloco.innerHTML = `<p class="texto-suave">Seu prontuário ainda não foi disponibilizado. Fale com a Danielle se tiver dúvidas.</p>`;
   }
+
+  // Anamneses: liberadas + preenchidas, com acesso direto à versão
+  async function carregarAnamnesesPaciente() {
+    const box = document.querySelector("[data-lista-anamneses-paciente]");
+    const { data, error } = await supabase
+      .from("anamnesis_versions")
+      .select("id,version_number,status,released_at,submitted_at,locked_at,anamnesis_types(code,name,description)")
+      .eq("patient_id", patientId)
+      .order("created_at", { ascending: false });
+    if (error) { box.innerHTML = '<p class="texto-suave">Não foi possível carregar suas fichas.</p>'; return; }
+    if (!data?.length) { box.innerHTML = '<p class="texto-suave">Nenhuma ficha de anamnese disponível no momento.</p>'; return; }
+    box.innerHTML = data.map(v => {
+      const t = v.anamnesis_types || {};
+      const pendente = v.status === "draft";
+      const bloqueada = ["submitted","locked"].includes(v.status);
+      const label = pendente ? "Preencher ficha" : bloqueada ? "Consultar ficha" : "Abrir ficha";
+      const detalhe = pendente ? "Aguardando preenchimento" : v.submitted_at ? "Preenchida em " + new Date(v.submitted_at).toLocaleDateString("pt-BR") : "Disponível";
+      return `<div class="lista-simples__item">
+        <div><div class="pessoa__nome">${escapeHtml(t.name || "Anamnese")} · v${escapeHtml(v.version_number)}</div>
+        <div class="pessoa__sub">${escapeHtml(detalhe)}</div></div>
+        <a class="btn-p btn-p-mini ${pendente ? "btn-p-dourado" : "btn-p-fora"}" href="/painel/paciente/anamnese.html?version=${encodeURIComponent(v.id)}">${label} →</a>
+      </div>`;
+    }).join("");
+  }
+  carregarAnamnesesPaciente();
 
   // Registro de acompanhamento fotográfico (somente os liberados pelo administrador)
   const containerFotos = document.querySelector("#lista-registros-foto-paciente");
