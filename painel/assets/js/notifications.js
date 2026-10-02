@@ -160,12 +160,16 @@ export async function carregarNotificacoes(supabase) {
       .select("id, title, published_at, created_at")
       .eq("published", true)
       .eq("consent_confirmed", true)
-      .order("published_at", { ascending: false, nullsFirst: false })
-      .limit(1);
+      .limit(50);
     if (error) throw error;
 
-    const ultimo = data?.[0];
-    const ultimaData = ultimo?.published_at ? new Date(ultimo.published_at) : (ultimo?.created_at ? new Date(ultimo.created_at) : null);
+    const ordenados = (data || []).slice().sort((a, b) => {
+      const da = new Date(a.published_at || a.created_at).getTime();
+      const db = new Date(b.published_at || b.created_at).getTime();
+      return db - da;
+    });
+    const ultimo = ordenados[0];
+    const ultimaData = ultimo ? new Date(ultimo.published_at || ultimo.created_at) : null;
     if (!ultimaData || (Date.now() - ultimaData.getTime()) >= DIAS_SEMANA * 86400000) {
       itens.push({
         id: "conteudo:resultado-semanal",
