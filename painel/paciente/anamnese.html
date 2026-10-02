@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Anamnese — Especialista em Pele</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<style>
+.anamnese-wrap{max-width:900px;margin:0 auto}.anamnese-head{margin-bottom:22px}.anamnese-section{margin-top:18px}.anamnese-question{padding:16px 0;border-bottom:1px solid var(--linha,#ddd7c9)}.anamnese-question label.titulo{display:block;font-weight:700;margin-bottom:9px}.anamnese-help{font-size:12.5px;color:#777;margin:-3px 0 10px}.opcoes{display:grid;gap:8px}.opcao{display:flex;align-items:flex-start;gap:9px;font-weight:400}.opcao input{margin-top:3px}.erro-campo{color:#a33;font-size:12px;margin-top:5px}.anamnese-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.anamnese-status{padding:12px;border-radius:8px;background:rgba(78,122,69,.08);font-size:13px}.previous-answer{margin:8px 0;padding:10px;border:1px solid var(--linha,#ddd7c9);border-radius:8px;background:#faf9f6;font-size:13px}.previous-answer button{margin:8px 8px 0 0}.assinatura-wrap{margin-top:18px;border:1px dashed var(--linha,#ddd7c9);border-radius:8px;background:#fff}.assinatura-wrap canvas{display:block;width:100%;height:180px;touch-action:none}.loading{padding:35px;text-align:center}
+</style>
+</head>
+<body>
+<div class="painel-layout">
+<aside class="painel-sidebar">
+  <div class="painel-sidebar__marca"><div class="selo-ep"><img src="/painel/assets/img/logo-especialista.webp" alt="Especialista em Pele"></div></div>
+  <nav>
+    <a href="/painel/paciente/painel.html"><span>← Meu espaço</span></a>
+    <a href="/painel/paciente/painel.html#prontuario"><span>Prontuário</span></a>
+    <a href="/painel/paciente/painel.html#contratos"><span>Contratos</span></a>
+  </nav>
+</aside>
+<main class="painel-main"><div class="anamnese-wrap">
+  <div class="painel-topo anamnese-head"><div><h1 data-titulo>Anamnese</h1><p class="texto-suave" data-subtitulo>Carregando…</p></div></div>
+  <div class="painel-card" data-root><div class="loading">Carregando ficha…</div></div>
+</div></main>
+</div>
+<script type="module">
+import { supabase, exigirPaciente, configurarBotaoSair } from "/painel/assets/js/painel-auth.js";
+import { criarAssinatura } from "/painel/assets/js/assinatura-canvas.js";
+const contexto = await exigirPaciente(); if (!contexto) throw new Error("sem acesso");
+configurarBotaoSair();
+const patientId = contexto.paciente.id;
+const versionId = new URLSearchParams(location.search).get("version");
+const root = document.querySelector("[data-root]");
+const escapeHtml = (v) => String(v ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",""":"&quot;","'":"&#39;"}[c]));
+if (!versionId) { root.innerHTML='<p class="texto-suave">Ficha não informada.</p>'; throw new Error("sem versão"); }
+
+const [{data:version,error:verErr},{data:types},{data:permissions}] = await Promise.all([
+  supabase.from("anamnesis_versions").select("id,patient_id,anamnesis_type_id,version_number,status,released_at,submitted_at,locked_at").eq("id",versionId).eq("patient_id",patientId).single(),
+  supabase.from("anamnesis_types").select("id,code,name,description").eq("active",true),
+  supabase.from("anamnesis_edit_permissions").select("id,status,expires_at").eq("anamnesis_version_id",versionId).eq("patient_id",patientId).eq("status","active").order("granted_at",{ascending:false}).limit(1)
+]);
+if (verErr || !version) { root.innerHTML='<p class="texto-suave">Não foi possível carregar esta ficha.</p>'; throw verErr || new Error("ficha inexistente"); }
+const type = types?.find(t=>t.id===version.anamnesis_type_id);
+document.querySelector("[data-titulo]").textContent = type?.name || "Anamnese";
+document.querySelector("[data-subtitulo]").textContent = type?.description || "Preencha as informações solicitadas com atenção.";
+
+const canEdit = version.status === "draft" || (permissions?.length && permissions[0].status==="active" && (!permissions[0].expires_at || new Date(permissions[0].expires_at)>new Date()));
+const [{data:questions,error:qErr},{data:responses}] = await Promise.all([
+  supabase.from("anamnesis_questions").select("id,section,position,required,conditional_rule,question_definition_id,question_definitions(id,code,clinical_concept_id,label,help_text,field_type,options,validation)").eq("anamnesis_type_id",version.anamnesis_type_id).eq("active",true).order("position"),
+  supabase.from("anamnesis_responses").select("question_definition_id,clinical_concept_id,value").eq("anamnesis_version_id",versionId)
+]);
+if (qErr) { root.innerHTML='<p class="texto-suave">Erro ao carregar as perguntas.</p>'; throw qErr; }
+
+const qList=(questions||[]).filter(q=>q.question_definitions).sort((a,b)=>(a.position||0)-(b.position||0));
+const answerMap=new Map((responses||[]).map(r=>[r.question_definition_id,r.value]));
+const concepts=[...new Set(qList.map(q=>q.question_definitions.clinical_concept_id).filter(Boolean))];
+const {data:previous}=concepts.length ? await supabase.from("patient_clinical_data").select("clinical_concept_id,value,valid_from").eq("patient_id",patientId).eq("is_current",true).in("clinical_concept_id",concepts) : {data:[]};
+const previousMap=new Map((previous||[]).map(r=>[r.clinical_concept_id,r.value]));
+const values=new Map();
+(answerMap.size?answerMap:previousMap).forEach((v,k)=>values.set(k,v));
+
+function normalizeValue(v){return v===null||v===undefined?"":v;}
+function displayValue(v){ if(typeof v==="object") return Array.isArray(v)?v.join(", "):(v.text||v.value||JSON.stringify(v)); return String(v); }
+function visible(q){
+  const rule=q.conditional_rule; if(!rule) return true;
+  const current=values.get(rule.question_definition_id); const expected=rule.value;
+  if(rule.operator==="contains") return Array.isArray(current)&&current.includes(expected);
+  return displayValue(current)===displayValue(expected);
+}
+function renderField(q){
+  const d=q.question_definitions, opts=Array.isArray(d.options)?d.options:(d.options?.choices||[]);
+  const id="q_"+d.id, current=normalizeValue(values.get(d.id));
+  const req=q.required?" required":"";
+  if(d.field_type==="radio"||d.field_type==="select"){
+    const choices=opts.map(o=>typeof o==="string"?{value:o,label:o}:o);
+    if(d.field_type==="select") return '<select id="'+id+'" data-q="'+d.id+'"'+req+'><option value="">Selecione…</option>'+choices.map(o=>'<option value="'+escapeHtml(o.value)+'" '+(displayValue(current)===displayValue(o.value)?"selected":"")+'>'+escapeHtml(o.label)+'</option>').join("")+'</select>';
+    return '<div class="opcoes">'+choices.map(o=>'<label class="opcao"><input type="radio" name="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(o.value)+'" '+(displayValue(current)===displayValue(o.value)?"checked":"")+(q.required?" required":"")+'><span>'+escapeHtml(o.label)+'</span></label>').join("")+'</div>';
+  }
+  if(d.field_type==="checkbox"){
+    const selected=Array.isArray(current)?current:[]; const choices=opts.map(o=>typeof o==="string"?{value:o,label:o}:o);
+    return '<div class="opcoes">'+choices.map(o=>'<label class="opcao"><input type="checkbox" data-q="'+d.id+'" value="'+escapeHtml(o.value)+'" '+(selected.includes(o.value)?"checked":"")+'><span>'+escapeHtml(o.label)+'</span></label>').join("")+'</div>';
+  }
+  if(d.field_type==="numeric") return '<input type="number" id="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(current)+'"'+req+'>';
+  if(d.field_type==="scale") return '<input type="number" id="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(current)+'" min="'+escapeHtml(d.validation?.min??0)+'" max="'+escapeHtml(d.validation?.max??10)+'" step="1"'+req+'>';
+  if(d.field_type==="upload") return '<input type="file" id="'+id+'" data-upload-q="'+d.id+'" accept="image/*,.pdf">';
+  const multiline=d.field_type==="long_text";
+  return multiline?'<textarea id="'+id+'" data-q="'+d.id+'" rows="5"'+req+'>'+escapeHtml(current)+'</textarea>':'<input type="text" id="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(current)+'"'+req+'>';
+}
+let lastSection="";
+root.innerHTML=qList.map(q=>{
+ const d=q.question_definitions; const section=q.section||"Anamnese"; const heading=section!==lastSection?'<h3 style="margin:24px 0 4px">'+escapeHtml(section)+'</h3>':""; lastSection=section;
+ const prev=d.clinical_concept_id && previousMap.has(d.clinical_concept_id) && !answerMap.has(d.id);
+ return heading+'<div class="anamnese-question" data-question-wrap="'+d.id+'"><label class="titulo" for="q_'+d.id+'">'+escapeHtml(d.label)+(q.required?' *':'')+'</label>'+(d.help_text?'<div class="anamnese-help">'+escapeHtml(d.help_text)+'</div>':"")+(prev?'<div class="previous-answer">Resposta anterior encontrada: <strong>'+escapeHtml(displayValue(previousMap.get(d.clinical_concept_id)))+'</strong><br><button type="button" class="btn-p btn-p-mini btn-p-dourado" data-manter="'+d.id+'">Manter resposta</button><button type="button" class="btn-p btn-p-mini btn-p-fora" data-alterar="'+d.id+'">Alterar resposta</button></div>':"")+renderField(q)+'<div class="erro-campo" data-error="'+d.id+'"></div></div>';
+}).join("");
+
+const assinaturaWrap=document.createElement("div"); assinaturaWrap.innerHTML='<div class="anamnese-section"><h3>Declaração e assinatura</h3><p class="texto-suave">Ao assinar, você confirma que as informações fornecidas nesta ficha correspondem ao seu conhecimento atual.</p><div class="assinatura-wrap"><canvas id="anamnese-canvas"></canvas></div><div class="anamnese-actions"><button type="button" class="btn-p btn-p-fora" id="limpar-assinatura">Limpar assinatura</button></div></div>';
+root.appendChild(assinaturaWrap);
+const canvas=document.getElementById("anamnese-canvas"); const assinatura=criarAssinatura(canvas); requestAnimationFrame(()=>assinatura.redimensionar());
+document.getElementById("limpar-assinatura").onclick=()=>assinatura.limpar();
+
+function readValue(d){
+ const nodes=[...root.querySelectorAll('[data-q="'+d.id+'"]')];
+ if(d.field_type==="checkbox") return nodes.filter(n=>n.checked).map(n=>n.value);
+ if(d.field_type==="radio"){const n=nodes.find(n=>n.checked);return n?n.value:"";}
+ const n=nodes[0]; return n?n.value:"";
+}
+root.querySelectorAll("[data-q]").forEach(el=>el.addEventListener("input",()=>values.set(el.dataset.q,readValue(qList.find(q=>q.question_definitions.id===el.dataset.q).question_definitions))));
+root.querySelectorAll("[data-q]").forEach(el=>el.addEventListener("change",()=>{const q=qList.find(x=>x.question_definitions.id===el.dataset.q);if(q)values.set(el.dataset.q,readValue(q.question_definitions));}));
+
+root.querySelectorAll("[data-manter]").forEach(btn=>btn.onclick=()=>{
+ const q=qList.find(x=>x.question_definitions.id===btn.dataset.manter); if(!q)return;
+ values.set(q.question_definitions.id,previousMap.get(q.question_definitions.clinical_concept_id)); const field=root.querySelector('[data-q="'+q.question_definitions.id+'"]');
+ if(field) { if(q.question_definitions.field_type==="radio"){root.querySelectorAll('[data-q="'+q.question_definitions.id+'"]').forEach(x=>x.checked=x.value===displayValue(values.get(q.question_definitions.id)))} else field.value=displayValue(values.get(q.question_definitions.id));}
+ btn.closest(".previous-answer").remove();
+});
+root.querySelectorAll("[data-alterar]").forEach(btn=>btn.onclick=()=>btn.closest(".previous-answer").remove());
+
+const actions=document.createElement("div"); actions.className="anamnese-actions";
+actions.innerHTML='<button type="button" class="btn-p btn-p-dourado" id="enviar-anamnese">Enviar anamnese</button><a class="btn-p btn-p-fora" href="/painel/paciente/painel.html">Voltar</a>';
+root.appendChild(actions);
+const submitBtn=document.getElementById("enviar-anamnese");
+if(!canEdit){submitBtn.disabled=true; actions.insertAdjacentHTML("beforebegin",'<div class="anamnese-status">Esta ficha está bloqueada para edição. Você pode apenas consultar as respostas.</div>'); root.querySelectorAll("input,select,textarea,button[data-manter],button[data-alterar]").forEach(el=>{if(el.id!=="limpar-assinatura")el.disabled=true;});}
+if(version.status==="submitted"||version.status==="locked"){document.querySelector("[data-subtitulo]").textContent="Ficha preenchida e arquivada. Esta versão permanece preservada no seu prontuário.";}
+
+/* Uploads serão adicionados ao fluxo de submissão; por enquanto, campos upload ficam reservados para a etapa de anexos. */
+submitBtn.onclick=async()=>{
+ if(!canEdit)return;
+ const missing=[];
+ for(const q of qList){ if(!visible(q)||!q.required)continue; const v=readValue(q.question_definitions); if(v===""||(Array.isArray(v)&&!v.length)) missing.push(q); }
+ if(missing.length){missing.forEach(q=>{const e=root.querySelector('[data-error="'+q.question_definitions.id+'"]');if(e)e.textContent="Este campo é obrigatório.";}); missing[0].question_definition_id && root.querySelector('[data-q="'+missing[0].question_definition_id+'"]')?.scrollIntoView({behavior:"smooth",block:"center"}); return;}
+ if(assinatura.estaVazia()){alert("Desenhe sua assinatura antes de enviar a ficha."); return;}
+ submitBtn.disabled=true; submitBtn.textContent="Enviando…";
+ try{
+  const respostas=qList.filter(q=>visible(q)).map(q=>({question_definition_id:q.question_definitions.id,clinical_concept_id:q.question_definitions.clinical_concept_id||null,value:readValue(q.question_definitions),source:"anamnese"}));
+  const blob=await assinatura.paraBlob();
+  const path=patientId+"/anamneses/"+versionId+"-"+Date.now()+".png";
+  const {error:upErr}=await supabase.storage.from("documentos-pacientes").upload(path,blob,{contentType:"image/png",upsert:false}); if(upErr)throw upErr;
+  const {error:rpcErr}=await supabase.rpc("submit_anamnesis",{p_version_id:versionId,p_responses:respostas,p_signature_path:path,p_user_agent:navigator.userAgent}); if(rpcErr)throw rpcErr;
+  root.innerHTML='<div class="anamnese-status"><strong>Anamnese enviada com sucesso.</strong><p style="margin:6px 0 0">Sua ficha foi registrada e assinada. Esta versão ficará disponível no seu prontuário.</p><a class="btn-p btn-p-dourado" style="margin-top:12px" href="/painel/paciente/painel.html">Voltar ao Meu espaço</a></div>';
+ }catch(e){submitBtn.disabled=false;submitBtn.textContent="Enviar anamnese";alert("Não foi possível enviar a ficha: "+(e.message||e));}
+};
+</script>
+</body>
+</html>
