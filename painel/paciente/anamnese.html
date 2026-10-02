@@ -33,7 +33,7 @@ configurarBotaoSair();
 const patientId = contexto.paciente.id;
 const versionId = new URLSearchParams(location.search).get("version");
 const root = document.querySelector("[data-root]");
-const escapeHtml = (v) => String(v ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",""":"&quot;","'":"&#39;"}[c]));
+const escapeHtml = (v) => String(v ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 if (!versionId) { root.innerHTML='<p class="texto-suave">Ficha não informada.</p>'; throw new Error("sem versão"); }
 
 const [{data:version,error:verErr},{data:types},{data:permissions}] = await Promise.all([
