@@ -2,7 +2,7 @@ name: Atualizar sitemap.xml e páginas estáticas (tratamentos, artigos e result
 
 on:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
     inputs:
       request_id:
