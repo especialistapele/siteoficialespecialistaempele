@@ -54,6 +54,7 @@
           <button data-aba="pre-atendimento">Pré-atendimento</button>
           <button data-aba="atendimentos">Novo atendimento</button>
           <button data-aba="documentos">Documentos</button>
+          <button data-aba="anamneses">Anamneses</button>
           <button data-aba="prontuario">Prontuário</button>
           <button data-aba="financeiro">Financeiro</button>
         </div>
@@ -156,6 +157,16 @@
           </form>
           <div data-resumo-financeiro style="display:flex;gap:16px;flex-wrap:wrap;margin:20px 0"></div>
           <div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Descrição</th><th>Vencimento</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody data-lista-financeiro></tbody></table></div>
+        </div>
+
+        <!-- ANAMNESES -->
+        <div class="aba-conteudo" data-conteudo="anamneses">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+            <div><h3 style="margin-bottom:4px">Anamneses</h3><p class="texto-suave" style="margin:0">Libere novas fichas, consulte versões e controle autorizações de edição.</p></div>
+            <div class="form-campo" style="min-width:230px"><label for="nova-anamnese-tipo">Nova ficha</label><select id="nova-anamnese-tipo"></select></div>
+            <button type="button" class="btn-p btn-p-dourado btn-p-mini" id="liberar-anamnese">Liberar ficha</button>
+          </div>
+          <div id="lista-anamneses-admin" style="display:grid;gap:12px;margin-top:18px"><p class="texto-suave">Carregando…</p></div>
         </div>
 
         <!-- PRONTUÁRIO -->
@@ -334,6 +345,71 @@
       });
     }
   }
+
+  // Anamneses — primeira camada administrativa
+  const listaAnamnesesAdmin = document.getElementById("lista-anamneses-admin");
+  const selectNovaAnamnese = document.getElementById("nova-anamnese-tipo");
+  const botaoLiberarAnamnese = document.getElementById("liberar-anamnese");
+
+  function escapeTextoAnamnese(v) {
+    return escapeHtml(v == null ? "" : String(v));
+  }
+
+  async function carregarAnamnesesAdmin() {
+    if (!listaAnamnesesAdmin) return;
+    const [{ data: tipos, error: tiposError }, { data: versoes, error: versoesError }] = await Promise.all([
+      supabase.from("anamnesis_types").select("id,code,name,active").eq("active", true).order("name"),
+      supabase.from("anamnesis_versions").select("id,anamnesis_type_id,version_number,status,created_at,released_at,submitted_at,locked_at").eq("patient_id", patientId).order("created_at", { ascending: false })
+    ]);
+    if (tiposError || versoesError) {
+      listaAnamnesesAdmin.innerHTML = '<p class="texto-suave">Não foi possível carregar as anamneses.</p>';
+      return;
+    }
+    selectNovaAnamnese.innerHTML = (tipos || []).map(t => '<option value="' + t.id + '">' + escapeTextoAnamnese(t.name) + '</option>').join("");
+    const nomes = Object.fromEntries((tipos || []).map(t => [t.id, t.name]));
+    listaAnamnesesAdmin.innerHTML = versoes?.length ? versoes.map(v => {
+      const status = v.status || "draft";
+      const bloqueada = ["submitted","locked","signed"].includes(status);
+      return '<div class="painel-card" style="padding:16px">' +
+        '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">' +
+        '<div><strong>' + escapeTextoAnamnese(nomes[v.anamnesis_type_id] || "Anamnese") + '</strong><div class="texto-suave">Versão ' + v.version_number + ' · criada em ' + new Date(v.created_at).toLocaleDateString("pt-BR") + '</div></div>' +
+        '<span class="selo-p">' + escapeTextoAnamnese(status) + '</span></div>' +
+        '<div class="texto-suave" style="margin-top:8px">' + (v.submitted_at ? "Enviada em " + new Date(v.submitted_at).toLocaleString("pt-BR") : v.released_at ? "Liberada em " + new Date(v.released_at).toLocaleString("pt-BR") : "Ainda não liberada") + '</div>' +
+        (bloqueada ? '<button type="button" class="btn-p btn-p-mini" data-autorizar-edicao="' + v.id + '" style="margin-top:12px">Autorizar edição</button>' : '') +
+        '</div>';
+    }).join("") : '<p class="texto-suave">Nenhuma anamnese liberada para esta paciente.</p>';
+
+    listaAnamnesesAdmin.querySelectorAll("[data-autorizar-edicao]").forEach(btn => btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      const versionId = btn.dataset.autorizarEdicao;
+      const { error } = await supabase.from("anamnesis_edit_permissions").insert({ anamnesis_version_id: versionId, patient_id: patientId, granted_by: contexto.session.user.id, status: "active" });
+      btn.disabled = false;
+      if (error) { mostrarFlash(flash, "Erro ao autorizar edição: " + error.message, "erro"); return; }
+      mostrarFlash(flash, "Edição autorizada para esta versão.", "sucesso");
+      carregarAnamnesesAdmin();
+    }));
+  }
+
+  botaoLiberarAnamnese?.addEventListener("click", async () => {
+    const tipoId = selectNovaAnamnese?.value;
+    if (!tipoId) { mostrarFlash(flash, "Selecione o tipo de anamnese.", "erro"); return; }
+    botaoLiberarAnamnese.disabled = true;
+    try {
+      const { data: existentes, error: erroBusca } = await supabase.from("anamnesis_versions").select("version_number").eq("patient_id", patientId).eq("anamnesis_type_id", tipoId).order("version_number", { ascending: false }).limit(1);
+      if (erroBusca) throw erroBusca;
+      const proximaVersao = (existentes?.[0]?.version_number || 0) + 1;
+      const { data: versao, error: erroVersao } = await supabase.from("anamnesis_versions").insert({ patient_id: patientId, anamnesis_type_id: tipoId, version_number: proximaVersao, status: "released", released_at: new Date().toISOString() }).select("id").single();
+      if (erroVersao) throw erroVersao;
+      const { error: erroAviso } = await supabase.from("announcements").insert({ patient_id: patientId, title: "Nova anamnese disponível", message: "Uma nova ficha de anamnese foi liberada para você. Acesse seu painel para preencher." });
+      if (erroAviso) console.warn("Anamnese liberada, mas o aviso não foi criado:", erroAviso.message);
+      mostrarFlash(flash, "Nova anamnese liberada com sucesso.", "sucesso");
+      await carregarAnamnesesAdmin();
+    } catch (erro) {
+      mostrarFlash(flash, "Erro ao liberar anamnese: " + (erro?.message || erro), "erro");
+    } finally { botaoLiberarAnamnese.disabled = false; }
+  });
+
+  carregarAnamnesesAdmin();
 
   // Pré-atendimento (respostas do formulário do site)
   const preAtendimentoBox = document.querySelector("[data-pre-atendimento-conteudo]");
