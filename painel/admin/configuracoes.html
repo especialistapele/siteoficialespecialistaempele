@@ -15,6 +15,9 @@
   .toggle input:checked + .slider::before{transform:translateX(18px)}
   .config-item{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--linha)}
   .config-item:last-child{border-bottom:none}
+  .config-notificacoes{margin-top:18px}
+  .config-notificacoes .config-item{gap:18px}
+  .config-notificacoes .config-item span{flex:1}
 </style>
 <link rel="icon" href="/assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
@@ -79,6 +82,27 @@
         <div class="config-item">
           <span>Backup automático <small class="texto-suave">(configuração)</small></span>
           <label class="toggle"><input type="checkbox" id="cfg-backup"><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <div class="painel-card config-notificacoes">
+        <h3>Notificações do painel</h3>
+        <p class="texto-suave" style="margin-top:-6px">Todos os alertas abaixo começam ativados. Você pode desligar individualmente o que não quiser receber no centro de notificações.</p>
+        <div class="config-item">
+          <span><strong>Novo lead</strong><br><small class="texto-suave">Avisar quando chegar um novo pré-atendimento.</small></span>
+          <label class="toggle"><input type="checkbox" id="cfg-notif-leads"><span class="slider"></span></label>
+        </div>
+        <div class="config-item">
+          <span><strong>Próximo atendimento</strong><br><small class="texto-suave">Mostrar o próximo atendimento agendado.</small></span>
+          <label class="toggle"><input type="checkbox" id="cfg-notif-agenda"><span class="slider"></span></label>
+        </div>
+        <div class="config-item">
+          <span><strong>Artigo semanal</strong><br><small class="texto-suave">Lembrar quando não houver artigo publicado nos últimos 7 dias.</small></span>
+          <label class="toggle"><input type="checkbox" id="cfg-notif-artigos"><span class="slider"></span></label>
+        </div>
+        <div class="config-item">
+          <span><strong>Resultado semanal</strong><br><small class="texto-suave">Lembrar quando não houver resultado publicado nos últimos 7 dias.</small></span>
+          <label class="toggle"><input type="checkbox" id="cfg-notif-resultados"><span class="slider"></span></label>
         </div>
       </div>
     </div>
@@ -147,6 +171,10 @@
     document.getElementById("cfg-upload").checked = config.permitir_upload_documentos;
     document.getElementById("cfg-email").checked = config.notificacoes_email;
     document.getElementById("cfg-backup").checked = config.backup_automatico;
+    document.getElementById("cfg-notif-leads").checked = config.notificacoes_leads;
+    document.getElementById("cfg-notif-agenda").checked = config.notificacoes_agenda;
+    document.getElementById("cfg-notif-artigos").checked = config.notificacoes_artigos;
+    document.getElementById("cfg-notif-resultados").checked = config.notificacoes_resultados;
   }
 
   async function salvar(campo, valor) {
@@ -157,6 +185,10 @@
   document.getElementById("cfg-upload").addEventListener("change", (e) => salvar("permitir_upload_documentos", e.target.checked));
   document.getElementById("cfg-email").addEventListener("change", (e) => salvar("notificacoes_email", e.target.checked));
   document.getElementById("cfg-backup").addEventListener("change", (e) => salvar("backup_automatico", e.target.checked));
+  document.getElementById("cfg-notif-leads").addEventListener("change", (e) => salvar("notificacoes_leads", e.target.checked));
+  document.getElementById("cfg-notif-agenda").addEventListener("change", (e) => salvar("notificacoes_agenda", e.target.checked));
+  document.getElementById("cfg-notif-artigos").addEventListener("change", (e) => salvar("notificacoes_artigos", e.target.checked));
+  document.getElementById("cfg-notif-resultados").addEventListener("change", (e) => salvar("notificacoes_resultados", e.target.checked));
 </script>
 </body>
 </html>
