@@ -182,18 +182,18 @@ export async function carregarNotificacoes(supabase) {
   });
 }
 
-export function renderNotificacao(item) {
+function escapeHtml(value) { const el = document.createElement('div'); el.textContent = value == null ? '' : String(value); return el.innerHTML; }\n\nexport function renderNotificacao(item) {
   return `
-    <article class="notificacao-item notificacao-item--${item.prioridade}" data-notificacao-id="${item.id}">
+    <article class="notificacao-item notificacao-item--${item.prioridade}" data-notificacao-id="${escapeHtml(item.id)}">
       <div class="notificacao-item__icone" aria-hidden="true">${ICONES[item.tipo] || "•"}</div>
       <div class="notificacao-item__corpo">
         <div class="notificacao-item__topo">
-          <strong>${item.titulo}</strong>
-          <button type="button" class="notificacao-item__fechar" data-dispensar-notificacao="${item.id}" aria-label="Dispensar">×</button>
+          <strong>${escapeHtml(item.titulo)}</strong>
+          <button type="button" class="notificacao-item__fechar" data-dispensar-notificacao="${escapeHtml(item.id)}" aria-label="Dispensar">×</button>
         </div>
-        <p>${item.descricao}</p>
-        <small>${item.detalhe}</small>
-        <a class="btn-p btn-p-mini btn-p-fora notificacao-item__acao" href="${item.href}">Abrir</a>
+        <p>${escapeHtml(item.descricao)}</p>
+        <small>${escapeHtml(item.detalhe)}</small>
+        <a class="btn-p btn-p-mini btn-p-fora notificacao-item__acao" href="${escapeHtml(item.href)}">Abrir</a>
       </div>
     </article>`;
 }
