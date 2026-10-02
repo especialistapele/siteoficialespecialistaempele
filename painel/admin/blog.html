@@ -259,6 +259,14 @@
     modal.style.display = "flex";
   }
 
+  function formatarDataParaInputLocal(valor) {
+    if (!valor) return "";
+    const data = new Date(valor);
+    if (Number.isNaN(data.getTime())) return "";
+    const pad = (n) => String(n).padStart(2, "0");
+    return data.getFullYear() + "-" + pad(data.getMonth() + 1) + "-" + pad(data.getDate()) + "T" + pad(data.getHours()) + ":" + pad(data.getMinutes());
+  }
+
   function abrirEdicao(id) {
     const item = todos.find((a) => a.id === id);
     if (!item) return;
@@ -276,6 +284,7 @@
     document.getElementById("cta_label").value = item.cta_label || "";
     document.getElementById("cta_url").value = item.cta_url || "";
     renderizarFaq(Array.isArray(item.faq) ? item.faq : []);
+    document.getElementById("scheduled_at").value = formatarDataParaInputLocal(item.scheduled_at);
     document.getElementById("published").checked = !!item.published;
     selectTratamento.value = item.treatment_id || "";
     imagemAtualUrl = item.cover_image_url;
