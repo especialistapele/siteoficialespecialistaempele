@@ -224,7 +224,19 @@
   const avisosBloco = document.querySelector("[data-avisos]");
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>\"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;", "'":"&#39;"}[c]));
   const safeUrl = (value) => { try { const u = new URL(String(value ?? ""), window.location.origin); return ["http:", "https:"].includes(u.protocol) ? escapeHtml(u.href) : ""; } catch { return ""; } };
-  avisosBloco.innerHTML = avisos?.length ? avisos.map(a => `<div style="padding:12px 0;border-bottom:1px solid var(--linha)"><strong>${escapeHtml(a.title)}</strong><p class="texto-suave" style="white-space:pre-wrap;margin:5px 0 0">${escapeHtml(a.message)}</p></div>`).join("") : `<p class="texto-suave">Nenhum aviso no momento.</p>`;
+  let versoesAviso = [];
+  if (avisos?.some(a => a.title === "Nova anamnese disponível")) {
+    const { data } = await supabase.from("anamnesis_versions").select("id,version_number,status,created_at,anamnesis_types(name)").eq("patient_id", patientId).order("created_at",{ascending:false}).limit(10);
+    versoesAviso = data || [];
+  }
+  avisosBloco.innerHTML = avisos?.length ? avisos.map(a => {
+    const v = a.title === "Nova anamnese disponível" ? versoesAviso.find(x => x.status === "draft") : null;
+    return `<div style="padding:12px 0;border-bottom:1px solid var(--linha)">
+      <strong>${escapeHtml(a.title)}</strong>
+      <p class="texto-suave" style="white-space:pre-wrap;margin:5px 0 0">${escapeHtml(a.message)}</p>
+      ${v ? `<a class="btn-p btn-p-mini btn-p-dourado" style="margin-top:9px" href="/painel/paciente/anamnese.html?version=${encodeURIComponent(v.id)}">Preencher esta ficha →</a>` : ""}
+    </div>`;
+  }).join("") : `<p class="texto-suave">Nenhum aviso no momento.</p>`;
 
   // Atendimentos
   const { data: atendimentos } = await supabase.from("appointments").select("*").eq("patient_id", patientId).order("appointment_date", { ascending: true });
