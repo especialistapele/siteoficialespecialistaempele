@@ -220,7 +220,7 @@
       if (!item) return;
       const publicar = !item.published;
       if (!publicar && !confirm("Despublicar este artigo? A página sai do ar (404), do sitemap e da listagem.")) return;
-      const { error } = await supabase.from("articles").update({ published: publicar }).eq("id", item.id);
+      const { error } = await supabase.from("articles").update({ published: publicar, scheduled_at: null }).eq("id", item.id);
       if (error) { mostrarFlash(flash, "Erro: " + error.message, "erro"); return; }
       const resultadoPublicacao = await dispararPublicacao({ path: `blog/${item.slug}.html`, publicado: publicar });
       mostrarFlash(flash, (publicar ? "Artigo publicado. " : "Artigo despublicado. ") + (resultadoPublicacao.confirmado ? MSG_CONFIRMADO : (resultadoPublicacao.ok ? MSG_ATUALIZANDO : MSG_AGENDADO)), "sucesso");
@@ -339,7 +339,7 @@
       // published_at (data da PRIMEIRA publicação) e o slug final (único) são
       // definidos pelo banco; aqui só lemos de volta o que ficou salvo.
       const consulta = id ? supabase.from("articles").update(payload).eq("id", id) : supabase.from("articles").insert(payload);
-      const { data: salvo, error } = await consulta.select("public_id, slug, published").single();
+      const { data: salvo, error } = await consulta.select("public_id, slug, published, scheduled_at").single();
       if (error) throw error;
 
       // Confirma primeiro que o artigo e o FAQ foram persistidos no banco.
