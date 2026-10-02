@@ -91,14 +91,20 @@ function renderField(q){
 let lastSection="";
 root.innerHTML=qList.map(q=>{
  const d=q.question_definitions; const section=q.section||"Anamnese"; const heading=section!==lastSection?'<h3 style="margin:24px 0 4px">'+escapeHtml(section)+'</h3>':""; lastSection=section;
- const prev=d.clinical_concept_id && previousMap.has(d.clinical_concept_id) && !answerMap.has(d.id);
+ const prev=canEdit && d.clinical_concept_id && previousMap.has(d.clinical_concept_id) && !answerMap.has(d.id);
  return heading+'<div class="anamnese-question" data-question-wrap="'+d.id+'"><label class="titulo" for="q_'+d.id+'">'+escapeHtml(d.label)+(q.required?' *':'')+'</label>'+(d.help_text?'<div class="anamnese-help">'+escapeHtml(d.help_text)+'</div>':"")+(prev?'<div class="previous-answer">Resposta anterior encontrada: <strong>'+escapeHtml(displayValue(previousMap.get(d.clinical_concept_id)))+'</strong><br><button type="button" class="btn-p btn-p-mini btn-p-dourado" data-manter="'+d.id+'">Manter resposta</button><button type="button" class="btn-p btn-p-mini btn-p-fora" data-alterar="'+d.id+'">Alterar resposta</button></div>':"")+renderField(q)+'<div class="erro-campo" data-error="'+d.id+'"></div></div>';
 }).join("");
 
-const assinaturaWrap=document.createElement("div"); assinaturaWrap.innerHTML='<div class="anamnese-section"><h3>Declaração e assinatura</h3><p class="texto-suave">Ao assinar, você confirma que as informações fornecidas nesta ficha correspondem ao seu conhecimento atual.</p><div class="assinatura-wrap"><canvas id="anamnese-canvas"></canvas></div><div class="anamnese-actions"><button type="button" class="btn-p btn-p-fora" id="limpar-assinatura">Limpar assinatura</button></div></div>';
-root.appendChild(assinaturaWrap);
-const canvas=document.getElementById("anamnese-canvas"); const assinatura=criarAssinatura(canvas); requestAnimationFrame(()=>assinatura.redimensionar());
-document.getElementById("limpar-assinatura").onclick=()=>assinatura.limpar();
+let assinatura=null;
+if (canEdit) {
+  const assinaturaWrap=document.createElement("div");
+  assinaturaWrap.innerHTML='<div class="anamnese-section"><h3>Declaração e assinatura</h3><p class="texto-suave">Ao assinar, você confirma que as informações fornecidas nesta ficha correspondem ao seu conhecimento atual.</p><div class="assinatura-wrap"><canvas id="anamnese-canvas"></canvas></div><div class="anamnese-actions"><button type="button" class="btn-p btn-p-fora" id="limpar-assinatura">Limpar assinatura</button></div></div>';
+  root.appendChild(assinaturaWrap);
+  const canvas=document.getElementById("anamnese-canvas");
+  assinatura=criarAssinatura(canvas);
+  requestAnimationFrame(()=>assinatura.redimensionar());
+  document.getElementById("limpar-assinatura").onclick=()=>assinatura.limpar();
+}
 
 function readValue(d){
  const nodes=[...root.querySelectorAll('[data-q="'+d.id+'"]')];
@@ -140,19 +146,22 @@ refreshVisibility();
 root.querySelectorAll("[data-alterar]").forEach(btn=>btn.onclick=()=>btn.closest(".previous-answer").remove());
 
 const actions=document.createElement("div"); actions.className="anamnese-actions";
-actions.innerHTML='<button type="button" class="btn-p btn-p-dourado" id="enviar-anamnese">Enviar anamnese</button><a class="btn-p btn-p-fora" href="/painel/paciente/painel.html">Voltar</a>';
+actions.innerHTML=(canEdit?'<button type="button" class="btn-p btn-p-dourado" id="enviar-anamnese">Enviar anamnese</button>':'')+'<a class="btn-p btn-p-fora" href="/painel/paciente/painel.html">Voltar</a>';
 root.appendChild(actions);
 const submitBtn=document.getElementById("enviar-anamnese");
-if(!canEdit){submitBtn.disabled=true; actions.insertAdjacentHTML("beforebegin",'<div class="anamnese-status">Esta ficha está bloqueada para edição. Você pode apenas consultar as respostas.</div>'); root.querySelectorAll("input,select,textarea,button[data-manter],button[data-alterar]").forEach(el=>{if(el.id!=="limpar-assinatura")el.disabled=true;});}
+if(!canEdit){
+  actions.insertAdjacentHTML("beforebegin",'<div class="anamnese-status">Esta ficha está bloqueada para edição. Você pode apenas consultar as respostas registradas.</div>');
+  root.querySelectorAll("input,select,textarea,button[data-manter],button[data-alterar]").forEach(el=>el.disabled=true);
+}
 if(version.status==="submitted"||version.status==="locked"){document.querySelector("[data-subtitulo]").textContent="Ficha preenchida e arquivada. Esta versão permanece preservada no seu prontuário.";}
 
 /* Uploads serão adicionados ao fluxo de submissão; por enquanto, campos upload ficam reservados para a etapa de anexos. */
-submitBtn.onclick=async()=>{
+if (submitBtn) submitBtn.onclick=async()=>{
  if(!canEdit)return;
  const missing=[];
  for(const q of qList){ if(!visible(q)||!q.required)continue; const v=readValue(q.question_definitions); if(v===""||(Array.isArray(v)&&!v.length)) missing.push(q); }
- if(missing.length){missing.forEach(q=>{const e=root.querySelector('[data-error="'+q.question_definitions.id+'"]');if(e)e.textContent="Este campo é obrigatório.";}); missing[0].question_definition_id && root.querySelector('[data-q="'+missing[0].question_definition_id+'"]')?.scrollIntoView({behavior:"smooth",block:"center"}); return;}
- if(assinatura.estaVazia()){alert("Desenhe sua assinatura antes de enviar a ficha."); return;}
+ if(missing.length){missing.forEach(q=>{const e=root.querySelector('[data-error="'+q.question_definitions.id+'"]');if(e)e.textContent="Este campo é obrigatório.";}); root.querySelector('[data-q="'+missing[0].question_definitions.id+'"]')?.scrollIntoView({behavior:"smooth",block:"center"}); return;}
+ if(!assinatura || assinatura.estaVazia()){alert("Desenhe sua assinatura antes de enviar a ficha."); return;}
  submitBtn.disabled=true; submitBtn.textContent="Enviando…";
  try{
   const respostas=[];
