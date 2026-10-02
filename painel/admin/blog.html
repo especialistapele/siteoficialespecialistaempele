@@ -30,8 +30,8 @@
     <div class="aviso-flash" data-flash></div>
     <div class="busca-campo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input type="text" id="busca" placeholder="Buscar artigo..."></div>
     <table class="tabela-p">
-      <thead><tr><th>Título</th><th>ID / endereço</th><th>Data</th><th>Status</th><th>Ações</th></tr></thead>
-      <tbody data-tabela-corpo><tr><td colspan="5" class="painel-vazio">Carregando…</td></tr></tbody>
+      <thead><tr><th>Título</th><th>ID / endereço</th><th>Data</th><th>Status</th><th>Agendamento</th><th>Ações</th></tr></thead>
+      <tbody data-tabela-corpo><tr><td colspan="6" class="painel-vazio">Carregando…</td></tr></tbody>
     </table>
 
     <div id="modal" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
@@ -76,7 +76,10 @@
             <small class="texto-suave" style="font-size:11px">As perguntas e respostas serão exibidas no final do artigo e incluídas automaticamente na estrutura SEO da página.</small>
           </div>
           <div class="form-campo"><label for="imagem">Imagem de capa</label><input type="file" id="imagem" accept="image/*"></div>
-          <div class="form-checkbox"><input type="checkbox" id="published"><label for="published">Publicado</label></div>
+          <div class="form-linha">
+            <div class="form-campo"><label for="scheduled_at">Agendar publicação</label><input type="datetime-local" id="scheduled_at"><small class="texto-suave" style="font-size:11px">Escolha a data e o horário. O artigo será publicado automaticamente quando chegar o momento.</small></div>
+            <div class="form-campo" style="display:flex;align-items:flex-end"><div class="form-checkbox"><input type="checkbox" id="published"><label for="published">Publicar agora</label></div></div>
+          </div>
           <div class="form-acoes">
             <button type="submit" class="btn-p btn-p-dourado" id="botao-salvar">Salvar</button>
             <button type="button" class="btn-p btn-p-fora" id="botao-fechar">Cancelar</button>
@@ -195,7 +198,7 @@
         <td>${escapeHtml(a.title)}</td>
         <td style="font-size:12px"><strong>${escapeHtml(a.public_id || "—")}</strong><br>${a.published ? `<a href="/blog/${escapeHtml(a.slug)}.html" target="_blank" rel="noopener">/blog/${escapeHtml(a.slug)}.html</a>` : `<span class="texto-suave">/blog/${escapeHtml(a.slug)}.html (fora do ar)</span>`}</td>
         <td>${a.published_at ? new Date(a.published_at).toLocaleDateString("pt-BR") : "—"}</td>
-        <td><span class="selo-p ${a.published ? "publicado" : "rascunho"}">${a.published ? "Publicado" : "Rascunho"}</span></td>
+        <td><span class="selo-p ${a.published ? "publicado" : (a.scheduled_at ? "agendado" : "rascunho")}">${a.published ? "Publicado" : (a.scheduled_at ? "Agendado" : "Rascunho")}</span></td>\n        <td style="font-size:12px">${!a.published && a.scheduled_at ? new Date(a.scheduled_at).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—"}</td>
         <td>
           <button class="btn-p btn-p-mini btn-p-fora" data-editar="${a.id}">Editar</button>
           <button class="btn-p btn-p-mini btn-p-fora" data-alternar="${a.id}">${a.published ? "Despublicar" : "Publicar"}</button>
@@ -217,7 +220,7 @@
       if (!item) return;
       const publicar = !item.published;
       if (!publicar && !confirm("Despublicar este artigo? A página sai do ar (404), do sitemap e da listagem.")) return;
-      const { error } = await supabase.from("articles").update({ published: publicar }).eq("id", item.id);
+      const { error } = await supabase.from("articles").update({ published: publicar, scheduled_at: null }).eq("id", item.id);
       if (error) { mostrarFlash(flash, "Erro: " + error.message, "erro"); return; }
       const resultadoPublicacao = await dispararPublicacao({ path: `blog/${item.slug}.html`, publicado: publicar });
       mostrarFlash(flash, (publicar ? "Artigo publicado. " : "Artigo despublicado. ") + (resultadoPublicacao.confirmado ? MSG_CONFIRMADO : (resultadoPublicacao.ok ? MSG_ATUALIZANDO : MSG_AGENDADO)), "sucesso");
@@ -313,6 +316,9 @@
       const ctaUrl = ctaUrlBruta ? safeUrl(ctaUrlBruta) : "";
       if (ctaUrlBruta && !ctaUrl) throw new Error("URL do botão inválida. Use um endereço http(s) ou um caminho interno como /contato.html.");
       const published = document.getElementById("published").checked;
+      const scheduledRaw = document.getElementById("scheduled_at").value;
+      const scheduledAt = !published && scheduledRaw ? new Date(scheduledRaw).toISOString() : null;
+      if (!published && scheduledRaw && Number.isNaN(new Date(scheduledRaw).getTime())) throw new Error("Data de publicação inválida.");
       const atual = id ? todos.find((x) => x.id === id) : null;
       const slugNovo = document.getElementById("slug").value.trim().toLowerCase();
       if (atual && atual.published && slugNovo && slugNovo !== atual.slug &&
@@ -327,13 +333,13 @@
         cta_label: ctaLabel && ctaUrl ? ctaLabel : null,
         cta_url: ctaLabel && ctaUrl ? ctaUrl : null,
         treatment_id: selectTratamento.value || null,
-        published, cover_image_url,
+        published, scheduled_at: scheduledAt, cover_image_url,
         faq: faqItens(),
       };
       // published_at (data da PRIMEIRA publicação) e o slug final (único) são
       // definidos pelo banco; aqui só lemos de volta o que ficou salvo.
       const consulta = id ? supabase.from("articles").update(payload).eq("id", id) : supabase.from("articles").insert(payload);
-      const { data: salvo, error } = await consulta.select("public_id, slug, published").single();
+      const { data: salvo, error } = await consulta.select("public_id, slug, published, scheduled_at").single();
       if (error) throw error;
 
       // Confirma primeiro que o artigo e o FAQ foram persistidos no banco.
@@ -344,7 +350,7 @@
 
       modal.style.display = "none";
       const resultadoPublicacao = await dispararPublicacao({ path: `blog/${salvo.slug}.html`, publicado: salvo.published });
-      mostrarFlash(flash, `Artigo salvo (${salvo.public_id}). ` + (salvo.published ? `Endereço: /blog/${salvo.slug}.html. ` : "Rascunho: não aparece no site. ") + (resultadoPublicacao.confirmado ? MSG_CONFIRMADO : (resultadoPublicacao.ok ? MSG_ATUALIZANDO : MSG_AGENDADO)), "sucesso");
+      mostrarFlash(flash, `Artigo salvo (${salvo.public_id}). ` + (salvo.published ? `Endereço: /blog/${salvo.slug}.html. ` : (salvo.scheduled_at ? `Agendado para ${new Date(salvo.scheduled_at).toLocaleString("pt-BR")}. ` : "Rascunho: não aparece no site. ")) + (resultadoPublicacao.confirmado ? MSG_CONFIRMADO : (resultadoPublicacao.ok ? MSG_ATUALIZANDO : MSG_AGENDADO)), "sucesso");
       carregar();
     } catch (erro) {
       mostrarFlash(flash, "Erro: " + erro.message, "erro");
