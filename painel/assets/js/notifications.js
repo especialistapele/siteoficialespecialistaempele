@@ -128,25 +128,37 @@ export async function carregarNotificacoes(supabase) {
   if (config.notificacoes_artigos) {
     const { data, error } = await supabase
       .from("articles")
-      .select("id, title, published_at, created_at")
-      .eq("published", true)
-      .limit(50);
+      .select("id, title, published, published_at, created_at, scheduled_at")
+      .limit(100);
     if (error) throw error;
 
-    const ordenados = (data || []).slice().sort((a, b) => {
-      const da = new Date(a.published_at || a.created_at).getTime();
-      const db = new Date(b.published_at || b.created_at).getTime();
-      return db - da;
-    });
-    const ultimo = ordenados[0];
+    const artigos = data || [];
+    const agendados = artigos
+      .filter((item) => !item.published && item.scheduled_at)
+      .map((item) => ({ ...item, quando: new Date(item.scheduled_at) }))
+      .filter((item) => !Number.isNaN(item.quando.getTime()) && item.quando.getTime() > Date.now())
+      .sort((a, b) => a.quando - b.quando);
+
+    const publicados = artigos
+      .filter((item) => item.published)
+      .slice()
+      .sort((a, b) => {
+        const da = new Date(a.published_at || a.created_at).getTime();
+        const db = new Date(b.published_at || b.created_at).getTime();
+        return db - da;
+      });
+
+    const ultimo = publicados[0];
     const ultimaData = ultimo ? new Date(ultimo.published_at || ultimo.created_at) : null;
-    if (!ultimaData || (Date.now() - ultimaData.getTime()) >= DIAS_SEMANA * 86400000) {
+
+    // Se existe uma publicação futura programada, a meta de conteúdo já está planejada.
+    if (!agendados.length && (!ultimaData || (Date.now() - ultimaData.getTime()) >= DIAS_SEMANA * 86400000)) {
       itens.push({
         id: "conteudo:artigo-semanal",
         tipo: "artigo",
-        titulo: "Hora de publicar um artigo",
-        descricao: ultimo ? `O último artigo publicado foi em ${formatarData(ultimaData)}.` : "Ainda não há artigo publicado.",
-        detalhe: "Meta: pelo menos 1 artigo publicado a cada 7 dias.",
+        titulo: "Hora de programar um artigo",
+        descricao: ultimo ? `O último artigo publicado foi em ${formatarData(ultimaData)} e não há artigo programado.` : "Ainda não há artigo publicado nem publicação programada.",
+        detalhe: "Meta: manter pelo menos 1 artigo publicado a cada 7 dias ou já deixar a próxima publicação programada.",
         href: "/painel/admin/blog.html",
         data: ultimaData || hoje,
         prioridade: "alta",
