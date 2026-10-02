@@ -66,8 +66,21 @@
       "workflow_run_id": "36204753987",
       "workflow_sha": "dedd93b79d87c6d2bc5ab832dbbaa1fd82644fff",
       "ref": "main"
+    },
+    {
+      "request_id": "cecff798-a381-4e88-acc0-1131bee90958",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/acne-e-alimentacao.html",
+      "content_id": null,
+      "publicado": false,
+      "requested_at": "2026-10-02T16:18:03.109Z",
+      "completed_at": "2026-10-02T16:18:33.143Z",
+      "workflow_run_id": "37032989853",
+      "workflow_sha": "72300f7bb20ec47678fcff4ade64dd44a3246f12",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-09-26T00:25:13.078Z",
-  "total": 5
+  "updated_at": "2026-10-02T16:18:33.143Z",
+  "total": 6
 }
