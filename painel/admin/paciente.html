@@ -382,7 +382,7 @@
     listaAnamnesesAdmin.querySelectorAll("[data-autorizar-edicao]").forEach(btn => btn.addEventListener("click", async () => {
       btn.disabled = true;
       const versionId = btn.dataset.autorizarEdicao;
-      const { error } = await supabase.from("anamnesis_edit_permissions").insert({ anamnesis_version_id: versionId, patient_id: patientId, granted_by: contexto.session.user.id, status: "active" });
+      const { error } = await supabase.rpc("grant_anamnesis_edit", { p_version_id: versionId, p_expires_at: null });
       btn.disabled = false;
       if (error) { mostrarFlash(flash, "Erro ao autorizar edição: " + error.message, "erro"); return; }
       mostrarFlash(flash, "Edição autorizada para esta versão.", "sucesso");
@@ -395,13 +395,8 @@
     if (!tipoId) { mostrarFlash(flash, "Selecione o tipo de anamnese.", "erro"); return; }
     botaoLiberarAnamnese.disabled = true;
     try {
-      const { data: existentes, error: erroBusca } = await supabase.from("anamnesis_versions").select("version_number").eq("patient_id", patientId).eq("anamnesis_type_id", tipoId).order("version_number", { ascending: false }).limit(1);
-      if (erroBusca) throw erroBusca;
-      const proximaVersao = (existentes?.[0]?.version_number || 0) + 1;
-      const { data: versao, error: erroVersao } = await supabase.from("anamnesis_versions").insert({ patient_id: patientId, anamnesis_type_id: tipoId, version_number: proximaVersao, status: "released", released_at: new Date().toISOString() }).select("id").single();
-      if (erroVersao) throw erroVersao;
-      const { error: erroAviso } = await supabase.from("announcements").insert({ patient_id: patientId, title: "Nova anamnese disponível", message: "Uma nova ficha de anamnese foi liberada para você. Acesse seu painel para preencher." });
-      if (erroAviso) console.warn("Anamnese liberada, mas o aviso não foi criado:", erroAviso.message);
+      const { error: erroLiberacao } = await supabase.rpc("release_anamnesis", { p_patient_id: patientId, p_anamnesis_type_id: tipoId, p_expires_at: null });
+      if (erroLiberacao) throw erroLiberacao;
       mostrarFlash(flash, "Nova anamnese liberada com sucesso.", "sucesso");
       await carregarAnamnesesAdmin();
     } catch (erro) {
