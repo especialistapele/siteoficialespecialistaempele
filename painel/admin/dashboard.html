@@ -9,6 +9,15 @@
 <link rel="icon" href="/assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<style>
+  .dashboard-notificacoes{margin-bottom:18px}
+  .dashboard-notificacoes__cabecalho{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+  .dashboard-notificacoes__lista{display:grid;gap:8px}
+  .dashboard-notificacoes__item{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--linha);border-radius:9px;background:#fff}
+  .dashboard-notificacoes__item strong{font-size:13px}
+  .dashboard-notificacoes__item p{margin:3px 0 0;font-size:12px;color:var(--muted)}
+  .dashboard-notificacoes__badge{min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:var(--gold);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700}
+</style>
 </head>
 <body>
 
@@ -25,6 +34,14 @@
     </div>
 
     <div class="aviso-flash" data-flash></div>
+
+    <div class="painel-card dashboard-notificacoes">
+      <div class="dashboard-notificacoes__cabecalho">
+        <div><h3 style="margin:0">Notificações</h3><p class="texto-suave" style="margin:3px 0 0">O que precisa da sua atenção agora.</p></div>
+        <a class="btn-p btn-p-fora" href="/painel/admin/notificacoes.html">Ver todas</a>
+      </div>
+      <div class="dashboard-notificacoes__lista" data-dashboard-notificacoes><p class="texto-suave">Carregando…</p></div>
+    </div>
 
     <div class="stats-grid">
       <div class="stat-card">
@@ -81,6 +98,7 @@
   import { supabase, exigirAdmin, configurarBotaoSair, iniciais } from "/painel/assets/js/painel-auth.js";
   import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
   import { escapeHtml } from "/painel/assets/js/sanitize.js";
+  import { carregarNotificacoes, renderResumoNotificacoes, ligarDispensas, contarAtivas } from "/painel/assets/js/notifications.js";
 
   const contexto = await exigirAdmin();
   if (!contexto) throw new Error("sem acesso");
@@ -92,6 +110,15 @@
   document.querySelector("[data-data-hoje]").textContent = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
 
   const flash = document.querySelector("[data-flash]");
+
+  try {
+    const itens = await carregarNotificacoes(supabase);
+    const container = document.querySelector("[data-dashboard-notificacoes]");
+    container.innerHTML = renderResumoNotificacoes(itens);
+    ligarDispensas(container);
+  } catch (error) {
+    document.querySelector("[data-dashboard-notificacoes]").innerHTML = `<p class="texto-suave">Não foi possível carregar as notificações.</p>`;
+  }
 
   const { data: stats, error } = await supabase.rpc("admin_stats");
   if (error) {
