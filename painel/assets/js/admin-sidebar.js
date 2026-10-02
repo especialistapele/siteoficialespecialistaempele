@@ -3,6 +3,7 @@
 // ============================================================
 
 const ICONES = {
+  notificacoes: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4"/></svg>`,
   dashboard: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>`,
   pacientes: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c0-3 2.7-5.2 6-5.2s6 2.2 6 5.2"/><circle cx="17" cy="8" r="2.4"/><path d="M15 13.6c2.4.2 4.2 2.1 4.2 5"/></svg>`,
   blog: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 6.5c-1.6-1-4-1.5-6.5-1.5v13c2.5 0 4.9.5 6.5 1.5 1.6-1 4-1.5 6.5-1.5v-13c-2.5 0-4.9.5-6.5 1.5Z"/><path d="M12 6.5v13"/></svg>`,
@@ -22,6 +23,7 @@ const ICONES = {
 
 const ITENS = [
   { id: "dashboard", label: "Dashboard", href: "/painel/admin/dashboard.html" },
+  { id: "notificacoes", label: "Notificações", href: "/painel/admin/notificacoes.html" },
   { id: "pacientes", label: "Pacientes", href: "/painel/admin/pacientes.html" },
   { id: "blog", label: "Blog", href: "/painel/admin/blog.html" },
   { id: "depoimentos", label: "Depoimentos", href: "/painel/admin/depoimentos.html" },

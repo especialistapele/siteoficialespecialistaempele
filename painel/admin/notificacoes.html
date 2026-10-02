@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Notificações — Painel</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<style>
+.notificacoes-cabecalho{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:18px}
+.notificacoes-lista{display:grid;gap:12px}
+.notificacao-item{display:flex;gap:14px;padding:17px 18px;border:1px solid var(--linha);border-radius:12px;background:#fff}
+.notificacao-item--alta{border-left:4px solid var(--gold)}
+.notificacao-item__icone{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--cream);font-size:18px;flex-shrink:0}
+.notificacao-item__corpo{min-width:0;flex:1}
+.notificacao-item__topo{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.notificacao-item__topo strong{font-size:14px}
+.notificacao-item__corpo p{margin:6px 0 3px;color:var(--ink)}
+.notificacao-item__corpo small{display:block;color:var(--muted);font-size:12px}
+.notificacao-item__fechar{border:0;background:transparent;color:var(--muted);font-size:20px;line-height:1;cursor:pointer}
+.notificacao-item__acao{display:inline-block;margin-top:10px;text-decoration:none}
+.notificacoes-vazio{padding:34px;text-align:center;border:1px dashed var(--linha);border-radius:12px;background:#fff}
+.notificacoes-vazio strong,.notificacoes-vazio span{display:block}
+.notificacoes-vazio span{margin-top:6px;color:var(--muted)}
+.notificacoes-ajuda{margin-top:18px}
+</style>
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+</head>
+<body>
+<div class="painel-layout">
+  <aside class="painel-sidebar" data-sidebar></aside>
+  <main class="painel-main">
+    <div class="notificacoes-cabecalho">
+      <div><h1>Notificações</h1><p class="texto-suave">Leads, agenda e lembretes de conteúdo em um só lugar.</p></div>
+      <button type="button" class="btn-p btn-p-fora" id="limpar-dispensadas">Reexibir dispensadas</button>
+    </div>
+    <div class="aviso-flash" data-flash></div>
+    <div class="notificacoes-lista" data-notificacoes><p class="texto-suave">Carregando notificações…</p></div>
+    <div class="painel-card notificacoes-ajuda">
+      <h3>Como os alertas funcionam</h3>
+      <p class="texto-suave" style="margin-bottom:0">Novos pré-atendimentos geram alerta imediato. A agenda mostra o próximo atendimento. Artigos e resultados geram lembrete quando não houver publicação nos últimos 7 dias. Todos esses quatro alertas podem ser desativados em Configurações.</p>
+    </div>
+  </main>
+</div>
+<script type="module">
+import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash } from "/painel/assets/js/painel-auth.js";
+import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
+import { carregarNotificacoes, renderResumoNotificacoes, ligarDispensas, limparDispensadas, contarAtivas } from "/painel/assets/js/notifications.js";
+const contexto = await exigirAdmin();
+if (!contexto) throw new Error("sem acesso");
+document.querySelector("[data-sidebar]").innerHTML = renderSidebarAdmin("notificacoes", contexto.perfil.full_name);
+configurarBotaoSair();
+const lista = document.querySelector("[data-notificacoes]");
+const flash = document.querySelector("[data-flash]");
+async function carregar() {
+  try {
+    const itens = await carregarNotificacoes(supabase);
+    const quantidade = contarAtivas(itens);
+    lista.innerHTML = renderResumoNotificacoes(itens);
+    ligarDispensas(lista, carregar);
+    document.title = quantidade ? "(" + quantidade + ") Notificações — Painel" : "Notificações — Painel";
+  } catch (error) {
+    lista.innerHTML = '<p class="texto-suave">Não foi possível carregar as notificações.</p>';
+    mostrarFlash(flash, "Erro ao carregar notificações: " + error.message, "erro");
+  }
+}
+document.getElementById("limpar-dispensadas").addEventListener("click", async () => {
+  limparDispensadas();
+  await carregar();
+  mostrarFlash(flash, "Notificações dispensadas foram reexibidas.", "sucesso");
+});
+await carregar();
+</script>
+</body>
+</html>
