@@ -419,7 +419,7 @@
     visualizarAnamneseConteudo.innerHTML = '<p class="texto-suave">Carregando respostas…</p>';
     const [{ data: version, error: versionError }, { data: assignments, error: questionsError }, { data: responses, error: responsesError }] = await Promise.all([
       supabase.from("anamnesis_versions").select("id,version_number,status,created_at,released_at,submitted_at,locked_at,anamnesis_types(name)").eq("id", versionId).eq("patient_id", patientId).single(),
-      supabase.from("anamnesis_questions").select("section,position,required,conditional_rule,question_definitions(id,label,help_text,field_type,options)").eq("anamnesis_version_id", versionId).order("position"),
+      supabase.from("anamnesis_questions").select("section,position,required,conditional_rule,question_definitions(id,label,help_text,field_type,options)").eq("anamnesis_type_id", version.anamnesis_type_id).eq("active", true).order("position"),
       supabase.from("anamnesis_responses").select("question_definition_id,value").eq("anamnesis_version_id", versionId)
     ]);
     if (versionError || questionsError || responsesError) {
