@@ -315,7 +315,7 @@ h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:400;margin:0}
 
 /* ============================================================
    PAINEL DO PACIENTE — camada de responsividade e toque
-   ============================================================
+   ============================================================ */
 .pac-mobile-header,.pac-menu-backdrop,.pac-menu-fechar{display:none}
 @media (max-width:800px){
   .painel-layout{display:block;min-height:100vh}
