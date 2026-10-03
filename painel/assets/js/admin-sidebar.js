@@ -46,15 +46,43 @@ export function renderSidebarAdmin(ativo, nome = "Admin") {
       ${ICONES[item.id]}<span>${item.label}</span>
     </a>`).join("");
 
+  queueMicrotask(() => configurarMenuAdmin());
+
   return `
-    <div class="painel-sidebar__marca">
-      <div class="selo-ep"><img src="/painel/assets/img/logo-especialista.webp" alt="Especialista em Pele — Danielle Brito"></div>
+    <button type="button" class="admin-menu-abrir" data-admin-menu-abrir aria-label="Abrir menu administrativo" aria-expanded="false"><span></span><span></span><span></span></button>
+    <div class="admin-menu-backdrop" data-admin-menu-backdrop></div>
+    <div class="painel-sidebar__inner">
+      <button type="button" class="admin-menu-fechar" data-admin-menu-fechar aria-label="Fechar menu">×</button>
+      <div class="painel-sidebar__marca">
+        <div class="selo-ep"><img src="/painel/assets/img/logo-especialista.webp" alt="Especialista em Pele — Danielle Brito"></div>
+      </div>
+      <div class="painel-sidebar__perfil">
+        <div class="painel-sidebar__avatar">${iniciaisNome}</div>
+        <div><div style="font-size:13px;font-weight:700">${nome}</div><small>Administrador</small></div>
+      </div>
+      <nav>${links}</nav>
+      <button class="painel-sidebar__sair" data-sair>${ICONES.sair} Sair</button>
     </div>
-    <div class="painel-sidebar__perfil">
-      <div class="painel-sidebar__avatar">${iniciaisNome}</div>
-      <div><div style="font-size:13px;font-weight:700">${nome}</div><small>Administrador</small></div>
-    </div>
-    <nav>${links}</nav>
-    <button class="painel-sidebar__sair" data-sair>${ICONES.sair} Sair</button>
   `;
+}
+}
+
+
+export function configurarMenuAdmin() {
+  const sidebar = document.querySelector("[data-sidebar]");
+  if (!sidebar || sidebar.dataset.menuAdminConfigurado === "1") return;
+  sidebar.dataset.menuAdminConfigurado = "1";
+  const abrir = sidebar.querySelector("[data-admin-menu-abrir]");
+  const fechar = sidebar.querySelector("[data-admin-menu-fechar]");
+  const backdrop = sidebar.querySelector("[data-admin-menu-backdrop]");
+  const alternar = (aberto) => {
+    sidebar.classList.toggle("menu-admin-aberto", aberto);
+    document.body.classList.toggle("menu-admin-aberto", aberto);
+    abrir?.setAttribute("aria-expanded", String(aberto));
+  };
+  abrir?.addEventListener("click", () => alternar(true));
+  fechar?.addEventListener("click", () => alternar(false));
+  backdrop?.addEventListener("click", () => alternar(false));
+  sidebar.querySelectorAll("nav a").forEach((link) => link.addEventListener("click", () => alternar(false)));
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") alternar(false); });
 }

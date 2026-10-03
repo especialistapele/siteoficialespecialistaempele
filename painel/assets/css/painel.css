@@ -366,3 +366,40 @@ h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:400;margin:0}
 .estado-carregando{position:relative;color:transparent!important;min-height:18px}.estado-carregando::before{content:"";display:block;width:55%;height:10px;border-radius:999px;background:linear-gradient(90deg,#ecebe5,#f7f7f4,#ecebe5);background-size:200% 100%;animation:painelSkeleton 1.2s ease-in-out infinite}@keyframes painelSkeleton{0%{background-position:100% 0}100%{background-position:-100% 0}}
 :focus-visible{outline:2px solid var(--gold);outline-offset:2px}button,input,select,textarea{max-width:100%}input,select,textarea,button{font:inherit}input[type="checkbox"],input[type="radio"]{width:20px;height:20px;flex:0 0 20px}
 @media (max-width:700px){.dados-grid{grid-template-columns:1fr!important}.dados-grid .campo--full{grid-column:auto!important}.anamnese-question input[type=text],.anamnese-question input[type=number],.anamnese-question select,.anamnese-question textarea{font-size:16px;min-height:46px}.opcao{min-height:48px;padding:12px 13px}.assinatura-wrap canvas{height:170px}}
+
+/* ============================================================
+   PAINEL ADMINISTRATIVO — correção de rolagem e menu mobile
+   ============================================================ */
+.painel-sidebar{flex:0 0 240px;min-width:0}
+.painel-main{min-width:0;max-width:calc(100vw - 240px)}
+.painel-main>*{min-width:0}
+.tabela-p{max-width:100%}
+.table-wrap,.painel-main .tabela-p-wrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.admin-menu-abrir,.admin-menu-backdrop,.admin-menu-fechar{display:none}
+
+@media (max-width:800px){
+  html,body{max-width:100%;overflow-x:hidden}
+  .painel-layout{display:block;width:100%;max-width:100%;min-width:0}
+  .painel-main{width:100%;max-width:none;min-width:0;overflow-x:hidden}
+  .painel-main>table.tabela-p{display:block;width:100%;overflow-x:auto;white-space:nowrap}
+  .painel-main .tabela-p th,.painel-main .tabela-p td{white-space:normal;overflow-wrap:anywhere}
+  .painel-sidebar{position:fixed;inset:0;z-index:220;width:100%;max-width:none;height:100dvh;padding:0;border:0;background:transparent;box-shadow:none;display:block;overflow:visible;transform:none!important}
+  .painel-sidebar__inner{position:absolute;inset:0 auto 0 0;width:min(86vw,320px);height:100dvh;padding:22px 18px;overflow-y:auto;overflow-x:hidden;background:var(--ink-2);box-shadow:12px 0 35px rgba(0,0,0,.18);transform:translateX(-105%);transition:transform .22s ease;z-index:2}
+  .painel-sidebar.menu-admin-aberto .painel-sidebar__inner{transform:translateX(0)}
+  .painel-sidebar__inner .painel-sidebar__marca,.painel-sidebar__inner .painel-sidebar__perfil{display:flex}
+  .painel-sidebar__inner nav{display:flex;flex-direction:column;gap:4px}
+  .painel-sidebar__inner nav a{min-height:48px;padding:12px 13px;font-size:14px;white-space:normal}
+  .painel-sidebar__inner .painel-sidebar__sair{width:100%;min-height:46px;margin-top:12px;padding:11px;font-size:13px}
+  .admin-menu-abrir{display:flex;position:fixed;left:10px;top:10px;z-index:230;width:44px;height:44px;align-items:center;justify-content:center;flex-direction:column;gap:4px;border:1px solid var(--linha);border-radius:10px;background:var(--ink-2);box-shadow:0 5px 18px rgba(0,0,0,.12);cursor:pointer}
+  .admin-menu-abrir span{display:block;width:18px;height:2px;border-radius:2px;background:var(--cream)}
+  .admin-menu-fechar{display:flex;position:absolute;right:12px;top:12px;width:42px;height:42px;align-items:center;justify-content:center;border:1px solid rgba(244,238,227,.18);border-radius:10px;background:transparent;color:var(--cream);font-size:27px;line-height:1;cursor:pointer}
+  .admin-menu-backdrop{display:none;position:absolute;inset:0;background:rgba(28,37,33,.48);backdrop-filter:blur(2px);z-index:1}
+  .painel-sidebar.menu-admin-aberto .admin-menu-backdrop{display:block}
+  body.menu-admin-aberto{overflow:hidden}
+  .painel-main{padding-top:66px}
+  .painel-main .tabela-p{min-width:640px;table-layout:auto}
+  .painel-main .tabela-p-wrap .tabela-p{min-width:640px}
+}
+@media (min-width:801px){
+  .painel-sidebar__inner{height:100%;display:flex;flex-direction:column}
+}
