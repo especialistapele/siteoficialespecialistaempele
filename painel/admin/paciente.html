@@ -377,18 +377,36 @@
     }
     selectNovaAnamnese.innerHTML = (tipos || []).map(t => '<option value="' + t.id + '">' + escapeTextoAnamnese(t.name) + '</option>').join("");
     const nomes = Object.fromEntries((tipos || []).map(t => [t.id, t.name]));
-    listaAnamnesesAdmin.innerHTML = versoes?.length ? versoes.map(v => {
-      const status = v.status || "draft";
-      const bloqueada = ["submitted","locked","signed"].includes(status);
+    const grupos = (versoes || []).reduce((acc, v) => {
+      (acc[v.anamnesis_type_id] ||= []).push(v);
+      return acc;
+    }, {});
+    listaAnamnesesAdmin.innerHTML = Object.keys(grupos).length ? Object.entries(grupos).map(([tipoId, lista]) => {
+      const nome = nomes[tipoId] || "Anamnese";
+      const ordenadas = [...lista].sort((a,b) => Number(b.version_number || 0) - Number(a.version_number || 0));
+      const atual = ordenadas[0];
+      const historico = ordenadas.slice(1);
+      const renderVersao = (v, destaque) => {
+        const status = v.status || "draft";
+        const bloqueada = ["submitted","locked","signed"].includes(status);
+        const atualTag = destaque ? '<span class="selo-p" style="margin-left:6px">Mais recente</span>' : "";
+        return '<div style="padding:12px 0;' + (destaque ? '' : 'border-top:1px solid var(--linha);') + '">' +
+          '<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap">' +
+          '<div><strong>Versão ' + v.version_number + '</strong>' + atualTag +
+          '<div class="texto-suave" style="font-size:12.5px;margin-top:3px">' +
+          (v.submitted_at ? "Enviada em " + new Date(v.submitted_at).toLocaleString("pt-BR") : v.released_at ? "Liberada em " + new Date(v.released_at).toLocaleString("pt-BR") : "Ainda não liberada") +
+          '</div></div><span class="selo-p">' + escapeTextoAnamnese(status) + '</span></div>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">' +
+          '<button type="button" class="btn-p btn-p-mini btn-p-fora" data-visualizar-anamnese="' + v.id + '">Consultar respostas</button>' +
+          (bloqueada ? '<button type="button" class="btn-p btn-p-mini" data-autorizar-edicao="' + v.id + '">Autorizar edição</button>' : '') +
+          '</div></div>';
+      };
       return '<div class="painel-card" style="padding:16px">' +
-        '<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">' +
-        '<div><strong>' + escapeTextoAnamnese(nomes[v.anamnesis_type_id] || "Anamnese") + '</strong><div class="texto-suave">Versão ' + v.version_number + ' · criada em ' + new Date(v.created_at).toLocaleDateString("pt-BR") + '</div></div>' +
-        '<span class="selo-p">' + escapeTextoAnamnese(status) + '</span></div>' +
-        '<div class="texto-suave" style="margin-top:8px">' + (v.submitted_at ? "Enviada em " + new Date(v.submitted_at).toLocaleString("pt-BR") : v.released_at ? "Liberada em " + new Date(v.released_at).toLocaleString("pt-BR") : "Ainda não liberada") + '</div>' +
-        '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">' +
-        '<button type="button" class="btn-p btn-p-mini btn-p-fora" data-visualizar-anamnese="' + v.id + '">Consultar respostas</button>' +
-        (bloqueada ? '<button type="button" class="btn-p btn-p-mini" data-autorizar-edicao="' + v.id + '">Autorizar edição</button>' : '') +
-        '</div>' +
+        '<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">' +
+        '<div><strong>' + escapeTextoAnamnese(nome) + '</strong><div class="texto-suave">' + ordenadas.length + ' versão' + (ordenadas.length === 1 ? '' : 'ões') + ' registrada' + (ordenadas.length === 1 ? '' : 's') + '</div></div>' +
+        (historico.length ? '<span class="texto-suave">Histórico preservado</span>' : '') + '</div>' +
+        renderVersao(atual, true) +
+        (historico.length ? '<details style="margin-top:4px"><summary style="cursor:pointer;color:var(--texto-suave)">Ver versões anteriores (' + historico.length + ')</summary>' + historico.map(v => renderVersao(v, false)).join("") + '</details>' : '') +
         '</div>';
     }).join("") : '<p class="texto-suave">Nenhuma anamnese liberada para esta paciente.</p>';
 
@@ -418,7 +436,7 @@
     modalVisualizarAnamnese.style.display = "flex";
     visualizarAnamneseConteudo.innerHTML = '<p class="texto-suave">Carregando respostas…</p>';
     const [{ data: version, error: versionError }, { data: assignments, error: questionsError }, { data: responses, error: responsesError }] = await Promise.all([
-      supabase.from("anamnesis_versions").select("id,version_number,status,created_at,released_at,submitted_at,locked_at,anamnesis_types(name)").eq("id", versionId).eq("patient_id", patientId).single(),
+      supabase.from("anamnesis_versions").select("id,anamnesis_type_id,version_number,status,created_at,released_at,submitted_at,locked_at,anamnesis_types(name)").eq("id", versionId).eq("patient_id", patientId).single(),
       supabase.from("anamnesis_questions").select("section,position,required,conditional_rule,question_definitions(id,label,help_text,field_type,options)").eq("anamnesis_type_id", version.anamnesis_type_id).eq("active", true).order("position"),
       supabase.from("anamnesis_responses").select("question_definition_id,value").eq("anamnesis_version_id", versionId)
     ]);
