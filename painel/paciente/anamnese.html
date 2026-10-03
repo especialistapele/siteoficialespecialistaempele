@@ -23,7 +23,7 @@
   </nav>
 </aside>
 <main class="painel-main"><div class="anamnese-wrap">
-  <div class="painel-topo anamnese-head"><div><h1 data-titulo>Anamnese</h1><p class="texto-suave" data-subtitulo>Carregando…</p></div></div>
+  <div class="painel-topo anamnese-head"><div class="anamnese-hero"><div class="anamnese-kicker">Ficha clínica</div><h1 data-titulo>Anamnese</h1><p data-subtitulo>Carregando…</p><div class="anamnese-progress" data-progress-wrap><div class="anamnese-progress__top"><span data-progress-label>Progresso da ficha</span><strong data-progress-count>0%</strong></div><div class="anamnese-progress__bar"><div class="anamnese-progress__fill" data-progress-fill></div></div></div></div></div>
   <div class="painel-card" data-root><div class="loading">Carregando ficha…</div></div>
 </div></main>
 </div>
@@ -100,7 +100,7 @@ const [{data:questions,error:qErr},{data:responses}] = await Promise.all([
 if (qErr) { root.innerHTML='<p class="texto-suave">Erro ao carregar as perguntas.</p>'; throw qErr; }
 
 const qList=(questions||[]).filter(q=>q.question_definitions).sort((a,b)=>(a.position||0)-(b.position||0));
-root.innerHTML=montarDadosPessoais();
+root.innerHTML='<div class="anamnese-form-card">'+montarDadosPessoais()+'</div>';
 const answerMap=new Map((responses||[]).map(r=>[r.question_definition_id,r.value]));
 const concepts=[...new Set(qList.map(q=>q.question_definitions.clinical_concept_id).filter(Boolean))];
 const {data:previous}=concepts.length ? await supabase.from("patient_clinical_data").select("clinical_concept_id,value,valid_from").eq("patient_id",patientId).eq("is_current",true).in("clinical_concept_id",concepts) : {data:[]};
@@ -137,16 +137,16 @@ function renderField(q){
 }
 let lastSection="";
 root.insertAdjacentHTML("beforeend", qList.map(q=>{
- const d=q.question_definitions; const section=q.section||"Anamnese"; const heading=section!==lastSection?'<h3 style="margin:24px 0 4px">'+escapeHtml(section)+'</h3>':""; lastSection=section;
+ const d=q.question_definitions; const section=q.section||"Anamnese"; const heading=section!==lastSection?'<div class="anamnese-section"><h3 class="anamnese-section-title">'+escapeHtml(section)+'</h3>':""; lastSection=section;
  const prev=canEdit && d.clinical_concept_id && previousMap.has(d.clinical_concept_id) && !answerMap.has(d.id);
  return heading+'<div class="anamnese-question" data-question-wrap="'+d.id+'"><label class="titulo" for="q_'+d.id+'">'+escapeHtml(d.label)+(q.required?' *':'')+'</label>'+(d.help_text?'<div class="anamnese-help">'+escapeHtml(d.help_text)+'</div>':"")+(prev?'<div class="previous-answer">Resposta anterior encontrada: <strong>'+escapeHtml(displayValue(previousMap.get(d.clinical_concept_id)))+'</strong><br><button type="button" class="btn-p btn-p-mini btn-p-dourado" data-manter="'+d.id+'">Manter resposta</button><button type="button" class="btn-p btn-p-mini btn-p-fora" data-alterar="'+d.id+'">Alterar resposta</button></div>':"")+renderField(q)+'<div class="erro-campo" data-error="'+d.id+'"></div></div>';
-}).join("");
+}).join("")+'<div class="anamnese-section" data-signature-anchor></div>';
 
 root.querySelector("[data-cad=\"birth_date\"]")?.addEventListener("change",e=>{ const idade=root.querySelector("[data-idade]"); if(idade) idade.value=idadePorData(e.target.value); });
 let assinatura=null;
 if (canEdit) {
   const assinaturaWrap=document.createElement("div");
-  assinaturaWrap.innerHTML='<div class="anamnese-section"><h3>Declaração e assinatura</h3><p class="texto-suave">Ao assinar, você confirma que as informações fornecidas nesta ficha correspondem ao seu conhecimento atual.</p><div class="assinatura-wrap"><canvas id="anamnese-canvas"></canvas></div><div class="anamnese-actions"><button type="button" class="btn-p btn-p-fora" id="limpar-assinatura">Limpar assinatura</button></div></div>';
+  assinaturaWrap.innerHTML='<div class="anamnese-section"><h3 class="anamnese-section-title">Declaração e assinatura</h3><p class="texto-suave">Ao assinar, você confirma que as informações fornecidas nesta ficha correspondem ao seu conhecimento atual.</p><div class="assinatura-wrap"><canvas id="anamnese-canvas"></canvas></div><div class="anamnese-actions"><button type="button" class="btn-p btn-p-fora" id="limpar-assinatura">Limpar assinatura</button></div></div>';
   root.appendChild(assinaturaWrap);
   const canvas=document.getElementById("anamnese-canvas");
   assinatura=criarAssinatura(canvas);
@@ -168,13 +168,14 @@ function refreshVisibility(){
 }
 root.querySelectorAll("[data-q]").forEach(el=>el.addEventListener("input",()=>{
   const q=qList.find(q=>q.question_definitions.id===el.dataset.q);
-  if(q){ values.set(el.dataset.q,readValue(q.question_definitions)); refreshVisibility(); }
+  if(q){ values.set(el.dataset.q,readValue(q.question_definitions)); refreshVisibility(); atualizarProgresso(); }
 }));
 root.querySelectorAll("[data-q]").forEach(el=>el.addEventListener("change",()=>{
   const q=qList.find(x=>x.question_definitions.id===el.dataset.q);
   if(q){ values.set(el.dataset.q,readValue(q.question_definitions)); refreshVisibility(); }
 }));
 refreshVisibility();
+atualizarProgresso();
 
 root.querySelectorAll("[data-manter]").forEach(btn=>btn.onclick=()=>{
  const q=qList.find(x=>x.question_definitions.id===btn.dataset.manter); if(!q)return;
@@ -189,10 +190,17 @@ root.querySelectorAll("[data-manter]").forEach(btn=>btn.onclick=()=>{
   } else field.value=displayValue(val);
 }
 btn.closest(".previous-answer").remove();
-refreshVisibility();
+refreshVisibility(); atualizarProgresso();
 });
 root.querySelectorAll("[data-alterar]").forEach(btn=>btn.onclick=()=>btn.closest(".previous-answer").remove());
 
+function atualizarProgresso(){
+ const visiveis=qList.filter(q=>visible(q));
+ const respondidas=visiveis.filter(q=>{const v=readValue(q.question_definitions);return v!==""&&(!Array.isArray(v)||v.length>0)}).length;
+ const pct=visiveis.length?Math.round(respondidas/visiveis.length*100):0;
+ const fill=document.querySelector("[data-progress-fill]"), count=document.querySelector("[data-progress-count]"), label=document.querySelector("[data-progress-label]");
+ if(fill) fill.style.width=pct+"%"; if(count) count.textContent=pct+"%"; if(label) label.textContent=respondidas+" de "+visiveis.length+" perguntas respondidas";
+}
 const actions=document.createElement("div"); actions.className="anamnese-actions";
 actions.innerHTML=(canEdit?'<button type="button" class="btn-p btn-p-dourado" id="enviar-anamnese">Enviar anamnese</button>':'')+'<a class="btn-p btn-p-fora" href="/painel/paciente/painel.html">Voltar</a>';
 root.appendChild(actions);
