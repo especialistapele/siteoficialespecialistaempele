@@ -29,7 +29,7 @@ Deno.serve(async (req: Request) => {
       const email=String(b.email||"").trim().toLowerCase();
       const phone=String(b.phone||"").trim();
       const pre_atendimento_id=b.pre_atendimento_id?String(b.pre_atendimento_id):null;
-      if(!full_name||!email) return out({error:"Nome e e-mail são obrigatórios."},400);
+      if(!full_name||!email||!phone) return out({error:"Nome completo, e-mail e telefone são obrigatórios para liberar o acesso do paciente."},400);
 
       const {data:existente}=await admin.from("patients").select("id").eq("email",email).maybeSingle();
       if(existente) return out({error:"Já existe um paciente cadastrado com este e-mail."},409);
@@ -97,7 +97,17 @@ Deno.serve(async (req: Request) => {
         if(!full_name) return out({error:"O nome não pode ficar vazio."},400);
         atualizacoes.full_name=full_name;
       }
-      if(typeof b.phone==="string") atualizacoes.phone=b.phone.trim()||null;
+      if(typeof b.phone==="string") {
+        const phone=b.phone.trim();
+        if(!phone) return out({error:"O telefone não pode ficar vazio."},400);
+        atualizacoes.phone=phone;
+      }
+
+      const camposPessoais=["cpf","rg","address","address_number","address_complement","neighborhood","cep","city","state","profession","children","blood_type"];
+      for(const campo of camposPessoais){
+        if(typeof b[campo]==="string") atualizacoes[campo]=b[campo].trim()||null;
+      }
+      if(typeof b.birth_date==="string") atualizacoes.birth_date=b.birth_date.trim()||null;
 
       if(typeof b.email==="string"){
         const novoEmail=b.email.trim().toLowerCase();
@@ -174,6 +184,19 @@ Deno.serve(async (req: Request) => {
     const full_name=String(b.full_name||"").trim();
     const email=String(b.email||"").trim().toLowerCase();
     const phone=String(b.phone||"").trim();
+    const cpf=String(b.cpf||"").trim();
+    const rg=String(b.rg||"").trim();
+    const birth_date=String(b.birth_date||"").trim();
+    const profession=String(b.profession||"").trim();
+    const children=String(b.children||"").trim();
+    const blood_type=String(b.blood_type||"").trim();
+    const address=String(b.address||"").trim();
+    const address_number=String(b.address_number||"").trim();
+    const address_complement=String(b.address_complement||"").trim();
+    const neighborhood=String(b.neighborhood||"").trim();
+    const cep=String(b.cep||"").trim();
+    const city=String(b.city||"").trim();
+    const state=String(b.state||"").trim().toUpperCase();
     const acesso_painel=b.acesso_painel!==false;
     const pre_atendimento_id=b.pre_atendimento_id?String(b.pre_atendimento_id):null;
     const senha=String(b.senha_temporaria||crypto.randomUUID().replace(/-/g,"").slice(0,10));
@@ -188,7 +211,14 @@ Deno.serve(async (req: Request) => {
       await admin.auth.admin.deleteUser(id).catch(()=>{});
       return out({error:"Não foi possível criar o perfil do paciente. A operação foi desfeita automaticamente — tente novamente."},500);
     }
-    const {error:pat}=await admin.from("patients").insert({id,user_id:id,full_name,email,phone:phone||null,status:"ativo",acesso_painel,pre_atendimento_id});
+    const {error:pat}=await admin.from("patients").insert({
+      id,user_id:id,full_name,email,phone,
+      cpf:cpf||null,rg:rg||null,birth_date:birth_date||null,
+      profession:profession||null,children:children||null,blood_type:blood_type||null,
+      address:address||null,address_number:address_number||null,address_complement:address_complement||null,
+      neighborhood:neighborhood||null,cep:cep||null,city:city||null,state:state||null,
+      status:"ativo",acesso_painel,pre_atendimento_id
+    });
     if(pat) {
       try { await admin.from("profiles").delete().eq("id",id); } catch(_) {}
       await admin.auth.admin.deleteUser(id).catch(()=>{});
