@@ -32,7 +32,7 @@
 <body data-pagina="contato">
 
 <div class="painel-layout">
-  <aside class="painel-sidebar">
+  <aside class="painel-sidebar" aria-label="Navegação do paciente"><button type="button" class="pac-menu-fechar" data-pac-menu-fechar aria-label="Fechar menu">×</button>
     <div class="painel-sidebar__marca">
       <div class="selo-ep"><img src="/painel/assets/img/logo-especialista.webp" alt="Especialista em Pele — Danielle Brito"></div>
     </div>
@@ -72,7 +72,9 @@
     </button>
   </aside>
 
+  <div class="pac-menu-backdrop" data-pac-menu-backdrop></div>
   <main class="painel-main">
+    <div class="pac-mobile-header"><button type="button" class="pac-menu-abrir" data-pac-menu-abrir aria-label="Abrir menu" aria-expanded="false"><span></span><span></span><span></span></button><div class="pac-mobile-brand">Meu espaço</div><div class="pac-mobile-user" data-nome-paciente-mobile>...</div></div>
     <div class="pac-topbar"><div class="pac-usuario"><span data-nome-paciente>...</span> ▾</div></div>
 
     <!-- MEU ESPAÇO -->
@@ -90,7 +92,7 @@
         <div class="resumo-mini__card">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="5.5" width="16" height="14.5" rx="2"/><path d="M4 10h16"/></svg>
           <strong data-proximo-data>—</strong>
-          <span data-proximo-tipo>Próximo atendimento</span>
+          <span data-proximo-tipo>Próximo atendimento</span><small data-proximo-status class="resumo-mini__status"></small>
         </div>
         <div class="resumo-mini__card">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
@@ -104,7 +106,9 @@
         </div>
       </div>
 
-      <div class="painel-card" style="margin-bottom:22px"><h3>Avisos</h3><div data-avisos><p class="texto-suave">Carregando…</p></div></div>
+      <div class="pac-pendencias" data-pendencias style="display:none"><div class="pac-pendencias__cabecalho"><div><span class="pac-kicker">Atenção</span><h3>Há algo para você</h3></div><span class="pac-pendencias__badge" data-pendencias-count>0</span></div><div class="pac-pendencias__lista" data-pendencias-lista></div></div>
+      <div class="painel-card pac-avisos-card" style="margin-bottom:22px"><h3>Avisos</h3><div data-avisos><p class="texto-suave estado-carregando">Carregando…</p></div></div>
+      <div class="pac-acessos-rapidos" aria-label="Acessos rápidos"><button type="button" data-quick-aba="atendimentos"><strong>Atendimentos</strong><span>Histórico e próximos horários</span></button><button type="button" data-quick-aba="prontuario"><strong>Prontuário</strong><span>Fichas e acompanhamento</span></button><button type="button" data-quick-aba="documentos"><strong>Documentos</strong><span>Arquivos disponíveis</span></button><button type="button" data-quick-aba="contratos"><strong>Contratos</strong><span>Leia e assine quando necessário</span></button></div>
 
       <div class="cta-agendar">
         <span>Pronta para o próximo passo do seu tratamento?</span>
@@ -116,7 +120,7 @@
     <section class="aba-conteudo" data-conteudo="atendimentos">
       <div class="painel-topo"><div><h1>Atendimentos</h1><p class="texto-suave">Acompanhe o histórico e os próximos atendimentos.</p></div></div>
       <div class="painel-card">
-        <div class="timeline" data-timeline-atendimentos><p class="texto-suave">Carregando…</p></div>
+        <div class="timeline" data-timeline-atendimentos><p class="texto-suave estado-carregando">Carregando…</p></div>
       </div>
     </section>
 
@@ -126,14 +130,14 @@
       <div class="painel-card" style="margin-top:22px">
   <h3>Fichas de anamnese</h3>
   <p class="texto-suave">Aqui ficam as fichas que você já preencheu e as novas fichas liberadas para você.</p>
-  <div data-lista-anamneses-paciente style="display:grid;gap:10px;margin-top:14px"><p class="texto-suave">Carregando…</p></div>
+  <div data-lista-anamneses-paciente style="display:grid;gap:10px;margin-top:14px"><p class="texto-suave estado-carregando">Carregando…</p></div>
 </div>\n      <div class="painel-card" style="text-align:center;padding:50px 20px" data-bloco-prontuario>
-        <p class="texto-suave">Carregando…</p>
+        <p class="texto-suave estado-carregando">Carregando…</p>
       </div>
       <div class="painel-card" style="margin-top:22px">
         <h3>Registro de acompanhamento fotográfico</h3>
         <div id="lista-registros-foto-paciente" style="margin-top:14px;display:grid;gap:18px">
-          <p class="texto-suave">Carregando…</p>
+          <p class="texto-suave estado-carregando">Carregando…</p>
         </div>
       </div>
     </section>
@@ -141,14 +145,14 @@
     <!-- FINANCEIRO -->
     <section class="aba-conteudo" data-conteudo="financeiro">
       <div class="painel-topo"><div><h1>Financeiro</h1><p class="texto-suave">Consulte seus lançamentos e pagamentos.</p></div></div>
-      <div class="painel-card"><div data-lista-financeiro><p class="texto-suave">Carregando…</p></div></div>
+      <div class="painel-card"><div data-lista-financeiro><p class="texto-suave estado-carregando">Carregando…</p></div></div>
     </section>
 
     <!-- DOCUMENTOS -->
     <section class="aba-conteudo" data-conteudo="documentos">
       <div class="painel-topo"><div><h1>Seus documentos</h1><p class="texto-suave">Orientações, informativos e novidades da Especialista em Pele.</p></div></div>
       <div class="painel-card">
-        <div data-lista-documentos><p class="texto-suave">Carregando…</p></div>
+        <div data-lista-documentos><p class="texto-suave estado-carregando">Carregando…</p></div>
       </div>
     </section>
 
@@ -156,7 +160,7 @@
     <section class="aba-conteudo" data-conteudo="contratos">
       <div class="painel-topo"><div><h1>Contratos</h1><p class="texto-suave">Leia e assine seus contratos aqui mesmo, com sua assinatura desenhada.</p></div></div>
       <div class="aviso-flash" data-flash></div>
-      <div class="painel-card"><div data-lista-contratos><p class="texto-suave">Carregando…</p></div></div>
+      <div class="painel-card"><div data-lista-contratos><p class="texto-suave estado-carregando">Carregando…</p></div></div>
     </section>
 
     <!-- AGENDAR -->
@@ -204,6 +208,7 @@
 
   const primeiroNome = (contexto.paciente.full_name || "").split(" ")[0];
   document.querySelector("[data-nome-paciente]").textContent = contexto.paciente.full_name;
+  document.querySelector("[data-nome-paciente-mobile]").textContent = primeiroNome;
   document.querySelector("[data-saudacao-nome]").textContent = primeiroNome;
 
   // Navegação entre abas
@@ -216,6 +221,13 @@
       document.querySelector(`[data-conteudo="${link.dataset.abaLink}"]`).classList.add("visivel");
     });
   });
+
+  const sidebar=document.querySelector(".painel-sidebar"), menuBackdrop=document.querySelector("[data-pac-menu-backdrop]"), menuOpen=document.querySelector("[data-pac-menu-abrir]"), menuClose=document.querySelector("[data-pac-menu-fechar]");
+  const setMenuOpen=(open)=>{sidebar?.classList.toggle("menu-aberto",open);menuBackdrop?.classList.toggle("visivel",open);document.body.classList.toggle("menu-paciente-aberto",open);menuOpen?.setAttribute("aria-expanded",String(open));};
+  menuOpen?.addEventListener("click",()=>setMenuOpen(true)); menuClose?.addEventListener("click",()=>setMenuOpen(false)); menuBackdrop?.addEventListener("click",()=>setMenuOpen(false));
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenuOpen(false);});
+  document.querySelectorAll("[data-aba-link]").forEach(link=>link.addEventListener("click",()=>setMenuOpen(false)));
+  document.querySelectorAll("[data-quick-aba]").forEach(btn=>btn.addEventListener("click",()=>{document.querySelector("[data-aba-link=\""+btn.dataset.quickAba+"\"]")?.click();window.scrollTo({top:0,behavior:"smooth"});}));
 
   const patientId = contexto.paciente.id;
 
@@ -237,11 +249,16 @@
       ${v ? `<a class="btn-p btn-p-mini btn-p-dourado" style="margin-top:9px" href="/painel/paciente/anamnese.html?version=${encodeURIComponent(v.id)}">Preencher esta ficha →</a>` : ""}
     </div>`;
   }).join("") : `<p class="texto-suave">Nenhum aviso no momento.</p>`;
+  const pendencias=[];
+  (avisos||[]).forEach(a=>{if(a.title==="Nova anamnese disponível"){const v=a.anamnesis_version_id?versoesAviso.find(x=>x.id===a.anamnesis_version_id):versoesAviso.find(x=>x.status==="draft");if(v)pendencias.push({tipo:"Anamnese",texto:v.anamnesis_types?.name||"Nova ficha disponível",href:"/painel/paciente/anamnese.html?version="+encodeURIComponent(v.id)});}});
+  const pendenciasBox=document.querySelector("[data-pendencias]"),pendenciasLista=document.querySelector("[data-pendencias-lista]");
+  if(pendencias.length&&pendenciasBox&&pendenciasLista){pendenciasBox.style.display="";document.querySelector("[data-pendencias-count]").textContent=pendencias.length;pendenciasLista.innerHTML=pendencias.map(p=>`<a class="pac-pendencia" href="${p.href}"><span><small>${escapeHtml(p.tipo)}</small><strong>${escapeHtml(p.texto)}</strong></span><span aria-hidden="true">→</span></a>`).join("");}
 
   // Atendimentos
   const { data: atendimentos } = await supabase.from("appointments").select("*").eq("patient_id", patientId).order("appointment_date", { ascending: true });
   const lista = atendimentos || [];
   const hoje = new Date().toISOString().slice(0, 10);
+  const formatarHora=(a)=>{const h=a.horario||a.appointment_time||a.hora||a.time;return h?String(h).slice(0,5):"";};
 
   const proximo = lista.filter((a) => a.appointment_date >= hoje && a.status !== "cancelado")[0];
   const passados = lista.filter((a) => a.appointment_date < hoje).sort((a, b) => b.appointment_date.localeCompare(a.appointment_date));
@@ -249,6 +266,7 @@
 
   document.querySelector("[data-proximo-data]").textContent = proximo ? new Date(proximo.appointment_date + "T00:00:00").toLocaleDateString("pt-BR") : "—";
   document.querySelector("[data-proximo-tipo]").textContent = proximo ? (proximo.tipo || "Próximo atendimento") : "Nenhum agendado";
+  document.querySelector("[data-proximo-status]").textContent = proximo ? (proximo.status === "confirmado" ? "Confirmado" : "Agendado") : "Agende seu próximo atendimento";
   document.querySelector("[data-ultimo-data]").textContent = ultimo ? new Date(ultimo.appointment_date + "T00:00:00").toLocaleDateString("pt-BR") : "—";
   document.querySelector("[data-ultimo-tipo]").textContent = ultimo ? (ultimo.tipo || "Último atendimento") : "Nenhum registrado";
 
@@ -264,7 +282,7 @@
       else if (a === proximo) { classe = "proximo"; statusLabel = "Próximo atendimento"; }
       return `
         <div class="timeline-item ${classe}">
-          <div class="timeline-data">${new Date(a.appointment_date + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase()}</div>
+          <div class="timeline-data"><strong>${new Date(a.appointment_date + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase()}</strong>${formatarHora(a) ? `<span>${escapeHtml(formatarHora(a))}</span>` : ""}</div>
           <div><div class="timeline-titulo">${escapeHtml(a.tipo || "Atendimento")}</div><span class="selo-p ${classe === "realizado" ? "realizado" : classe === "proximo" ? "agendado" : "cancelado"}">${statusLabel}</span><div class="pessoa__sub" style="margin-top:5px">Total: R$ ${Number(a.valor || 0).toLocaleString("pt-BR", {minimumFractionDigits:2})} · Taxa: R$ ${Number(a.taxa_agendamento || 0).toLocaleString("pt-BR", {minimumFractionDigits:2})} (${escapeHtml(a.taxa_status || "pendente")}) · Restante: R$ ${Math.max(0, Number(a.valor || 0)-Number(a.taxa_agendamento || 0)-Number(a.restante_pago || 0)).toLocaleString("pt-BR", {minimumFractionDigits:2})} (${escapeHtml(a.restante_status || "pendente")})</div></div>
         </div>`;
     }).join("");
@@ -421,7 +439,7 @@
     listaDocs.querySelectorAll("[data-baixar]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const { data, error } = await supabase.storage.from("documentos-pacientes").download(btn.dataset.baixar);
-        if (error) { alert("Não foi possível baixar o documento."); return; }
+        if (error) { console.error("Falha ao baixar documento:", error); mostrarFlash(flash, "Não foi possível baixar este documento agora. Tente novamente em alguns instantes.", "erro"); return; }
         const url = URL.createObjectURL(data);
         const a = document.createElement("a");
         a.href = url; a.download = btn.dataset.baixar.split("/").pop(); a.click();
@@ -508,7 +526,8 @@
       mostrarFlash(flash, "Contrato assinado com sucesso.", "sucesso");
       carregarContratos();
     } catch (erro) {
-      alert("Não foi possível assinar o contrato: " + (erro.message || erro));
+      console.error("Falha ao assinar contrato:", erro);
+      mostrarFlash(flash, "Não foi possível concluir a assinatura agora. Tente novamente em alguns instantes.", "erro");
     } finally {
       botaoConfirmar.textContent = "Confirmar e assinar";
       atualizarBotaoConfirmar();
