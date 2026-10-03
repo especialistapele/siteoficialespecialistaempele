@@ -131,7 +131,8 @@
   <h3>Fichas de anamnese</h3>
   <p class="texto-suave">Aqui ficam as fichas que você já preencheu e as novas fichas liberadas para você.</p>
   <div data-lista-anamneses-paciente style="display:grid;gap:10px;margin-top:14px"><p class="texto-suave estado-carregando">Carregando…</p></div>
-</div>\n      <div class="painel-card" style="text-align:center;padding:50px 20px" data-bloco-prontuario>
+</div>
+      <div class="painel-card" style="text-align:center;padding:50px 20px" data-bloco-prontuario>
         <p class="texto-suave estado-carregando">Carregando…</p>
       </div>
       <div class="painel-card" style="margin-top:22px">
@@ -232,7 +233,7 @@
   const patientId = contexto.paciente.id;
 
   // Avisos gerais e específicos
-  const { data: avisos } = await supabase.from("announcements").select("title,message,created_at,anamnesis_version_id").or(`patient_id.eq.${patientId},patient_id.is.null`).order("created_at", { ascending: false }).limit(5);
+  const { data: avisos } = await supabase.from("announcements").select("title,message,created_at,anamnesis_version_id").eq("patient_id", patientId).order("created_at", { ascending: false }).limit(5);
   const avisosBloco = document.querySelector("[data-avisos]");
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>\"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;", "'":"&#39;"}[c]));
   const safeUrl = (value) => { try { const u = new URL(String(value ?? ""), window.location.origin); return ["http:", "https:"].includes(u.protocol) ? escapeHtml(u.href) : ""; } catch { return ""; } };
@@ -305,6 +306,7 @@
       .from("anamnesis_versions")
       .select("id,version_number,status,released_at,submitted_at,locked_at,created_at,anamnesis_type_id,anamnesis_types(code,name,description)")
       .eq("patient_id", patientId)
+      .not("released_at", "is", null)
       .order("created_at", { ascending: false });
     if (error) { box.innerHTML = '<p class="texto-suave">Não foi possível carregar suas fichas.</p>'; return; }
     if (!data?.length) { box.innerHTML = '<p class="texto-suave">Nenhuma ficha de anamnese disponível no momento.</p>'; return; }

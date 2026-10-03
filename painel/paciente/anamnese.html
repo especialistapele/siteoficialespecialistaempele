@@ -81,7 +81,7 @@ const escapeHtml = (v) => String(v ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<
 if (!versionId) { root.innerHTML='<p class="texto-suave">Ficha não informada.</p>'; throw new Error("sem versão"); }
 
 const [{data:version,error:verErr},{data:types},{data:permissions}] = await Promise.all([
-  supabase.from("anamnesis_versions").select("id,patient_id,anamnesis_type_id,version_number,status,released_at,submitted_at,locked_at").eq("id",versionId).eq("patient_id",patientId).single(),
+  supabase.from("anamnesis_versions").select("id,patient_id,anamnesis_type_id,version_number,status,released_at,submitted_at,locked_at").eq("id",versionId).eq("patient_id",patientId).not("released_at","is",null).single(),
   supabase.from("anamnesis_types").select("id,code,name,description").eq("active",true),
   supabase.from("anamnesis_edit_permissions").select("id,status,expires_at").eq("anamnesis_version_id",versionId).eq("patient_id",patientId).eq("status","active").order("granted_at",{ascending:false}).limit(1)
 ]);
