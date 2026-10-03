@@ -177,6 +177,19 @@ Deno.serve(async (req: Request) => {
     const acesso_painel=b.acesso_painel!==false;
     const pre_atendimento_id=b.pre_atendimento_id?String(b.pre_atendimento_id):null;
     const senha=String(b.senha_temporaria||crypto.randomUUID().replace(/-/g,"").slice(0,10));
+    const cpf=String(b.cpf||"").trim()||null;
+    const rg=String(b.rg||"").trim()||null;
+    const birth_date=String(b.birth_date||"").trim()||null;
+    const address=String(b.address||"").trim()||null;
+    const address_number=String(b.address_number||"").trim()||null;
+    const address_complement=String(b.address_complement||"").trim()||null;
+    const neighborhood=String(b.neighborhood||"").trim()||null;
+    const city=String(b.city||"").trim()||null;
+    const state=String(b.state||"").trim().toUpperCase()||null;
+    const cep=String(b.cep||"").trim()||null;
+    const profession=String(b.profession||"").trim()||null;
+    const children=b.children===null||b.children===undefined||b.children===""?null:Number(b.children);
+    const blood_type=String(b.blood_type||"").trim()||null;
     if(!full_name||!email) return out({error:"Nome e e-mail são obrigatórios."},400);
     const {data:n,error:ce}=await admin.auth.admin.createUser({email,password:senha,email_confirm:true,user_metadata:{full_name}});
     if(ce||!n?.user) return out({error:ce?.message||"Erro ao criar usuário."},400);
@@ -188,7 +201,10 @@ Deno.serve(async (req: Request) => {
       await admin.auth.admin.deleteUser(id).catch(()=>{});
       return out({error:"Não foi possível criar o perfil do paciente. A operação foi desfeita automaticamente — tente novamente."},500);
     }
-    const {error:pat}=await admin.from("patients").insert({id,user_id:id,full_name,email,phone:phone||null,status:"ativo",acesso_painel,pre_atendimento_id});
+    const {error:pat}=await admin.from("patients").insert({
+      id,user_id:id,full_name,email,phone:phone||null,status:"ativo",acesso_painel,pre_atendimento_id,
+      cpf,rg,birth_date,address,address_number,address_complement,neighborhood,city,state,cep,profession,children,blood_type
+    });
     if(pat) {
       try { await admin.from("profiles").delete().eq("id",id); } catch(_) {}
       await admin.auth.admin.deleteUser(id).catch(()=>{});
