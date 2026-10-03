@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="/painel/assets/css/painel.css">
 <style>
 .anamnese-wrap{max-width:900px;margin:0 auto}.anamnese-head{margin-bottom:22px}.anamnese-section{margin-top:18px}.anamnese-question{padding:16px 0;border-bottom:1px solid var(--linha,#ddd7c9)}.anamnese-question label.titulo{display:block;font-weight:700;margin-bottom:9px}.anamnese-help{font-size:12.5px;color:#777;margin:-3px 0 10px}.opcoes{display:grid;gap:8px}.opcao{display:flex;align-items:flex-start;gap:9px;font-weight:400}.opcao input{margin-top:3px}.erro-campo{color:#a33;font-size:12px;margin-top:5px}.anamnese-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.anamnese-status{padding:12px;border-radius:8px;background:rgba(78,122,69,.08);font-size:13px}.previous-answer{margin:8px 0;padding:10px;border:1px solid var(--linha,#ddd7c9);border-radius:8px;background:#faf9f6;font-size:13px}.previous-answer button{margin:8px 8px 0 0}.assinatura-wrap{margin-top:18px;border:1px dashed var(--linha,#ddd7c9);border-radius:8px;background:#fff}.assinatura-wrap canvas{display:block;width:100%;height:180px;touch-action:none}.loading{padding:35px;text-align:center}
+
+.dados-pessoais{margin-bottom:18px}.dados-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px}.dados-grid .campo{display:flex;flex-direction:column;gap:6px}.dados-grid .campo--full{grid-column:1/-1}.dados-grid label{font-weight:700;font-size:13px}.dados-grid input,.dados-grid select{width:100%;box-sizing:border-box}.dados-aviso{padding:12px;border-radius:8px;background:rgba(78,122,69,.08);font-size:13px;margin-bottom:16px}@media(max-width:700px){.dados-grid{grid-template-columns:1fr}.dados-grid .campo--full{grid-column:auto}}
 </style>
 </head>
 <body>
@@ -31,6 +33,50 @@ import { criarAssinatura } from "/painel/assets/js/assinatura-canvas.js";
 const contexto = await exigirPaciente(); if (!contexto) throw new Error("sem acesso");
 configurarBotaoSair();
 const patientId = contexto.paciente.id;
+const { data: cadastroPaciente, error: cadastroErr } = await supabase
+  .from("patients")
+  .select("id,full_name,cpf,rg,birth_date,address,address_number,address_complement,neighborhood,city,state,cep,phone,email,profession,children,blood_type")
+  .eq("id",patientId)
+  .single();
+if (cadastroErr || !cadastroPaciente) throw cadastroErr || new Error("Cadastro do paciente não encontrado");
+
+function valorCadastro(campo){ return cadastroPaciente?.[campo] ?? ""; }
+function idadePorData(data){
+  if(!data) return "";
+  const hoje=new Date(), nasc=new Date(data+"T00:00:00");
+  let idade=hoje.getFullYear()-nasc.getFullYear();
+  const m=hoje.getMonth()-nasc.getMonth();
+  if(m<0 || (m===0 && hoje.getDate()<nasc.getDate())) idade--;
+  return idade>=0 ? idade : "";
+}
+function montarDadosPessoais(){
+  return `
+    <section class="dados-pessoais painel-card" data-dados-pessoais>
+      <h3 style="margin-top:0">Dados pessoais</h3>
+      <div class="dados-aviso">Confira seus dados cadastrais. Eles serão registrados junto à anamnese e utilizados para identificar corretamente sua ficha e futuros documentos.</div>
+      <div class="dados-grid">
+        <div class="campo campo--full"><label for="cad-full_name">Nome completo *</label><input id="cad-full_name" data-cad="full_name" type="text" value="${escapeHtml(valorCadastro("full_name"))}" required></div>
+        <div class="campo"><label for="cad-cpf">CPF *</label><input id="cad-cpf" data-cad="cpf" type="text" value="${escapeHtml(valorCadastro("cpf"))}" required></div>
+        <div class="campo"><label for="cad-rg">RG</label><input id="cad-rg" data-cad="rg" type="text" value="${escapeHtml(valorCadastro("rg"))}"></div>
+        <div class="campo"><label for="cad-birth_date">Data de nascimento *</label><input id="cad-birth_date" data-cad="birth_date" type="date" value="${escapeHtml(valorCadastro("birth_date"))}" required></div>
+        <div class="campo"><label>Idade</label><input type="text" value="${escapeHtml(idadePorData(valorCadastro("birth_date")))}" data-idade readonly></div>
+        <div class="campo campo--full"><label for="cad-address">Endereço</label><input id="cad-address" data-cad="address" type="text" value="${escapeHtml(valorCadastro("address"))}"></div>
+        <div class="campo"><label for="cad-address_number">Número</label><input id="cad-address_number" data-cad="address_number" type="text" value="${escapeHtml(valorCadastro("address_number"))}"></div>
+        <div class="campo"><label for="cad-address_complement">Complemento</label><input id="cad-address_complement" data-cad="address_complement" type="text" value="${escapeHtml(valorCadastro("address_complement"))}"></div>
+        <div class="campo"><label for="cad-neighborhood">Bairro</label><input id="cad-neighborhood" data-cad="neighborhood" type="text" value="${escapeHtml(valorCadastro("neighborhood"))}"></div>
+        <div class="campo"><label for="cad-city">Cidade</label><input id="cad-city" data-cad="city" type="text" value="${escapeHtml(valorCadastro("city"))}"></div>
+        <div class="campo"><label for="cad-state">Estado</label><input id="cad-state" data-cad="state" type="text" maxlength="2" value="${escapeHtml(valorCadastro("state"))}"></div>
+        <div class="campo"><label for="cad-cep">CEP</label><input id="cad-cep" data-cad="cep" type="text" value="${escapeHtml(valorCadastro("cep"))}"></div>
+        <div class="campo"><label for="cad-phone">Telefone</label><input id="cad-phone" data-cad="phone" type="text" value="${escapeHtml(valorCadastro("phone"))}"></div>
+        <div class="campo"><label for="cad-email">E-mail</label><input id="cad-email" data-cad="email" type="email" value="${escapeHtml(valorCadastro("email"))}"></div>
+        <div class="campo"><label for="cad-profession">Profissão</label><input id="cad-profession" data-cad="profession" type="text" value="${escapeHtml(valorCadastro("profession"))}"></div>
+        <div class="campo"><label for="cad-children">Filhos</label><input id="cad-children" data-cad="children" type="text" value="${escapeHtml(valorCadastro("children"))}"></div>
+        <div class="campo"><label for="cad-blood_type">Tipo sanguíneo</label><select id="cad-blood_type" data-cad="blood_type"><option value="">Selecione…</option>${["A+","A-","B+","B-","AB+","AB-","O+","O-"].map(v=>`<option value="${v}" ${valorCadastro("blood_type")===v?"selected":""}>${v}</option>`).join("")}</select></div>
+      </div>
+    </section>
+  `;
+}
+
 const versionId = new URLSearchParams(location.search).get("version");
 const root = document.querySelector("[data-root]");
 const escapeHtml = (v) => String(v ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
@@ -54,6 +100,7 @@ const [{data:questions,error:qErr},{data:responses}] = await Promise.all([
 if (qErr) { root.innerHTML='<p class="texto-suave">Erro ao carregar as perguntas.</p>'; throw qErr; }
 
 const qList=(questions||[]).filter(q=>q.question_definitions).sort((a,b)=>(a.position||0)-(b.position||0));
+root.innerHTML=montarDadosPessoais();
 const answerMap=new Map((responses||[]).map(r=>[r.question_definition_id,r.value]));
 const concepts=[...new Set(qList.map(q=>q.question_definitions.clinical_concept_id).filter(Boolean))];
 const {data:previous}=concepts.length ? await supabase.from("patient_clinical_data").select("clinical_concept_id,value,valid_from").eq("patient_id",patientId).eq("is_current",true).in("clinical_concept_id",concepts) : {data:[]};
@@ -89,12 +136,13 @@ function renderField(q){
   return multiline?'<textarea id="'+id+'" data-q="'+d.id+'" rows="5"'+req+'>'+escapeHtml(current)+'</textarea>':'<input type="text" id="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(current)+'"'+req+'>';
 }
 let lastSection="";
-root.innerHTML=qList.map(q=>{
+root.insertAdjacentHTML("beforeend", qList.map(q=>{
  const d=q.question_definitions; const section=q.section||"Anamnese"; const heading=section!==lastSection?'<h3 style="margin:24px 0 4px">'+escapeHtml(section)+'</h3>':""; lastSection=section;
  const prev=canEdit && d.clinical_concept_id && previousMap.has(d.clinical_concept_id) && !answerMap.has(d.id);
  return heading+'<div class="anamnese-question" data-question-wrap="'+d.id+'"><label class="titulo" for="q_'+d.id+'">'+escapeHtml(d.label)+(q.required?' *':'')+'</label>'+(d.help_text?'<div class="anamnese-help">'+escapeHtml(d.help_text)+'</div>':"")+(prev?'<div class="previous-answer">Resposta anterior encontrada: <strong>'+escapeHtml(displayValue(previousMap.get(d.clinical_concept_id)))+'</strong><br><button type="button" class="btn-p btn-p-mini btn-p-dourado" data-manter="'+d.id+'">Manter resposta</button><button type="button" class="btn-p btn-p-mini btn-p-fora" data-alterar="'+d.id+'">Alterar resposta</button></div>':"")+renderField(q)+'<div class="erro-campo" data-error="'+d.id+'"></div></div>';
 }).join("");
 
+root.querySelector("[data-cad=\"birth_date\"]")?.addEventListener("change",e=>{ const idade=root.querySelector("[data-idade]"); if(idade) idade.value=idadePorData(e.target.value); });
 let assinatura=null;
 if (canEdit) {
   const assinaturaWrap=document.createElement("div");
@@ -165,6 +213,12 @@ if (submitBtn) submitBtn.onclick=async()=>{
  if(!assinatura || assinatura.estaVazia()){alert("Desenhe sua assinatura antes de enviar a ficha."); return;}
  submitBtn.disabled=true; submitBtn.textContent="Enviando…";
  try{
+  const dadosPessoais={};
+  root.querySelectorAll("[data-cad]").forEach(el=>{ dadosPessoais[el.dataset.cad]=el.value.trim(); });
+  if(!dadosPessoais.full_name || !dadosPessoais.cpf || !dadosPessoais.birth_date){
+    alert("Preencha Nome completo, CPF e Data de nascimento nos dados pessoais.");
+    submitBtn.disabled=false; submitBtn.textContent="Enviar anamnese"; return;
+  }
   const respostas=[];
   for (const q of qList.filter(q=>visible(q))) {
     const d=q.question_definitions;
@@ -193,7 +247,7 @@ if (submitBtn) submitBtn.onclick=async()=>{
   const blob=await assinatura.paraBlob();
   const path=patientId+"/assinaturas/anamnese-"+versionId+"-"+Date.now()+".png";
   const {error:upErr}=await supabase.storage.from("documentos-pacientes").upload(path,blob,{contentType:"image/png",upsert:false}); if(upErr)throw upErr;
-  const {data:resultado, error:rpcErr}=await supabase.rpc("submit_anamnesis",{p_version_id:versionId,p_responses:respostas,p_signature_path:path,p_user_agent:navigator.userAgent}); if(rpcErr)throw rpcErr;
+  const {data:resultado, error:rpcErr}=await supabase.rpc("submit_anamnesis",{p_version_id:versionId,p_responses:respostas,p_signature_path:path,p_user_agent:navigator.userAgent,p_personal_data:dadosPessoais}); if(rpcErr)throw rpcErr;
   const novaVersao=resultado?.version_id && resultado.version_id!==versionId ? '<p style="margin:6px 0 0">A edição autorizada gerou uma nova versão histórica; a versão anterior foi preservada.</p>' : "";
   root.innerHTML='<div class="anamnese-status"><strong>Anamnese enviada com sucesso.</strong><p style="margin:6px 0 0">Sua ficha foi registrada e assinada. Esta versão ficará disponível no seu prontuário.</p>'+novaVersao+'<a class="btn-p btn-p-dourado" style="margin-top:12px" href="/painel/paciente/painel.html">Voltar ao Meu espaço</a></div>';
  }catch(e){submitBtn.disabled=false;submitBtn.textContent="Enviar anamnese";alert("Não foi possível enviar a ficha: "+(e.message||e));}
