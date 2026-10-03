@@ -65,8 +65,6 @@ export function renderSidebarAdmin(ativo, nome = "Admin") {
     </div>
   `;
 }
-}
-
 
 export function configurarMenuAdmin() {
   const sidebar = document.querySelector("[data-sidebar]");
