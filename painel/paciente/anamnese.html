@@ -49,7 +49,7 @@ document.querySelector("[data-subtitulo]").textContent = type?.description || "P
 const canEdit = version.status === "draft" || (permissions?.length && permissions[0].status==="active" && (!permissions[0].expires_at || new Date(permissions[0].expires_at)>new Date()));
 const [{data:questions,error:qErr},{data:responses}] = await Promise.all([
   supabase.from("anamnesis_questions").select("id,section,position,required,conditional_rule,question_definition_id,question_definitions(id,code,clinical_concept_id,label,help_text,field_type,options,validation)").eq("anamnesis_type_id",version.anamnesis_type_id).eq("active",true).order("position"),
-  supabase.from("anamnesis_responses").select("question_definition_id,clinical_concept_id,value").eq("anamnesis_version_id",versionId)
+  supabase.from("anamnesis_responses").select("question_definition_id,clinical_concept_id,value,source").eq("anamnesis_version_id",versionId)
 ]);
 if (qErr) { root.innerHTML='<p class="texto-suave">Erro ao carregar as perguntas.</p>'; throw qErr; }
 
@@ -84,7 +84,7 @@ function renderField(q){
   }
   if(d.field_type==="numeric") return '<input type="number" id="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(current)+'"'+req+'>';
   if(d.field_type==="scale") return '<input type="number" id="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(current)+'" min="'+escapeHtml(d.validation?.min??0)+'" max="'+escapeHtml(d.validation?.max??10)+'" step="1"'+req+'>';
-  if(d.field_type==="upload") return '<input type="file" id="'+id+'" data-upload-q="'+d.id+'" accept="image/*,.pdf" multiple> <div class="anamnese-help">Você poderá selecionar mais de um arquivo.</div>';
+  if(d.field_type==="upload"){ const existing=Array.isArray(current)?current:[]; return '<input type="file" id="'+id+'" data-upload-q="'+d.id+'" accept="image/*,.pdf" multiple> <div class="anamnese-help">Você poderá selecionar mais de um arquivo.</div>'+(existing.length?'<div class="anamnese-help"><strong>Arquivo(s) já anexado(s):</strong> '+existing.map(escapeHtml).join("<br>")+'</div>':""); }
   const multiline=d.field_type==="long_text";
   return multiline?'<textarea id="'+id+'" data-q="'+d.id+'" rows="5"'+req+'>'+escapeHtml(current)+'</textarea>':'<input type="text" id="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(current)+'"'+req+'>';
 }
@@ -154,6 +154,7 @@ if(!canEdit){
   root.querySelectorAll("input,select,textarea,button[data-manter],button[data-alterar]").forEach(el=>el.disabled=true);
 }
 if(version.status==="submitted"||version.status==="locked"){document.querySelector("[data-subtitulo]").textContent="Ficha preenchida e arquivada. Esta versão permanece preservada no seu prontuário.";}
+else if((responses||[]).some(r=>r.source==="admin_preenchimento")){document.querySelector("[data-subtitulo]").textContent="Esta ficha foi pré-preenchida pela equipe. Revise, complete o que for necessário e assine para finalizar.";}
 
 /* Uploads serão adicionados ao fluxo de submissão; por enquanto, campos upload ficam reservados para a etapa de anexos. */
 if (submitBtn) submitBtn.onclick=async()=>{
@@ -170,8 +171,9 @@ if (submitBtn) submitBtn.onclick=async()=>{
     if (d.field_type==="upload") {
       const input=root.querySelector('[data-upload-q="'+d.id+'"]');
       const files=[...(input?.files||[])];
-      if (q.required && !files.length) throw new Error("É necessário anexar os arquivos solicitados.");
-      const paths=[];
+      const existing=Array.isArray(values.get(d.id))?values.get(d.id):[];
+      if (q.required && !files.length && !existing.length) throw new Error("É necessário anexar os arquivos solicitados.");
+      const paths=[...existing];
       for (const file of files) {
         const safeName=file.name.replace(/[^a-zA-Z0-9._-]+/g,"_");
         const filePath=patientId+"/anamneses/"+versionId+"/"+Date.now()+"-"+safeName;
@@ -183,7 +185,7 @@ if (submitBtn) submitBtn.onclick=async()=>{
         });
         if(attErr) throw attErr;
       }
-      respostas.push({question_definition_id:d.id,clinical_concept_id:d.clinical_concept_id||null,value:paths,source:"upload"});
+      respostas.push({question_definition_id:d.id,clinical_concept_id:d.clinical_concept_id||null,value:paths,source:"anamnese"});
     } else {
       respostas.push({question_definition_id:d.id,clinical_concept_id:d.clinical_concept_id||null,value:readValue(d),source:"anamnese"});
     }

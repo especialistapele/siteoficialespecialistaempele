@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Preencher rascunho — Anamnese</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<style>
+.wrap{max-width:980px;margin:0 auto}.q{padding:16px 0;border-bottom:1px solid var(--linha,#ddd7c9)}.q label.t{display:block;font-weight:700;margin-bottom:8px}.help{font-size:12.5px;color:#777;margin:-2px 0 9px}.opts{display:grid;gap:8px}.opt{display:flex;gap:9px;align-items:flex-start;font-weight:400}.opt input{margin-top:3px}.section{margin-top:24px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.notice{padding:12px;border-radius:8px;background:rgba(78,122,69,.08);font-size:13px}.muted{color:#777}.error{color:#a33;font-size:12px;margin-top:5px}
+</style>
+</head>
+<body>
+<div class="painel-layout">
+  <aside class="painel-sidebar" data-sidebar></aside>
+  <main class="painel-main"><div class="wrap">
+    <div class="painel-topo">
+      <a href="javascript:history.back()" class="texto-suave" style="font-size:13px">← Voltar</a>
+      <h1 style="margin-top:7px" data-title>Anamnese</h1>
+      <p class="texto-suave" data-subtitle>Preenchimento administrativo em rascunho.</p>
+    </div>
+    <div class="aviso-flash" data-flash></div>
+    <div class="painel-card">
+      <div class="notice"><strong>Modo rascunho administrativo.</strong> As respostas serão preparadas pela equipe, mas a paciente ainda precisará revisar, completar e assinar a ficha para finalizá-la. Nenhuma assinatura é criada nesta tela.</div>
+      <div id="form" style="margin-top:16px"><p class="muted">Carregando…</p></div>
+      <div class="actions">
+        <button type="button" class="btn-p btn-p-dourado" id="save">Salvar rascunho</button>
+        <button type="button" class="btn-p btn-p-fora" onclick="history.back()">Voltar</button>
+      </div>
+    </div>
+  </div></main>
+</div>
+<script type="module">
+import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash } from "/painel/assets/js/painel-auth.js";
+import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
+import { escapeHtml } from "/painel/assets/js/sanitize.js";
+
+const contexto = await exigirAdmin();
+if (!contexto) throw new Error("sem acesso");
+document.querySelector("[data-sidebar]").innerHTML = renderSidebarAdmin("pacientes", contexto.perfil.full_name);
+configurarBotaoSair();
+
+const flash=document.querySelector("[data-flash]");
+const root=document.getElementById("form");
+const versionId=new URLSearchParams(location.search).get("version");
+if(!versionId){root.innerHTML='<p class="muted">Versão não informada.</p>';throw new Error("sem versão");}
+
+const {data:version,error:verErr}=await supabase.from("anamnesis_versions")
+  .select("id,patient_id,anamnesis_type_id,version_number,status,created_at,released_at")
+  .eq("id",versionId).single();
+if(verErr||!version){root.innerHTML='<p class="muted">Não foi possível carregar a versão.</p>';throw verErr||new Error("versão inexistente");}
+if(version.status!=="draft"){root.innerHTML='<p class="muted">Esta versão não está mais em rascunho. Para alterar uma ficha finalizada, use a autorização de edição.</p>';throw new Error("versão não é draft");}
+
+const [{data:type},{data:questions,error:qErr},{data:responses,error:rErr}]=await Promise.all([
+  supabase.from("anamnesis_types").select("id,name,description").eq("id",version.anamnesis_type_id).single(),
+  supabase.from("anamnesis_questions").select("id,section,position,required,conditional_rule,question_definition_id,question_definitions(id,code,clinical_concept_id,label,help_text,field_type,options,validation)").eq("anamnesis_type_id",version.anamnesis_type_id).eq("active",true).order("position"),
+  supabase.from("anamnesis_responses").select("question_definition_id,clinical_concept_id,value,source").eq("anamnesis_version_id",versionId)
+]);
+if(qErr||rErr){root.innerHTML='<p class="muted">Não foi possível carregar as perguntas.</p>';throw qErr||rErr;}
+
+document.querySelector("[data-title]").textContent=(type?.name||"Anamnese")+" · Rascunho";
+document.querySelector("[data-subtitle]").textContent=(type?.description||"Preencha as respostas recebidas anteriormente. A paciente assinará depois.");
+
+const qList=(questions||[]).filter(q=>q.question_definitions).sort((a,b)=>(a.position||0)-(b.position||0));
+const answerMap=new Map((responses||[]).map(r=>[r.question_definition_id,r.value]));
+const values=new Map(answerMap);
+function display(v){if(v==null||v==="")return "";if(Array.isArray(v))return v.join(", ");if(typeof v==="object")return v.text||v.value||JSON.stringify(v);return String(v);}
+function choices(d){const o=Array.isArray(d.options)?d.options:(d.options?.choices||[]);return o.map(x=>typeof x==="string"?{value:x,label:x}:x);}
+function read(q){
+  const d=q.question_definitions, nodes=[...root.querySelectorAll('[data-q="'+d.id+'"]')];
+  if(d.field_type==="checkbox") return nodes.filter(n=>n.checked).map(n=>n.value);
+  if(d.field_type==="radio"){const n=nodes.find(n=>n.checked);return n?n.value:"";}
+  return nodes[0]?.value||"";
+}
+function visible(q){
+  const rule=q.conditional_rule;if(!rule)return true;
+  const cur=values.get(rule.question_definition_id), exp=rule.value;
+  if(rule.operator==="contains")return Array.isArray(cur)&&cur.includes(exp);
+  return display(cur)===display(exp);
+}
+function render(q){
+  const d=q.question_definitions,id="q_"+d.id,current=values.get(d.id), req=q.required?" required":"";
+  if(d.field_type==="radio"||d.field_type==="select"){
+    const cs=choices(d);
+    if(d.field_type==="select")return '<select id="'+id+'" data-q="'+d.id+'"'+req+'><option value="">Selecione…</option>'+cs.map(o=>'<option value="'+escapeHtml(o.value)+'" '+(display(current)===display(o.value)?"selected":"")+'>'+escapeHtml(o.label)+'</option>').join("")+'</select>';
+    return '<div class="opts">'+cs.map(o=>'<label class="opt"><input type="radio" name="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(o.value)+'" '+(display(current)===display(o.value)?"checked":"")+(q.required?" required":"")+'><span>'+escapeHtml(o.label)+'</span></label>').join("")+'</div>';
+  }
+  if(d.field_type==="checkbox"){
+    const selected=Array.isArray(current)?current:[],cs=choices(d);
+    return '<div class="opts">'+cs.map(o=>'<label class="opt"><input type="checkbox" data-q="'+d.id+'" value="'+escapeHtml(o.value)+'" '+(selected.includes(o.value)?"checked":"")+'><span>'+escapeHtml(o.label)+'</span></label>').join("")+'</div>';
+  }
+  if(d.field_type==="numeric")return '<input type="number" id="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(current??"")+'"'+req+'>';
+  if(d.field_type==="scale")return '<input type="number" id="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(current??"")+'" min="'+escapeHtml(d.validation?.min??0)+'" max="'+escapeHtml(d.validation?.max??10)+'" step="1"'+req+'>';
+  if(d.field_type==="upload")return '<input type="file" id="'+id+'" data-upload="'+d.id+'" accept="image/*,.pdf" multiple><div class="help">Arquivos novos serão adicionados ao rascunho.</div>'+(Array.isArray(current)&&current.length?'<div class="help"><strong>Arquivos já anexados:</strong> '+current.map(escapeHtml).join("<br>")+'</div>':"");
+  const multiline=d.field_type==="long_text";
+  return multiline?'<textarea id="'+id+'" data-q="'+d.id+'" rows="5"'+req+'>'+escapeHtml(current??"")+'</textarea>':'<input type="text" id="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(current??"")+'"'+req+'>';
+}
+let sec="";
+root.innerHTML=qList.map(q=>{
+  const d=q.question_definitions,heading=q.section!==sec?(sec=q.section||"Anamnese",'<h3 class="section">'+escapeHtml(sec)+'</h3>'):"";
+  return heading+'<div class="q" data-wrap="'+d.id+'"><label class="t" for="q_'+d.id+'">'+escapeHtml(d.label)+(q.required?" *":"")+'</label>'+(d.help_text?'<div class="help">'+escapeHtml(d.help_text)+'</div>':"")+render(q)+'<div class="error" data-error="'+d.id+'"></div></div>';
+}).join("");
+
+function refresh(){
+  qList.forEach(q=>{const w=root.querySelector('[data-wrap="'+q.question_definitions.id+'"]');if(w)w.style.display=visible(q)?"":"none";});
+}
+root.querySelectorAll("[data-q]").forEach(el=>el.addEventListener("input",()=>{const q=qList.find(x=>x.question_definitions.id===el.dataset.q);if(q){values.set(el.dataset.q,read(q));refresh();}}));
+root.querySelectorAll("[data-q]").forEach(el=>el.addEventListener("change",()=>{const q=qList.find(x=>x.question_definitions.id===el.dataset.q);if(q){values.set(el.dataset.q,read(q));refresh();}}));
+refresh();
+
+document.getElementById("save").onclick=async()=>{
+  const button=document.getElementById("save"), respostas=[];
+  for(const q of qList){
+    if(!visible(q))continue;
+    const d=q.question_definitions;
+    if(d.field_type==="upload"){
+      const input=root.querySelector('[data-upload="'+d.id+'"]'),files=[...(input?.files||[])],existing=Array.isArray(values.get(d.id))?values.get(d.id):[];
+      const paths=[...existing];
+      for(const file of files){
+        const safe=file.name.replace(/[^a-zA-Z0-9._-]+/g,"_");
+        const path=version.patient_id+"/anamneses/"+versionId+"/"+Date.now()+"-"+safe;
+        const {error}=await supabase.storage.from("documentos-pacientes").upload(path,file,{contentType:file.type||"application/octet-stream",upsert:false});
+        if(error){mostrarFlash(flash,"Erro no upload: "+error.message,"erro");return;}
+        paths.push(path);
+        const {error:attErr}=await supabase.from("anamnesis_attachments").insert({anamnesis_version_id:versionId,patient_id:version.patient_id,file_path:path,file_name:file.name,mime_type:file.type||null,file_size:file.size});
+        if(attErr){mostrarFlash(flash,"Erro ao registrar anexo: "+attErr.message,"erro");return;}
+      }
+      values.set(d.id,paths);
+      respostas.push({question_definition_id:d.id,clinical_concept_id:d.clinical_concept_id||null,value:paths});
+    }else{
+      const value=read(d);
+      values.set(d.id,value);
+      respostas.push({question_definition_id:d.id,clinical_concept_id:d.clinical_concept_id||null,value});
+    }
+  }
+  button.disabled=true;button.textContent="Salvando…";
+  try{
+    const {error}=await supabase.rpc("save_anamnesis_draft",{p_version_id:versionId,p_responses:respostas});
+    if(error)throw error;
+    mostrarFlash(flash,"Rascunho salvo. A paciente poderá revisar, completar e assinar depois.","sucesso");
+  }catch(e){mostrarFlash(flash,"Erro ao salvar rascunho: "+(e?.message||e),"erro");}
+  finally{button.disabled=false;button.textContent="Salvar rascunho";}
+};
+</script>
+</body>
+</html>
