@@ -134,10 +134,11 @@ function renderField(q){
   return multiline?'<textarea id="'+id+'" data-q="'+d.id+'" rows="5"'+req+'>'+escapeHtml(current)+'</textarea>':'<input type="text" id="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(current)+'"'+req+'>';
 }
 let lastSection="";
-root.insertAdjacentHTML("beforeend", qList.map(q=>{
- const d=q.question_definitions; const section=q.section||"Anamnese"; const heading=section!==lastSection?'<div class="anamnese-section"><h3 class="anamnese-section-title">'+escapeHtml(section)+'</h3>':""; lastSection=section;
+root.insertAdjacentHTML("beforeend", qList.map((q,index)=>{
+ const d=q.question_definitions; const section=q.section||"Anamnese"; const nextSection=qList[index+1]?.section||"Anamnese"; const heading=section!==lastSection?'<div class="anamnese-section"><h3 class="anamnese-section-title">'+escapeHtml(section)+'</h3>':""; lastSection=section;
  const prev=canEdit && d.clinical_concept_id && previousMap.has(d.clinical_concept_id) && !answerMap.has(d.id);
- return heading+'<div class="anamnese-question" data-question-wrap="'+d.id+'"><label class="titulo" for="q_'+d.id+'">'+escapeHtml(d.label)+(q.required?' *':'')+'</label>'+(d.help_text?'<div class="anamnese-help">'+escapeHtml(d.help_text)+'</div>':"")+(prev?'<div class="previous-answer">Resposta anterior encontrada: <strong>'+escapeHtml(displayValue(previousMap.get(d.clinical_concept_id)))+'</strong><br><button type="button" class="btn-p btn-p-mini btn-p-dourado" data-manter="'+d.id+'">Manter resposta</button><button type="button" class="btn-p btn-p-mini btn-p-fora" data-alterar="'+d.id+'">Alterar resposta</button></div>':"")+renderField(q)+'<div class="erro-campo" data-error="'+d.id+'"></div></div>';
+ const fechamento=section!==nextSection?'</div>':"";
+ return heading+'<div class="anamnese-question" data-question-wrap="'+d.id+'"><label class="titulo" for="q_'+d.id+'">'+escapeHtml(d.label)+(q.required?' *':'')+'</label>'+(d.help_text?'<div class="anamnese-help">'+escapeHtml(d.help_text)+'</div>':"")+(prev?'<div class="previous-answer">Resposta anterior encontrada: <strong>'+escapeHtml(displayValue(previousMap.get(d.clinical_concept_id)))+'</strong><br><button type="button" class="btn-p btn-p-mini btn-p-dourado" data-manter="'+d.id+'">Manter resposta</button><button type="button" class="btn-p btn-p-mini btn-p-fora" data-alterar="'+d.id+'">Alterar resposta</button></div>':"")+renderField(q)+'<div class="erro-campo" data-error="'+d.id+'"></div></div>'+fechamento;
 }).join("")+'<div class="anamnese-section" data-signature-anchor></div>';
 
 root.querySelector("[data-cad=\"birth_date\"]")?.addEventListener("change",e=>{ const idade=root.querySelector("[data-idade]"); if(idade) idade.value=idadePorData(e.target.value); });
