@@ -7,9 +7,7 @@
 <title>Anamnese — Especialista em Pele</title>
 <link rel="stylesheet" href="/painel/assets/css/painel.css">
 <style>
-.anamnese-wrap{max-width:900px;margin:0 auto}.anamnese-head{margin-bottom:22px}.anamnese-section{margin-top:18px}.anamnese-question{padding:16px 0;border-bottom:1px solid var(--linha,#ddd7c9)}.anamnese-question label.titulo{display:block;font-weight:700;margin-bottom:9px}.anamnese-help{font-size:12.5px;color:#777;margin:-3px 0 10px}.opcoes{display:grid;gap:8px}.opcao{display:flex;align-items:flex-start;gap:9px;font-weight:400}.opcao input{margin-top:3px}.erro-campo{color:#a33;font-size:12px;margin-top:5px}.anamnese-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.anamnese-status{padding:12px;border-radius:8px;background:rgba(78,122,69,.08);font-size:13px}.previous-answer{margin:8px 0;padding:10px;border:1px solid var(--linha,#ddd7c9);border-radius:8px;background:#faf9f6;font-size:13px}.previous-answer button{margin:8px 8px 0 0}.assinatura-wrap{margin-top:18px;border:1px dashed var(--linha,#ddd7c9);border-radius:8px;background:#fff}.assinatura-wrap canvas{display:block;width:100%;height:180px;touch-action:none}.loading{padding:35px;text-align:center}
-
-.dados-pessoais{margin-bottom:18px}.dados-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px}.dados-grid .campo{display:flex;flex-direction:column;gap:6px}.dados-grid .campo--full{grid-column:1/-1}.dados-grid label{font-weight:700;font-size:13px}.dados-grid input,.dados-grid select{width:100%;box-sizing:border-box}.dados-aviso{padding:12px;border-radius:8px;background:rgba(78,122,69,.08);font-size:13px;margin-bottom:16px}@media(max-width:700px){.dados-grid{grid-template-columns:1fr}.dados-grid .campo--full{grid-column:auto}}
+.anamnese-wrap{max-width:980px;margin:0 auto}.anamnese-head{margin-bottom:18px}.anamnese-hero{padding:24px 26px;border:1px solid var(--linha,#ddd7c9);border-radius:16px;background:linear-gradient(135deg,#fffdf9,#f7f9f7);box-shadow:0 8px 24px rgba(38,49,45,.06)}.anamnese-kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:#7d827c;margin-bottom:7px}.anamnese-hero h1{margin:0 0 7px;font-size:clamp(25px,4vw,34px);letter-spacing:-.02em}.anamnese-hero p{margin:0;max-width:720px;line-height:1.6}.anamnese-progress{margin-top:18px}.anamnese-progress__top{display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:12px;color:#6f746f;margin-bottom:7px}.anamnese-progress__bar{height:7px;background:#e8e7df;border-radius:999px;overflow:hidden}.anamnese-progress__fill{height:100%;width:0;background:#5b7567;border-radius:999px;transition:width .25s ease}.anamnese-form-card{margin-top:18px;padding:24px 26px;border:1px solid var(--linha,#ddd7c9);border-radius:16px;background:#fff;box-shadow:0 8px 24px rgba(38,49,45,.045)}.anamnese-section{margin-top:26px}.anamnese-section-title{margin:0;padding-bottom:11px;border-bottom:1px solid var(--linha,#ddd7c9);font-size:18px}.anamnese-question{padding:20px 0;border-bottom:1px solid #ecebe5}.anamnese-question:last-child{border-bottom:0}.anamnese-question label.titulo{display:block;font-weight:750;margin-bottom:9px;font-size:15px;line-height:1.45}.anamnese-help{font-size:12.5px;color:#777;margin:-2px 0 12px;line-height:1.5}.anamnese-question input[type=text],.anamnese-question input[type=number],.anamnese-question select,.anamnese-question textarea{width:100%;box-sizing:border-box}.opcoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px}.opcao{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid #e4e2da;border-radius:10px;background:#fcfcfa;font-weight:500;cursor:pointer;transition:.15s}.opcao:hover{border-color:#b9c6bf;background:#f7faf8}.opcao input{margin:0;accent-color:#5b7567}.erro-campo{color:#a33;font-size:12px;margin-top:7px}.anamnese-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px;padding-top:20px;border-top:1px solid var(--linha,#ddd7c9)}.anamnese-status{padding:18px;border-radius:12px;background:rgba(78,122,69,.08);font-size:13px;line-height:1.55}.previous-answer{margin:10px 0;padding:13px;border:1px solid #d8e2dc;border-radius:10px;background:#f7faf8;font-size:13px}.previous-answer button{margin:9px 8px 0 0}.assinatura-wrap{margin-top:18px;border:1px dashed #c9d0ca;border-radius:12px;background:#fcfcfa}.assinatura-wrap canvas{display:block;width:100%;height:180px;touch-action:none}.loading{padding:55px;text-align:center}.dados-pessoais{margin-bottom:0}.dados-pessoais h3{font-size:18px}.dados-aviso{padding:13px 15px;border-radius:10px;background:#f5f8f6;border:1px solid #e1e8e3;font-size:13px;line-height:1.5;margin-bottom:18px}.dados-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 16px}.dados-grid .campo{display:flex;flex-direction:column;gap:6px}.dados-grid .campo--full{grid-column:1/-1}.dados-grid label{font-weight:700;font-size:13px}.dados-grid input,.dados-grid select{width:100%;box-sizing:border-box}@media(max-width:700px){.anamnese-hero,.anamnese-form-card{padding:20px 16px;border-radius:12px}.opcoes{grid-template-columns:1fr}.anamnese-question{padding:17px 0}.dados-grid{grid-template-columns:1fr}.dados-grid .campo--full{grid-column:auto}}
 </style>
 </head>
 <body>
@@ -23,7 +21,7 @@
   </nav>
 </aside>
 <main class="painel-main"><div class="anamnese-wrap">
-  <div class="painel-topo anamnese-head"><div><h1 data-titulo>Anamnese</h1><p class="texto-suave" data-subtitulo>Carregando…</p></div></div>
+  <div class="painel-topo anamnese-head"><div class="anamnese-hero"><div class="anamnese-kicker">Ficha clínica</div><h1 data-titulo>Anamnese</h1><p data-subtitulo>Carregando…</p><div class="anamnese-progress" data-progress-wrap><div class="anamnese-progress__top"><span data-progress-label>Progresso da ficha</span><strong data-progress-count>0%</strong></div><div class="anamnese-progress__bar"><div class="anamnese-progress__fill" data-progress-fill></div></div></div></div></div>
   <div class="painel-card" data-root><div class="loading">Carregando ficha…</div></div>
 </div></main>
 </div>
@@ -100,7 +98,7 @@ const [{data:questions,error:qErr},{data:responses}] = await Promise.all([
 if (qErr) { root.innerHTML='<p class="texto-suave">Erro ao carregar as perguntas.</p>'; throw qErr; }
 
 const qList=(questions||[]).filter(q=>q.question_definitions).sort((a,b)=>(a.position||0)-(b.position||0));
-root.innerHTML=montarDadosPessoais();
+root.innerHTML='<div class="anamnese-form-card">'+montarDadosPessoais()+'</div>';
 const answerMap=new Map((responses||[]).map(r=>[r.question_definition_id,r.value]));
 const concepts=[...new Set(qList.map(q=>q.question_definitions.clinical_concept_id).filter(Boolean))];
 const {data:previous}=concepts.length ? await supabase.from("patient_clinical_data").select("clinical_concept_id,value,valid_from").eq("patient_id",patientId).eq("is_current",true).in("clinical_concept_id",concepts) : {data:[]};
@@ -136,17 +134,18 @@ function renderField(q){
   return multiline?'<textarea id="'+id+'" data-q="'+d.id+'" rows="5"'+req+'>'+escapeHtml(current)+'</textarea>':'<input type="text" id="'+id+'" data-q="'+d.id+'" value="'+escapeHtml(current)+'"'+req+'>';
 }
 let lastSection="";
-root.insertAdjacentHTML("beforeend", qList.map(q=>{
- const d=q.question_definitions; const section=q.section||"Anamnese"; const heading=section!==lastSection?'<h3 style="margin:24px 0 4px">'+escapeHtml(section)+'</h3>':""; lastSection=section;
+root.insertAdjacentHTML("beforeend", qList.map((q,index)=>{
+ const d=q.question_definitions; const section=q.section||"Anamnese"; const nextSection=qList[index+1]?.section||"Anamnese"; const heading=section!==lastSection?'<div class="anamnese-section"><h3 class="anamnese-section-title">'+escapeHtml(section)+'</h3>':""; lastSection=section;
  const prev=canEdit && d.clinical_concept_id && previousMap.has(d.clinical_concept_id) && !answerMap.has(d.id);
- return heading+'<div class="anamnese-question" data-question-wrap="'+d.id+'"><label class="titulo" for="q_'+d.id+'">'+escapeHtml(d.label)+(q.required?' *':'')+'</label>'+(d.help_text?'<div class="anamnese-help">'+escapeHtml(d.help_text)+'</div>':"")+(prev?'<div class="previous-answer">Resposta anterior encontrada: <strong>'+escapeHtml(displayValue(previousMap.get(d.clinical_concept_id)))+'</strong><br><button type="button" class="btn-p btn-p-mini btn-p-dourado" data-manter="'+d.id+'">Manter resposta</button><button type="button" class="btn-p btn-p-mini btn-p-fora" data-alterar="'+d.id+'">Alterar resposta</button></div>':"")+renderField(q)+'<div class="erro-campo" data-error="'+d.id+'"></div></div>';
-}).join("");
+ const fechamento=section!==nextSection?'</div>':"";
+ return heading+'<div class="anamnese-question" data-question-wrap="'+d.id+'"><label class="titulo" for="q_'+d.id+'">'+escapeHtml(d.label)+(q.required?' *':'')+'</label>'+(d.help_text?'<div class="anamnese-help">'+escapeHtml(d.help_text)+'</div>':"")+(prev?'<div class="previous-answer">Resposta anterior encontrada: <strong>'+escapeHtml(displayValue(previousMap.get(d.clinical_concept_id)))+'</strong><br><button type="button" class="btn-p btn-p-mini btn-p-dourado" data-manter="'+d.id+'">Manter resposta</button><button type="button" class="btn-p btn-p-mini btn-p-fora" data-alterar="'+d.id+'">Alterar resposta</button></div>':"")+renderField(q)+'<div class="erro-campo" data-error="'+d.id+'"></div></div>'+fechamento;
+}).join("")+'<div class="anamnese-section" data-signature-anchor></div>';
 
 root.querySelector("[data-cad=\"birth_date\"]")?.addEventListener("change",e=>{ const idade=root.querySelector("[data-idade]"); if(idade) idade.value=idadePorData(e.target.value); });
 let assinatura=null;
 if (canEdit) {
   const assinaturaWrap=document.createElement("div");
-  assinaturaWrap.innerHTML='<div class="anamnese-section"><h3>Declaração e assinatura</h3><p class="texto-suave">Ao assinar, você confirma que as informações fornecidas nesta ficha correspondem ao seu conhecimento atual.</p><div class="assinatura-wrap"><canvas id="anamnese-canvas"></canvas></div><div class="anamnese-actions"><button type="button" class="btn-p btn-p-fora" id="limpar-assinatura">Limpar assinatura</button></div></div>';
+  assinaturaWrap.innerHTML='<div class="anamnese-section"><h3 class="anamnese-section-title">Declaração e assinatura</h3><p class="texto-suave">Ao assinar, você confirma que as informações fornecidas nesta ficha correspondem ao seu conhecimento atual.</p><div class="assinatura-wrap"><canvas id="anamnese-canvas"></canvas></div><div class="anamnese-actions"><button type="button" class="btn-p btn-p-fora" id="limpar-assinatura">Limpar assinatura</button></div></div>';
   root.appendChild(assinaturaWrap);
   const canvas=document.getElementById("anamnese-canvas");
   assinatura=criarAssinatura(canvas);
@@ -168,13 +167,14 @@ function refreshVisibility(){
 }
 root.querySelectorAll("[data-q]").forEach(el=>el.addEventListener("input",()=>{
   const q=qList.find(q=>q.question_definitions.id===el.dataset.q);
-  if(q){ values.set(el.dataset.q,readValue(q.question_definitions)); refreshVisibility(); }
+  if(q){ values.set(el.dataset.q,readValue(q.question_definitions)); refreshVisibility(); atualizarProgresso(); }
 }));
 root.querySelectorAll("[data-q]").forEach(el=>el.addEventListener("change",()=>{
   const q=qList.find(x=>x.question_definitions.id===el.dataset.q);
   if(q){ values.set(el.dataset.q,readValue(q.question_definitions)); refreshVisibility(); }
 }));
 refreshVisibility();
+atualizarProgresso();
 
 root.querySelectorAll("[data-manter]").forEach(btn=>btn.onclick=()=>{
  const q=qList.find(x=>x.question_definitions.id===btn.dataset.manter); if(!q)return;
@@ -189,10 +189,17 @@ root.querySelectorAll("[data-manter]").forEach(btn=>btn.onclick=()=>{
   } else field.value=displayValue(val);
 }
 btn.closest(".previous-answer").remove();
-refreshVisibility();
+refreshVisibility(); atualizarProgresso();
 });
 root.querySelectorAll("[data-alterar]").forEach(btn=>btn.onclick=()=>btn.closest(".previous-answer").remove());
 
+function atualizarProgresso(){
+ const visiveis=qList.filter(q=>visible(q));
+ const respondidas=visiveis.filter(q=>{const v=readValue(q.question_definitions);return v!==""&&(!Array.isArray(v)||v.length>0)}).length;
+ const pct=visiveis.length?Math.round(respondidas/visiveis.length*100):0;
+ const fill=document.querySelector("[data-progress-fill]"), count=document.querySelector("[data-progress-count]"), label=document.querySelector("[data-progress-label]");
+ if(fill) fill.style.width=pct+"%"; if(count) count.textContent=pct+"%"; if(label) label.textContent=respondidas+" de "+visiveis.length+" perguntas respondidas";
+}
 const actions=document.createElement("div"); actions.className="anamnese-actions";
 actions.innerHTML=(canEdit?'<button type="button" class="btn-p btn-p-dourado" id="enviar-anamnese">Enviar anamnese</button>':'')+'<a class="btn-p btn-p-fora" href="/painel/paciente/painel.html">Voltar</a>';
 root.appendChild(actions);
