@@ -49,7 +49,14 @@
         <form id="form-contrato">
           <div class="form-linha">
             <div class="form-campo"><label for="patient_id">Paciente</label><select id="patient_id" required><option value="">Selecione...</option></select></div>
-            <div class="form-campo"><label for="title">Título do contrato</label><input type="text" id="title" required placeholder="Ex.: Contrato de prestação de serviço"></div>
+            <div class="form-campo"><label for="template_id">Modelo de contrato</label><select id="template_id"><option value="">Contrato personalizado</option></select></div>
+          </div>
+          <div class="form-campo">
+            <label>Dados do paciente</label>
+            <div id="dados-paciente-contrato" class="texto-suave" style="padding:10px 12px;border:1px solid var(--linha,#ddd7c9);border-radius:6px;background:#faf8f3">Selecione um paciente para carregar os dados cadastrados.</div>
+          </div>
+          <div class="form-linha">
+            <div class="form-campo"><label for="title">Título do contrato</label><input type="text" id="title" required placeholder="Ex.: Termo de Direito de Imagem"></div>
           </div>
           <div class="form-campo">
             <label for="content-editor">Texto do contrato</label>
@@ -104,6 +111,14 @@
   const modalVer = document.getElementById("modal-ver");
   let pacientes = [];
   let contratos = [];
+  let modelosContrato = [];
+  const camposPacienteContrato = {
+    full_name:"Nome completo", cpf:"CPF", rg:"RG", birth_date:"Data de nascimento",
+    address:"Endereço", address_number:"Número", address_complement:"Complemento",
+    neighborhood:"Bairro", city:"Cidade", state:"Estado", cep:"CEP",
+    phone:"Telefone", email:"E-mail", profession:"Profissão", children:"Filhos", blood_type:"Tipo sanguíneo"
+  };
+  let pacientesDetalhados = new Map();
 
   // Editor de texto do contrato (mesmo padrão usado em Tratamentos)
   const editor = document.getElementById("content-editor");
@@ -145,11 +160,66 @@
   });
 
   async function carregarPacientes() {
-    const { data } = await supabase.from("patients").select("id, full_name").order("full_name");
+    const { data } = await supabase.from("patients").select("id, full_name, email, phone, cpf, rg, birth_date, address, address_number, address_complement, neighborhood, city, state, cep, profession, children, blood_type").order("full_name");
     pacientes = data || [];
+    pacientesDetalhados = new Map(pacientes.map((p) => [p.id, p]));
+
     const opcoes = pacientes.map((p) => `<option value="${p.id}">${escapeHtml(p.full_name)}</option>`).join("");
     document.getElementById("patient_id").innerHTML = `<option value="">Selecione...</option>${opcoes}`;
     document.getElementById("filtro_paciente").innerHTML = `<option value="">Todos os pacientes</option>${opcoes}`;
+  }
+
+  function valorPaciente(paciente, chave) {
+    const valor = paciente?.[chave];
+    if (valor == null || valor === "") return "";
+    return String(valor);
+  }
+
+  function substituirDadosPaciente(html, paciente) {
+    if (!paciente) return html;
+    return html.replace(/\{\{\s*([a-z_]+)\s*\}\}/gi, (_, chave) => {
+      const valor = valorPaciente(paciente, chave.toLowerCase());
+      return escapeHtml(valor);
+    });
+  }
+
+  function renderizarDadosPacienteContrato() {
+    const paciente = pacientesDetalhados.get(document.getElementById("patient_id").value);
+    const box = document.getElementById("dados-paciente-contrato");
+    if (!paciente) {
+      box.innerHTML = "Selecione um paciente para carregar os dados cadastrados.";
+      return;
+    }
+    const linhas = Object.entries(camposPacienteContrato).map(([chave,label]) => {
+      const valor = valorPaciente(paciente, chave);
+      return `<div style="display:flex;justify-content:space-between;gap:12px;padding:4px 0"><span>${escapeHtml(label)}</span><strong>${escapeHtml(valor || "Não preenchido")}</strong></div>`;
+    }).join("");
+    box.innerHTML = linhas;
+  }
+
+  async function carregarModelosContrato() {
+    const { data, error } = await supabase
+      .from("document_templates")
+      .select("id,code,title,document_type,version,content_html,active")
+      .eq("active", true)
+      .order("title");
+    modelosContrato = data || [];
+    const select = document.getElementById("template_id");
+    if (error || !modelosContrato.length) {
+      select.innerHTML = '<option value="">Contrato personalizado</option>';
+      return;
+    }
+    select.innerHTML = '<option value="">Contrato personalizado</option>' +
+      modelosContrato.map((m) => `<option value="${m.id}">${escapeHtml(m.title)}${m.version ? " · v" + m.version : ""}</option>`).join("");
+  }
+
+  function aplicarModeloSelecionado() {
+    const modelo = modelosContrato.find((m) => m.id === document.getElementById("template_id").value);
+    const paciente = pacientesDetalhados.get(document.getElementById("patient_id").value);
+    if (!modelo) return;
+    document.getElementById("title").value = modelo.title || "";
+    editor.innerHTML = substituirDadosPaciente(modelo.content_html || "", paciente);
+    sincronizarEditor();
   }
 
   function nomePaciente(id) {
@@ -211,10 +281,16 @@
   }
 
   document.getElementById("filtro_paciente").addEventListener("change", renderizar);
+  document.getElementById("patient_id").addEventListener("change", () => {
+    renderizarDadosPacienteContrato();
+    if (document.getElementById("template_id").value) aplicarModeloSelecionado();
+  });
+  document.getElementById("template_id").addEventListener("change", aplicarModeloSelecionado);
   document.getElementById("botao-novo").addEventListener("click", () => {
     document.getElementById("form-contrato").reset();
     editor.innerHTML = "";
     editorHidden.value = "";
+    renderizarDadosPacienteContrato();
     modal.style.display = "flex";
   });
   document.getElementById("botao-fechar").addEventListener("click", () => modal.style.display = "none");
@@ -236,6 +312,8 @@
   });
 
   await carregarPacientes();
+  await carregarModelosContrato();
+  renderizarDadosPacienteContrato();
   carregar();
 </script>
 </body>
