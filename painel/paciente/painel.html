@@ -123,7 +123,11 @@
     <!-- PRONTUÁRIO -->
     <section class="aba-conteudo" data-conteudo="prontuario">
       <div class="painel-topo"><div><h1>Seu Prontuário</h1><p class="texto-suave">Seu prontuário está disponível em ambiente seguro.</p></div></div>
-      <div class="painel-card" style="text-align:center;padding:50px 20px" data-bloco-prontuario>
+      <div class="painel-card" style="margin-top:22px">
+  <h3>Fichas de anamnese</h3>
+  <p class="texto-suave">Aqui ficam as fichas que você já preencheu e as novas fichas liberadas para você.</p>
+  <div data-lista-anamneses-paciente style="display:grid;gap:10px;margin-top:14px"><p class="texto-suave">Carregando…</p></div>
+</div>\n      <div class="painel-card" style="text-align:center;padding:50px 20px" data-bloco-prontuario>
         <p class="texto-suave">Carregando…</p>
       </div>
       <div class="painel-card" style="margin-top:22px">
@@ -216,11 +220,23 @@
   const patientId = contexto.paciente.id;
 
   // Avisos gerais e específicos
-  const { data: avisos } = await supabase.from("announcements").select("title,message,created_at").or(`patient_id.eq.${patientId},patient_id.is.null`).order("created_at", { ascending: false }).limit(5);
+  const { data: avisos } = await supabase.from("announcements").select("title,message,created_at,anamnesis_version_id").or(`patient_id.eq.${patientId},patient_id.is.null`).order("created_at", { ascending: false }).limit(5);
   const avisosBloco = document.querySelector("[data-avisos]");
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>\"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;", "'":"&#39;"}[c]));
   const safeUrl = (value) => { try { const u = new URL(String(value ?? ""), window.location.origin); return ["http:", "https:"].includes(u.protocol) ? escapeHtml(u.href) : ""; } catch { return ""; } };
-  avisosBloco.innerHTML = avisos?.length ? avisos.map(a => `<div style="padding:12px 0;border-bottom:1px solid var(--linha)"><strong>${escapeHtml(a.title)}</strong><p class="texto-suave" style="white-space:pre-wrap;margin:5px 0 0">${escapeHtml(a.message)}</p></div>`).join("") : `<p class="texto-suave">Nenhum aviso no momento.</p>`;
+  let versoesAviso = [];
+  if (avisos?.some(a => a.title === "Nova anamnese disponível")) {
+    const { data } = await supabase.from("anamnesis_versions").select("id,version_number,status,created_at,anamnesis_types(name)").eq("patient_id", patientId).order("created_at",{ascending:false}).limit(10);
+    versoesAviso = data || [];
+  }
+  avisosBloco.innerHTML = avisos?.length ? avisos.map(a => {
+    const v = a.title === "Nova anamnese disponível" ? (a.anamnesis_version_id ? versoesAviso.find(x => x.id === a.anamnesis_version_id) : versoesAviso.find(x => x.status === "draft")) : null;
+    return `<div style="padding:12px 0;border-bottom:1px solid var(--linha)">
+      <strong>${escapeHtml(a.title)}</strong>
+      <p class="texto-suave" style="white-space:pre-wrap;margin:5px 0 0">${escapeHtml(a.message)}</p>
+      ${v ? `<a class="btn-p btn-p-mini btn-p-dourado" style="margin-top:9px" href="/painel/paciente/anamnese.html?version=${encodeURIComponent(v.id)}">Preencher esta ficha →</a>` : ""}
+    </div>`;
+  }).join("") : `<p class="texto-suave">Nenhum aviso no momento.</p>`;
 
   // Atendimentos
   const { data: atendimentos } = await supabase.from("appointments").select("*").eq("patient_id", patientId).order("appointment_date", { ascending: true });
@@ -263,6 +279,79 @@
   } else {
     prontuarioBloco.innerHTML = `<p class="texto-suave">Seu prontuário ainda não foi disponibilizado. Fale com a Danielle se tiver dúvidas.</p>`;
   }
+
+  // Anamneses: liberadas + preenchidas, com acesso direto à versão
+  async function carregarAnamnesesPaciente() {
+    const box = document.querySelector("[data-lista-anamneses-paciente]");
+    const { data, error } = await supabase
+      .from("anamnesis_versions")
+      .select("id,version_number,status,released_at,submitted_at,locked_at,created_at,anamnesis_type_id,anamnesis_types(code,name,description)")
+      .eq("patient_id", patientId)
+      .order("created_at", { ascending: false });
+    if (error) { box.innerHTML = '<p class="texto-suave">Não foi possível carregar suas fichas.</p>'; return; }
+    if (!data?.length) { box.innerHTML = '<p class="texto-suave">Nenhuma ficha de anamnese disponível no momento.</p>'; return; }
+
+    const versionIds = data.map(v => v.id);
+    const { data: permissoes } = await supabase
+      .from("anamnesis_edit_permissions")
+      .select("anamnesis_version_id,status,expires_at")
+      .eq("patient_id", patientId)
+      .in("anamnesis_version_id", versionIds);
+
+    const agora = Date.now();
+    const permissaoPorVersao = new Map((permissoes || [])
+      .filter(p => p.status === "active" && (!p.expires_at || new Date(p.expires_at).getTime() > agora))
+      .map(p => [p.anamnesis_version_id, p]));
+
+    const grupos = data.reduce((acc, v) => {
+      (acc[v.anamnesis_type_id] ||= []).push(v);
+      return acc;
+    }, {});
+
+    box.innerHTML = Object.values(grupos).map(lista => {
+      const ordenadas = [...lista].sort((a,b) => Number(b.version_number || 0) - Number(a.version_number || 0));
+      const atual = ordenadas[0];
+      const anteriores = ordenadas.slice(1);
+      const t = atual.anamnesis_types || {};
+
+      const renderVersao = (v, destaque) => {
+        const pendente = v.status === "draft";
+        const bloqueada = ["submitted","locked"].includes(v.status);
+        const autorizada = !!permissaoPorVersao.get(v.id);
+        const label = pendente ? "Preencher ficha" : autorizada ? "Editar ficha" : bloqueada ? "Consultar ficha" : "Abrir ficha";
+        const detalhe = pendente
+          ? "Aguardando preenchimento"
+          : autorizada
+            ? "Edição autorizada"
+            : v.submitted_at
+              ? "Preenchida em " + new Date(v.submitted_at).toLocaleDateString("pt-BR")
+              : "Disponível";
+        const classe = pendente || autorizada ? "btn-p-dourado" : "btn-p-fora";
+        return `<div style="padding:12px 0;${destaque ? "" : "border-top:1px solid var(--linha);"}">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
+            <div>
+              <div class="pessoa__nome">Versão ${escapeHtml(v.version_number)} ${destaque ? '<span class="selo-p" style="margin-left:6px">Mais recente</span>' : ""}</div>
+              <div class="pessoa__sub">${escapeHtml(detalhe)}</div>
+            </div>
+            <a class="btn-p btn-p-mini ${classe}" href="/painel/paciente/anamnese.html?version=${encodeURIComponent(v.id)}">${label} →</a>
+          </div>
+        </div>`;
+      };
+
+      return `<div class="painel-card" style="padding:16px">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap">
+          <div>
+            <div class="pessoa__nome">${escapeHtml(t.name || "Anamnese")}</div>
+            <div class="pessoa__sub">${anteriores.length ? (anteriores.length + 1) + " versões registradas" : "1 versão registrada"}</div>
+          </div>
+          ${anteriores.length ? '<span class="texto-suave">Histórico preservado</span>' : ""}
+        </div>
+        ${renderVersao(atual, true)}
+        ${anteriores.length ? '<details><summary style="cursor:pointer;color:var(--texto-suave)">Ver versões anteriores (' + anteriores.length + ')</summary>' + anteriores.map(v => renderVersao(v, false)).join("") + '</details>' : ""}
+      </div>`;
+    }).join("");
+  }
+  carregarAnamnesesPaciente();
 
   // Registro de acompanhamento fotográfico (somente os liberados pelo administrador)
   const containerFotos = document.querySelector("#lista-registros-foto-paciente");

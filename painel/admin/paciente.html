@@ -33,6 +33,16 @@
     <div class="aviso-flash" data-flash></div>
 
     <!-- Credenciais de acesso geradas -->
+    <div id="modal-visualizar-anamnese" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:110;align-items:center;justify-content:center;padding:20px;overflow-y:auto">
+      <div class="painel-card" style="max-width:760px;width:100%;margin:auto;max-height:90vh;overflow:auto">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+          <div><h3 id="visualizar-anamnese-titulo">Anamnese</h3><p class="texto-suave" id="visualizar-anamnese-meta"></p></div>
+          <button type="button" class="btn-p btn-p-mini btn-p-fora" id="fechar-visualizar-anamnese">Fechar</button>
+        </div>
+        <div id="visualizar-anamnese-conteudo" style="margin-top:18px"><p class="texto-suave">Carregando…</p></div>
+      </div>
+    </div>
+
     <div id="modal-credenciais-acesso" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px">
       <div class="painel-card" style="max-width:420px;width:100%">
         <h3>Acesso criado com sucesso</h3>
@@ -54,6 +64,7 @@
           <button data-aba="pre-atendimento">Pré-atendimento</button>
           <button data-aba="atendimentos">Novo atendimento</button>
           <button data-aba="documentos">Documentos</button>
+          <button data-aba="anamneses">Anamneses</button>
           <button data-aba="prontuario">Prontuário</button>
           <button data-aba="financeiro">Financeiro</button>
         </div>
@@ -156,6 +167,16 @@
           </form>
           <div data-resumo-financeiro style="display:flex;gap:16px;flex-wrap:wrap;margin:20px 0"></div>
           <div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Descrição</th><th>Vencimento</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody data-lista-financeiro></tbody></table></div>
+        </div>
+
+        <!-- ANAMNESES -->
+        <div class="aba-conteudo" data-conteudo="anamneses">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap">
+            <div><h3 style="margin-bottom:4px">Anamneses</h3><p class="texto-suave" style="margin:0">Libere novas fichas, consulte versões e controle autorizações de edição.</p></div>
+            <div class="form-campo" style="min-width:230px"><label for="nova-anamnese-tipo">Nova ficha</label><select id="nova-anamnese-tipo"></select></div>
+            <button type="button" class="btn-p btn-p-dourado btn-p-mini" id="liberar-anamnese">Liberar ficha</button>
+          </div>
+          <div id="lista-anamneses-admin" style="display:grid;gap:12px;margin-top:18px"><p class="texto-suave">Carregando…</p></div>
         </div>
 
         <!-- PRONTUÁRIO -->
@@ -334,6 +355,132 @@
       });
     }
   }
+
+  // Anamneses — primeira camada administrativa
+  const listaAnamnesesAdmin = document.getElementById("lista-anamneses-admin");
+  const selectNovaAnamnese = document.getElementById("nova-anamnese-tipo");
+  const botaoLiberarAnamnese = document.getElementById("liberar-anamnese");
+
+  function escapeTextoAnamnese(v) {
+    return escapeHtml(v == null ? "" : String(v));
+  }
+
+  async function carregarAnamnesesAdmin() {
+    if (!listaAnamnesesAdmin) return;
+    const [{ data: tipos, error: tiposError }, { data: versoes, error: versoesError }] = await Promise.all([
+      supabase.from("anamnesis_types").select("id,code,name,active").eq("active", true).order("name"),
+      supabase.from("anamnesis_versions").select("id,anamnesis_type_id,version_number,status,created_at,released_at,submitted_at,locked_at").eq("patient_id", patientId).order("created_at", { ascending: false })
+    ]);
+    if (tiposError || versoesError) {
+      listaAnamnesesAdmin.innerHTML = '<p class="texto-suave">Não foi possível carregar as anamneses.</p>';
+      return;
+    }
+    selectNovaAnamnese.innerHTML = (tipos || []).map(t => '<option value="' + t.id + '">' + escapeTextoAnamnese(t.name) + '</option>').join("");
+    const nomes = Object.fromEntries((tipos || []).map(t => [t.id, t.name]));
+    const grupos = (versoes || []).reduce((acc, v) => {
+      (acc[v.anamnesis_type_id] ||= []).push(v);
+      return acc;
+    }, {});
+    listaAnamnesesAdmin.innerHTML = Object.keys(grupos).length ? Object.entries(grupos).map(([tipoId, lista]) => {
+      const nome = nomes[tipoId] || "Anamnese";
+      const ordenadas = [...lista].sort((a,b) => Number(b.version_number || 0) - Number(a.version_number || 0));
+      const atual = ordenadas[0];
+      const historico = ordenadas.slice(1);
+      const renderVersao = (v, destaque) => {
+        const status = v.status || "draft";
+        const bloqueada = ["submitted","locked","signed"].includes(status);
+        const atualTag = destaque ? '<span class="selo-p" style="margin-left:6px">Mais recente</span>' : "";
+        return '<div style="padding:12px 0;' + (destaque ? '' : 'border-top:1px solid var(--linha);') + '">' +
+          '<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap">' +
+          '<div><strong>Versão ' + v.version_number + '</strong>' + atualTag +
+          '<div class="texto-suave" style="font-size:12.5px;margin-top:3px">' +
+          (v.submitted_at ? "Enviada em " + new Date(v.submitted_at).toLocaleString("pt-BR") : v.released_at ? "Liberada em " + new Date(v.released_at).toLocaleString("pt-BR") : "Ainda não liberada") +
+          '</div></div><span class="selo-p">' + escapeTextoAnamnese(status) + '</span></div>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">' +
+          '<button type="button" class="btn-p btn-p-mini btn-p-fora" data-visualizar-anamnese="' + v.id + '">Consultar respostas</button>' +
+          (bloqueada ? '<button type="button" class="btn-p btn-p-mini" data-autorizar-edicao="' + v.id + '">Autorizar edição</button>' : '') +
+          '</div></div>';
+      };
+      return '<div class="painel-card" style="padding:16px">' +
+        '<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">' +
+        '<div><strong>' + escapeTextoAnamnese(nome) + '</strong><div class="texto-suave">' + ordenadas.length + ' versão' + (ordenadas.length === 1 ? '' : 'ões') + ' registrada' + (ordenadas.length === 1 ? '' : 's') + '</div></div>' +
+        (historico.length ? '<span class="texto-suave">Histórico preservado</span>' : '') + '</div>' +
+        renderVersao(atual, true) +
+        (historico.length ? '<details style="margin-top:4px"><summary style="cursor:pointer;color:var(--texto-suave)">Ver versões anteriores (' + historico.length + ')</summary>' + historico.map(v => renderVersao(v, false)).join("") + '</details>' : '') +
+        '</div>';
+    }).join("") : '<p class="texto-suave">Nenhuma anamnese liberada para esta paciente.</p>';
+
+    listaAnamnesesAdmin.querySelectorAll("[data-visualizar-anamnese]").forEach(btn => btn.addEventListener("click", () => visualizarAnamneseAdmin(btn.dataset.visualizarAnamnese)));
+
+    listaAnamnesesAdmin.querySelectorAll("[data-autorizar-edicao]").forEach(btn => btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      const versionId = btn.dataset.autorizarEdicao;
+      const { error } = await supabase.rpc("grant_anamnesis_edit", { p_version_id: versionId, p_expires_at: null });
+      btn.disabled = false;
+      if (error) { mostrarFlash(flash, "Erro ao autorizar edição: " + error.message, "erro"); return; }
+      mostrarFlash(flash, "Edição autorizada para esta versão.", "sucesso");
+      carregarAnamnesesAdmin();
+    }));
+  }
+
+  const modalVisualizarAnamnese = document.getElementById("modal-visualizar-anamnese");
+  const visualizarAnamneseTitulo = document.getElementById("visualizar-anamnese-titulo");
+  const visualizarAnamneseMeta = document.getElementById("visualizar-anamnese-meta");
+  const visualizarAnamneseConteudo = document.getElementById("visualizar-anamnese-conteudo");
+
+  document.getElementById("fechar-visualizar-anamnese")?.addEventListener("click", () => {
+    modalVisualizarAnamnese.style.display = "none";
+  });
+
+  async function visualizarAnamneseAdmin(versionId) {
+    modalVisualizarAnamnese.style.display = "flex";
+    visualizarAnamneseConteudo.innerHTML = '<p class="texto-suave">Carregando respostas…</p>';
+    const [{ data: version, error: versionError }, { data: assignments, error: questionsError }, { data: responses, error: responsesError }] = await Promise.all([
+      supabase.from("anamnesis_versions").select("id,anamnesis_type_id,version_number,status,created_at,released_at,submitted_at,locked_at,anamnesis_types(name)").eq("id", versionId).eq("patient_id", patientId).single(),
+      supabase.from("anamnesis_questions").select("section,position,required,conditional_rule,question_definitions(id,label,help_text,field_type,options)").eq("anamnesis_type_id", version.anamnesis_type_id).eq("active", true).order("position"),
+      supabase.from("anamnesis_responses").select("question_definition_id,value").eq("anamnesis_version_id", versionId)
+    ]);
+    if (versionError || questionsError || responsesError) {
+      visualizarAnamneseConteudo.innerHTML = '<p class="texto-suave">Não foi possível consultar esta anamnese.</p>';
+      return;
+    }
+    const titulo = version?.anamnesis_types?.name || "Anamnese";
+    visualizarAnamneseTitulo.textContent = titulo + " · v" + version.version_number;
+    visualizarAnamneseMeta.textContent = (version.submitted_at ? "Enviada em " + new Date(version.submitted_at).toLocaleString("pt-BR") : "Ainda não enviada") + " · Status: " + version.status;
+    const respostas = new Map((responses || []).map(r => [r.question_definition_id, r.value]));
+    const formatar = (valor, def) => {
+      if (valor == null || valor === "" || (Array.isArray(valor) && !valor.length)) return "Não informado";
+      if (Array.isArray(valor)) return valor.join(", ");
+      if (typeof valor === "boolean") return valor ? "Sim" : "Não";
+      return String(valor);
+    };
+    let secaoAtual = "";
+    visualizarAnamneseConteudo.innerHTML = (assignments || []).map(a => {
+      const d = a.question_definitions || {};
+      const valor = respostas.get(d.id);
+      const secao = a.section || "Anamnese";
+      const cabecalho = secao !== secaoAtual ? (secaoAtual = secao, '<h4 style="margin:22px 0 10px">' + escapeTextoAnamnese(secao) + '</h4>') : "";
+      return cabecalho + '<div style="padding:11px 0;border-bottom:1px solid var(--linha)"><strong>' + escapeTextoAnamnese(d.label || "Pergunta") + '</strong>' +
+        (d.help_text ? '<div class="texto-suave" style="font-size:12px;margin-top:3px">' + escapeTextoAnamnese(d.help_text) + '</div>' : '') +
+        '<div style="margin-top:5px;white-space:pre-wrap">' + escapeTextoAnamnese(formatar(valor,d)) + '</div></div>';
+    }).join("") || '<p class="texto-suave">Nenhuma pergunta encontrada para esta versão.</p>';
+  }
+
+  botaoLiberarAnamnese?.addEventListener("click", async () => {
+    const tipoId = selectNovaAnamnese?.value;
+    if (!tipoId) { mostrarFlash(flash, "Selecione o tipo de anamnese.", "erro"); return; }
+    botaoLiberarAnamnese.disabled = true;
+    try {
+      const { error: erroLiberacao } = await supabase.rpc("release_anamnesis", { p_patient_id: patientId, p_anamnesis_type_id: tipoId, p_expires_at: null });
+      if (erroLiberacao) throw erroLiberacao;
+      mostrarFlash(flash, "Nova anamnese liberada com sucesso.", "sucesso");
+      await carregarAnamnesesAdmin();
+    } catch (erro) {
+      mostrarFlash(flash, "Erro ao liberar anamnese: " + (erro?.message || erro), "erro");
+    } finally { botaoLiberarAnamnese.disabled = false; }
+  });
+
+  carregarAnamnesesAdmin();
 
   // Pré-atendimento (respostas do formulário do site)
   const preAtendimentoBox = document.querySelector("[data-pre-atendimento-conteudo]");
