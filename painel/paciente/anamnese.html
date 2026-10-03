@@ -171,7 +171,7 @@ root.querySelectorAll("[data-q]").forEach(el=>el.addEventListener("input",()=>{
 }));
 root.querySelectorAll("[data-q]").forEach(el=>el.addEventListener("change",()=>{
   const q=qList.find(x=>x.question_definitions.id===el.dataset.q);
-  if(q){ values.set(el.dataset.q,readValue(q.question_definitions)); refreshVisibility(); }
+  if(q){ values.set(el.dataset.q,readValue(q.question_definitions)); refreshVisibility(); atualizarProgresso(); }
 }));
 refreshVisibility();
 atualizarProgresso();
