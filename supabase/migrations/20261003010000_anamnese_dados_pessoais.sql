@@ -4,8 +4,6 @@ alter table public.anamnesis_versions
 
 -- A submissão da anamnese passa a persistir os dados cadastrais e congelar
 -- uma cópia deles na versão assinada.
-drop function if exists public.submit_anamnesis(uuid,jsonb,text,text);
-
 create or replace function public.submit_anamnesis(
   p_version_id uuid,
   p_responses jsonb,
