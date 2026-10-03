@@ -436,13 +436,36 @@
   async function visualizarAnamneseAdmin(versionId) {
     modalVisualizarAnamnese.style.display = "flex";
     visualizarAnamneseConteudo.innerHTML = '<p class="texto-suave">Carregando respostas…</p>';
-    const [{ data: version, error: versionError }, { data: assignments, error: questionsError }, { data: responses, error: responsesError }] = await Promise.all([
-      supabase.from("anamnesis_versions").select("id,anamnesis_type_id,version_number,status,created_at,released_at,submitted_at,locked_at,personal_data_snapshot,anamnesis_types(name)").eq("id", versionId).eq("patient_id", patientId).single(),
-      supabase.from("anamnesis_questions").select("section,position,required,conditional_rule,question_definitions(id,label,help_text,field_type,options)").eq("anamnesis_type_id", version.anamnesis_type_id).eq("active", true).order("position"),
-      supabase.from("anamnesis_responses").select("question_definition_id,value").eq("anamnesis_version_id", versionId)
-    ]);
-    if (versionError || questionsError || responsesError) {
+
+    // Primeiro carregamos a versão. A consulta das perguntas depende do
+    // anamnesis_type_id retornado por esta primeira consulta.
+    const { data: version, error: versionError } = await supabase
+      .from("anamnesis_versions")
+      .select("id,anamnesis_type_id,version_number,status,created_at,released_at,submitted_at,locked_at,personal_data_snapshot,anamnesis_types(name)")
+      .eq("id", versionId)
+      .eq("patient_id", patientId)
+      .single();
+
+    if (versionError || !version) {
       visualizarAnamneseConteudo.innerHTML = '<p class="texto-suave">Não foi possível consultar esta anamnese.</p>';
+      return;
+    }
+
+    const [{ data: assignments, error: questionsError }, { data: responses, error: responsesError }] = await Promise.all([
+      supabase
+        .from("anamnesis_questions")
+        .select("section,position,required,conditional_rule,question_definitions(id,label,help_text,field_type,options)")
+        .eq("anamnesis_type_id", version.anamnesis_type_id)
+        .eq("active", true)
+        .order("position"),
+      supabase
+        .from("anamnesis_responses")
+        .select("question_definition_id,value")
+        .eq("anamnesis_version_id", versionId)
+    ]);
+
+    if (questionsError || responsesError) {
+      visualizarAnamneseConteudo.innerHTML = '<p class="texto-suave">Não foi possível consultar as respostas desta anamnese.</p>';
       return;
     }
     const titulo = version?.anamnesis_types?.name || "Anamnese";
