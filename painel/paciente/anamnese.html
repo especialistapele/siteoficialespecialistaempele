@@ -22,7 +22,7 @@
 </aside>
 <main class="painel-main"><div class="anamnese-wrap">
   <div class="painel-topo anamnese-head"><div class="anamnese-hero"><div class="anamnese-kicker">Ficha clínica</div><h1 data-titulo>Anamnese</h1><p data-subtitulo>Carregando…</p><div class="anamnese-progress" data-progress-wrap><div class="anamnese-progress__top"><span data-progress-label>Progresso da ficha</span><strong data-progress-count>0%</strong></div><div class="anamnese-progress__bar"><div class="anamnese-progress__fill" data-progress-fill></div></div></div></div></div>
-  <div class="painel-card" data-root><div class="loading">Carregando ficha…</div></div>
+  <div class="painel-card" data-root><div class="loading estado-carregando" role="status" aria-live="polite">Carregando ficha…</div></div>
 </div></main>
 </div>
 <script type="module">
@@ -54,7 +54,7 @@ function montarDadosPessoais(){
       <div class="dados-aviso">Confira seus dados cadastrais. Eles serão registrados junto à anamnese e utilizados para identificar corretamente sua ficha e futuros documentos.</div>
       <div class="dados-grid">
         <div class="campo campo--full"><label for="cad-full_name">Nome completo *</label><input id="cad-full_name" data-cad="full_name" type="text" value="${escapeHtml(valorCadastro("full_name"))}" required></div>
-        <div class="campo"><label for="cad-cpf">CPF *</label><input id="cad-cpf" data-cad="cpf" type="text" value="${escapeHtml(valorCadastro("cpf"))}" required></div>
+        <div class="campo"><label for="cad-cpf">CPF *</label><input id="cad-cpf" data-cad="cpf" type="text" inputmode="numeric" autocomplete="off" value="${escapeHtml(valorCadastro("cpf"))}" required></div>
         <div class="campo"><label for="cad-rg">RG</label><input id="cad-rg" data-cad="rg" type="text" value="${escapeHtml(valorCadastro("rg"))}"></div>
         <div class="campo"><label for="cad-birth_date">Data de nascimento *</label><input id="cad-birth_date" data-cad="birth_date" type="date" value="${escapeHtml(valorCadastro("birth_date"))}" required></div>
         <div class="campo"><label>Idade</label><input type="text" value="${escapeHtml(idadePorData(valorCadastro("birth_date")))}" data-idade readonly></div>
@@ -63,9 +63,9 @@ function montarDadosPessoais(){
         <div class="campo"><label for="cad-address_complement">Complemento</label><input id="cad-address_complement" data-cad="address_complement" type="text" value="${escapeHtml(valorCadastro("address_complement"))}"></div>
         <div class="campo"><label for="cad-neighborhood">Bairro</label><input id="cad-neighborhood" data-cad="neighborhood" type="text" value="${escapeHtml(valorCadastro("neighborhood"))}"></div>
         <div class="campo"><label for="cad-city">Cidade</label><input id="cad-city" data-cad="city" type="text" value="${escapeHtml(valorCadastro("city"))}"></div>
-        <div class="campo"><label for="cad-state">Estado</label><input id="cad-state" data-cad="state" type="text" maxlength="2" value="${escapeHtml(valorCadastro("state"))}"></div>
-        <div class="campo"><label for="cad-cep">CEP</label><input id="cad-cep" data-cad="cep" type="text" value="${escapeHtml(valorCadastro("cep"))}"></div>
-        <div class="campo"><label for="cad-phone">Telefone</label><input id="cad-phone" data-cad="phone" type="text" value="${escapeHtml(valorCadastro("phone"))}"></div>
+        <div class="campo"><label for="cad-state">Estado</label><input id="cad-state" data-cad="state" type="text" maxlength="2" autocapitalize="characters" autocomplete="address-level1" value="${escapeHtml(valorCadastro("state"))}"></div>
+        <div class="campo"><label for="cad-cep">CEP</label><input id="cad-cep" data-cad="cep" type="text" inputmode="numeric" autocomplete="postal-code" value="${escapeHtml(valorCadastro("cep"))}"></div>
+        <div class="campo"><label for="cad-phone">Telefone</label><input id="cad-phone" data-cad="phone" type="tel" inputmode="tel" autocomplete="tel" value="${escapeHtml(valorCadastro("phone"))}"></div>
         <div class="campo"><label for="cad-email">E-mail</label><input id="cad-email" data-cad="email" type="email" value="${escapeHtml(valorCadastro("email"))}"></div>
         <div class="campo"><label for="cad-profession">Profissão</label><input id="cad-profession" data-cad="profession" type="text" value="${escapeHtml(valorCadastro("profession"))}"></div>
         <div class="campo"><label for="cad-children">Filhos</label><input id="cad-children" data-cad="children" type="text" value="${escapeHtml(valorCadastro("children"))}"></div>
@@ -201,7 +201,7 @@ function atualizarProgresso(){
  if(fill) fill.style.width=pct+"%"; if(count) count.textContent=pct+"%"; if(label) label.textContent=respondidas+" de "+visiveis.length+" perguntas respondidas";
 }
 const actions=document.createElement("div"); actions.className="anamnese-actions";
-actions.innerHTML=(canEdit?'<button type="button" class="btn-p btn-p-dourado" id="enviar-anamnese">Enviar anamnese</button>':'')+'<a class="btn-p btn-p-fora" href="/painel/paciente/painel.html">Voltar</a>';
+actions.innerHTML=(canEdit?'<button type="button" class="btn-p btn-p-dourado" id="enviar-anamnese">Enviar anamnese</button>':'')+'<a class="btn-p btn-p-fora" href="/painel/paciente/painel.html">Voltar</a><div class="anamnese-submit-status" data-submit-status role="status" aria-live="polite"></div>';
 root.appendChild(actions);
 const submitBtn=document.getElementById("enviar-anamnese");
 if(!canEdit){
@@ -217,13 +217,13 @@ if (submitBtn) submitBtn.onclick=async()=>{
  const missing=[];
  for(const q of qList){ if(!visible(q)||!q.required)continue; const v=readValue(q.question_definitions); if(v===""||(Array.isArray(v)&&!v.length)) missing.push(q); }
  if(missing.length){missing.forEach(q=>{const e=root.querySelector('[data-error="'+q.question_definitions.id+'"]');if(e)e.textContent="Este campo é obrigatório.";}); root.querySelector('[data-q="'+missing[0].question_definitions.id+'"]')?.scrollIntoView({behavior:"smooth",block:"center"}); return;}
- if(!assinatura || assinatura.estaVazia()){alert("Desenhe sua assinatura antes de enviar a ficha."); return;}
+ if(!assinatura || assinatura.estaVazia()){const status=root.querySelector("[data-submit-status]");if(status)status.textContent="Desenhe sua assinatura antes de enviar a ficha.";return;}
  submitBtn.disabled=true; submitBtn.textContent="Enviando…";
  try{
   const dadosPessoais={};
   root.querySelectorAll("[data-cad]").forEach(el=>{ dadosPessoais[el.dataset.cad]=el.value.trim(); });
   if(!dadosPessoais.full_name || !dadosPessoais.cpf || !dadosPessoais.birth_date){
-    alert("Preencha Nome completo, CPF e Data de nascimento nos dados pessoais.");
+    const status=root.querySelector("[data-submit-status]");if(status)status.textContent="Preencha Nome completo, CPF e Data de nascimento nos dados pessoais antes de enviar.";
     submitBtn.disabled=false; submitBtn.textContent="Enviar anamnese"; return;
   }
   const respostas=[];
@@ -257,8 +257,14 @@ if (submitBtn) submitBtn.onclick=async()=>{
   const {data:resultado, error:rpcErr}=await supabase.rpc("submit_anamnesis",{p_version_id:versionId,p_responses:respostas,p_signature_path:path,p_user_agent:navigator.userAgent,p_personal_data:dadosPessoais}); if(rpcErr)throw rpcErr;
   const novaVersao=resultado?.version_id && resultado.version_id!==versionId ? '<p style="margin:6px 0 0">A edição autorizada gerou uma nova versão histórica; a versão anterior foi preservada.</p>' : "";
   root.innerHTML='<div class="anamnese-status"><strong>Anamnese enviada com sucesso.</strong><p style="margin:6px 0 0">Sua ficha foi registrada e assinada. Esta versão ficará disponível no seu prontuário.</p>'+novaVersao+'<a class="btn-p btn-p-dourado" style="margin-top:12px" href="/painel/paciente/painel.html">Voltar ao Meu espaço</a></div>';
- }catch(e){submitBtn.disabled=false;submitBtn.textContent="Enviar anamnese";alert("Não foi possível enviar a ficha: "+(e.message||e));}
+ }catch(e){console.error("Falha ao enviar anamnese:",e);submitBtn.disabled=false;submitBtn.textContent="Enviar anamnese";const status=root.querySelector("[data-submit-status]");if(status)status.textContent="Não foi possível enviar a ficha agora. Seus dados permanecem nesta tela. Tente novamente em alguns instantes.";}
 };
 </script>
 </body>
 </html>
+<style>
+.anamnese-submit-status{grid-column:1/-1;flex-basis:100%;font-size:13px;line-height:1.5;color:#a94438;min-height:0}
+.anamnese-question input,.anamnese-question select,.anamnese-question textarea,.dados-grid input,.dados-grid select{min-width:0}
+.assinatura-wrap{overflow:hidden;overscroll-behavior:contain}.assinatura-wrap canvas{touch-action:none;user-select:none;-webkit-user-select:none}
+@media(max-width:430px){.anamnese-hero{padding:18px 15px}.anamnese-form-card{padding:18px 14px}.anamnese-question{padding:16px 0}.anamnese-question label.titulo{font-size:14px}.anamnese-actions{display:grid;grid-template-columns:1fr}.anamnese-actions .btn-p{width:100%;min-height:46px}.opcao{min-height:50px}.dados-aviso{font-size:12.5px}}
+</style>
