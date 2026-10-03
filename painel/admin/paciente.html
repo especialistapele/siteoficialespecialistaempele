@@ -478,21 +478,34 @@
       if (typeof valor === "boolean") return valor ? "Sim" : "Não";
       return String(valor);
     };
-    const dadosPessoais = version?.personal_data_snapshot || {};
     const rotulosPessoais = {
       full_name:"Nome completo", cpf:"CPF", rg:"RG", birth_date:"Data de nascimento",
       address:"Endereço", address_number:"Número", address_complement:"Complemento",
       neighborhood:"Bairro", city:"Cidade", state:"Estado", cep:"CEP",
       phone:"Telefone", email:"E-mail", profession:"Profissão", children:"Filhos", blood_type:"Tipo sanguíneo"
     };
-    const dadosPessoaisHtml = Object.entries(rotulosPessoais).map(([chave,label]) => {
+    const dadosPessoais = paciente || {};
+    const preenchidos = Object.entries(rotulosPessoais).filter(([chave]) => {
       const valor = dadosPessoais[chave];
-      return valor ? '<div style="padding:8px 0;border-bottom:1px solid var(--linha)"><strong>'+escapeTextoAnamnese(label)+'</strong><div style="margin-top:3px">'+escapeTextoAnamnese(String(valor))+'</div></div>' : '';
+      return valor != null && String(valor).trim() !== "";
+    });
+    const faltantes = Object.entries(rotulosPessoais).filter(([chave]) => {
+      const valor = dadosPessoais[chave];
+      return valor == null || String(valor).trim() === "";
+    });
+    const renderDados = (lista) => lista.map(([chave,label]) => {
+      const valor = dadosPessoais[chave];
+      return '<div style="padding:8px 0;border-bottom:1px solid var(--linha)"><strong>'+escapeTextoAnamnese(label)+'</strong><div style="margin-top:3px">'+escapeTextoAnamnese(String(valor || "Não preenchido"))+'</div></div>';
     }).join('');
+    const dadosPessoaisHtml = renderDados(preenchidos);
+    const dadosFaltantesHtml = renderDados(faltantes);
     let secaoAtual = "";
     visualizarAnamneseConteudo.innerHTML =
-      '<h4 style="margin:0 0 10px">Dados pessoais</h4>' +
-      (dadosPessoaisHtml || '<p class="texto-suave">Dados pessoais não registrados nesta versão.</p>') +
+      '<h4 style="margin:0 0 10px">Dados pessoais do cadastro</h4>' +
+      '<p class="texto-suave" style="margin:0 0 10px">Estes dados vêm do cadastro atual do paciente e podem ser completados posteriormente em <strong>Editar cadastro</strong>.</p>' +
+      (dadosPessoaisHtml || '<p class="texto-suave">Nenhum dado pessoal preenchido.</p>') +
+      '<h4 style="margin:24px 0 10px">Dados pessoais ainda não preenchidos</h4>' +
+      (dadosFaltantesHtml || '<p class="texto-suave">Todos os dados pessoais estão preenchidos.</p>') +
       '<h4 style="margin:24px 0 10px">Anamnese clínica</h4>' +
       ((assignments || []).map(a => {
       const d = a.question_definitions || {};
