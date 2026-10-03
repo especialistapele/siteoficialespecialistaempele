@@ -37,12 +37,26 @@
 
     <!-- Modal simples de cadastro -->
     <div id="modal-novo" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px">
-      <div class="painel-card" style="max-width:460px;width:100%">
+      <div class="painel-card" style="max-width:620px;width:100%;max-height:90vh;overflow:auto">
         <h3>Cadastrar novo paciente</h3>
         <form id="form-paciente">
+          <p class="texto-suave" style="font-size:12.5px;margin:0 0 14px">Nome, e-mail e telefone são os dados necessários para liberar o login. Os demais dados são opcionais e podem ser preenchidos ou atualizados depois.</p>
           <div class="form-campo"><label for="full_name">Nome completo</label><input type="text" id="full_name" required></div>
           <div class="form-campo"><label for="email">E-mail (será o login)</label><input type="email" id="email" required></div>
-          <div class="form-campo"><label for="phone">Telefone</label><input type="tel" id="phone" placeholder="(21) 90000-0000"></div>
+          <div class="form-campo"><label for="phone">Telefone</label><input type="tel" id="phone" placeholder="(21) 90000-0000" required></div>
+          <div class="form-campo"><label for="cpf">CPF <span class="texto-suave">(opcional)</span></label><input type="text" id="cpf" inputmode="numeric" autocomplete="off"></div>
+          <div class="form-campo"><label for="rg">RG <span class="texto-suave">(opcional)</span></label><input type="text" id="rg"></div>
+          <div class="form-campo"><label for="birth_date">Data de nascimento <span class="texto-suave">(opcional)</span></label><input type="date" id="birth_date"></div>
+          <div class="form-campo"><label for="profession">Profissão <span class="texto-suave">(opcional)</span></label><input type="text" id="profession"></div>
+          <div class="form-campo"><label for="children">Filhos <span class="texto-suave">(opcional)</span></label><input type="text" id="children" placeholder="Ex.: 2 ou não possui"></div>
+          <div class="form-campo"><label for="blood_type">Tipo sanguíneo <span class="texto-suave">(opcional)</span></label><input type="text" id="blood_type" placeholder="Ex.: O+"></div>
+          <div class="form-campo"><label for="address">Endereço <span class="texto-suave">(opcional)</span></label><input type="text" id="address"></div>
+          <div class="form-campo"><label for="address_number">Número <span class="texto-suave">(opcional)</span></label><input type="text" id="address_number"></div>
+          <div class="form-campo"><label for="address_complement">Complemento <span class="texto-suave">(opcional)</span></label><input type="text" id="address_complement"></div>
+          <div class="form-campo"><label for="neighborhood">Bairro <span class="texto-suave">(opcional)</span></label><input type="text" id="neighborhood"></div>
+          <div class="form-campo"><label for="cep">CEP <span class="texto-suave">(opcional)</span></label><input type="text" id="cep" inputmode="numeric"></div>
+          <div class="form-campo"><label for="city">Cidade <span class="texto-suave">(opcional)</span></label><input type="text" id="city"></div>
+          <div class="form-campo"><label for="state">Estado <span class="texto-suave">(opcional)</span></label><input type="text" id="state" maxlength="2" placeholder="RJ"></div>
           <div class="form-campo" style="padding:12px 0">
             <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
               <input type="checkbox" id="acesso_painel" checked style="margin-top:3px">
@@ -64,12 +78,26 @@
 
     <!-- Modal de edição de cadastro -->
     <div id="modal-editar" style="display:none;position:fixed;inset:0;background:rgba(38,49,45,.45);z-index:100;align-items:center;justify-content:center;padding:20px">
-      <div class="painel-card" style="max-width:460px;width:100%">
+      <div class="painel-card" style="max-width:620px;width:100%;max-height:90vh;overflow:auto">
         <h3>Editar cadastro do paciente</h3>
         <form id="form-editar-paciente">
+          <p class="texto-suave" style="font-size:12.5px;margin:0 0 14px">Nome, e-mail e telefone permanecem obrigatórios para manter o acesso do paciente. Os demais dados podem ser completados aos poucos.</p>
           <div class="form-campo"><label for="editar_full_name">Nome completo</label><input type="text" id="editar_full_name" required></div>
           <div class="form-campo"><label for="editar_email">E-mail</label><input type="email" id="editar_email" required></div>
-          <div class="form-campo"><label for="editar_phone">Telefone</label><input type="tel" id="editar_phone" placeholder="(21) 90000-0000"></div>
+          <div class="form-campo"><label for="editar_phone">Telefone</label><input type="tel" id="editar_phone" placeholder="(21) 90000-0000" required></div>
+          <div class="form-campo"><label for="editar_cpf">CPF <span class="texto-suave">(opcional)</span></label><input type="text" id="editar_cpf" inputmode="numeric"></div>
+          <div class="form-campo"><label for="editar_rg">RG <span class="texto-suave">(opcional)</span></label><input type="text" id="editar_rg"></div>
+          <div class="form-campo"><label for="editar_birth_date">Data de nascimento <span class="texto-suave">(opcional)</span></label><input type="date" id="editar_birth_date"></div>
+          <div class="form-campo"><label for="editar_profession">Profissão <span class="texto-suave">(opcional)</span></label><input type="text" id="editar_profession"></div>
+          <div class="form-campo"><label for="editar_children">Filhos <span class="texto-suave">(opcional)</span></label><input type="text" id="editar_children" placeholder="Ex.: 2 ou não possui"></div>
+          <div class="form-campo"><label for="editar_blood_type">Tipo sanguíneo <span class="texto-suave">(opcional)</span></label><input type="text" id="editar_blood_type" placeholder="Ex.: O+"></div>
+          <div class="form-campo"><label for="editar_address">Endereço <span class="texto-suave">(opcional)</span></label><input type="text" id="editar_address"></div>
+          <div class="form-campo"><label for="editar_address_number">Número <span class="texto-suave">(opcional)</span></label><input type="text" id="editar_address_number"></div>
+          <div class="form-campo"><label for="editar_address_complement">Complemento <span class="texto-suave">(opcional)</span></label><input type="text" id="editar_address_complement"></div>
+          <div class="form-campo"><label for="editar_neighborhood">Bairro <span class="texto-suave">(opcional)</span></label><input type="text" id="editar_neighborhood"></div>
+          <div class="form-campo"><label for="editar_cep">CEP <span class="texto-suave">(opcional)</span></label><input type="text" id="editar_cep" inputmode="numeric"></div>
+          <div class="form-campo"><label for="editar_city">Cidade <span class="texto-suave">(opcional)</span></label><input type="text" id="editar_city"></div>
+          <div class="form-campo"><label for="editar_state">Estado <span class="texto-suave">(opcional)</span></label><input type="text" id="editar_state" maxlength="2" placeholder="RJ">
           <div class="form-campo" id="editar-senha-campo">
             <label for="editar_senha">Nova senha (opcional)</label>
             <div style="display:flex;gap:8px">
@@ -194,6 +222,19 @@
           full_name: document.getElementById("full_name").value.trim(),
           email: document.getElementById("email").value.trim(),
           phone: document.getElementById("phone").value.trim(),
+          cpf: document.getElementById("cpf").value.trim(),
+          rg: document.getElementById("rg").value.trim(),
+          birth_date: document.getElementById("birth_date").value || null,
+          profession: document.getElementById("profession").value.trim(),
+          children: document.getElementById("children").value.trim(),
+          blood_type: document.getElementById("blood_type").value.trim(),
+          address: document.getElementById("address").value.trim(),
+          address_number: document.getElementById("address_number").value.trim(),
+          address_complement: document.getElementById("address_complement").value.trim(),
+          neighborhood: document.getElementById("neighborhood").value.trim(),
+          cep: document.getElementById("cep").value.trim(),
+          city: document.getElementById("city").value.trim(),
+          state: document.getElementById("state").value.trim().toUpperCase(),
           acesso_painel: document.getElementById("acesso_painel").checked,
         }),
       });
@@ -223,7 +264,7 @@
   });
 
   // ------------------------------------------------------------------
-  // Editar cadastro do paciente (nome, e-mail, telefone e senha)
+  // Editar cadastro do paciente (dados pessoais completos e senha)
   // ------------------------------------------------------------------
   const modalEditar = document.getElementById("modal-editar");
   const formEditar = document.getElementById("form-editar-paciente");
@@ -236,6 +277,19 @@
     document.getElementById("editar_full_name").value = paciente.full_name || "";
     document.getElementById("editar_email").value = paciente.email || "";
     document.getElementById("editar_phone").value = paciente.phone || "";
+    document.getElementById("editar_cpf").value = paciente.cpf || "";
+    document.getElementById("editar_rg").value = paciente.rg || "";
+    document.getElementById("editar_birth_date").value = paciente.birth_date || "";
+    document.getElementById("editar_profession").value = paciente.profession || "";
+    document.getElementById("editar_children").value = paciente.children || "";
+    document.getElementById("editar_blood_type").value = paciente.blood_type || "";
+    document.getElementById("editar_address").value = paciente.address || "";
+    document.getElementById("editar_address_number").value = paciente.address_number || "";
+    document.getElementById("editar_address_complement").value = paciente.address_complement || "";
+    document.getElementById("editar_neighborhood").value = paciente.neighborhood || "";
+    document.getElementById("editar_cep").value = paciente.cep || "";
+    document.getElementById("editar_city").value = paciente.city || "";
+    document.getElementById("editar_state").value = paciente.state || "";
     document.getElementById("editar_senha").value = "";
     document.getElementById("editar-credenciais-resultado").style.display = "none";
     const temAcesso = !!paciente.user_id;
@@ -273,6 +327,19 @@
           full_name: document.getElementById("editar_full_name").value.trim(),
           email: emailNovo,
           phone: document.getElementById("editar_phone").value.trim(),
+          cpf: document.getElementById("editar_cpf").value.trim(),
+          rg: document.getElementById("editar_rg").value.trim(),
+          birth_date: document.getElementById("editar_birth_date").value || null,
+          profession: document.getElementById("editar_profession").value.trim(),
+          children: document.getElementById("editar_children").value.trim(),
+          blood_type: document.getElementById("editar_blood_type").value.trim(),
+          address: document.getElementById("editar_address").value.trim(),
+          address_number: document.getElementById("editar_address_number").value.trim(),
+          address_complement: document.getElementById("editar_address_complement").value.trim(),
+          neighborhood: document.getElementById("editar_neighborhood").value.trim(),
+          cep: document.getElementById("editar_cep").value.trim(),
+          city: document.getElementById("editar_city").value.trim(),
+          state: document.getElementById("editar_state").value.trim().toUpperCase(),
           ...(novaSenha ? { nova_senha: novaSenha } : {}),
         }),
       });
