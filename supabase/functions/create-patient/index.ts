@@ -29,7 +29,7 @@ Deno.serve(async (req: Request) => {
       const email=String(b.email||"").trim().toLowerCase();
       const phone=String(b.phone||"").trim();
       const pre_atendimento_id=b.pre_atendimento_id?String(b.pre_atendimento_id):null;
-      if(!full_name||!email||!phone) return out({error:"Nome completo, e-mail e telefone são obrigatórios para liberar o acesso do paciente."},400);
+      if(!full_name||!email) return out({error:"Nome e e-mail são obrigatórios."},400);
 
       const {data:existente}=await admin.from("patients").select("id").eq("email",email).maybeSingle();
       if(existente) return out({error:"Já existe um paciente cadastrado com este e-mail."},409);
@@ -200,7 +200,7 @@ Deno.serve(async (req: Request) => {
     const acesso_painel=b.acesso_painel!==false;
     const pre_atendimento_id=b.pre_atendimento_id?String(b.pre_atendimento_id):null;
     const senha=String(b.senha_temporaria||crypto.randomUUID().replace(/-/g,"").slice(0,10));
-    if(!full_name||!email) return out({error:"Nome e e-mail são obrigatórios."},400);
+    if(!full_name||!email||!phone) return out({error:"Nome completo, e-mail e telefone são obrigatórios para liberar o acesso do paciente."},400);
     const {data:n,error:ce}=await admin.auth.admin.createUser({email,password:senha,email_confirm:true,user_metadata:{full_name}});
     if(ce||!n?.user) return out({error:ce?.message||"Erro ao criar usuário."},400);
     const id=n.user.id;
