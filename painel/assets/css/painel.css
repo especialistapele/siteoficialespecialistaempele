@@ -312,3 +312,57 @@ h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:400;margin:0}
   .calendario-acoes input[type="date"]{font-size:12.5px;padding:7px 8px}
   .calendario-tooltip{max-width:200px;font-size:12px}
 }
+
+/* ============================================================
+   PAINEL DO PACIENTE — camada de responsividade e toque
+   ============================================================
+.pac-mobile-header,.pac-menu-backdrop,.pac-menu-fechar{display:none}
+@media (max-width:800px){
+  .painel-layout{display:block;min-height:100vh}
+  .painel-main{width:100%;max-width:none;padding:14px 12px 28px;overflow-x:clip}
+  .painel-card{padding:16px;border-radius:12px;min-width:0}
+  .form-linha{flex-direction:column;gap:0}.form-linha .form-campo{min-width:0}
+  .form-campo input,.form-campo textarea,.form-campo select{min-height:44px;font-size:16px}
+  .btn-p,.form-acoes .btn-p,.anamnese-actions .btn-p{min-height:44px;justify-content:center}
+  .tabela-p{min-width:0;table-layout:fixed}.tabela-p th,.tabela-p td{padding:11px 10px;overflow-wrap:anywhere}
+  .table-wrap{overflow-x:auto}.timeline-item{gap:10px;margin-left:5px;padding-left:14px}.timeline-data{min-width:72px}
+  .cta-agendar{padding:18px}.cta-agendar .btn-p{width:100%}
+  .painel-sidebar{position:fixed;inset:0 auto 0 0;z-index:220;width:min(86vw,320px);height:100dvh;transform:translateX(-105%);transition:transform .22s ease;overflow-y:auto;overflow-x:hidden;padding:22px 18px;box-shadow:12px 0 35px rgba(0,0,0,.18)}
+  .painel-sidebar.menu-aberto{transform:translateX(0)}
+  .painel-sidebar__marca,.painel-sidebar__perfil{display:flex}.painel-sidebar nav{flex-direction:column;gap:4px}
+  .painel-sidebar nav a{min-height:48px;padding:12px 13px;font-size:14px;white-space:normal}
+  .painel-sidebar__sair{width:100%;min-height:46px;margin-top:12px;padding:11px;font-size:13px}
+  .pac-menu-fechar{display:flex;align-items:center;justify-content:center;align-self:flex-end;width:44px;height:44px;margin:-8px -6px 8px 0;border:1px solid rgba(244,238,227,.18);border-radius:10px;background:transparent;color:var(--cream);font-size:27px;line-height:1;cursor:pointer}
+  .pac-menu-backdrop{position:fixed;inset:0;z-index:210;background:rgba(28,37,33,.48);backdrop-filter:blur(2px)}.pac-menu-backdrop.visivel{display:block}
+  body.menu-paciente-aberto{overflow:hidden}
+  .pac-mobile-header{display:flex;align-items:center;gap:10px;min-height:52px;margin-bottom:12px;background:#fff;border:1px solid var(--linha);border-radius:12px;padding:7px 10px;box-shadow:var(--sombra);position:sticky;top:8px;z-index:100}
+  .pac-menu-abrir{width:44px;height:44px;display:flex;flex-direction:column;justify-content:center;gap:4px;align-items:center;border:0;border-radius:10px;background:var(--ink-2);cursor:pointer;flex:0 0 44px}
+  .pac-menu-abrir span{display:block;width:18px;height:2px;border-radius:2px;background:var(--cream)}.pac-mobile-brand{font-family:Georgia,serif;font-size:16px;flex:1}
+  .pac-mobile-user{font-size:12px;font-weight:700;max-width:32%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pac-topbar{display:none}
+}
+@media (max-width:520px){
+  .painel-main{padding-left:10px;padding-right:10px}.stats-grid,.estatisticas-paciente-grid{grid-template-columns:1fr}
+  .resumo-mini{grid-template-columns:1fr;gap:10px}.resumo-mini__card{padding:14px;min-height:92px}
+  .pac-hero{min-height:205px;border-radius:12px}.pac-hero__overlay{padding:24px 18px 22px}.pac-hero__overlay h1{font-size:29px}.pac-hero__subtitulo{font-size:14px;line-height:1.45}
+  .pac-acessos-rapidos{grid-template-columns:1fr 1fr}.timeline-item{display:grid;grid-template-columns:1fr;gap:6px;padding:15px 0 15px 14px}
+  .timeline-data{min-width:0}.timeline-data span{display:inline-block;margin-left:7px}.conteudo-contrato{max-height:48dvh;padding:14px;font-size:14px}
+  .assinatura-canvas-wrap canvas{height:150px}.form-acoes{display:grid;grid-template-columns:1fr}.form-acoes .btn-p{width:100%}
+}
+@media (max-width:430px){
+  .painel-main{padding-left:8px;padding-right:8px}.painel-card{padding:14px}.pac-acessos-rapidos{grid-template-columns:1fr}
+  .pac-mobile-user{max-width:27%}.btn-p{width:100%}.lista-simples__item{align-items:flex-start;gap:10px;flex-wrap:wrap}.lista-simples__item>.btn-p{width:100%}
+}
+@media (min-width:801px){.painel-sidebar{position:sticky;top:0;height:100vh}}
+
+.resumo-mini__card{min-width:0}.resumo-mini__card strong,.resumo-mini__card span,.resumo-mini__status{overflow-wrap:anywhere}.resumo-mini__status{font-size:11.5px;color:rgba(38,49,45,.52)}
+.pac-kicker{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#7d827c;font-weight:800;margin-bottom:4px}
+.pac-pendencias{margin:0 0 18px;padding:18px;border:1px solid rgba(201,164,91,.34);border-radius:14px;background:linear-gradient(135deg,#fffdf7,#faf8f0);box-shadow:var(--sombra)}
+.pac-pendencias__cabecalho{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:8px}.pac-pendencias__cabecalho h3{font-size:18px}
+.pac-pendencias__badge{min-width:28px;height:28px;padding:0 8px;border-radius:999px;background:var(--gold);color:var(--ink-2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+.pac-pendencias__lista{display:grid;gap:8px}.pac-pendencia{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 13px;border:1px solid var(--linha);border-radius:10px;background:#fff}
+.pac-pendencia small,.pac-pendencia strong{display:block}.pac-pendencia small{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:rgba(38,49,45,.48);margin-bottom:3px}.pac-pendencia strong{font-size:13px}
+.pac-acessos-rapidos{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 20px}.pac-acessos-rapidos button{appearance:none;border:1px solid var(--linha);background:#fff;border-radius:12px;padding:15px;text-align:left;cursor:pointer;box-shadow:0 4px 16px rgba(38,49,45,.045);min-width:0}
+.pac-acessos-rapidos button:hover,.pac-acessos-rapidos button:focus-visible{border-color:var(--gold);outline:none}.pac-acessos-rapidos strong,.pac-acessos-rapidos span{display:block}.pac-acessos-rapidos strong{font-size:13px;margin-bottom:5px}.pac-acessos-rapidos span{font-size:11.5px;color:rgba(38,49,45,.55);line-height:1.4}
+.estado-carregando{position:relative;color:transparent!important;min-height:18px}.estado-carregando::before{content:"";display:block;width:55%;height:10px;border-radius:999px;background:linear-gradient(90deg,#ecebe5,#f7f7f4,#ecebe5);background-size:200% 100%;animation:painelSkeleton 1.2s ease-in-out infinite}@keyframes painelSkeleton{0%{background-position:100% 0}100%{background-position:-100% 0}}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}button,input,select,textarea{max-width:100%}input,select,textarea,button{font:inherit}input[type="checkbox"],input[type="radio"]{width:20px;height:20px;flex:0 0 20px}
+@media (max-width:700px){.dados-grid{grid-template-columns:1fr!important}.dados-grid .campo--full{grid-column:auto!important}.anamnese-question input[type=text],.anamnese-question input[type=number],.anamnese-question select,.anamnese-question textarea{font-size:16px;min-height:46px}.opcao{min-height:48px;padding:12px 13px}.assinatura-wrap canvas{height:170px}}
