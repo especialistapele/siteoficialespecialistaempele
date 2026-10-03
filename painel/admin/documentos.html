@@ -15,25 +15,52 @@
   <aside class="painel-sidebar" data-sidebar></aside>
   <main class="painel-main">
     <div class="painel-topo">
-      <div><h1>Documentos</h1><p class="texto-suave">Cadastre aqui sua biblioteca de documentos. Os arquivos ficam disponíveis para você escolher e enviar uma cópia para qualquer paciente, sem retirar o documento da biblioteca.</p></div>
+      <div>
+        <h1>Documentos</h1>
+        <p class="texto-suave">Mantenha uma biblioteca central de documentos e envie cópias para pacientes sem retirar o original da biblioteca.</p>
+      </div>
     </div>
     <div class="aviso-flash" data-flash></div>
 
     <div class="painel-card" style="margin-bottom:20px">
-      <h3>Novo documento geral</h3>
+      <h3>Novo documento na biblioteca</h3>
       <form id="form-documento">
         <div class="form-linha">
-          <div class="form-campo"><label for="doc_title">Nome do documento</label><input type="text" id="doc_title" required placeholder="Ex.: Guia de cuidados pós-procedimento"></div>
-          <div class="form-campo"><label for="doc_arquivo">Arquivo</label><input type="file" id="doc_arquivo" required></div>
+          <div class="form-campo">
+            <label for="doc_title">Nome do documento</label>
+            <input type="text" id="doc_title" required maxlength="180" placeholder="Ex.: Guia de cuidados pós-procedimento">
+          </div>
+          <div class="form-campo">
+            <label for="doc_arquivo">Arquivo</label>
+            <input type="file" id="doc_arquivo" required>
+            <small class="texto-suave">PDF, imagem ou Word — até 10 MB.</small>
+          </div>
         </div>
-        <div class="form-acoes"><button type="submit" class="btn-p btn-p-dourado">Enviar documento</button></div>
+        <div class="form-acoes"><button type="submit" class="btn-p btn-p-dourado">Adicionar à biblioteca</button></div>
       </form>
     </div>
 
-    <table class="tabela-p">
-      <thead><tr><th>Documento</th><th>Cadastrado em</th><th>Enviar cópia para paciente</th><th>Ações</th></tr></thead>
-      <tbody data-tabela-corpo><tr><td colspan="4" class="painel-vazio">Carregando…</td></tr></tbody>
-    </table>
+    <div class="painel-card" style="margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;gap:16px;align-items:end;flex-wrap:wrap">
+        <div>
+          <h3 style="margin-bottom:4px">Biblioteca</h3>
+          <p class="texto-suave" style="margin:0">Pesquise um documento e escolha o paciente que receberá uma cópia.</p>
+        </div>
+        <div class="form-campo" style="min-width:280px;flex:1;max-width:420px">
+          <label for="busca-documentos">Pesquisar documentos</label>
+          <input type="search" id="busca-documentos" placeholder="Digite o nome do documento…">
+        </div>
+      </div>
+    </div>
+
+    <div class="painel-card">
+      <div style="overflow-x:auto">
+        <table class="tabela-p">
+          <thead><tr><th>Documento</th><th>Cadastrado em</th><th>Enviar cópia para paciente</th><th>Ações</th></tr></thead>
+          <tbody data-tabela-corpo><tr><td colspan="4" class="painel-vazio">Carregando…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
   </main>
 </div>
 
@@ -49,75 +76,223 @@
 
   const flash = document.querySelector("[data-flash]");
   const corpo = document.querySelector("[data-tabela-corpo]");
+  const busca = document.getElementById("busca-documentos");
   let pacientes = [];
+  let documentos = [];
+
   async function carregarPacientes() {
     const { data, error } = await supabase.from("patients").select("id,full_name,email").order("full_name", { ascending: true });
-    if (error) { mostrarFlash(flash, "Não foi possível carregar a lista de pacientes: " + error.message, "erro"); return; }
+    if (error) {
+      mostrarFlash(flash, "Não foi possível carregar a lista de pacientes: " + error.message, "erro");
+      return;
+    }
     pacientes = data || [];
   }
+
   function opcoesPacientes() {
-    return '<option value="">Escolher paciente…</option>' + pacientes.map((p) => '<option value="' + escapeHtml(p.id) + '">' + escapeHtml(p.full_name) + (p.email ? " — " + escapeHtml(p.email) : "") + '</option>').join("");
+    return '<option value="">Escolher paciente…</option>' +
+      pacientes.map((p) => '<option value="' + escapeHtml(p.id) + '">' +
+        escapeHtml(p.full_name) + (p.email ? " — " + escapeHtml(p.email) : "") +
+      '</option>').join("");
   }
 
-  async function carregar() {
-    const { data, error } = await supabase.from("support_documents").select("*").is("patient_id", null).order("created_at", { ascending: false });
-    if (error) { corpo.innerHTML = `<tr><td colspan="3" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
-    corpo.innerHTML = (data && data.length) ? data.map((d) => `
+  function renderizar() {
+    const termo = busca.value.trim().toLocaleLowerCase("pt-BR");
+    const filtrados = documentos.filter((d) => !termo || String(d.title || "").toLocaleLowerCase("pt-BR").includes(termo));
+
+    if (!filtrados.length) {
+      corpo.innerHTML = '<tr><td colspan="4" class="painel-vazio">' +
+        (documentos.length ? "Nenhum documento corresponde à pesquisa." : "Nenhum documento cadastrado na biblioteca.") +
+        "</td></tr>";
+      return;
+    }
+
+    corpo.innerHTML = filtrados.map((d) => `
       <tr>
-        <td><strong>${escapeHtml(d.title)}</strong></td>
+        <td>
+          <strong>${escapeHtml(d.title)}</strong>
+          <div class="texto-suave" style="font-size:12px;margin-top:3px">${escapeHtml((d.file_url || "").split("/").pop() || "")}</div>
+        </td>
         <td>${new Date(d.created_at).toLocaleDateString("pt-BR")}</td>
-        <td><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select class="input-p" data-paciente-doc="${d.id}" style="min-width:240px">${opcoesPacientes()}</select><button class="btn-p btn-p-mini" data-enviar-doc="${d.id}">Enviar cópia</button></div></td>
-        <td><button class="btn-p btn-p-mini btn-p-perigo" data-excluir="${d.id}">Excluir biblioteca</button></td>
-      </tr>`).join("") : `<tr><td colspan="3" class="painel-vazio">Nenhum documento cadastrado na biblioteca.</td></tr>`;
+        <td>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <select class="input-p" data-paciente-doc="${escapeHtml(d.id)}" style="min-width:260px;max-width:100%;width:100%">
+              ${opcoesPacientes()}
+            </select>
+            <button type="button" class="btn-p btn-p-mini" data-enviar-doc="${escapeHtml(d.id)}">Enviar cópia</button>
+          </div>
+        </td>
+        <td>
+          <button type="button" class="btn-p btn-p-mini btn-p-perigo" data-excluir="${escapeHtml(d.id)}">Excluir biblioteca</button>
+        </td>
+      </tr>`).join("");
 
     corpo.querySelectorAll("[data-enviar-doc]").forEach((btn) => btn.addEventListener("click", async () => {
-    const docId = btn.dataset.enviarDoc;
-    const select = corpo.querySelector('[data-paciente-doc="' + docId + '"]');
-    const patientId = select && select.value;
-    if (!patientId) { mostrarFlash(flash, "Escolha um paciente para receber a cópia.", "erro"); return; }
-    const documento = data.find((item) => item.id === docId);
-    if (!documento) return;
-    btn.disabled = true; btn.textContent = "Enviando…";
-    const paciente = pacientes.find((p) => p.id === patientId);
-    const nomeArquivo = documento.file_url.split("/").pop() || ("documento-" + Date.now());
-    const destino = patientId + "/" + Date.now() + "-" + nomeArquivo;
-    const { error: erroCopia } = await supabase.storage.from("documentos-pacientes").copy(documento.file_url, destino);
-    if (erroCopia) { btn.disabled = false; btn.textContent = "Enviar cópia"; mostrarFlash(flash, "Não foi possível copiar o arquivo: " + erroCopia.message, "erro"); return; }
-    const { error: erroRegistro } = await supabase.from("support_documents").insert({ patient_id: patientId, title: documento.title, file_url: destino });
-    if (erroRegistro) { await supabase.storage.from("documentos-pacientes").remove([destino]); btn.disabled = false; btn.textContent = "Enviar cópia"; mostrarFlash(flash, "Não foi possível registrar o documento para o paciente. A cópia foi removida.", "erro"); return; }
-    btn.disabled = false; btn.textContent = "Enviar cópia"; select.value = "";
-    mostrarFlash(flash, 'Cópia de "' + documento.title + '" enviada para ' + (paciente?.full_name || "o paciente") + ".", "sucesso");
-  }));
+      const docId = btn.dataset.enviarDoc;
+      const select = corpo.querySelector('[data-paciente-doc="' + docId + '"]');
+      const patientId = select && select.value;
 
-  corpo.querySelectorAll("[data-excluir]").forEach((btn) => btn.addEventListener("click", async () => {
-      if (!confirm("Excluir este documento?")) return;
-      await supabase.from("support_documents").delete().eq("id", btn.dataset.excluir);
-      carregar();
+      if (!patientId) {
+        mostrarFlash(flash, "Escolha um paciente para receber a cópia.", "erro");
+        return;
+      }
+
+      const documento = documentos.find((item) => item.id === docId);
+      if (!documento) return;
+
+      const paciente = pacientes.find((p) => p.id === patientId);
+      const confirmacao = 'Enviar uma cópia de "' + documento.title + '" para ' + (paciente?.full_name || "o paciente") + "?";
+      if (!confirm(confirmacao)) return;
+
+      btn.disabled = true;
+      btn.textContent = "Enviando…";
+
+      const nomeArquivo = documento.file_url.split("/").pop() || ("documento-" + Date.now());
+      const destino = patientId + "/" + Date.now() + "-" + nomeArquivo;
+
+      const { error: erroCopia } = await supabase.storage
+        .from("documentos-pacientes")
+        .copy(documento.file_url, destino);
+
+      if (erroCopia) {
+        btn.disabled = false;
+        btn.textContent = "Enviar cópia";
+        mostrarFlash(flash, "Não foi possível copiar o arquivo: " + erroCopia.message, "erro");
+        return;
+      }
+
+      const { error: erroRegistro } = await supabase.from("support_documents").insert({
+        patient_id: patientId,
+        title: documento.title,
+        file_url: destino
+      });
+
+      if (erroRegistro) {
+        await supabase.storage.from("documentos-pacientes").remove([destino]);
+        btn.disabled = false;
+        btn.textContent = "Enviar cópia";
+        mostrarFlash(flash, "Não foi possível registrar o documento para o paciente. A cópia foi removida.", "erro");
+        return;
+      }
+
+      btn.disabled = false;
+      btn.textContent = "Enviar cópia";
+      select.value = "";
+      mostrarFlash(flash, 'Cópia de "' + documento.title + '" enviada para ' + (paciente?.full_name || "o paciente") + ".", "sucesso");
+    }));
+
+    corpo.querySelectorAll("[data-excluir]").forEach((btn) => btn.addEventListener("click", async () => {
+      const documento = documentos.find((item) => item.id === btn.dataset.excluir);
+      if (!documento) return;
+      if (!confirm('Excluir "' + documento.title + '" da biblioteca?')) return;
+
+      btn.disabled = true;
+      const { error } = await supabase.from("support_documents").delete().eq("id", btn.dataset.excluir);
+
+      if (error) {
+        btn.disabled = false;
+        mostrarFlash(flash, "Não foi possível excluir: " + error.message, "erro");
+        return;
+      }
+
+      mostrarFlash(flash, "Documento removido da biblioteca.", "sucesso");
+      await carregar();
     }));
   }
 
+  async function carregar() {
+    const { data, error } = await supabase
+      .from("support_documents")
+      .select("*")
+      .is("patient_id", null)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      corpo.innerHTML = '<tr><td colspan="4" class="painel-vazio">Erro: ' + escapeHtml(error.message) + "</td></tr>";
+      return;
+    }
+
+    documentos = data || [];
+    renderizar();
+  }
+
+  busca.addEventListener("input", renderizar);
+
   document.getElementById("form-documento").addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    const form = e.currentTarget;
     const arquivo = document.getElementById("doc_arquivo").files[0];
-    if (!arquivo) return;
+    const titulo = document.getElementById("doc_title").value.trim();
+
+    if (!arquivo || !titulo) return;
+
     const { data: config } = await supabase.from("configuracoes").select("permitir_upload_documentos").eq("id", 1).maybeSingle();
-    if (config && config.permitir_upload_documentos === false) { mostrarFlash(flash, "O upload de documentos está desativado nas configurações.", "erro"); return; }
-    const tiposPermitidos = ["application/pdf", "image/jpeg", "image/png", "image/webp", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
-    if (!tiposPermitidos.includes(arquivo.type)) { mostrarFlash(flash, "Tipo de arquivo não permitido. Envie PDF, imagem ou documento Word.", "erro"); return; }
-    if (arquivo.size > 10 * 1024 * 1024) { mostrarFlash(flash, "O arquivo deve ter no máximo 10 MB.", "erro"); return; }
+    if (config && config.permitir_upload_documentos === false) {
+      mostrarFlash(flash, "O upload de documentos está desativado nas configurações.", "erro");
+      return;
+    }
+
+    const tiposPermitidos = [
+      "application/pdf",
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ];
+
+    if (!tiposPermitidos.includes(arquivo.type)) {
+      mostrarFlash(flash, "Tipo de arquivo não permitido. Envie PDF, imagem ou documento Word.", "erro");
+      return;
+    }
+
+    if (arquivo.size > 10 * 1024 * 1024) {
+      mostrarFlash(flash, "O arquivo deve ter no máximo 10 MB.", "erro");
+      return;
+    }
+
     const nomeSeguro = arquivo.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-120);
-    const caminho = `geral/${Date.now()}-${nomeSeguro}`;
-    const { error: erroUpload } = await supabase.storage.from("documentos-pacientes").upload(caminho, arquivo, { contentType: arquivo.type, upsert: false });
-    if (erroUpload) { mostrarFlash(flash, "Erro no upload: " + erroUpload.message, "erro"); return; }
-    const { error } = await supabase.from("support_documents").insert({ patient_id: null, title: document.getElementById("doc_title").value.trim(), file_url: caminho });
-    if (error) { await supabase.storage.from("documentos-pacientes").remove([caminho]); mostrarFlash(flash, "Erro ao registrar documento: " + error.message, "erro"); return; }
-    document.getElementById("form-documento").reset();
-    mostrarFlash(flash, "Documento enviado.", "sucesso");
-    carregar();
+    const caminho = "geral/" + Date.now() + "-" + nomeSeguro;
+
+    const submit = form.querySelector("button[type=submit]");
+    submit.disabled = true;
+    submit.textContent = "Enviando…";
+
+    const { error: erroUpload } = await supabase.storage
+      .from("documentos-pacientes")
+      .upload(caminho, arquivo, { contentType: arquivo.type, upsert: false });
+
+    if (erroUpload) {
+      submit.disabled = false;
+      submit.textContent = "Adicionar à biblioteca";
+      mostrarFlash(flash, "Erro no upload: " + erroUpload.message, "erro");
+      return;
+    }
+
+    const { error } = await supabase.from("support_documents").insert({
+      patient_id: null,
+      title: titulo,
+      file_url: caminho
+    });
+
+    if (error) {
+      await supabase.storage.from("documentos-pacientes").remove([caminho]);
+      submit.disabled = false;
+      submit.textContent = "Adicionar à biblioteca";
+      mostrarFlash(flash, "Erro ao registrar documento: " + error.message, "erro");
+      return;
+    }
+
+    form.reset();
+    submit.disabled = false;
+    submit.textContent = "Adicionar à biblioteca";
+    mostrarFlash(flash, "Documento adicionado à biblioteca.", "sucesso");
+    await carregar();
   });
 
   await carregarPacientes();
-  carregar();
+  await carregar();
 </script>
 </body>
 </html>
