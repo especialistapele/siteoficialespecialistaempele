@@ -285,7 +285,7 @@
     const box = document.querySelector("[data-lista-anamneses-paciente]");
     const { data, error } = await supabase
       .from("anamnesis_versions")
-      .select("id,version_number,status,released_at,submitted_at,locked_at,created_at,anamnesis_types(code,name,description)")
+      .select("id,version_number,status,released_at,submitted_at,locked_at,created_at,anamnesis_type_id,anamnesis_types(code,name,description)")
       .eq("patient_id", patientId)
       .order("created_at", { ascending: false });
     if (error) { box.innerHTML = '<p class="texto-suave">Não foi possível carregar suas fichas.</p>'; return; }
@@ -303,26 +303,51 @@
       .filter(p => p.status === "active" && (!p.expires_at || new Date(p.expires_at).getTime() > agora))
       .map(p => [p.anamnesis_version_id, p]));
 
-    box.innerHTML = data.map(v => {
-      const t = v.anamnesis_types || {};
-      const pendente = v.status === "draft";
-      const bloqueada = ["submitted","locked"].includes(v.status);
-      const autorizada = !!permissaoPorVersao.get(v.id);
-      const label = pendente ? "Preencher ficha" : autorizada ? "Editar ficha" : bloqueada ? "Consultar ficha" : "Abrir ficha";
-      const detalhe = pendente
-        ? "Aguardando preenchimento"
-        : autorizada
-          ? "Edição autorizada"
-          : v.submitted_at
-            ? "Preenchida em " + new Date(v.submitted_at).toLocaleDateString("pt-BR")
-            : "Disponível";
-      const classe = pendente || autorizada ? "btn-p-dourado" : "btn-p-fora";
-      return `<div class="lista-simples__item">
-        <div>
-          <div class="pessoa__nome">${escapeHtml(t.name || "Anamnese")} · v${escapeHtml(v.version_number)}</div>
-          <div class="pessoa__sub">${escapeHtml(detalhe)}</div>
+    const grupos = data.reduce((acc, v) => {
+      (acc[v.anamnesis_type_id] ||= []).push(v);
+      return acc;
+    }, {});
+
+    box.innerHTML = Object.values(grupos).map(lista => {
+      const ordenadas = [...lista].sort((a,b) => Number(b.version_number || 0) - Number(a.version_number || 0));
+      const atual = ordenadas[0];
+      const anteriores = ordenadas.slice(1);
+      const t = atual.anamnesis_types || {};
+
+      const renderVersao = (v, destaque) => {
+        const pendente = v.status === "draft";
+        const bloqueada = ["submitted","locked"].includes(v.status);
+        const autorizada = !!permissaoPorVersao.get(v.id);
+        const label = pendente ? "Preencher ficha" : autorizada ? "Editar ficha" : bloqueada ? "Consultar ficha" : "Abrir ficha";
+        const detalhe = pendente
+          ? "Aguardando preenchimento"
+          : autorizada
+            ? "Edição autorizada"
+            : v.submitted_at
+              ? "Preenchida em " + new Date(v.submitted_at).toLocaleDateString("pt-BR")
+              : "Disponível";
+        const classe = pendente || autorizada ? "btn-p-dourado" : "btn-p-fora";
+        return `<div style="padding:12px 0;${destaque ? "" : "border-top:1px solid var(--linha);"}">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
+            <div>
+              <div class="pessoa__nome">Versão ${escapeHtml(v.version_number)} ${destaque ? '<span class="selo-p" style="margin-left:6px">Mais recente</span>' : ""}</div>
+              <div class="pessoa__sub">${escapeHtml(detalhe)}</div>
+            </div>
+            <a class="btn-p btn-p-mini ${classe}" href="/painel/paciente/anamnese.html?version=${encodeURIComponent(v.id)}">${label} →</a>
+          </div>
+        </div>`;
+      };
+
+      return `<div class="painel-card" style="padding:16px">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap">
+          <div>
+            <div class="pessoa__nome">${escapeHtml(t.name || "Anamnese")}</div>
+            <div class="pessoa__sub">${anteriores.length ? (anteriores.length + 1) + " versões registradas" : "1 versão registrada"}</div>
+          </div>
+          ${anteriores.length ? '<span class="texto-suave">Histórico preservado</span>' : ""}
         </div>
-        <a class="btn-p btn-p-mini ${classe}" href="/painel/paciente/anamnese.html?version=${encodeURIComponent(v.id)}">${label} →</a>
+        ${renderVersao(atual, true)}
+        ${anteriores.length ? '<details><summary style="cursor:pointer;color:var(--texto-suave)">Ver versões anteriores (' + anteriores.length + ')</summary>' + anteriores.map(v => renderVersao(v, false)).join("") + '</details>' : ""}
       </div>`;
     }).join("");
   }
