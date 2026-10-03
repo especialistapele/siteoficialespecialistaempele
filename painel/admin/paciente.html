@@ -397,6 +397,7 @@
           (v.submitted_at ? "Enviada em " + new Date(v.submitted_at).toLocaleString("pt-BR") : v.released_at ? "Liberada em " + new Date(v.released_at).toLocaleString("pt-BR") : "Ainda não liberada") +
           '</div></div><span class="selo-p">' + escapeTextoAnamnese(status) + '</span></div>' +
           '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">' +
+          (status === "draft" ? '<a class="btn-p btn-p-mini btn-p-dourado" href="/painel/admin/anamnese-rascunho.html?version=' + v.id + '">Preencher rascunho</a>' : '') +
           '<button type="button" class="btn-p btn-p-mini btn-p-fora" data-visualizar-anamnese="' + v.id + '">Consultar respostas</button>' +
           (bloqueada ? '<button type="button" class="btn-p btn-p-mini" data-autorizar-edicao="' + v.id + '">Autorizar edição</button>' : '') +
           '</div></div>';
