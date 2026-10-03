@@ -437,7 +437,7 @@
     modalVisualizarAnamnese.style.display = "flex";
     visualizarAnamneseConteudo.innerHTML = '<p class="texto-suave">Carregando respostas…</p>';
     const [{ data: version, error: versionError }, { data: assignments, error: questionsError }, { data: responses, error: responsesError }] = await Promise.all([
-      supabase.from("anamnesis_versions").select("id,anamnesis_type_id,version_number,status,created_at,released_at,submitted_at,locked_at,anamnesis_types(name)").eq("id", versionId).eq("patient_id", patientId).single(),
+      supabase.from("anamnesis_versions").select("id,anamnesis_type_id,version_number,status,created_at,released_at,submitted_at,locked_at,personal_data_snapshot,anamnesis_types(name)").eq("id", versionId).eq("patient_id", patientId).single(),
       supabase.from("anamnesis_questions").select("section,position,required,conditional_rule,question_definitions(id,label,help_text,field_type,options)").eq("anamnesis_type_id", version.anamnesis_type_id).eq("active", true).order("position"),
       supabase.from("anamnesis_responses").select("question_definition_id,value").eq("anamnesis_version_id", versionId)
     ]);
@@ -455,8 +455,23 @@
       if (typeof valor === "boolean") return valor ? "Sim" : "Não";
       return String(valor);
     };
+    const dadosPessoais = version?.personal_data_snapshot || {};
+    const rotulosPessoais = {
+      full_name:"Nome completo", cpf:"CPF", rg:"RG", birth_date:"Data de nascimento",
+      address:"Endereço", address_number:"Número", address_complement:"Complemento",
+      neighborhood:"Bairro", city:"Cidade", state:"Estado", cep:"CEP",
+      phone:"Telefone", email:"E-mail", profession:"Profissão", children:"Filhos", blood_type:"Tipo sanguíneo"
+    };
+    const dadosPessoaisHtml = Object.entries(rotulosPessoais).map(([chave,label]) => {
+      const valor = dadosPessoais[chave];
+      return valor ? '<div style="padding:8px 0;border-bottom:1px solid var(--linha)"><strong>'+escapeTextoAnamnese(label)+'</strong><div style="margin-top:3px">'+escapeTextoAnamnese(String(valor))+'</div></div>' : '';
+    }).join('');
     let secaoAtual = "";
-    visualizarAnamneseConteudo.innerHTML = (assignments || []).map(a => {
+    visualizarAnamneseConteudo.innerHTML =
+      '<h4 style="margin:0 0 10px">Dados pessoais</h4>' +
+      (dadosPessoaisHtml || '<p class="texto-suave">Dados pessoais não registrados nesta versão.</p>') +
+      '<h4 style="margin:24px 0 10px">Anamnese clínica</h4>' +
+      ((assignments || []).map(a => {
       const d = a.question_definitions || {};
       const valor = respostas.get(d.id);
       const secao = a.section || "Anamnese";
@@ -464,7 +479,7 @@
       return cabecalho + '<div style="padding:11px 0;border-bottom:1px solid var(--linha)"><strong>' + escapeTextoAnamnese(d.label || "Pergunta") + '</strong>' +
         (d.help_text ? '<div class="texto-suave" style="font-size:12px;margin-top:3px">' + escapeTextoAnamnese(d.help_text) + '</div>' : '') +
         '<div style="margin-top:5px;white-space:pre-wrap">' + escapeTextoAnamnese(formatar(valor,d)) + '</div></div>';
-    }).join("") || '<p class="texto-suave">Nenhuma pergunta encontrada para esta versão.</p>';
+    }).join("") || '<p class="texto-suave">Nenhuma pergunta encontrada para esta versão.</p>');
   }
 
   botaoLiberarAnamnese?.addEventListener("click", async () => {
