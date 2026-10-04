@@ -103,7 +103,7 @@
     consultoria:["consultoria online","consultoria","programa essencial","programa premium"],
     homeCare:["cuidar em casa","cuidar da minha pele em casa","cuidados em casa","rotina de skincare","rotina para minha pele","rotina de cuidados","produtos para usar","o que usar em casa","orientacao para cuidar em casa","orientação para cuidar em casa"],
     price:["quanto custa","qual valor","preco","preço","investimento","quanto e","quanto é","valor da consulta","valor do atendimento","quanto custa a consultoria online","valor da consultoria online","preco da consultoria online","preço da consultoria online"],
-    location:["onde atende","local","cidade","onde fica","atende onde"],
+    location:["onde atende","onde acontecem os atendimentos","onde acontece o atendimento","onde acontecem os atendimentos presenciais","onde acontece o atendimento presencial","onde sao os atendimentos","onde são os atendimentos","em quais cidades atende","em quais cidades acontecem os atendimentos","local","cidade","onde fica","atende onde"],
     presential:["presencial","presencialmente","atendimento presencial","consulta presencial"],
     online:["online","moro longe","sou de outro estado","nao moro no rio","não moro no rio","fora do rio"],
     information:["como funciona","como funciona o atendimento","quero saber mais","só queria saber","so queria saber","informacao","informação","duvida","dúvida"]
