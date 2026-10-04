@@ -53,6 +53,27 @@
       </div>
     </div>
 
+    <div class="painel-card" style="margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;gap:16px;align-items:end;flex-wrap:wrap">
+        <div>
+          <h3 style="margin-bottom:4px">Documentos enviados</h3>
+          <p class="texto-suave" style="margin:0">Selecione um paciente para consultar os documentos que foram enviados para ele.</p>
+        </div>
+        <div class="form-campo" style="min-width:280px;flex:1;max-width:520px">
+          <label for="filtro-paciente-documentos">Paciente</label>
+          <select id="filtro-paciente-documentos" class="input-p">
+            <option value="">Selecione um paciente…</option>
+          </select>
+        </div>
+      </div>
+      <div style="overflow-x:auto;margin-top:18px">
+        <table class="tabela-p">
+          <thead><tr><th>Documento</th><th>Enviado em</th><th>Ação</th></tr></thead>
+          <tbody data-tabela-enviados><tr><td colspan="3" class="painel-vazio">Selecione um paciente para consultar os documentos enviados.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
     <div class="painel-card">
       <div style="overflow-x:auto">
         <table class="tabela-p">
@@ -77,8 +98,11 @@
   const flash = document.querySelector("[data-flash]");
   const corpo = document.querySelector("[data-tabela-corpo]");
   const busca = document.getElementById("busca-documentos");
+  const filtroPaciente = document.getElementById("filtro-paciente-documentos");
+  const corpoEnviados = document.querySelector("[data-tabela-enviados]");
   let pacientes = [];
   let documentos = [];
+  let documentosEnviados = [];
 
   async function carregarPacientes() {
     const { data, error } = await supabase.from("patients").select("id,full_name,email").order("full_name", { ascending: true });
@@ -87,6 +111,87 @@
       return;
     }
     pacientes = data || [];
+    filtroPaciente.innerHTML = '<option value="">Selecione um paciente…</option>' +
+      pacientes.map((p) => '<option value="' + escapeHtml(p.id) + '">' +
+        escapeHtml(p.full_name) + (p.email ? " — " + escapeHtml(p.email) : "") +
+      '</option>').join("");
+  }
+
+  async function carregarDocumentosEnviados() {
+    const patientId = filtroPaciente.value;
+    if (!patientId) {
+      documentosEnviados = [];
+      corpoEnviados.innerHTML = '<tr><td colspan="3" class="painel-vazio">Selecione um paciente para consultar os documentos enviados.</td></tr>';
+      return;
+    }
+
+    corpoEnviados.innerHTML = '<tr><td colspan="3" class="painel-vazio">Carregando documentos enviados…</td></tr>';
+
+    const { data, error } = await supabase
+      .from("support_documents")
+      .select("id,title,file_url,created_at,patient_id")
+      .eq("patient_id", patientId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      documentosEnviados = [];
+      corpoEnviados.innerHTML = '<tr><td colspan="3" class="painel-vazio">Erro ao carregar: ' + escapeHtml(error.message) + '</td></tr>';
+      return;
+    }
+
+    documentosEnviados = data || [];
+    if (!documentosEnviados.length) {
+      corpoEnviados.innerHTML = '<tr><td colspan="3" class="painel-vazio">Nenhum documento enviado para este paciente.</td></tr>';
+      return;
+    }
+
+    corpoEnviados.innerHTML = documentosEnviados.map((d) => `
+      <tr>
+        <td>
+          <strong>${escapeHtml(d.title)}</strong>
+          <div class="texto-suave" style="font-size:12px;margin-top:3px">${escapeHtml((d.file_url || "").split("/").pop() || "")}</div>
+        </td>
+        <td>${new Date(d.created_at).toLocaleDateString("pt-BR")}</td>
+        <td>
+          <button type="button" class="btn-p btn-p-mini btn-p-perigo" data-excluir-enviado="${escapeHtml(d.id)}">Excluir envio</button>
+        </td>
+      </tr>`).join("");
+
+    corpoEnviados.querySelectorAll("[data-excluir-enviado]").forEach((btn) => btn.addEventListener("click", async () => {
+      const documento = documentosEnviados.find((item) => item.id === btn.dataset.excluirEnviado);
+      if (!documento) return;
+
+      const paciente = pacientes.find((p) => p.id === filtroPaciente.value);
+      if (!confirm('Excluir o envio de "' + documento.title + '" para ' + (paciente?.full_name || "este paciente") + "? O documento original da biblioteca será mantido.')) return;
+
+      btn.disabled = true;
+      btn.textContent = "Excluindo…";
+
+      const { error: erroRegistro } = await supabase
+        .from("support_documents")
+        .delete()
+        .eq("id", documento.id)
+        .eq("patient_id", filtroPaciente.value);
+
+      if (erroRegistro) {
+        btn.disabled = false;
+        btn.textContent = "Excluir envio";
+        mostrarFlash(flash, "Não foi possível excluir o envio: " + erroRegistro.message, "erro");
+        return;
+      }
+
+      const { error: erroArquivo } = await supabase.storage
+        .from("documentos-pacientes")
+        .remove([documento.file_url]);
+
+      if (erroArquivo) {
+        mostrarFlash(flash, "O envio foi removido do cadastro, mas não foi possível remover o arquivo copiado do armazenamento: " + erroArquivo.message, "erro");
+      } else {
+        mostrarFlash(flash, "Documento retirado do paciente. O original da biblioteca foi mantido.", "sucesso");
+      }
+
+      await carregarDocumentosEnviados();
+    }));
   }
 
   function opcoesPacientes() {
@@ -217,6 +322,7 @@
   }
 
   busca.addEventListener("input", renderizar);
+  filtroPaciente.addEventListener("change", carregarDocumentosEnviados);
 
   document.getElementById("form-documento").addEventListener("submit", async (e) => {
     e.preventDefault();
