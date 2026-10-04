@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, statSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
+import { readFileSync, readdirSync, mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { join, extname } from "node:path";
 import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
@@ -28,7 +28,9 @@ try {
     let index = 0;
     while ((match = re.exec(html))) {
       if (/\bsrc\s*=/i.test(match[1])) continue;
-      const type = /\btype\s*=\s*["']module["']/i.test(match[1]) ? "mjs" : "js";
+      const typeAttr = match[1].match(/\btype\s*=\s*["']([^"']+)["']/i);
+      if (typeAttr && !/^module$/i.test(typeAttr[1].trim()) && !/^text\/javascript$/i.test(typeAttr[1].trim()) && !/^application\/javascript$/i.test(typeAttr[1].trim())) continue;
+      const type = typeAttr && /^module$/i.test(typeAttr[1].trim()) ? "mjs" : "js";
       const tempFile = join(temp, `${file.replace(/[^a-z0-9]+/gi, "_")}_${index++}.${type}`);
       writeFileSync(tempFile, match[2], "utf8");
       checked++;
