@@ -314,10 +314,11 @@
     corpo.innerHTML = '<tr><td colspan="4" class="painel-vazio">Carregando documentos da biblioteca…</td></tr>';
 
     try {
+      // Buscamos a biblioteca inteira e separamos os documentos gerais no cliente.
+      // Assim a biblioteca não depende de um filtro IS NULL do PostgREST.
       const { data, error } = await supabase
         .from("support_documents")
         .select("id,title,file_url,created_at,patient_id")
-        .is("patient_id", null)
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -327,7 +328,8 @@
         return;
       }
 
-      documentos = data || [];
+      const todos = data || [];
+      documentos = todos.filter((d) => !d.patient_id);
       renderizar();
     } catch (erro) {
       documentos = [];
