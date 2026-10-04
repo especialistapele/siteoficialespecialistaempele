@@ -120,7 +120,12 @@
     goal: null,
     asked: new Set(),
     started: false,
-    lastText: ""
+    lastText: "",
+    details: {
+      need: null,
+      goal: null,
+      duration: null
+    }
   };
   let transcript = [];
   let responseQueue = Promise.resolve();
@@ -292,6 +297,22 @@
     }
 
     return best;
+  }
+
+  function extractVisitorDetails(text) {
+    const normalizedText = normalize(text);
+    const details = {};
+
+    const duration = normalizedText.match(/\\b(?:ha|faz)\\s+(?:cerca de\\s+|aproximadamente\\s+|mais de\\s+)?\\d+\\s+(?:dias?|semanas?|meses?|anos?)\\b/);
+    if (duration) details.duration = duration[0];
+
+    const need = normalizedText.match(/\\b(?:me incomoda|me preocupa|o que mais me incomoda e|principalmente me incomoda)\\s+([^.!?]+)/);
+    if (need) details.need = need[1].trim();
+
+    const goal = normalizedText.match(/\\b(?:meu objetivo e|quero|gostaria de|pretendo)\\s+([^.!?]+)/);
+    if (goal) details.goal = goal[1].trim();
+
+    return details;
   }
 
   function locationLabel(key) {
@@ -675,11 +696,20 @@
 
   function nextQuestion() {
     if (state.stage === "explore") {
-      state.stage = "problem";
-      reply("O que mais te incomoda atualmente nessa questão?");
-      return;
+      if (state.details.need) {
+        state.stage = "goal";
+      } else {
+        state.stage = "problem";
+        reply("O que mais te incomoda atualmente nessa questão?");
+        return;
+      }
     }
     if (state.stage === "problem") {
+      if (state.details.goal) {
+        state.stage = "location";
+        routeByLocation();
+        return;
+      }
       state.stage = "goal";
       reply("Se você pudesse melhorar uma coisa primeiro, o que gostaria de ver diferente?");
       return;
@@ -696,12 +726,16 @@
     const intent = detectIntent(text);
     const topic = detectTopic(text);
     const loc = detectLocation(text);
+    const details = extractVisitorDetails(text);
     const previousContext = state.context;
 
     if (topic && topic !== state.context) {
       state.context = topic;
     }
     if (loc) state.location = loc;
+    if (details.need) state.details.need = details.need;
+    if (details.goal) state.details.goal = details.goal;
+    if (details.duration) state.details.duration = details.duration;
     if (intent) state.intent = intent;
 
     // Registra a mensagem do visitante somente depois de atualizar contexto,
