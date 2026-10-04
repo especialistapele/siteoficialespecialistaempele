@@ -185,6 +185,65 @@ for (const [name, input, expected] of cases) {
   if (got !== expected) errors.push(`${name}: esperado "${expected}", obtido "${got}".`);
 }
 
+// Regressão: respostas de triagem devem ser consumidas pelo estágio pendente
+// antes de uma nova detecção de tópico. Isso cobre o diálogo real:
+// "espinhas e manchas" -> "sem espinhas".
+const pendingAnswerScenarios = [
+  ["sem espinhas", "ficar sem espinhas"],
+  ["sem manchas", "ficar sem manchas"],
+  ["controlar a oleosidade", "controlar a oleosidade"]
+];
+
+if (!source.includes("function formatGoalAnswer(text)")) {
+  errors.push("fluxo de objetivo não possui normalização da resposta pendente");
+}
+if (!source.includes("function consumePendingAnswer(text, details, intent, loc)")) {
+  errors.push("fluxo de resposta pendente não está implementado");
+}
+if (!source.includes("if (state.stage === \"goal\" && !state.details.goal && !details.goal)")) {
+  errors.push("resposta ao estágio de objetivo não é consumida antes da troca de contexto");
+}
+if (!source.includes("if (consumePendingAnswer(text, details, intent, loc)) return;")) {
+  errors.push("resposta pendente não é priorizada no fluxo principal");
+}
+
+const pendingIndex = source.indexOf("if (consumePendingAnswer(text, details, intent, loc)) return;");
+const topicIndex = source.indexOf("if (topic) {", pendingIndex);
+if (pendingIndex < 0 || topicIndex < 0 || pendingIndex > topicIndex) {
+  errors.push("resposta pendente deve ser processada antes do bloco genérico de tópico");
+}
+
+// O cenário específico não pode voltar a emitir a confirmação de acne depois
+// que "sem espinhas" foi aceito como objetivo.
+if (!source.includes("state.details.goal = goal;")) {
+  errors.push("objetivo aceito não é persistido em state.details.goal");
+}
+if (!source.includes("state.goal = goal;")) {
+  errors.push("objetivo aceito não é persistido em state.goal");
+}
+if (!source.includes("Seu objetivo principal é \" + goal")) {
+  errors.push("resposta de confirmação do objetivo não foi configurada");
+}
+if (!source.includes("Para eu te orientar sobre o caminho de atendimento, você está em qual cidade?")) {
+  errors.push("após aceitar o objetivo, o bot não avança para a coleta de cidade");
+}
+
+for (const [input, expectedGoal] of pendingAnswerScenarios) {
+  const normalized = normalize(input);
+  const goal = /^sem\\s+/i.test(normalized) ? "ficar " + normalized : normalized;
+  if (goal !== expectedGoal) {
+    errors.push(input + ': objetivo esperado "' + expectedGoal + '", obtido "' + goal + '".');
+  }
+}
+
+// O segundo turno do diálogo não deve ser classificado como uma nova troca de assunto.
+if (detectTopic("sem espinhas") !== null) {
+  errors.push("\\\"sem espinhas\\\" não deveria abrir um novo tópico por si só");
+}
+if (detectTopic("sem manchas") !== null) {
+  errors.push("\\\"sem manchas\\\" não deveria abrir um novo tópico por si só");
+}
+
 if (errors.length) {
   console.error("ERROS DE COMPORTAMENTO DO BOT:");
   errors.forEach((e) => console.error("-", e));
