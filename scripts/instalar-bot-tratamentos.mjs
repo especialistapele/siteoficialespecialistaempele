@@ -24,6 +24,15 @@ function extract(html, regex) {
   return match ? match[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "";
 }
 
+const CANONICAL_CONTEXT_BY_SLUG = {
+  "cicatriz": "cicatrizes",
+  "clareamento": "clareamento-corporal",
+  "corporal": "gordura-localizada",
+  "definicao": "definicao-corporal",
+  "melasma": "manchas",
+  "poros-abertos": "poros"
+};
+
 const files = fs.readdirSync(TREATMENT_DIR)
   .filter((file) => file.endsWith(".html") && file !== "index.html")
   .sort();
@@ -38,7 +47,7 @@ for (const file of files) {
   const html = fs.readFileSync(path.join(TREATMENT_DIR, file), "utf8");
   const slug = slugToContext(file);
   const marker = html.match(/AUTO-GENERATED:TREATMENT-PAGE[^>]*slug=([^\s>]+)/i);
-  const context = marker?.[1] || slug;
+  const context = CANONICAL_CONTEXT_BY_SLUG[slug] || marker?.[1] || slug;
   const name = extract(html, /<h1[^>]*>([\s\S]*?)<\/h1>/i) || context;
 
   pageContexts["/tratamentos/" + file] = context;
