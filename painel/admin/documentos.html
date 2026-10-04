@@ -176,7 +176,7 @@
       if (!documento) return;
 
       const paciente = pacientes.find((p) => p.id === filtroPaciente.value);
-      if (!confirm('Excluir o envio de "' + documento.title + '" para ' + (paciente?.full_name || "este paciente") + "? O documento original da biblioteca será mantido.')) return;
+      if (!confirm('Excluir o envio de "' + documento.title + '" para ' + (paciente?.full_name || "este paciente") + "? O documento original da biblioteca será mantido.")) return;
 
       btn.disabled = true;
       btn.textContent = "Excluindo…";
