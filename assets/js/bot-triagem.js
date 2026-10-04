@@ -733,6 +733,42 @@
     }
   }
 
+  function formatGoalAnswer(text) {
+    const value = String(text || "").trim();
+    if (/^sem\\s+/i.test(value)) return "ficar " + value;
+    if (/^(quero|gostaria de|pretendo)\\s+/i.test(value)) return value;
+    return value;
+  }
+
+  function consumePendingAnswer(text, details, intent, loc) {
+    // Quando o bot fez uma pergunta de triagem, a resposta deve ser consumida
+    // antes de qualquer nova detecção de tópico. Isso evita que "sem espinhas"
+    // seja interpretado como um novo assunto e faça o bot repetir a confirmação de acne.
+    if (intent || loc) return false;
+
+    const value = String(text || "").trim();
+    if (!value) return false;
+
+    if (state.stage === "problem" && !state.details.need && !details.need && !details.goal) {
+      state.details.need = value;
+      state.need = value;
+      state.stage = "goal";
+      reply("Entendi. Então o que mais te incomoda é " + value + ". Se você pudesse melhorar isso primeiro, o que gostaria de ver diferente?");
+      return true;
+    }
+
+    if (state.stage === "goal" && !state.details.goal && !details.goal) {
+      const goal = formatGoalAnswer(value);
+      state.details.goal = goal;
+      state.goal = goal;
+      state.stage = "location";
+      reply("Entendi. Seu objetivo principal é " + goal + ". Para eu te orientar sobre o caminho de atendimento, você está em qual cidade?");
+      return true;
+    }
+
+    return false;
+  }
+
   function handle(text) {
     state.lastText = text;
     const n = normalize(text);
@@ -842,6 +878,8 @@
       state.stage = "information";
       return;
     }
+
+    if (consumePendingAnswer(text, details, intent, loc)) return;
 
     if (state.stage === "location") {
       if (loc) routeByLocation();
