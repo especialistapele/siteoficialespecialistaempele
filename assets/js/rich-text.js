@@ -28,7 +28,7 @@ function limparNo(pai) {
         return;
       }
       [...filho.attributes].forEach((attr) => {
-        if (attr.name !== "style") filho.removeAttribute(attr.name);
+        if (!["style","class","role","aria-checked","data-contract-choice","data-contract-group","data-contract-value","data-contract-selected","data-contract-mark","data-contract-other"].includes(attr.name)) filho.removeAttribute(attr.name);
       });
       limparEstilo(filho);
       limparNo(filho);
