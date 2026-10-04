@@ -735,7 +735,7 @@
 
   function formatGoalAnswer(text) {
     const value = String(text || "").trim();
-    if (/^sem\\s+/i.test(value)) return "ficar " + value;
+    if (/^sem\s+/i.test(value)) return "ficar " + value;
     if (/^(quero|gostaria de|pretendo)\\s+/i.test(value)) return value;
     return value;
   }
