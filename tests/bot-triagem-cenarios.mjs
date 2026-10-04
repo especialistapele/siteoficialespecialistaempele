@@ -137,6 +137,8 @@ const mixedCases = [
   ["Quero definição corporal e moro em Araruama", "definicao-corporal", null],
   ["Quero clarear a virilha e moro em Belo Horizonte", "clareamento-corporal", null],
   ["Quero tratar rosácea, onde atende?", "rosacea", "location"],
+  ["Onde acontecem os atendimentos?", null, "location"],
+  ["Em quais cidades acontecem os atendimentos presenciais?", null, "location"],
   ["Quanto custa o tratamento de melasma em São Paulo?", "manchas", "price"],
   ["Quero agendar acne em Araruama", "acne", "booking"],
   ["Quero saber o valor da consultoria online para melasma", "manchas", "price"],
