@@ -230,7 +230,7 @@ if (!source.includes("Para eu te orientar sobre o caminho de atendimento, você 
 
 for (const [input, expectedGoal] of pendingAnswerScenarios) {
   const normalized = normalize(input);
-  const goal = /^sem\\s+/i.test(normalized) ? "ficar " + normalized : normalized;
+  const goal = /^sem\s+/i.test(normalized) ? "ficar " + normalized : normalized;
   if (goal !== expectedGoal) {
     errors.push(input + ': objetivo esperado "' + expectedGoal + '", obtido "' + goal + '".');
   }
