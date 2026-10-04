@@ -8,7 +8,7 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 62,
+  "total": 63,
   "items": [
     {
       "path": "blog/como-escolher-um-tratamento-para-melasma.html",
@@ -98,7 +98,17 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/clareamento-facial.html",
       "redirect_to": null,
-      "sha256": "f522f1daf6f940c2d0d27b883d806e8da73085043e1fccb444351451349f9343"
+      "sha256": "843388edbd340a263fb66eef228aa081885d111a1114df118f55939e7cbd8645"
+    },
+    {
+      "path": "resultados/mancha-solar.html",
+      "url": "https://www.especialistaempele.com.br/resultados/mancha-solar.html",
+      "id": "RESULTADO-000039",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/mancha-solar.html",
+      "redirect_to": null,
+      "sha256": "df2456bea1a4059be8ec63aa9421262a6828f98d2aaa1824787b2c1de88417e8"
     },
     {
       "path": "resultados/poros-dilatados.html",
@@ -631,5 +641,5 @@
       "sha256": "d39bfaa70c55413c91e6dc3299c44f3e024cde39c6c33a03edae79bac9ba9693"
     }
   ],
-  "generated_at": "2026-09-26T13:22:45.214Z"
+  "generated_at": "2026-10-04T00:06:23.661Z"
 }
