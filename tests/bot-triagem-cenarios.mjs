@@ -165,7 +165,7 @@ expect(bot.includes('if (state.details.goal)'), "fluxo ainda repete pergunta de 
 expect(bot.includes("const duration = normalizedText.match"), "extração de duração não encontrada");
 
 const detailCases = [
-  ["Tenho melasma há 5 anos e meu objetivo é melhorar as manchas", true, true, true],
+  ["Tenho melasma há 5 anos e meu objetivo é melhorar as manchas", false, true, true],
   ["Me incomoda muito a acne e quero controlar as espinhas", true, true, false],
   ["Tenho acne há 2 meses e moro em São Paulo", false, false, true],
   ["Quero melhorar o melasma", false, true, false]
