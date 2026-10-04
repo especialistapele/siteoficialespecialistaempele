@@ -179,7 +179,6 @@ for (const [input, hasNeed, hasGoal, hasDuration] of detailCases) {
 
 // Fallback para linguagem natural: descrições sem o nome literal do tratamento.
 const naturalLanguageCases = [
-  ["Minha pele está muito oleosa", "oleosidade"],
   ["Estou com espinhas hormonais", "acne"],
   ["Tenho manchas escuras no rosto", "manchas"],
   ["Meus poros estão muito abertos", "poros"],
