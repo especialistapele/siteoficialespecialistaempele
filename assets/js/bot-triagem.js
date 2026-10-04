@@ -55,12 +55,13 @@
     .replace(/\s+/g, " ").trim();
 
   const aliases = {
-    acne:["acne","espinha","espinhas","cravo","cravos"],
-    manchas:["mancha","manchas","melasma","pigmentacao"],
+    acne:["acne","espinha","espinhas","cravo","cravos","espinhas hormonais","acne hormonal"],
+    manchas:["mancha","manchas","melasma","pigmentacao","manchas escuras","pele manchada"],
     cicatrizes:["cicatriz","cicatrizes","marca de acne","marcas de acne"],
     rosacea:["rosacea","vermelhidao","vermelhida"],
     rejuvenescimento:["rejuvenescimento","rugas","linhas","flacidez facial","envelhecimento"],
-    poros:["poro","poros","poro dilatado","poros dilatados"],
+    poros:["poro","poros","poro dilatado","poros dilatados","poros aparentes","poros muito abertos"],
+    oleosidade:["oleosidade","pele oleosa","rosto oleoso","pele muito oleosa","rosto muito oleoso"],
     nanotecnologia:["nanotecnologia"],
     clareamento:["clareamento","virilha","coxas","axila","gluteos"],
     remocoes:["remocao","remover","sinal","sinais","verruga","nevo","nigras","milium","xantelasma","siringoma"],
@@ -70,9 +71,9 @@
     "clareamento-facial":["clareamento facial","clarear o rosto","manchas no rosto"],
     "clareamento-corporal":["clareamento corporal","clarear virilha","clarear a virilha","clarear axila","clarear a axila","clarear coxas","clarear as coxas","clarear gluteos","clarear os gluteos"],
     "limpeza-de-pele":["limpeza de pele","limpeza nanotecnologica"],
-    celulite:["celulite"],
+    celulite:["celulite","furinhos nas pernas","furinhos no bumbum","pele com furinhos"],
     estrias:["estria","estrias"],
-    flacidez:["flacidez"],
+    flacidez:["flacidez","pele flacida","pele frouxa"],
     esporotricose:["esporotricose","cicatriz de esporotricose","cicatrizes por esporotricose"],
     leucodermia:["leucodermia","leucodermia solar"],
     acantose:["acantose","acantose nigricans","pescoco escuro","pescoço escuro","pele escura nas dobras"],
@@ -258,7 +259,19 @@
         }
       }
     }
-    return best;
+    if (best) return best;
+
+    // Fallback determinístico para descrições naturais que não usam o nome do tratamento.
+    const fallbackRules = [
+      ["acne", /\b(?:espinhas?|cravos?)\b.*\b(?:hormonais?|inflamadas?)\b|\b(?:hormonais?|inflamadas?)\b.*\b(?:espinhas?|cravos?)\b/],
+      ["manchas", /\b(?:manchas?|pele)\b.*\b(?:escuras?|manchada|pigmentad[ao])\b/],
+      ["oleosidade", /\b(?:pele|rosto)\b.*\b(?:oleoso|oleosa|muito oleosa)\b/],
+      ["poros", /\b(?:poros?|porosidade)\b.*\b(?:abertos?|aparentes|dilatados?)\b/]
+    ];
+    for (const [topic, rule] of fallbackRules) {
+      if (rule.test(n) && aliases[topic]) return topic;
+    }
+    return null;
   }
 
   function detectLocation(text) {

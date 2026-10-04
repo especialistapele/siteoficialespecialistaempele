@@ -177,6 +177,24 @@ for (const [input, hasNeed, hasGoal, hasDuration] of detailCases) {
   if (hasDuration) expect(/\b(?:ha|faz)\s+.*\d+\s+(?:dias?|semanas?|meses?|anos?)\b/.test(normalized(input)), input + ": caso deveria conter duração");
 }
 
+// Fallback para linguagem natural: descrições sem o nome literal do tratamento.
+const naturalLanguageCases = [
+  ["Estou com espinhas hormonais", "acne"],
+  ["Tenho manchas escuras no rosto", "manchas"],
+  ["Meus poros estão muito abertos", "poros"],
+  ["Estou com a pele flácida", "flacidez"],
+  ["Tenho furinhos nas pernas", "celulite"]
+];
+for (const [input, expectedTopic] of naturalLanguageCases) {
+  expect(detectTopic(input) === expectedTopic, input + ': fallback deveria reconhecer "' + expectedTopic + '"');
+}
+
+expect(bot.includes('["oleosidade", /' ), "fallback de oleosidade não está configurado no motor");
+expect(bot.includes("oleoso|oleosa|muito oleosa"), "fallback de pele oleosa não está configurado");
+
+// Duração informada deve ser extraída pela mesma expressão usada pelo motor.
+expect(/\b(?:ha|faz)\s+.*\d+\s+(?:dias?|semanas?|meses?|anos?)\b/.test("tenho isso ha 5 anos"), "regex de duração deve reconhecer período informado");
+
 // Roteamento.
 const localCities = new Set(["araruama", "cabo frio", "copacabana", "saquarema", "iguaba grande", "sao pedro da aldeia", "arraial do cabo", "armacao dos buzios", "niteroi", "sao goncalo"]);
 const routeCases = [
