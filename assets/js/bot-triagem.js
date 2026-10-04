@@ -61,6 +61,7 @@
     rosacea:["rosacea","vermelhidao","vermelhida"],
     rejuvenescimento:["rejuvenescimento","rugas","linhas","flacidez facial","envelhecimento"],
     poros:["poro","poros","poro dilatado","poros dilatados","poros aparentes","poros muito abertos"],
+    oleosidade:["oleosidade","pele oleosa","rosto oleoso"],
     nanotecnologia:["nanotecnologia"],
     clareamento:["clareamento","virilha","coxas","axila","gluteos"],
     remocoes:["remocao","remover","sinal","sinais","verruga","nevo","nigras","milium","xantelasma","siringoma"],
