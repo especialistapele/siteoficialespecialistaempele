@@ -105,16 +105,21 @@
   let documentosEnviados = [];
 
   async function carregarPacientes() {
-    const { data, error } = await supabase.from("patients").select("id,full_name,email").order("full_name", { ascending: true });
-    if (error) {
-      mostrarFlash(flash, "Não foi possível carregar a lista de pacientes: " + error.message, "erro");
-      return;
+    try {
+      const { data, error } = await supabase.from("patients").select("id,full_name,email").order("full_name", { ascending: true });
+      if (error) {
+        mostrarFlash(flash, "Não foi possível carregar a lista de pacientes: " + error.message, "erro");
+        return;
+      }
+      pacientes = data || [];
+      filtroPaciente.innerHTML = '<option value="">Selecione um paciente…</option>' +
+        pacientes.map((p) => '<option value="' + escapeHtml(p.id) + '">' +
+          escapeHtml(p.full_name) + (p.email ? " — " + escapeHtml(p.email) : "") +
+        '</option>').join("");
+    } catch (erro) {
+      mostrarFlash(flash, "Não foi possível carregar a lista de pacientes. Atualize a página e tente novamente.", "erro");
+      console.error("carregarPacientes:", erro);
     }
-    pacientes = data || [];
-    filtroPaciente.innerHTML = '<option value="">Selecione um paciente…</option>' +
-      pacientes.map((p) => '<option value="' + escapeHtml(p.id) + '">' +
-        escapeHtml(p.full_name) + (p.email ? " — " + escapeHtml(p.email) : "") +
-      '</option>').join("");
   }
 
   async function carregarDocumentosEnviados() {
@@ -306,19 +311,29 @@
   }
 
   async function carregar() {
-    const { data, error } = await supabase
-      .from("support_documents")
-      .select("*")
-      .is("patient_id", null)
-      .order("created_at", { ascending: false });
+    corpo.innerHTML = '<tr><td colspan="4" class="painel-vazio">Carregando documentos da biblioteca…</td></tr>';
 
-    if (error) {
-      corpo.innerHTML = '<tr><td colspan="4" class="painel-vazio">Erro: ' + escapeHtml(error.message) + "</td></tr>";
-      return;
+    try {
+      const { data, error } = await supabase
+        .from("support_documents")
+        .select("id,title,file_url,created_at,patient_id")
+        .is("patient_id", null)
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        documentos = [];
+        corpo.innerHTML = '<tr><td colspan="4" class="painel-vazio">Não foi possível carregar a biblioteca: ' + escapeHtml(error.message) + "</td></tr>";
+        console.error("carregar documentos:", error);
+        return;
+      }
+
+      documentos = data || [];
+      renderizar();
+    } catch (erro) {
+      documentos = [];
+      corpo.innerHTML = '<tr><td colspan="4" class="painel-vazio">Não foi possível carregar a biblioteca. Atualize a página e tente novamente.</td></tr>';
+      console.error("carregar documentos:", erro);
     }
-
-    documentos = data || [];
-    renderizar();
   }
 
   busca.addEventListener("input", renderizar);
@@ -397,8 +412,9 @@
     await carregar();
   });
 
-  await carregarPacientes();
-  await carregar();
+  // A biblioteca é independente do filtro de pacientes: carregue os dois em paralelo
+  // para que uma falha/latência na lista de pacientes nunca deixe a biblioteca presa em "Carregando…".
+  await Promise.allSettled([carregar(), carregarPacientes()]);
 </script>
 </body>
 </html>
