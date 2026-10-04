@@ -87,12 +87,21 @@
 
 <script type="module">
   import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash } from "/painel/assets/js/painel-auth.js";
-  import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
+  import { renderSidebarAdmin, configurarMenuAdmin } from "/painel/assets/js/admin-sidebar.js";
   import { escapeHtml } from "/painel/assets/js/sanitize.js";
+
+  // Renderiza o menu imediatamente para que uma latência na validação da sessão
+  // nunca deixe a área lateral vazia. A autorização continua sendo obrigatória.
+  const sidebar = document.querySelector("[data-sidebar]");
+  sidebar.innerHTML = renderSidebarAdmin("documentos", "Administrador");
+  configurarMenuAdmin();
 
   const contexto = await exigirAdmin();
   if (!contexto) throw new Error("sem acesso");
-  document.querySelector("[data-sidebar]").innerHTML = renderSidebarAdmin("documentos", contexto.perfil.full_name);
+
+  // Atualiza o nome do administrador depois da validação e reativa os controles.
+  sidebar.innerHTML = renderSidebarAdmin("documentos", contexto.perfil.full_name);
+  configurarMenuAdmin();
   configurarBotaoSair();
 
   const flash = document.querySelector("[data-flash]");
