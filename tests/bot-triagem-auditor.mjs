@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import fs from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
@@ -266,3 +267,9 @@ if (errors.length) {
 }
 
 console.log("\nAUDITORIA DO BOT: OK — todas as páginas de tratamento estão integradas ao loader e possuem configuração contextual.");
+
+
+const historyMigration = readFileSync("supabase/migrations/20261004200000_bot_messages_session_guard.sql", "utf8");
+if (!historyMigration.includes("add column if not exists session_id uuid")) throw new Error("Migration incremental sem coluna session_id.");
+if (!/c\.session_id = bot_messages\.session_id/i.test(historyMigration)) throw new Error("Política de mensagens sem validação do session_id da conversa.");
+if (!/alter column session_id set not null/i.test(historyMigration)) throw new Error("session_id não está protegido como obrigatório.");
