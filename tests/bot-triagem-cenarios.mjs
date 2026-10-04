@@ -155,6 +155,28 @@ for (const [input, expectedTopic, expectedIntent] of mixedCases) {
   if (expectedIntent) expect(detectIntent(input) === expectedIntent, input + ': intenção esperada "' + expectedIntent + '", obtida "' + detectIntent(input) + '"');
 }
 
+// Reutilização do contexto informado em uma única mensagem.
+expect(bot.includes("function extractVisitorDetails(text)"), "extração de contexto do visitante não encontrada");
+expect(bot.includes("state.details.need"), "necessidade informada não é preservada no estado");
+expect(bot.includes("state.details.goal"), "objetivo informado não é preservado no estado");
+expect(bot.includes("state.details.duration"), "duração informada não é preservada no estado");
+expect(bot.includes('if (state.details.need)'), "fluxo ainda repete pergunta de necessidade já informada");
+expect(bot.includes('if (state.details.goal)'), "fluxo ainda repete pergunta de objetivo já informado");
+expect(bot.includes("const duration = normalizedText.match"), "extração de duração não encontrada");
+
+const detailCases = [
+  ["Tenho melasma há 5 anos e meu objetivo é melhorar as manchas", true, true, true],
+  ["Me incomoda muito a acne e quero controlar as espinhas", true, true, false],
+  ["Tenho acne há 2 meses e moro em São Paulo", false, false, true],
+  ["Quero melhorar o melasma", false, true, false]
+];
+for (const [input, hasNeed, hasGoal, hasDuration] of detailCases) {
+  expect(bot.includes("extractVisitorDetails"), input + ": extrator não está presente");
+  if (hasNeed) expect(/me incomoda|me preocupa|principalmente me incomoda/.test(normalized(input)), input + ": caso deveria conter necessidade explícita");
+  if (hasGoal) expect(/meu objetivo|quero|gostaria de|pretendo/.test(normalized(input)), input + ": caso deveria conter objetivo explícito");
+  if (hasDuration) expect(/\\b(?:ha|faz)\\s+.*\\d+\\s+(?:dias?|semanas?|meses?|anos?)\\b/.test(normalized(input)), input + ": caso deveria conter duração");
+}
+
 // Roteamento.
 const localCities = new Set(["araruama", "cabo frio", "copacabana", "saquarema", "iguaba grande", "sao pedro da aldeia", "arraial do cabo", "armacao dos buzios", "niteroi", "sao goncalo"]);
 const routeCases = [
