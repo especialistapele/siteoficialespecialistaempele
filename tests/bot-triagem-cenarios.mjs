@@ -294,6 +294,70 @@ for (const [input, expectedTopic, expectedStage] of modalityCases) {
   if (expectedStage === "presential-required") expect(modeLine.includes("online: false"), input + ': deveria exigir execução presencial');
 }
 
+// Matriz geográfica + modalidade: a cidade deve alterar apenas o caminho disponível,
+// sem transformar tratamento presencial em consultoria ou vice-versa.
+const geographicModalityCases = [
+  ["acne", "São Paulo", "online-consulta"],
+  ["acne", "Belo Horizonte", "online-consulta"],
+  ["manchas", "São Paulo", "online-consulta"],
+  ["manchas", "Belo Horizonte", "online-consulta"],
+  ["celulite", "São Paulo", "presential-required"],
+  ["celulite", "Belo Horizonte", "presential-required"],
+  ["limpeza-de-pele", "São Paulo", "presential-required"],
+  ["remocoes", "São Paulo", "presential-required"],
+  ["sobrancelha", "São Paulo", "presential-required"],
+  ["acne", "Araruama", "presential"],
+  ["manchas", "Cabo Frio", "presential"],
+  ["celulite", "Copacabana", "presential"]
+];
+
+const geographicFunction = bot.slice(bot.indexOf("function routeByLocation()"), bot.indexOf("function askTreatmentLocation()"));
+expect(geographicFunction.includes('mode?.online === "consulta" && !isPresentialArea(state.location) && !isNearbyPresential(state.location)'),
+  "rota geográfica não diferencia consulta online fora da área presencial");
+expect(geographicFunction.includes('state.route = "presential-required"'),
+  "rota geográfica não possui caminho presencial obrigatório");
+expect(geographicFunction.includes('const local = ["araruama","cabo frio","copacabana"].includes(state.location);'),
+  "rota geográfica não reconhece as três unidades presenciais");
+expect(geographicFunction.includes("const nearby = isNearbyPresential(state.location);"),
+  "rota geográfica não trata regiões próximas separadamente");
+
+const modeLines = config.split("\\n");
+const expectedModes = {
+  acne: 'online: "consulta"',
+  manchas: 'online: "consulta"',
+  celulite: 'online: false',
+  "limpeza-de-pele": 'online: false',
+  remocoes: 'online: false',
+  sobrancelha: 'online: false'
+};
+for (const [topic, city, expectedRoute] of geographicModalityCases) {
+  const modeLine = modeLines.find((line) => line.includes(topic + ":") || line.includes('"' + topic + '":'));
+  expect(Boolean(modeLine), topic + ": modalidade não encontrada na matriz geográfica");
+  if (modeLine && expectedModes[topic]) expect(modeLine.includes(expectedModes[topic]), topic + ": modalidade incompatível com a regra esperada");
+  const location = detectLocation("Estou em " + city);
+  const local = location && ["araruama", "cabo frio", "copacabana"].includes(location);
+  const nearby = location && ["saquarema", "iguaba grande", "sao pedro da aldeia", "arraial do cabo", "armacao dos buzios", "niteroi", "sao goncalo"].includes(location);
+  let simulatedRoute;
+  if (topic === "limpeza-de-pele") {
+    simulatedRoute = (local || nearby) ? "presential" : "presential-required";
+  } else if (expectedModes[topic] === 'online: "consulta"' && !local && !nearby) {
+    simulatedRoute = "online-consulta";
+  } else if (local || nearby) {
+    simulatedRoute = "presential";
+  } else {
+    simulatedRoute = "presential-required";
+  }
+  expect(simulatedRoute === expectedRoute, topic + " + " + city + ": rota esperada " + expectedRoute + ", obtida " + simulatedRoute);
+}
+
+// Cenário específico solicitado: visitante em São Paulo que quer agendar acne.
+// O bot deve conhecer a cidade antes do WhatsApp e, fora do RJ, cair na consulta online.
+const bookingBlockForCity = bot.slice(bot.indexOf('if (intent === "booking")'), bot.indexOf('if (intent === "price")'));
+expect(bookingBlockForCity.includes("if (!state.location)"), "agendamento não protege o encaminhamento sem cidade");
+expect(bookingBlockForCity.includes("routeByLocation();"), "agendamento não usa o roteamento geográfico após receber a cidade");
+expect(bot.includes('if (mode?.online === "consulta" && !isPresentialArea(state.location) && !isNearbyPresential(state.location))'),
+  "São Paulo não seria direcionado para consulta online nos tratamentos elegíveis");
+
 // Combinações de tratamento + cidade + intenção.
 // A cidade não deve alterar a natureza do atendimento: apenas o caminho geográfico.
 const combinationCases = [
