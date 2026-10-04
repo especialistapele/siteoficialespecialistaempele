@@ -778,6 +778,10 @@
     const details = extractVisitorDetails(text);
     const previousContext = state.context;
 
+    // Respostas a perguntas pendentes têm prioridade sobre a troca de tópico.
+    // Assim, "sem espinhas" continua sendo a resposta à pergunta anterior.
+    if (consumePendingAnswer(text, details, intent, loc)) return;
+
     if (topic && topic !== state.context) {
       state.context = topic;
     }
@@ -878,8 +882,6 @@
       state.stage = "information";
       return;
     }
-
-    if (consumePendingAnswer(text, details, intent, loc)) return;
 
     if (state.stage === "location") {
       if (loc) routeByLocation();
