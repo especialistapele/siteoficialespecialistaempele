@@ -886,6 +886,7 @@
         <div><div class="ep-bot__brand">Especialista em Pele</div><div class="ep-bot__status">Assistente de triagem</div></div>
         <button class="ep-bot__close" type="button" aria-label="Fechar">×</button>
       </div>
+      <div class="ep-bot__privacy">As mensagens podem ser registradas para organizar o atendimento. Evite enviar dados pessoais ou informações de saúde desnecessárias. <a href="/privacidade.html" target="_blank" rel="noopener">Saiba mais</a>.</div>
       <div class="ep-bot__messages" aria-live="polite"></div>
       <div class="ep-bot__quick"></div>
       <form class="ep-bot__form">
