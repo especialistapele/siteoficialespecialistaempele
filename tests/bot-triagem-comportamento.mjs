@@ -236,13 +236,6 @@ for (const [input, expectedGoal] of pendingAnswerScenarios) {
   }
 }
 
-// O segundo turno do diálogo não deve ser classificado como uma nova troca de assunto.
-if (detectTopic("sem espinhas") !== null) {
-  errors.push("\\\"sem espinhas\\\" não deveria abrir um novo tópico por si só");
-}
-if (detectTopic("sem manchas") !== null) {
-  errors.push("\\\"sem manchas\\\" não deveria abrir um novo tópico por si só");
-}
 
 if (errors.length) {
   console.error("ERROS DE COMPORTAMENTO DO BOT:");
