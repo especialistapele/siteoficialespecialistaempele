@@ -191,7 +191,7 @@ for (const [input, expectedTopic] of naturalLanguageCases) {
 }
 
 // Duração informada deve ser extraída pela mesma expressão usada pelo motor.
-expect(/\\b(?:ha|faz)\\s+.*\\d+\\s+(?:dias?|semanas?|meses?|anos?)\\b/.test("tenho isso ha 5 anos"), "regex de duração deve reconhecer período informado");
+expect(/\b(?:ha|faz)\s+.*\d+\s+(?:dias?|semanas?|meses?|anos?)\b/.test("tenho isso ha 5 anos"), "regex de duração deve reconhecer período informado");
 
 // Roteamento.
 const localCities = new Set(["araruama", "cabo frio", "copacabana", "saquarema", "iguaba grande", "sao pedro da aldeia", "arraial do cabo", "armacao dos buzios", "niteroi", "sao goncalo"]);
