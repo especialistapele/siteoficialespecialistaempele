@@ -518,6 +518,7 @@
   function contratoTemEscolhasObrigatorias() {
     const container = document.querySelector("[data-contrato-conteudo]");
     if (!container) return false;
+    if (!container.querySelector("[data-contract-choice]")) return true;
     return ["identificacao","prazo"].every((grupo) =>
       !!container.querySelector(`[data-contract-choice][data-contract-group="${grupo}"][data-contract-selected="true"]`)
     );
