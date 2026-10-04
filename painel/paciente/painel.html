@@ -485,6 +485,7 @@
     });
     container.querySelectorAll("[data-contract-choice]").forEach((opcao) => {
       const alternar = () => {
+        const marca = opcao.querySelector("[data-contract-mark]");
         const grupo = opcao.dataset.contractGroup;
         if (grupo !== "finalidade") {
           container.querySelectorAll(`[data-contract-choice][data-contract-group="${grupo}"]`).forEach((item) => {
