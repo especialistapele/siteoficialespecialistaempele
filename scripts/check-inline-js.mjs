@@ -23,19 +23,19 @@ let checked = 0;
 try {
   for (const file of htmls) {
     const html = readFileSync(file, "utf8");
-    const re = /<script\\b([^>]*)>([\\s\\S]*?)<\\/script>/gi;
+    const re = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
     let match;
     let index = 0;
     while ((match = re.exec(html))) {
-      if (/\\bsrc\\s*=/i.test(match[1])) continue;
-      const type = /\\btype\\s*=\\s*["']module["']/i.test(match[1]) ? "mjs" : "js";
+      if (/\bsrc\s*=/i.test(match[1])) continue;
+      const type = /\btype\s*=\s*["']module["']/i.test(match[1]) ? "mjs" : "js";
       const tempFile = join(temp, `${file.replace(/[^a-z0-9]+/gi, "_")}_${index++}.${type}`);
       writeFileSync(tempFile, match[2], "utf8");
       checked++;
       try {
         execFileSync(process.execPath, ["--check", tempFile], { stdio: "pipe" });
       } catch (error) {
-        failures.push(`${file}: script inline #${index}\\n${String(error.stderr || error.stdout || error.message).trim()}`);
+        failures.push(`${file}: script inline #${index}\n${String(error.stderr || error.stdout || error.message).trim()}`);
       }
     }
   }
@@ -45,7 +45,7 @@ try {
 
 console.log(`Validação de JavaScript inline: ${checked} bloco(s) verificado(s).`);
 if (failures.length) {
-  console.error("\\nERROS DE SINTAXE:");
-  failures.forEach((item) => console.error(item + "\\n"));
+  console.error("\nERROS DE SINTAXE:");
+  failures.forEach((item) => console.error(item + "\n"));
   process.exit(1);
 }
