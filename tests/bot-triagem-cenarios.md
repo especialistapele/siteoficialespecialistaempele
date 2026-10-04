@@ -24,6 +24,10 @@ Baseada nos 19 casos obrigatórios do documento de especificação.
 | 18 | Muda completamente de assunto | Atualiza contexto e continua pelo novo assunto | Pendente |
 | 19 | Informal/abreviações/erros | Normalização básica reconhece a intenção | Pendente |
 
+| 20 | Acne: "espinhas e manchas" → "sem espinhas" | A segunda mensagem é consumida como objetivo; não repete "vamos considerar acne como o assunto principal" | Implementado |
+| 21 | Objetivo: "sem manchas" | Registra o objetivo como "ficar sem manchas" e avança para cidade | Implementado |
+| 22 | Objetivo natural: "controlar a oleosidade" | Registra o objetivo sem trocar o contexto do tratamento | Implementado |
+
 ## Regra de aprovação
 
 A branch só deve ser promovida para main depois de:
