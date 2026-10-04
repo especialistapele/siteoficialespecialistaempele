@@ -141,19 +141,24 @@
 
     corpoEnviados.innerHTML = '<tr><td colspan="3" class="painel-vazio">Carregando documentos enviados…</td></tr>';
 
-    const { data, error } = await supabase
-      .from("support_documents")
-      .select("id,title,file_url,created_at,patient_id")
-      .eq("patient_id", patientId)
-      .order("created_at", { ascending: false });
+    try {
+      // Usa a mesma leitura administrativa já validada para a biblioteca e filtra
+      // localmente pelo paciente. Assim o filtro não depende de uma segunda
+      // consulta com .eq() que pode falhar/retornar vazio em determinadas sessões.
+      const { data, error } = await supabase
+        .from("support_documents")
+        .select("id,title,file_url,created_at,patient_id")
+        .order("created_at", { ascending: false });
 
-    if (error) {
-      documentosEnviados = [];
-      corpoEnviados.innerHTML = '<tr><td colspan="3" class="painel-vazio">Erro ao carregar: ' + escapeHtml(error.message) + '</td></tr>';
-      return;
-    }
+      if (error) {
+        documentosEnviados = [];
+        corpoEnviados.innerHTML = '<tr><td colspan="3" class="painel-vazio">Erro ao carregar: ' + escapeHtml(error.message) + '</td></tr>';
+        console.error("carregar documentos enviados:", error);
+        return;
+      }
 
-    documentosEnviados = data || [];
+      const todos = Array.isArray(data) ? data : [];
+      documentosEnviados = todos.filter((d) => String(d.patient_id || "") === String(patientId));
     if (!documentosEnviados.length) {
       corpoEnviados.innerHTML = '<tr><td colspan="3" class="painel-vazio">Nenhum documento enviado para este paciente.</td></tr>';
       return;
