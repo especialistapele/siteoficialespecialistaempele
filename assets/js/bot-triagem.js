@@ -359,6 +359,7 @@
 
       const { error } = await client.from("bot_messages").insert({
         conversation_id: id,
+        session_id: getSessionId(),
         sender,
         message: String(text).slice(0, 4000),
         treatment_context: state.context,
@@ -379,6 +380,7 @@
       if (!client || !id) return;
       await client.from("bot_messages").insert({
         conversation_id: id,
+        session_id: getSessionId(),
         sender: "system",
         message: "whatsapp_handoff",
         treatment_context: state.context,
