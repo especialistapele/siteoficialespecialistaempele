@@ -266,3 +266,10 @@ if (errors.length) {
 }
 
 console.log("\nAUDITORIA DO BOT: OK — todas as páginas de tratamento estão integradas ao loader e possuem configuração contextual.");
+
+
+const historyMigration = readFileSync("supabase/migrations/20261001143000_atendente_virtual_historico.sql", "utf8");
+if (!historyMigration.includes("session_id uuid not null")) throw new Error("Histórico sem session_id obrigatório nas mensagens.");
+if (!historyMigration.includes("c.session_id = bot_messages.session_id")) throw new Error("Política de mensagens sem validação do session_id da conversa.");
+if (!bannedPattern(historyMigration)) throw new Error("Falha na validação estrutural da política do histórico.");
+function bannedPattern(sql) { return !/with check\\s*\\(exists\\s*\\(select 1 from public\\.bot_conversations c where c\\.id = conversation_id and c\\.session_id = bot_messages\\.session_id\\)\\)/i.test(sql); }
