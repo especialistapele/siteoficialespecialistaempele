@@ -92,8 +92,21 @@
       "workflow_run_id": "37033655803",
       "workflow_sha": "0c48c71b6661fd981e2f0f247e9bafc932479a30",
       "ref": "main"
+    },
+    {
+      "request_id": "5486d285-46b9-4414-9252-42617a07b22b",
+      "status": "success",
+      "trigger": "panel",
+      "path": "resultados/mancha-solar.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-10-04T00:05:55.552Z",
+      "completed_at": "2026-10-04T00:06:26.122Z",
+      "workflow_run_id": "37163868119",
+      "workflow_sha": "8e34b0c76e8ebe94a253c91549988252556c0938",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-02T16:24:25.554Z",
-  "total": 7
+  "updated_at": "2026-10-04T00:06:26.122Z",
+  "total": 8
 }
