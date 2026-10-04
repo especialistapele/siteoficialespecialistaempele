@@ -141,8 +141,7 @@
 
     corpoEnviados.innerHTML = '<tr><td colspan="3" class="painel-vazio">Carregando documentos enviados…</td></tr>';
 
-    try {
-      // Usa a mesma leitura administrativa já validada para a biblioteca e filtra
+    // Usa a mesma leitura administrativa já validada para a biblioteca e filtra
       // localmente pelo paciente. Assim o filtro não depende de uma segunda
       // consulta com .eq() que pode falhar/retornar vazio em determinadas sessões.
       const { data, error } = await supabase
