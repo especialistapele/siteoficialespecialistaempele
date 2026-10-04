@@ -63,6 +63,7 @@ document.querySelector("[data-subtitle]").textContent=(type?.description||"Preen
 
 const qList=(questions||[]).filter(q=>q.question_definitions).sort((a,b)=>(a.position||0)-(b.position||0));
 const answerMap=new Map((responses||[]).map(r=>[r.question_definition_id,r.value]));
+const initialResponseCount=(responses||[]).length;
 const values=new Map(answerMap);
 function display(v){if(v==null||v==="")return "";if(Array.isArray(v))return v.join(", ");if(typeof v==="object")return v.text||v.value||JSON.stringify(v);return String(v);}
 function choices(d){const o=Array.isArray(d.options)?d.options:(d.options?.choices||[]);return o.map(x=>typeof x==="string"?{value:x,label:x}:x);}
@@ -128,10 +129,14 @@ document.getElementById("save").onclick=async()=>{
       values.set(d.id,paths);
       respostas.push({question_definition_id:d.id,clinical_concept_id:d.clinical_concept_id||null,value:paths});
     }else{
-      const value=read(d);
+      const value=read(q);
       values.set(d.id,value);
       respostas.push({question_definition_id:d.id,clinical_concept_id:d.clinical_concept_id||null,value});
     }
+  }
+  if(initialResponseCount>0 && respostas.length===0){
+    mostrarFlash(flash,"O sistema não conseguiu ler as respostas existentes. O rascunho não será alterado.", "erro");
+    return;
   }
   button.disabled=true;button.textContent="Salvando…";
   try{
