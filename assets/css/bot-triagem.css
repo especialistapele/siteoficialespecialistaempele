@@ -60,3 +60,5 @@
 }
 
 .ep-bot__toggle-icon{display:grid;place-items:center;width:28px;height:28px}.ep-bot__toggle-icon svg{display:block;width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.ep-bot__toggle-icon .ep-bot__toggle-line{stroke-width:1.6}
+
+.ep-bot__privacy{padding:7px 14px;font-size:10px;line-height:1.4;color:#5f665f;background:#faf7f1;border-bottom:1px solid rgba(38,49,45,.08)}.ep-bot__privacy a{color:#8b6d32;text-decoration:underline}

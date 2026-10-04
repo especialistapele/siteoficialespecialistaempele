@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 
 const source = readFileSync("assets/js/bot-triagem.js", "utf8");
+if (!source.includes("As mensagens podem ser registradas")) throw new Error("Aviso de privacidade do assistente não encontrado.");
+if (!source.includes('href="/privacidade.html"')) throw new Error("Link da política de privacidade não encontrado no assistente.");
 const aliasesBlock = source.match(/const aliases = \{([\s\S]*?)\n  \};/)?.[1];
 if (!aliasesBlock) throw new Error("Não foi possível localizar aliases no bot.");
 
