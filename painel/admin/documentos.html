@@ -314,8 +314,10 @@
     corpo.innerHTML = '<tr><td colspan="4" class="painel-vazio">Carregando documentos da biblioteca…</td></tr>';
 
     try {
-      // Buscamos a biblioteca inteira e separamos os documentos gerais no cliente.
-      // Assim a biblioteca não depende de um filtro IS NULL do PostgREST.
+      // Garante que a sessão autenticada já foi validada antes da consulta da biblioteca.
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Sessão administrativa não encontrada.");
+
       const { data, error } = await supabase
         .from("support_documents")
         .select("id,title,file_url,created_at,patient_id")
@@ -328,12 +330,16 @@
         return;
       }
 
-      const todos = data || [];
-      documentos = todos.filter((d) => !d.patient_id);
+      // A tabela contém tanto a biblioteca quanto as cópias já enviadas.
+      // A biblioteca é composta exclusivamente pelos registros sem paciente.
+      const todos = Array.isArray(data) ? data : [];
+      documentos = todos.filter((d) => d.patient_id == null || d.patient_id === "");
+
+      console.info("[Documentos] registros recebidos:", todos.length, "biblioteca:", documentos.length);
       renderizar();
     } catch (erro) {
       documentos = [];
-      corpo.innerHTML = '<tr><td colspan="4" class="painel-vazio">Não foi possível carregar a biblioteca. Atualize a página e tente novamente.</td></tr>';
+      corpo.innerHTML = '<tr><td colspan="4" class="painel-vazio">Não foi possível carregar a biblioteca: ' + escapeHtml(erro?.message || "erro desconhecido") + "</td></tr>";
       console.error("carregar documentos:", erro);
     }
   }
