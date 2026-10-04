@@ -174,7 +174,7 @@ for (const [input, hasNeed, hasGoal, hasDuration] of detailCases) {
   expect(bot.includes("extractVisitorDetails"), input + ": extrator não está presente");
   if (hasNeed) expect(/me incomoda|me preocupa|principalmente me incomoda/.test(normalized(input)), input + ": caso deveria conter necessidade explícita");
   if (hasGoal) expect(/meu objetivo|quero|gostaria de|pretendo/.test(normalized(input)), input + ": caso deveria conter objetivo explícito");
-  if (hasDuration) expect(/\\b(?:ha|faz)\\s+.*\\d+\\s+(?:dias?|semanas?|meses?|anos?)\\b/.test(normalized(input)), input + ": caso deveria conter duração");
+  if (hasDuration) expect(/\b(?:ha|faz)\s+.*\d+\s+(?:dias?|semanas?|meses?|anos?)\b/.test(normalized(input)), input + ": caso deveria conter duração");
 }
 
 // Roteamento.
