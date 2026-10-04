@@ -189,6 +189,9 @@ for (const [input, expectedTopic] of naturalLanguageCases) {
   expect(detectTopic(input) === expectedTopic, input + ': fallback deveria reconhecer "' + expectedTopic + '"');
 }
 
+expect(bot.includes('["oleosidade", /' ), "fallback de oleosidade não está configurado no motor");
+expect(bot.includes("oleoso|oleosa|muito oleosa"), "fallback de pele oleosa não está configurado");
+
 // Duração informada deve ser extraída pela mesma expressão usada pelo motor.
 expect(/\b(?:ha|faz)\s+.*\d+\s+(?:dias?|semanas?|meses?|anos?)\b/.test("tenho isso ha 5 anos"), "regex de duração deve reconhecer período informado");
 
