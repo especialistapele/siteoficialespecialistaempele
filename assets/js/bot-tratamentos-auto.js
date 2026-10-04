@@ -16,7 +16,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
     "presential": true,
     "online": false
   },
-  "cicatriz": {
+  "cicatrizes": {
     "presential": true,
     "online": false
   },
@@ -24,15 +24,15 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
     "presential": true,
     "online": false
   },
-  "clareamento": {
+  "clareamento-corporal": {
     "presential": true,
     "online": false
   },
-  "corporal": {
+  "gordura-localizada": {
     "presential": true,
     "online": false
   },
-  "definicao": {
+  "definicao-corporal": {
     "presential": true,
     "online": false
   },
@@ -56,7 +56,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
     "presential": true,
     "online": false
   },
-  "melasma": {
+  "manchas": {
     "presential": true,
     "online": false
   },
@@ -64,7 +64,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
     "presential": true,
     "online": false
   },
-  "poros-abertos": {
+  "poros": {
     "presential": true,
     "online": false
   },
@@ -89,19 +89,19 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "/tratamentos/acantose.html": "acantose",
   "/tratamentos/acne.html": "acne",
   "/tratamentos/celulite.html": "celulite",
-  "/tratamentos/cicatriz.html": "cicatriz",
+  "/tratamentos/cicatriz.html": "cicatrizes",
   "/tratamentos/clareamento-facial.html": "clareamento-facial",
-  "/tratamentos/clareamento.html": "clareamento",
-  "/tratamentos/corporal.html": "corporal",
-  "/tratamentos/definicao.html": "definicao",
+  "/tratamentos/clareamento.html": "clareamento-corporal",
+  "/tratamentos/corporal.html": "gordura-localizada",
+  "/tratamentos/definicao.html": "definicao-corporal",
   "/tratamentos/esporotricose.html": "esporotricose",
   "/tratamentos/estrias.html": "estrias",
   "/tratamentos/flacidez.html": "flacidez",
   "/tratamentos/leucodermia.html": "leucodermia",
   "/tratamentos/limpeza-de-pele.html": "limpeza-de-pele",
-  "/tratamentos/melasma.html": "melasma",
+  "/tratamentos/melasma.html": "manchas",
   "/tratamentos/operatorio.html": "operatorio",
-  "/tratamentos/poros-abertos.html": "poros-abertos",
+  "/tratamentos/poros-abertos.html": "poros",
   "/tratamentos/rejuvenescimento.html": "rejuvenescimento",
   "/tratamentos/remocoes.html": "remocoes",
   "/tratamentos/rosacea.html": "rosacea",
@@ -164,7 +164,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
     "Tratamento contra Celulite",
     "celulite"
   ],
-  "cicatriz": [
+  "cicatrizes": [
     "Cicatrizes de Acne",
     "cicatriz"
   ],
@@ -172,15 +172,15 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
     "Clareamento facial",
     "clareamento facial"
   ],
-  "clareamento": [
+  "clareamento-corporal": [
     "Clareamento Corporal",
     "clareamento"
   ],
-  "corporal": [
+  "gordura-localizada": [
     "Redução de gordura localizada",
     "corporal"
   ],
-  "definicao": [
+  "definicao-corporal": [
     "Definição Corporal",
     "definicao"
   ],
@@ -204,7 +204,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
     "Limpeza de Pele nanotecnologica",
     "limpeza de pele"
   ],
-  "melasma": [
+  "manchas": [
     "Melasma",
     "melasma"
   ],
@@ -212,7 +212,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
     "Pós Operatório",
     "operatorio"
   ],
-  "poros-abertos": [
+  "poros": [
     "Tratamento para poros abertos",
     "poros abertos"
   ],
