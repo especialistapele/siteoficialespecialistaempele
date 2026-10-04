@@ -22,6 +22,12 @@
   .assinatura-canvas-wrap{border:1px dashed var(--linha,#ddd7c9);border-radius:8px;background:#fff;margin-top:14px}
   .assinatura-canvas-wrap canvas{width:100%;height:160px;display:block;touch-action:none;cursor:crosshair}
   .pac-usuario{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700}
+  .contrato-opcao{display:inline-flex;align-items:flex-start;gap:7px;cursor:pointer;border-radius:6px;padding:2px 4px;margin:-2px -4px}
+  .contrato-opcao:hover{background:#faf8f3}
+  .contrato-opcao:focus-visible{outline:2px solid var(--gold,#c9a45b);outline-offset:2px}
+  .contrato-circulo{font-size:20px;line-height:1.05;min-width:20px;text-align:center;color:var(--gold,#a77d2f);font-weight:700}
+  [data-contract-other]{min-width:170px;border-bottom:1px solid var(--linha,#999);outline:none;cursor:text}
+  [data-contract-other]:focus{background:#faf8f3}
 .pac-hero__subtitulo{margin:10px 0 0;color:#fff;font-size:17px;line-height:1.5;max-width:58ch}
 @media (max-width:700px){.pac-hero__overlay{padding:28px 24px 30px}.pac-hero__overlay h1{font-size:32px}.pac-hero__subtitulo{font-size:15px}}
 </style>
@@ -459,8 +465,65 @@
   const botaoConfirmar = document.getElementById("contrato-confirmar");
   let contratoAtualId = null;
 
+  function prepararOpcoesContrato() {
+    const container = document.querySelector("[data-contrato-conteudo]");
+    if (!container) return;
+    container.querySelectorAll("[data-contract-choice]").forEach((opcao) => {
+      const marca = opcao.querySelector("[data-contract-mark]");
+      if (!marca) return;
+      const selecionado = opcao.dataset.contractSelected === "true";
+      opcao.setAttribute("role", opcao.dataset.contractGroup === "finalidade" ? "checkbox" : "radio");
+      opcao.setAttribute("tabindex", "0");
+      opcao.setAttribute("aria-checked", String(selecionado));
+      marca.classList.add("contrato-circulo");
+      marca.textContent = selecionado ? "●" : "○";
+    });
+    container.querySelectorAll("[data-contract-other]").forEach((campo) => {
+      campo.setAttribute("contenteditable", "true");
+      campo.setAttribute("role", "textbox");
+      campo.setAttribute("aria-label", "Outros");
+    });
+    container.querySelectorAll("[data-contract-choice]").forEach((opcao) => {
+      const alternar = () => {
+        const grupo = opcao.dataset.contractGroup;
+        if (grupo !== "finalidade") {
+          container.querySelectorAll(`[data-contract-choice][data-contract-group="${grupo}"]`).forEach((item) => {
+            item.dataset.contractSelected = item === opcao ? "true" : "false";
+            item.setAttribute("aria-checked", String(item === opcao));
+            const marca = item.querySelector("[data-contract-mark]");
+            if (marca) marca.textContent = item === opcao ? "●" : "○";
+          });
+        } else {
+          const novo = opcao.dataset.contractSelected !== "true";
+          opcao.dataset.contractSelected = String(novo);
+          opcao.setAttribute("aria-checked", String(novo));
+          if (marca) marca.textContent = novo ? "●" : "○";
+        }
+        atualizarBotaoConfirmar();
+      };
+      opcao.addEventListener("click", (evento) => {
+        if (evento.target.closest("[data-contract-other]")) return;
+        alternar();
+      });
+      opcao.addEventListener("keydown", (evento) => {
+        if (evento.key === " " || evento.key === "Enter") {
+          evento.preventDefault();
+          alternar();
+        }
+      });
+    });
+  }
+
+  function contratoTemEscolhasObrigatorias() {
+    const container = document.querySelector("[data-contrato-conteudo]");
+    if (!container) return false;
+    return ["identificacao","prazo"].every((grupo) =>
+      !!container.querySelector(`[data-contract-choice][data-contract-group="${grupo}"][data-contract-selected="true"]`)
+    );
+  }
+
   function atualizarBotaoConfirmar() {
-    botaoConfirmar.disabled = !(checkboxConcordo.checked && !assinatura.estaVazia());
+    botaoConfirmar.disabled = !(checkboxConcordo.checked && !assinatura.estaVazia() && contratoTemEscolhasObrigatorias());
   }
   checkboxConcordo.addEventListener("change", atualizarBotaoConfirmar);
   canvasEl.addEventListener("mouseup", atualizarBotaoConfirmar);
@@ -498,6 +561,7 @@
     contratoAtualId = id;
     document.querySelector("[data-contrato-titulo]").textContent = contrato.title;
     document.querySelector("[data-contrato-conteudo]").innerHTML = sanitizeRichHtml(contrato.content_html);
+    prepararOpcoesContrato();
     checkboxConcordo.checked = false;
     assinatura.limpar();
     modalContrato.style.display = "flex";
@@ -512,6 +576,11 @@
     botaoConfirmar.disabled = true;
     botaoConfirmar.textContent = "Enviando...";
     try {
+      const conteudoContrato = document.querySelector("[data-contrato-conteudo]");
+      const snapshotContrato = sanitizeRichHtml(conteudoContrato?.innerHTML || "");
+      if (!contratoTemEscolhasObrigatorias()) {
+        throw new Error("Selecione uma opção em cada grupo obrigatório do termo.");
+      }
       const blob = await assinatura.paraBlob();
       const caminho = `${patientId}/assinaturas/${contratoAtualId}-${Date.now()}.png`;
       const { error: erroUpload } = await supabase.storage.from("documentos-pacientes").upload(caminho, blob, { contentType: "image/png" });
@@ -521,6 +590,7 @@
         p_contract_id: contratoAtualId,
         p_signature_path: caminho,
         p_user_agent: navigator.userAgent,
+        p_signed_content_html: snapshotContrato,
       });
       if (erroAssinar) throw erroAssinar;
 
