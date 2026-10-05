@@ -17,7 +17,8 @@
   @media (max-width:700px){.resumo-mini{grid-template-columns:1fr}}
   .resumo-mini__card{background:#fff;border-radius:12px;box-shadow:var(--sombra);padding:16px;display:flex;flex-direction:column;gap:6px}
   .resumo-mini__card svg{width:20px;height:20px;color:var(--gold)}
-  .pac-topbar{display:flex;justify-content:flex-end;margin-bottom:10px}
+  .pac-topbar{display:none}
+  @media (min-width:801px){.pac-topbar{display:flex;justify-content:flex-end;margin-bottom:10px}}
   .conteudo-contrato{border:1px solid var(--linha,#ddd7c9);border-radius:8px;padding:16px;max-height:38vh;overflow-y:auto;font-size:14px;line-height:1.6;background:#fff;text-align:left}
   .assinatura-canvas-wrap{border:1px dashed var(--linha,#ddd7c9);border-radius:8px;background:#fff;margin-top:14px}
   .assinatura-canvas-wrap canvas{width:100%;height:160px;display:block;touch-action:none;cursor:crosshair}
@@ -30,6 +31,7 @@
   [data-contract-other]:focus{background:#faf8f3}
 .pac-hero__subtitulo{margin:10px 0 0;color:#fff;font-size:17px;line-height:1.5;max-width:58ch}
 @media (max-width:700px){.pac-hero__overlay{padding:28px 24px 30px}.pac-hero__overlay h1{font-size:32px}.pac-hero__subtitulo{font-size:15px}}
+@media (max-width:520px){.pac-hero{min-height:205px}.pac-hero__overlay{padding:24px 18px 22px}.pac-hero__overlay h1{font-size:29px}.pac-hero__subtitulo{font-size:14px;line-height:1.45}.resumo-mini{gap:10px}.resumo-mini__card{padding:14px;min-height:92px}}
 </style>
 <link rel="icon" href="/assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
@@ -202,6 +204,37 @@
 </div>
 
 <script src="/assets/js/whatsapp.js" defer></script>
+<script>
+(function () {
+// Menu mobile e abas: script independente do módulo (Supabase/CDN),
+// para continuar funcionando se a autenticação demorar ou falhar.
+// Navegação entre abas
+document.querySelectorAll("[data-aba-link]").forEach((link) => {
+  link.addEventListener("click", (e) => {
+    e.preventDefault();
+    document.querySelectorAll("[data-aba-link]").forEach((l) => l.classList.remove("ativo"));
+    document.querySelectorAll(".aba-conteudo").forEach((c) => c.classList.remove("visivel"));
+    link.classList.add("ativo");
+    document.querySelector(`[data-conteudo="${link.dataset.abaLink}"]`).classList.add("visivel");
+  });
+});
+
+const sidebar=document.querySelector(".painel-sidebar"), menuBackdrop=document.querySelector("[data-pac-menu-backdrop]"), menuOpen=document.querySelector("[data-pac-menu-abrir]"), menuClose=document.querySelector("[data-pac-menu-fechar]");
+const setMenuOpen=(open)=>{sidebar?.classList.toggle("menu-aberto",open);menuBackdrop?.classList.toggle("visivel",open);document.body.classList.toggle("menu-paciente-aberto",open);menuOpen?.setAttribute("aria-expanded",String(open));};
+menuOpen?.addEventListener("click",()=>setMenuOpen(true)); menuClose?.addEventListener("click",()=>setMenuOpen(false)); menuBackdrop?.addEventListener("click",()=>setMenuOpen(false));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenuOpen(false);});
+document.querySelectorAll("[data-aba-link]").forEach(link=>link.addEventListener("click",()=>setMenuOpen(false)));
+document.querySelectorAll("[data-quick-aba]").forEach(btn=>btn.addEventListener("click",()=>{document.querySelector("[data-aba-link=\""+btn.dataset.quickAba+"\"]")?.click();window.scrollTo({top:0,behavior:"smooth"});}));
+
+// Se o painel não terminar de carregar, avisa em vez de ficar "Carregando…" para sempre.
+setTimeout(function () {
+  if (document.documentElement.dataset.painelPronto) return;
+  var box = document.querySelector("[data-avisos]");
+  if (box) box.innerHTML = '<p class="texto-suave" style="color:inherit">Não foi possível carregar seus dados. Verifique sua conexão e recarregue a página.</p>';
+}, 12000);
+})();
+</script>
+
 <script type="module">
   import { supabase, exigirPaciente, configurarBotaoSair, mostrarFlash } from "/painel/assets/js/painel-auth.js";
   import { initAntesDepoisSlider } from "/assets/js/antes-depois-slider.js";
@@ -210,6 +243,7 @@
 
   const contexto = await exigirPaciente();
   if (!contexto) throw new Error("sem acesso");
+  document.documentElement.dataset.painelPronto = "1";
   configurarBotaoSair();
   const flash = document.querySelector("[data-flash]");
 
@@ -217,24 +251,6 @@
   document.querySelector("[data-nome-paciente]").textContent = contexto.paciente.full_name;
   document.querySelector("[data-nome-paciente-mobile]").textContent = primeiroNome;
   document.querySelector("[data-saudacao-nome]").textContent = primeiroNome;
-
-  // Navegação entre abas
-  document.querySelectorAll("[data-aba-link]").forEach((link) => {
-    link.addEventListener("click", (e) => {
-      e.preventDefault();
-      document.querySelectorAll("[data-aba-link]").forEach((l) => l.classList.remove("ativo"));
-      document.querySelectorAll(".aba-conteudo").forEach((c) => c.classList.remove("visivel"));
-      link.classList.add("ativo");
-      document.querySelector(`[data-conteudo="${link.dataset.abaLink}"]`).classList.add("visivel");
-    });
-  });
-
-  const sidebar=document.querySelector(".painel-sidebar"), menuBackdrop=document.querySelector("[data-pac-menu-backdrop]"), menuOpen=document.querySelector("[data-pac-menu-abrir]"), menuClose=document.querySelector("[data-pac-menu-fechar]");
-  const setMenuOpen=(open)=>{sidebar?.classList.toggle("menu-aberto",open);menuBackdrop?.classList.toggle("visivel",open);document.body.classList.toggle("menu-paciente-aberto",open);menuOpen?.setAttribute("aria-expanded",String(open));};
-  menuOpen?.addEventListener("click",()=>setMenuOpen(true)); menuClose?.addEventListener("click",()=>setMenuOpen(false)); menuBackdrop?.addEventListener("click",()=>setMenuOpen(false));
-  document.addEventListener("keydown",e=>{if(e.key==="Escape")setMenuOpen(false);});
-  document.querySelectorAll("[data-aba-link]").forEach(link=>link.addEventListener("click",()=>setMenuOpen(false)));
-  document.querySelectorAll("[data-quick-aba]").forEach(btn=>btn.addEventListener("click",()=>{document.querySelector("[data-aba-link=\""+btn.dataset.quickAba+"\"]")?.click();window.scrollTo({top:0,behavior:"smooth"});}));
 
   const patientId = contexto.paciente.id;
 
