@@ -8,8 +8,18 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 63,
+  "total": 64,
   "items": [
+    {
+      "path": "blog/acne-hormonal-feminina.html",
+      "url": "https://www.especialistaempele.com.br/blog/acne-hormonal-feminina.html",
+      "id": "BLOG-000006",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/blog/acne-hormonal-feminina.html",
+      "redirect_to": null,
+      "sha256": "1f0b57c5ddcf43eba37bc745a8084897e3457632b8b740809b2838a01a702055"
+    },
     {
       "path": "blog/como-escolher-um-tratamento-para-melasma.html",
       "url": "https://www.especialistaempele.com.br/blog/como-escolher-um-tratamento-para-melasma.html",
@@ -18,7 +28,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/como-escolher-um-tratamento-para-melasma.html",
       "redirect_to": null,
-      "sha256": "1501275cffc58787fabe49a4dcbcdc1099b712c6b4c9ab7590cdd17142d5ecf7"
+      "sha256": "502a193dae9c28c86fdd610f5d41d5ec8183900e0af35de127e6a574dd2c821b"
     },
     {
       "path": "blog/o-que-e-regeneracao-cutanea.html",
@@ -28,7 +38,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/o-que-e-regeneracao-cutanea.html",
       "redirect_to": null,
-      "sha256": "5674a06041daa1d0c3ad2fdd3c77e04eea90d061b2abed997024444e29056f35"
+      "sha256": "81ad68a26a26c1a38dbbc684793a17dc9a4ca024143aaa5b82e0ad94e304c903"
     },
     {
       "path": "blog/por-que-a-acne-persiste.html",
@@ -38,7 +48,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/por-que-a-acne-persiste.html",
       "redirect_to": null,
-      "sha256": "b91f836125746c449bbd0c67d3f0eca4d638777e436220d21383b809563033cb"
+      "sha256": "dc0fefde1b32df2fd899a15384bba2e1c1f49467a840a7703ac11b662c4de750"
     },
     {
       "path": "blog/rejuvenescimento-facial-ou-harmonizacao.html",
@@ -48,7 +58,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/rejuvenescimento-facial-ou-harmonizacao.html",
       "redirect_to": null,
-      "sha256": "c5fda19b182c5c677f86bee383ddf1618ee97cb91f101f7b70b15eb38ebbebc3"
+      "sha256": "3e8926375ac395494236460e158d5932a402ced1a0bc02044af4ae1beb748b88"
     },
     {
       "path": "resultados/clareamento-de-axila-02.html",
@@ -641,5 +651,5 @@
       "sha256": "d39bfaa70c55413c91e6dc3299c44f3e024cde39c6c33a03edae79bac9ba9693"
     }
   ],
-  "generated_at": "2026-10-04T00:06:23.661Z"
+  "generated_at": "2026-10-07T13:47:53.297Z"
 }
