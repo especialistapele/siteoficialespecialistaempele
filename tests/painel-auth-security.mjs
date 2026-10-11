@@ -7,6 +7,7 @@ const loginHtml = readFileSync("painel/index.html", "utf8");
 const sidebar = readFileSync("painel/assets/js/admin-sidebar.js", "utf8");
 const patientPanel = readFileSync("painel/paciente/painel.html", "utf8");
 const sharedSanitize = readFileSync("assets/js/sanitize.js", "utf8");
+const richTextSanitize = readFileSync("assets/js/rich-text.js", "utf8");
 const publicSupabaseClient = readFileSync("assets/js/supabase-client.js", "utf8");
 const edgeFunctionSources = [
   readFileSync("supabase/functions/create-patient/index.ts", "utf8"),
@@ -69,6 +70,7 @@ assert.ok(edgeFunctionSources.every((source) => source.includes("jsr:@supabase/s
 assert.ok(edgeFunctionSources.every((source) => !source.includes("jsr:@supabase/supabase-js@2\"")), "Edge Functions não devem usar versão flutuante");
 assert.ok(sharedSanitize.includes("!raw.startsWith('//')"), "safeUrl deve rejeitar URLs protocol-relative");
 assert.ok(sharedSanitize.includes("url.origin === window.location.origin || url.protocol === 'https:'"), "safeUrl deve rejeitar HTTP externo");
+assert.ok(richTextSanitize.indexOf("limparNo(filho);") < richTextSanitize.indexOf("while (filho.firstChild)"), "sanitizador deve limpar descendentes antes de desanexá-los");
 
 for (const page of chartPages) {
   assert.ok(page.includes("https://cdn.jsdelivr.net/npm/chart.js@4.5.1"), "Chart.js deve usar uma versão exata");
