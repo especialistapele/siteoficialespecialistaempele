@@ -164,7 +164,7 @@ const SkinMapAPI = {
             const message =
                 (error.details && error.details.message) || error.message ||
                 "Erro na comunicação com o servidor.";
-            console.error("API Error:", error);
+            
             throw new Error(message);
         }
 
@@ -208,7 +208,7 @@ const SkinMapAPI = {
             const message =
                 (error.details && error.details.message) || error.message ||
                 "Erro na comunicação com o servidor.";
-            console.error("API Error:", error);
+            
             throw new Error(message);
         }
 
@@ -247,7 +247,7 @@ const SkinMapAPI = {
             const message =
                 (error.details && error.details.message) || error.message ||
                 "Erro na comunicação com o servidor.";
-            console.error("API Error:", error);
+            
             throw new Error(message);
         }
     },
@@ -280,7 +280,7 @@ const SkinMapAPI = {
             const message =
                 (error.details && error.details.message) || error.message ||
                 "Erro na comunicação com o servidor.";
-            console.error("API Error:", error);
+            
             throw new Error(message);
         }
     },

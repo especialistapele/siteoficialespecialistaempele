@@ -33,10 +33,7 @@ const SkinMapResult = {
             return;
         }
 
-        console.log(
-            "Assessment carregado:",
-            assessment
-        );
+        
 
         this.renderProfile(assessment);
         this.renderCharacteristics(assessment);
@@ -83,10 +80,7 @@ const SkinMapResult = {
         }
         catch (error) {
 
-            console.error(
-                "Erro ao recuperar assessment:",
-                error
-            );
+            
 
             return null;
         }

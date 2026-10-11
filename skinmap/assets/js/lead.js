@@ -158,10 +158,7 @@ const SkinMapLead = {
         } catch(error) {
 
 
-            console.error(
-                "Erro ao cadastrar lead:",
-                error
-            );
+            
 
 
             this.showError();

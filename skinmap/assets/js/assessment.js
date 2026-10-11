@@ -66,11 +66,7 @@ const SkinMapAssessment = {
         if(!this.assessment){
 
 
-            console.warn(
-
-                "Nenhum assessment encontrado."
-
-            );
+            
 
 
             return;

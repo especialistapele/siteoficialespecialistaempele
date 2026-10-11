@@ -85,13 +85,7 @@ const SkinMapStorage = {
         } catch(error) {
 
 
-            console.error(
-
-                "Erro ao salvar dados:",
-
-                error
-
-            );
+            
 
 
             return false;
@@ -141,13 +135,7 @@ const SkinMapStorage = {
         } catch(error) {
 
 
-            console.error(
-
-                "Erro ao recuperar dados:",
-
-                error
-
-            );
+            
 
 
             return null;
@@ -185,13 +173,7 @@ const SkinMapStorage = {
         } catch(error) {
 
 
-            console.error(
-
-                "Erro ao remover dado:",
-
-                error
-
-            );
+            
 
 
             return false;
