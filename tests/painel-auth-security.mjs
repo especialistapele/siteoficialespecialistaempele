@@ -85,6 +85,7 @@ assert.ok(richTextSanitize.indexOf("limparNo(filho);") < richTextSanitize.indexO
 assert.ok(adminPolicyMigration.includes("ALTER POLICY %I ON %I.%I TO authenticated"), "políticas administrativas devem ser limitadas a authenticated");
 assert.ok(adminPolicyMigration.includes("admin_full_access_testimonials"), "migração deve corrigir a política administrativa de depoimentos");
 assert.ok(adminPolicyMigration.includes("documentos_admin_gerencia"), "migração deve limitar política administrativa do bucket privado");
+assert.ok(adminPolicyMigration.includes("documentos_paciente_le_anamnese"), "migração deve limitar leitura/admin do bucket privado a authenticated");
 assert.ok(adminPolicyMigration.includes("site_media_admin_gerencia"), "migração deve limitar política administrativa do bucket público");
 assert.ok(adminPolicyMigration.includes("schemaname IN ("), "migração deve abranger os schemas public e storage");
 assert.ok(adminPolicyMigration.includes("admin_gerencia_pre_atendimentos"), "migração deve corrigir a política administrativa de pré-atendimentos");
