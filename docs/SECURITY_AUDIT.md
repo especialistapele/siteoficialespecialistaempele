@@ -212,6 +212,20 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Correção:** o conversor de PDF agora passa o conteúdo por `sanitizeRichHtml()` antes de inserir no DOM temporário.
 - **Risco residual:** validar a geração de PDF e os modelos interativos em homologação. A revisão não demonstrou acesso cruzado a snapshots de outros pacientes.
 
+### SEC-032 — Criação de conversa do bot dependia de SELECT público inexistente
+- **Gravidade:** média para disponibilidade/registro de atendimento.
+- **Status:** correção proposta na branch; CI pendente; sem teste de INSERT em produção.
+- **Evidência:** `assets/js/bot-triagem.js` criava conversa com `INSERT ... SELECT id`, mas `bot_conversations` não tem política SELECT para `anon`; uma consulta read-only como `anon` retornou zero linhas visíveis. A policy de INSERT em `bot_messages` também verificava a sessão com subconsulta sujeita às políticas de leitura da tabela de conversas.
+- **Correção proposta:** `supabase/migrations/20261011200000_harden_public_bot_logging.sql` cria RPC `create_bot_conversation` para inserir/retornar apenas o ID, revoga INSERT direto e valida o par conversa/sessão por uma função `SECURITY DEFINER` de retorno booleano. O frontend foi alterado para chamar a RPC.
+- **Risco residual:** nenhuma inserção real foi testada; validar o fluxo do bot em homologação com visitante anônimo e usuário autenticado. A migração não foi aplicada.
+
+### SEC-033 — Registros públicos do bot sem rate limit server-side observado
+- **Gravidade:** média-baixa (abuso e crescimento de banco).
+- **Status:** pendente de desenho; a migration do bot melhora a validação de sessão, mas não adiciona rate limit por IP.
+- **Evidência:** o bot usa chave anon pública e permite registrar conversas/mensagens pelo frontend; a interface limita o texto, mas isso pode ser contornado por chamadas diretas à API. Não foi identificado rate limit por IP/sessão no código ou nas políticas consultadas.
+- **Mitigação recomendada:** após validar a RPC, avaliar um Edge Function proxy com rate limit server-side, limites de tamanho/volume e, se necessário, CAPTCHA. Não remover o fluxo atual até validar a alternativa e medir impacto no atendimento.
+- **Risco residual:** um atacante ainda pode gerar sessões novas para contornar um limite baseado somente em `session_id`.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
@@ -229,7 +243,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 
 - **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline, ausência de chave privilegiada no frontend e escaping dos sinks identificados.
 - **Executado com sucesso no GitHub Actions no commit `490a4a6eecb414e4a0c0871b301d133610aeb448`:** [Security audit checks](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38149441602), [Validação de sintaxe dos HTML](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38149441606) e [Bot triagem — validação](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38149441597). A checagem estática inclui o sanitizador, sinks de páginas públicas, proteção contra path traversal na publicação, PDF de contratos e migrations propostas. Os testes estáticos/dinâmicos de diretório temporário não substituem testes reais de autorização em homologação.
-- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, validação em homologação das migrations de políticas/assinaturas/conceitos, geração completa de páginas estáticas em ambiente de teste, teste funcional dos modelos de contrato/assinatura/PDF e da Edge Function reconciliada, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
+- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, validação em homologação das migrations de políticas/assinaturas/conceitos/bot, geração completa de páginas estáticas em ambiente de teste, teste funcional dos modelos de contrato/assinatura/PDF, do bot e da Edge Function reconciliada, desenho de rate limit, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
 - **Propostas SQL de revisão:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql` e `supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql`; nenhum dos arquivos foi aplicado. A migration de RLS requer teste específico em ambiente de homologação antes de qualquer implantação.
 
 ## Matriz de riscos pendentes
@@ -263,7 +277,9 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-028 | Alta para integridade da publicação | Slugs de conteúdo podiam escapar da pasta de publicação | Corrigido na branch; teste dinâmico em pasta temporária passou; revisar geração completa |
 | SEC-029 | Média | RPCs de assinatura aceitavam caminho de arquivo sem vincular ao paciente | CHECK constraints propostas; testar duas contas fictícias em homologação |
 | SEC-030 | Média | RPC de anamnese confiava no `clinical_concept_id` enviado pelo cliente | Trigger proposto; testar submissão/edição/rascunho em homologação |
-| SEC-031 | Baixa/média | PDF analisava snapshot assinado via `innerHTML` sem sanitização | Corrigido na branch; aguardar CI e testar PDF em homologação |
+| SEC-031 | Baixa/média | PDF analisava snapshot assinado via `innerHTML` sem sanitização | Corrigido na branch; CI passou em commit anterior; testar PDF em homologação |
+| SEC-032 | Média | Criação de conversa do bot dependia de SELECT público inexistente | RPC proposta e frontend atualizado; aguardar CI e testar com visitante anônimo |
+| SEC-033 | Média-baixa | Registros públicos do bot sem rate limit server-side | Pendente; avaliar Edge Function proxy e limites de volume |
 
 ## Limitações e próximos passos
 
