@@ -189,11 +189,34 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Correção:** o helper normaliza slugs com `slugifyUrl()`, rejeita slugs vazios e colisões após normalização; geradores de artigos/resultados usam slugs normalizados em arquivos, canonical e links. Foi adicionado teste que tenta publicar `../outside` em pasta temporária e confirma que nenhum arquivo é escrito fora da pasta de saída.
 - **Risco residual:** a escrita de arquivos fora do repositório não foi testada em produção; o teste de regressão usa somente diretório temporário. Executar geração completa com fixture e revisar arquivos resultantes antes de reativar/publicar alterações.
 
+### SEC-029 — RPCs de assinatura aceitavam caminho de arquivo sem vincular ao paciente
+- **Gravidade:** média (integridade de evidência/assinatura).
+- **Status:** constraints propostas na branch; não aplicadas.
+- **Evidência:** as RPCs `assinar_contrato` e `submit_anamnesis` validam que o contrato/ficha pertence ao usuário, mas aceitam `p_signature_path` enviado pelo navegador sem confirmar que o caminho pertence à pasta daquele paciente. A policy de Storage restringe uploads à pasta própria, porém não impede uma RPC de gravar como referência o caminho de um objeto de outro paciente.
+- **Verificação agregada:** 7 contratos assinados e 2 assinaturas de anamnese; todas as nove referências existentes obedecem ao formato `<patient_id>/assinaturas/<nome>.png`, sem prefixos de outro paciente.
+- **Correção proposta:** `supabase/migrations/20261011170000_constrain_patient_signature_paths.sql` adiciona CHECK constraints que vinculam o prefixo do caminho ao `patient_id`. Não foi aplicada.
+- **Risco residual:** validar a migration em homologação e testar assinaturas de contrato/anamnese com duas contas fictícias antes de produção.
+
+### SEC-030 — RPC de anamnese confiava no clinical_concept_id enviado pelo cliente
+- **Gravidade:** média (integridade do prontuário clínico).
+- **Status:** trigger de proteção proposto na branch; não aplicado.
+- **Evidência:** `submit_anamnesis` confere se a pergunta pertence ao tipo de anamnese, mas grava `clinical_concept_id` a partir do JSON enviado pelo navegador. O conceito correto já está cadastrado em `question_definitions`; a função usa o valor recebido para alimentar `patient_clinical_data`.
+- **Verificação agregada:** 294 respostas existentes, zero divergências entre `anamnesis_responses.clinical_concept_id` e o conceito cadastrado na pergunta.
+- **Correção proposta:** `supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql` instala um trigger `BEFORE INSERT` que deriva o conceito de `question_definitions`, usando `SECURITY DEFINER` com `search_path` fixo. Não foi aplicada.
+- **Risco residual:** validar o trigger em homologação com envio normal, edição autorizada e rascunho administrativo antes de produção.
+
+### SEC-031 — PDF de contrato analisava snapshot assinado via innerHTML sem sanitização
+- **Gravidade:** baixa a média (XSS de defesa em profundidade; snapshot enviado pelo cliente).
+- **Status:** corrigido na branch; teste estático adicionado; CI pendente.
+- **Evidência:** `painel/assets/js/contrato-pdf.js` atribuía o conteúdo de `signed_content_html` diretamente a `div.innerHTML` para extrair texto. O snapshot é enviado pelo cliente à RPC de assinatura, então não deve ser considerado confiável apenas porque o fluxo normal o sanitiza no navegador.
+- **Correção:** o conversor de PDF agora passa o conteúdo por `sanitizeRichHtml()` antes de inserir no DOM temporário.
+- **Risco residual:** validar a geração de PDF e os modelos interativos em homologação. A revisão não demonstrou acesso cruzado a snapshots de outros pacientes.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
 - Inventário de páginas privadas: 17 páginas administrativas e 2 páginas de paciente (19 no total) foram examinadas; todas chamam o guard correspondente antes da primeira consulta direta observada, e não foi identificado caminho de consulta sensível antes do guard nessa varredura estática.
-- Arquivos revisados em detalhe: `painel/assets/js/painel-auth.js`, `painel/index.html`, `painel/assets/js/sanitize.js`, `painel/assets/js/admin-sidebar.js`, `painel/assets/js/notifications.js`, `painel/admin/contratos.html`, `assets/js/sanitize.js`, `assets/js/supabase-client.js`, `assets/js/rich-text.js`, `scripts/lib/conteudo.mjs`, `scripts/gerar-paginas-tratamentos.mjs`, `scripts/gerar-paginas-artigos.mjs`, `scripts/gerar-paginas-resultados.mjs`, `blog/artigos/artigo-data.js`, `tratamentos/tratamento-data.js`, `painel/admin/dashboard.html`, `painel/admin/pacientes.html`, `painel/admin/documentos.html`, `painel/admin/agenda.html`, `painel/admin/financeiro.html`, `painel/admin/paciente.html`, `painel/paciente/painel.html`, `painel/paciente/anamnese.html`, `pre-atendimento/index.html`, `robots.txt`.
+- Arquivos revisados em detalhe: `painel/assets/js/painel-auth.js`, `painel/index.html`, `painel/assets/js/sanitize.js`, `painel/assets/js/admin-sidebar.js`, `painel/assets/js/notifications.js`, `painel/admin/contratos.html`, `painel/assets/js/contrato-pdf.js`, `assets/js/sanitize.js`, `assets/js/supabase-client.js`, `assets/js/rich-text.js`, `scripts/lib/conteudo.mjs`, `scripts/gerar-paginas-tratamentos.mjs`, `scripts/gerar-paginas-artigos.mjs`, `scripts/gerar-paginas-resultados.mjs`, `blog/artigos/artigo-data.js`, `tratamentos/tratamento-data.js`, `painel/admin/dashboard.html`, `painel/admin/pacientes.html`, `painel/admin/documentos.html`, `painel/admin/agenda.html`, `painel/admin/financeiro.html`, `painel/admin/paciente.html`, `painel/paciente/painel.html`, `painel/paciente/anamnese.html`, `pre-atendimento/index.html`, `robots.txt`.
 - `sanitize.js` oferece `escapeHtml()` e `safeUrl()`; foi corrigido o caminho de unwrap em `rich-text.js`, mas ainda falta rastrear o uso de ambos em todos os renderizadores.
 - Supabase: listagem de tabelas, status RLS, 87 políticas em `public`, grants efetivos para `anon`/`authenticated`, privilégios padrão, Security Advisor, histórico de migrations e comparação entre código implantado e versionado de três Edge Functions; consulta read-only executada como `anon` reproduziu erro de permissão em `testimonials`.
 - Todas as tabelas dos schemas `public` e `storage` retornaram RLS habilitado: 38/38 e 8/8, respectivamente. Não há views no schema `public` na consulta feita. Todas as funções `SECURITY DEFINER` consultadas têm `search_path` configurado; `anon` e `authenticated` não têm privilégio `CREATE` no schema `public`. Isso não prova que cada política seja correta nem substitui testes com roles reais.
@@ -206,7 +229,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 
 - **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline, ausência de chave privilegiada no frontend e escaping dos sinks identificados.
 - **Executado com sucesso no GitHub Actions:** workflow `Security audit checks` run #62 (checagem de sintaxe dos módulos e testes estáticos, incluindo SDKs e URLs); `Validação de sintaxe dos HTML` run #82; `Bot triagem — validação` run #260. A validação do bot também passou usando `actions/checkout@v7.0.1` e `actions/setup-node@v7.1.0`. Os testes estáticos verificam padrões de segurança, não substituem testes dinâmicos de autorização.
-- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, teste da migration em homologação, geração completa de páginas estáticas em ambiente de teste, teste funcional dos modelos de contrato/assinatura/PDF e da Edge Function reconciliada, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
+- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, validação em homologação das migrations de políticas/assinaturas/conceitos, geração completa de páginas estáticas em ambiente de teste, teste funcional dos modelos de contrato/assinatura/PDF e da Edge Function reconciliada, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
 - **Propostas SQL de revisão:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql` e `supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql`; nenhum dos arquivos foi aplicado. A migration de RLS requer teste específico em ambiente de homologação antes de qualquer implantação.
 
 ## Matriz de riscos pendentes
@@ -237,7 +260,10 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-025 | Média | Modelo de contrato inserido no editor sem sanitização prévia | Corrigido na branch; testar opções, assinatura e PDF em homologação |
 | SEC-026 | Média | Gerador de páginas estáticas de tratamentos não sanitizava HTML rico | Corrigido na branch; aguardar CI e testar geração completa antes do deploy automático |
 | SEC-027 | Baixa | Actions fixadas por tag, não por SHA imutável | Corrigido na branch; aguardar CI e continuar revisão de cadeia de suprimentos |
-| SEC-028 | Alta para integridade da publicação | Slugs de conteúdo podiam escapar da pasta de publicação | Corrigido na branch; aguardar teste dinâmico de slug e revisar geração completa |
+| SEC-028 | Alta para integridade da publicação | Slugs de conteúdo podiam escapar da pasta de publicação | Corrigido na branch; teste dinâmico em pasta temporária passou; revisar geração completa |
+| SEC-029 | Média | RPCs de assinatura aceitavam caminho de arquivo sem vincular ao paciente | CHECK constraints propostas; testar duas contas fictícias em homologação |
+| SEC-030 | Média | RPC de anamnese confiava no `clinical_concept_id` enviado pelo cliente | Trigger proposto; testar submissão/edição/rascunho em homologação |
+| SEC-031 | Baixa/média | PDF analisava snapshot assinado via `innerHTML` sem sanitização | Corrigido na branch; aguardar CI e testar PDF em homologação |
 
 ## Limitações e próximos passos
 
