@@ -6,6 +6,8 @@ const auth = readFileSync("painel/assets/js/painel-auth.js", "utf8");
 const loginHtml = readFileSync("painel/index.html", "utf8");
 const sidebar = readFileSync("painel/assets/js/admin-sidebar.js", "utf8");
 const patientPanel = readFileSync("painel/paciente/painel.html", "utf8");
+const sharedSanitize = readFileSync("assets/js/sanitize.js", "utf8");
+const publicSupabaseClient = readFileSync("assets/js/supabase-client.js", "utf8");
 const chartPages = [
   readFileSync("painel/admin/dashboard.html", "utf8"),
   readFileSync("painel/admin/paciente.html", "utf8"),
@@ -55,6 +57,11 @@ assert.ok(sidebar.includes('import { escapeHtml } from "/painel/assets/js/saniti
 assert.ok(sidebar.includes('${escapeHtml(nome)}'), "nome de perfil não deve entrar cru em innerHTML");
 assert.ok(patientPanel.includes('data-baixar="${escapeHtml(d.file_url)}"'), "caminho do arquivo deve ser escapado no atributo HTML");
 assert.ok(patientPanel.includes('u.origin === window.location.origin || u.protocol === "https:"'), "URLs externas HTTP não devem ser aceitas como links de prontuário");
+assert.ok(publicSupabaseClient.includes("@supabase/supabase-js@2.117.2/+esm"), "SDK Supabase deve usar uma versão exata");
+assert.ok(!publicSupabaseClient.includes("@supabase/supabase-js@2/+esm"), "SDK Supabase não deve usar versão flutuante");
+assert.ok(sharedSanitize.includes("!raw.startsWith('//')"), "safeUrl deve rejeitar URLs protocol-relative");
+assert.ok(sharedSanitize.includes("url.origin === window.location.origin || url.protocol === 'https:'"), "safeUrl deve rejeitar HTTP externo");
+
 for (const page of chartPages) {
   assert.ok(page.includes("https://cdn.jsdelivr.net/npm/chart.js@4.5.1"), "Chart.js deve usar uma versão exata");
   assert.doesNotMatch(page, /chart\.js@4"/, "não deve permanecer uma referência flutuante do Chart.js");
