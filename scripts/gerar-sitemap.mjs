@@ -142,9 +142,11 @@ function urlXml({ loc, lastmod, changefreq, priority, imagens = [] }) {
 }
 
 async function main() {
-  const hoje = new Date().toISOString().slice(0, 10);
+  // Não publicar <lastmod> nas páginas fixas sem uma data real de alteração.
+  // Usar a data da execução do workflow faria o sitemap declarar diariamente
+  // que todas essas páginas mudaram, mesmo quando seu conteúdo não mudou.
   const entradas = PAGINAS_FIXAS.map((p) =>
-    urlXml({ loc: SITE + p.loc, lastmod: hoje, changefreq: p.changefreq, priority: p.priority })
+    urlXml({ loc: SITE + p.loc, changefreq: p.changefreq, priority: p.priority })
   );
 
   // Se QUALQUER leitura falhar, aborta: gerar um sitemap incompleto tiraria
