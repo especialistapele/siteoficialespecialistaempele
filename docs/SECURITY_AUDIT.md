@@ -182,6 +182,13 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Correção:** referências foram fixadas nos SHAs verificados das releases `checkout v7.0.1` e `setup-node v7.1.0`, mantendo comentários de versão para manutenção.
 - **Risco residual:** continuar revisando actions e dependências externas; pinning não substitui atualização periódica e revisão de permissões.
 
+### SEC-028 — Slugs de conteúdo podiam escapar da pasta de publicação
+- **Gravidade:** alta para integridade da publicação automática.
+- **Status:** corrigido na branch; teste dinâmico local ao CI adicionado; CI pendente.
+- **Evidência:** `sincronizarPastas()` concatenava `item.slug` diretamente no caminho `${principal}/${item.slug}.html` e no destino de redirecionamentos. Os geradores de artigos/resultados também usavam slugs brutos em URLs; um slug com segmentos `../` podia tentar criar um arquivo HTML fora da pasta de conteúdo. O token do workflow de publicação tem `contents: write`.
+- **Correção:** o helper normaliza slugs com `slugifyUrl()`, rejeita slugs vazios e colisões após normalização; geradores de artigos/resultados usam slugs normalizados em arquivos, canonical e links. Foi adicionado teste que tenta publicar `../outside` em pasta temporária e confirma que nenhum arquivo é escrito fora da pasta de saída.
+- **Risco residual:** a escrita de arquivos fora do repositório não foi testada em produção; o teste de regressão usa somente diretório temporário. Executar geração completa com fixture e revisar arquivos resultantes antes de reativar/publicar alterações.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
@@ -230,6 +237,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-025 | Média | Modelo de contrato inserido no editor sem sanitização prévia | Corrigido na branch; testar opções, assinatura e PDF em homologação |
 | SEC-026 | Média | Gerador de páginas estáticas de tratamentos não sanitizava HTML rico | Corrigido na branch; aguardar CI e testar geração completa antes do deploy automático |
 | SEC-027 | Baixa | Actions fixadas por tag, não por SHA imutável | Corrigido na branch; aguardar CI e continuar revisão de cadeia de suprimentos |
+| SEC-028 | Alta para integridade da publicação | Slugs de conteúdo podiam escapar da pasta de publicação | Corrigido na branch; aguardar teste dinâmico de slug e revisar geração completa |
 
 ## Limitações e próximos passos
 
