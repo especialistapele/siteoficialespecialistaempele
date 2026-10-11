@@ -6,6 +6,7 @@ on:
     paths:
       - "painel/assets/js/contrato-pdf.js"
       - "supabase/migrations/20261011170000_constrain_patient_signature_paths.sql"
+      - "supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql"
       - "scripts/gerar-paginas-artigos.mjs"
       - "scripts/gerar-paginas-resultados.mjs"
       - "scripts/lib/conteudo.mjs"
@@ -25,21 +26,22 @@ on:
       - "painel/admin/dashboard.html"
       - "painel/admin/paciente.html"
       - "painel/admin/configuracoes.html"
+      - "painel/admin/contratos.html"
       - "tests/painel-auth-security.mjs"
       - "docs/SECURITY_AUDIT.md"
-      - ".github/workflows/security-audit.yml"      - "supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql"
-
+      - ".github/workflows/security-audit.yml"
   push:
     branches: ["security/audit-hardening"]
     paths:
+      - "docs/SECURITY_AUDIT.md"
       - "painel/assets/js/contrato-pdf.js"
       - "supabase/migrations/20261011170000_constrain_patient_signature_paths.sql"
+      - "supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql"
       - "scripts/gerar-paginas-artigos.mjs"
       - "scripts/gerar-paginas-resultados.mjs"
       - "scripts/lib/conteudo.mjs"
       - "scripts/gerar-paginas-tratamentos.mjs"
       - "tests/publication-content-security.mjs"
-      - "docs/SECURITY_AUDIT.md"
       - "painel/assets/js/painel-auth.js"
       - "supabase/functions/create-patient/index.ts"
       - "supabase/functions/disparar-publicacao/index.ts"
@@ -51,6 +53,7 @@ on:
       - "assets/js/sanitize.js"
       - "assets/js/supabase-client.js"
       - "painel/index.html"
+      - "painel/admin/contratos.html"
       - "tests/painel-auth-security.mjs"
       - ".github/workflows/security-audit.yml"
 
@@ -82,4 +85,3 @@ jobs:
         run: node tests/painel-auth-security.mjs
       - name: Static publication content security checks
         run: node tests/publication-content-security.mjs
-      - "supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql"
