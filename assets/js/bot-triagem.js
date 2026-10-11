@@ -316,13 +316,13 @@
     const normalizedText = normalize(text);
     const details = {};
 
-    const duration = normalizedText.match(/\\b(?:ha|faz)\\s+(?:cerca de\\s+|aproximadamente\\s+|mais de\\s+)?\\d+\\s+(?:dias?|semanas?|meses?|anos?)\\b/);
+    const duration = normalizedText.match(/\b(?:ha|faz)\s+(?:cerca de\s+|aproximadamente\s+|mais de\s+)?\d+\s+(?:dias?|semanas?|meses?|anos?)\b/);
     if (duration) details.duration = duration[0];
 
-    const need = normalizedText.match(/\\b(?:me incomoda|me preocupa|o que mais me incomoda e|principalmente me incomoda)\\s+([^.!?]+)/);
+    const need = normalizedText.match(/\b(?:me incomoda|me preocupa|o que mais me incomoda e|principalmente me incomoda)\s+([^.!?]+)/);
     if (need) details.need = need[1].trim();
 
-    const goal = normalizedText.match(/\\b(?:meu objetivo e|quero|gostaria de|pretendo)\\s+([^.!?]+)/);
+    const goal = normalizedText.match(/\b(?:meu objetivo e|quero|gostaria de|pretendo)\s+([^.!?]+)/);
     if (goal) details.goal = goal[1].trim();
 
     return details;
@@ -736,7 +736,7 @@
   function formatGoalAnswer(text) {
     const value = String(text || "").trim();
     if (/^sem\s+/i.test(value)) return "ficar " + value;
-    if (/^(quero|gostaria de|pretendo)\\s+/i.test(value)) return value;
+    if (/^(quero|gostaria de|pretendo)\s+/i.test(value)) return value;
     return value;
   }
 
