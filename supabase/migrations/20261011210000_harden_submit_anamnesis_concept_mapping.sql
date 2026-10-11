@@ -174,30 +174,7 @@ begin
   where rp.anamnesis_version_id=v_target_version_id and rp.clinical_concept_id is not null;
 
   if p_signature_path is null
-     or p_signature_path !~ ('^' || v_patient_id::text || '/assinaturas/[A-Za-z0-9_-]+[.]png
-
-  insert into anamnesis_signatures(anamnesis_version_id,patient_id,signature_image_path,signed_at,signed_user_agent)
-  values(v_target_version_id,v_patient_id,p_signature_path,now(),p_user_agent);
-
-  update anamnesis_versions
-  set status='locked',submitted_at=now(),locked_at=now()
-  where id=v_target_version_id;
-
-  if v_edit_id is not null then
-    update anamnesis_edit_permissions
-    set status='used',used_at=now()
-    where id=v_edit_id;
-  end if;
-
-  return jsonb_build_object(
-    'success',true,
-    'version_id',v_target_version_id,
-    'previous_version_id',case when v_target_version_id<>p_version_id then p_version_id else null end,
-    'status','locked'
-  );
-end;
-$function$
-)
+     or p_signature_path !~ ('^' || v_patient_id::text || '/assinaturas/[A-Za-z0-9_-]+[.]png$')
      then raise exception 'Caminho de assinatura inválido'; end if;
 
   insert into anamnesis_signatures(anamnesis_version_id,patient_id,signature_image_path,signed_at,signed_user_agent)
