@@ -105,6 +105,14 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Correção recomendada:** migrar a inserção para uma Edge Function com validação server-side, limites de comprimento/tipo, proteção antiabuso e rate limit; avaliar honeypot/CAPTCHA conforme o risco. Revisar aviso de privacidade e base legal para dados de saúde com assessoria adequada. Não foi alterada a política pública nem publicada função nova.
 - **Risco residual:** o cliente pode ser contornado; validação HTML sozinha não resolve o abuso.
 
+### SEC-017 — Objetos sem referência em bucket público de mídia
+- **Gravidade:** média potencial, sem exposição indevida confirmada.
+- **Status:** inventário agregado concluído; revisão do conteúdo e destino pendente. Nenhum objeto foi aberto, movido ou excluído.
+- **Evidência:** o bucket `site-media` é público. A contagem agregada encontrou 91 objetos sob `resultados/`, dos quais 87 são referenciados pelos campos legados de resultados ou por `result_images`; 4 não têm referência encontrada. Sob `tratamentos/`, 19 de 26 objetos são referenciados e 7 não têm referência encontrada. Os registros de resultados que referenciam os 87 objetos verificados estavam publicados e com consentimento confirmado.
+- **Impacto plausível:** objetos órfãos continuam acessíveis publicamente enquanto estiverem no bucket público, mesmo sem referência atual no banco. Os metadados não revelam se os 11 objetos sem referência são material público antigo ou imagens de pacientes.
+- **Correção recomendada:** revisar visualmente e documentalmente os objetos órfãos; confirmar consentimento e finalidade. Remover somente após confirmação de que não são necessários, ou mover imagens não públicas para o bucket privado com política de acesso adequada.
+- **Risco residual:** URLs antigas podem continuar circulando; não foi possível confirmar conteúdo/consentimento dos objetos órfãos sem inspecioná-los.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
@@ -112,7 +120,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - `sanitize.js` oferece `escapeHtml()` e `safeUrl()`; ainda falta rastrear o uso de ambos em todos os renderizadores.
 - Supabase: listagem de tabelas, status RLS, políticas relevantes, buckets, grants efetivos para roles cliente e Security Advisor; inspeção parcial de três Edge Functions e dos corpos de funções SQL selecionadas.
 - Todas as tabelas listadas nos schemas `public` e `storage` retornaram RLS habilitado na consulta de metadados. Isso não é uma prova de que cada política seja correta, nem testa privilégios reais por role.
-- Bucket `documentos-pacientes`: privado. Bucket `site-media`: público, comportamento compatível com mídia pública se intencional.
+- Bucket `documentos-pacientes`: privado. Bucket `site-media`: público; 11 objetos sem referência atual foram identificados (4 em `resultados/`, 7 em `tratamentos/`) e exigem revisão antes de qualquer exclusão/movimentação.
 - O SDK Supabase é importado de CDN com versão especificada `@2.117.2`. Chart.js foi fixado em `4.5.1` nas três páginas administrativas encontradas. A integridade/SRI e o inventário de todas as dependências externas ainda precisam ser avaliados.
 - `robots.txt` bloqueia rastreamento de `/painel/`; isso não é controle de acesso.
 - A chave `anon` presente no frontend é pública por desenho e não foi classificada como segredo privilegiado. Não foi encontrado uso de `service_role` no arquivo de autenticação revisado.
@@ -141,6 +149,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-014 | Média | Dependências e Actions | Chart.js e o workflow novo foram fixados; auditar todos os workflows e dependências restantes |
 | SEC-015 | Baixa | Versão flutuante do Chart.js | Corrigida e verificada pelo CI; rastrear outras dependências |
 | SEC-016 | Média | Formulário público sem antiabuso/validação server-side | Projetar Edge Function com limites e rate limit; validar base legal para dados sensíveis |
+| SEC-017 | Média potencial | Objetos órfãos em bucket público | Revisar conteúdo/consentimento de 11 objetos antes de decidir remoção ou migração |
 
 ## Limitações e próximos passos
 
