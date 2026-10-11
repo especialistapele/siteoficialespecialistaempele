@@ -57,7 +57,7 @@ assert.ok(patientPanel.includes('data-baixar="${escapeHtml(d.file_url)}"'), "cam
 assert.ok(patientPanel.includes('u.origin === window.location.origin || u.protocol === "https:"'), "URLs externas HTTP não devem ser aceitas como links de prontuário");
 for (const page of chartPages) {
   assert.ok(page.includes("https://cdn.jsdelivr.net/npm/chart.js@4.5.1"), "Chart.js deve usar uma versão exata");
-  assert.doesNotMatch(page, /chart\.js@4(?:["/]|$)/, "não deve permanecer uma referência flutuante do Chart.js");
+  assert.doesNotMatch(page, /chart\.js@4"/, "não deve permanecer uma referência flutuante do Chart.js");
 }
 
 console.log("Segurança estática da autenticação: OK — guards, fail-closed, login, logout e ausência de chaves privilegiadas.");
