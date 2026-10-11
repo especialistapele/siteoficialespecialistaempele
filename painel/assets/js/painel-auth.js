@@ -34,7 +34,7 @@ export async function resolverDestino(userId) {
       .eq("id", userId)
       .maybeSingle();
 
-    if (erroPerfil) return null;
+    if (erroPerfil) return { erro: "temporario" };
 
     if (perfil?.role === "admin") {
       return { tipo: "admin", nome: perfil.full_name, destino: "/painel/admin/dashboard.html" };
@@ -46,11 +46,12 @@ export async function resolverDestino(userId) {
       .eq("user_id", userId)
       .maybeSingle();
 
-    if (erroPaciente || !paciente || paciente.acesso_painel === false) return null;
+    if (erroPaciente) return { erro: "temporario" };
+    if (!paciente || paciente.acesso_painel === false) return null;
 
     return { tipo: "paciente", nome: paciente.full_name, destino: "/painel/paciente/painel.html" };
   } catch {
-    return null;
+    return { erro: "temporario" };
   }
 }
 
