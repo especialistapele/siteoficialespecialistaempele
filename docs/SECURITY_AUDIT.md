@@ -144,11 +144,19 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Impacto plausível:** conteúdo persistido no editor de contratos/artigos/tratamentos poderia manter nós ou atributos ativos se uma sequência de tags aninhadas explorasse o caminho de unwrap.
 - **Risco residual:** a regressão é verificada estaticamente, não por teste dinâmico de navegador; realizar testes com payloads de HTML inofensivos em ambiente de homologação antes de encerrar a auditoria.
 
+### SEC-023 — URLs de imagem e texto dinâmico sem validação/escape nas páginas públicas
+- **Gravidade:** baixa a média; sinks HTML confirmados, sem exploração demonstrada.
+- **Status:** corrigido na branch; testes estáticos de regressão adicionados; execução do CI pendente.
+- **Evidência:** `blog/artigos/artigo-data.js` e `tratamentos/tratamento-data.js` interpolavam `cover_image_url` diretamente em atributo `src`; a página dinâmica de artigo também inseria `treatments.name` sem escape. As URLs de CTA já passavam por `safeUrl`, mas eram interpoladas sem escape explícito do atributo.
+- **Correção:** validar a URL de imagem com `safeUrl()`, escapar a URL validada e o CTA no contexto do atributo HTML, e escapar o nome do tratamento no artigo. A URL usada nas metatags de imagem também passa por `safeUrl()` com fallback estático.
+- **Impacto plausível:** um valor malformado ou controlado no banco poderia alterar o HTML renderizado; a revisão não demonstrou que usuários públicos possam escrever diretamente nesses campos.
+- **Risco residual:** revisar os demais atributos dinâmicos e manter a validação/escape em todo caminho de publicação.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
 - Inventário de páginas privadas: 17 páginas administrativas e 2 páginas de paciente (19 no total) foram examinadas; todas chamam o guard correspondente antes da primeira consulta direta observada, e não foi identificado caminho de consulta sensível antes do guard nessa varredura estática.
-- Arquivos revisados em detalhe: `painel/assets/js/painel-auth.js`, `painel/index.html`, `painel/assets/js/sanitize.js`, `painel/assets/js/admin-sidebar.js`, `painel/assets/js/notifications.js`, `assets/js/sanitize.js`, `assets/js/supabase-client.js`, `assets/js/rich-text.js`, `painel/admin/dashboard.html`, `painel/admin/pacientes.html`, `painel/admin/documentos.html`, `painel/admin/agenda.html`, `painel/admin/financeiro.html`, `painel/admin/paciente.html`, `painel/paciente/painel.html`, `painel/paciente/anamnese.html`, `pre-atendimento/index.html`, `robots.txt`.
+- Arquivos revisados em detalhe: `painel/assets/js/painel-auth.js`, `painel/index.html`, `painel/assets/js/sanitize.js`, `painel/assets/js/admin-sidebar.js`, `painel/assets/js/notifications.js`, `assets/js/sanitize.js`, `assets/js/supabase-client.js`, `assets/js/rich-text.js`, `blog/artigos/artigo-data.js`, `tratamentos/tratamento-data.js`, `painel/admin/dashboard.html`, `painel/admin/pacientes.html`, `painel/admin/documentos.html`, `painel/admin/agenda.html`, `painel/admin/financeiro.html`, `painel/admin/paciente.html`, `painel/paciente/painel.html`, `painel/paciente/anamnese.html`, `pre-atendimento/index.html`, `robots.txt`.
 - `sanitize.js` oferece `escapeHtml()` e `safeUrl()`; foi corrigido o caminho de unwrap em `rich-text.js`, mas ainda falta rastrear o uso de ambos em todos os renderizadores.
 - Supabase: listagem de tabelas, status RLS, 87 políticas em `public`, grants efetivos para `anon`/`authenticated`, privilégios padrão, Security Advisor, histórico de migrations e comparação entre código implantado e versionado de três Edge Functions; inspeção parcial dos corpos de funções SQL selecionadas.
 - Todas as tabelas dos schemas `public` e `storage` retornaram RLS habilitado: 38/38 e 8/8, respectivamente. Não há views no schema `public` na consulta feita. Todas as funções `SECURITY DEFINER` consultadas têm `search_path` configurado; `anon` e `authenticated` não têm privilégio `CREATE` no schema `public`. Isso não prova que cada política seja correta nem substitui testes com roles reais.
@@ -161,7 +169,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 
 - **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline, ausência de chave privilegiada no frontend e escaping dos sinks identificados.
 - **Executado com sucesso no GitHub Actions:** workflow `Security audit checks` run #62 (checagem de sintaxe dos módulos e testes estáticos, incluindo SDKs e URLs); `Validação de sintaxe dos HTML` run #82; `Bot triagem — validação` run #260. A validação do bot também passou usando `actions/checkout@v7.0.1` e `actions/setup-node@v7.1.0`. Os testes estáticos verificam padrões de segurança, não substituem testes dinâmicos de autorização.
-- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado e testes de falha de conexão. Não foram executadas operações de escrita no banco nem testes destrutivos.
+- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
 - **Proposta SQL de revisão:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql`; não é uma migração aplicada nem deve ser executada antes de revisão e autorização.
 
 ## Matriz de riscos pendentes
@@ -187,6 +195,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-020 | Média | Código de Edge Function diverge do repositório | Reconciliar `reconciliar-publicacao` e adicionar testes de regressão antes de redeploy |
 | SEC-021 | Média | Drift de migrations e políticas RLS permissivas redundantes | Mapear equivalências por conteúdo e testar isolamento com contas fictícias antes de simplificar políticas |
 | SEC-022 | Média | Sanitizador de HTML podia preservar descendentes ativos de tags rejeitadas | Corrigido na branch; aguardar CI e fazer teste dinâmico de homologação |
+| SEC-023 | Baixa/média | URLs de imagem e texto dinâmico sem validação/escape nas páginas públicas | Corrigido na branch; aguardar CI e continuar rastreamento de atributos dinâmicos |
 
 ## Limitações e próximos passos
 
