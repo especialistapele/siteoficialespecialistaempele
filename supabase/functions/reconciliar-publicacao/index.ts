@@ -10,7 +10,7 @@
 //   {}                       -> reconcilia solicitações recentes
 // ============================================================
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from "jsr:@supabase/supabase-js@2";
+import { createClient } from "jsr:@supabase/supabase-js@2.117.3";
 
 const MANIFEST_URL = "https://dannyqueiroz.com.br/publicacao-manifest.json";
 
