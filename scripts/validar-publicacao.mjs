@@ -69,6 +69,9 @@ async function main() {
   }
 
   const sitemap = extrairSitemap(), sitemapSet = new Set(sitemap);
+  const skinMapUrl = `${SITE}/skinmap/skinmapinicio.html`;
+  if (!existsSync("skinmap/skinmapinicio.html")) erros.push("Página inicial do SkinMap não existe: skinmap/skinmapinicio.html");
+  if (!sitemapSet.has(skinMapUrl)) erros.push("Página inicial do SkinMap fora do sitemap: skinmap/skinmapinicio.html");
   for (const caminho of arquivosTratamentos) {
     const html = readFileSync(caminho, "utf8");
     if (/<meta[^>]+name=["']robots["'][^>]+content=["'][^"']*noindex/i.test(html)) continue;

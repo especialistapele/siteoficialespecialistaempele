@@ -33,6 +33,7 @@ if (!SUPABASE_ANON_KEY) {
 const PAGINAS_FIXAS = [
   { loc: "/", changefreq: "weekly", priority: "1.0" },
   { loc: "/pele.html", changefreq: "monthly", priority: "0.9" },
+  { loc: "/skinmap/skinmapinicio.html", changefreq: "monthly", priority: "0.8" },
   { loc: "/quemsomos.html", changefreq: "monthly", priority: "0.9" },
   { loc: "/consultoriaonline.html", changefreq: "monthly", priority: "0.9" },
   { loc: "/tradicaotecnologia.html", changefreq: "monthly", priority: "0.8" },
