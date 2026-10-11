@@ -39,11 +39,11 @@ export async function buscarArtigosPublicados() {
   return buscar("articles?select=*,treatments(name,slug)&published=eq.true&order=published_at.desc");
 }
 
-export function urlDoArtigo(a) { return `${SITE}/blog/${a.slug}.html`; }
+export function urlDoArtigo(a) { return `${SITE}/blog/${slugifyUrl(a.slug)}.html`; }
 
 function cardArtigo(a) {
   const img = urlSegura(a.cover_image_url);
-  return `<article class="card"><div class="card__img">${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(a.title)}" style="width:100%;height:100%;object-fit:cover" loading="lazy">` : ""}</div><div class="card__corpo"><span class="card__meta">${escapeHtml(dataBR(a.published_at))}</span><h3>${escapeHtml(a.title)}</h3><p>${escapeHtml(a.excerpt)}</p><a class="card__link" href="/blog/${escapeHtml(a.slug)}.html">Ler artigo →</a></div></article>`;
+  return `<article class="card"><div class="card__img">${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(a.title)}" style="width:100%;height:100%;object-fit:cover" loading="lazy">` : ""}</div><div class="card__corpo"><span class="card__meta">${escapeHtml(dataBR(a.published_at))}</span><h3>${escapeHtml(a.title)}</h3><p>${escapeHtml(a.excerpt)}</p><a class="card__link" href="/blog/${escapeHtml(slugifyUrl(a.slug))}.html">Ler artigo →</a></div></article>`;
 }
 
 export function paginaHtml(a, { relacionados = [], dimCapa = null } = {}) {
@@ -105,7 +105,7 @@ export function paginaHtml(a, { relacionados = [], dimCapa = null } = {}) {
   const maisLinks = [
     trat?.slug ? `<li><a href="/tratamentos/${escapeHtml(slugifyUrl(trat.slug))}.html">Conheça o tratamento: ${escapeHtml(trat.name)}</a></li>` : "",
     trat?.slug ? `<li><a href="/resultados/">Veja resultados reais de ${escapeHtml(trat.name)}</a></li>` : `<li><a href="/resultados/">Veja resultados reais</a></li>`,
-    ...relacionados.map((r) => `<li><a href="/blog/${escapeHtml(r.slug)}.html">${escapeHtml(r.title)}</a></li>`),
+    ...relacionados.map((r) => `<li><a href="/blog/${escapeHtml(slugifyUrl(r.slug))}.html">${escapeHtml(r.title)}</a></li>`),
   ].filter(Boolean).join("");
 
   return `<!DOCTYPE html>
@@ -171,7 +171,7 @@ ${rodape()}
 }
 
 export async function gerar({ log = console.log } = {}) {
-  const artigos = (await buscarArtigosPublicados()).filter((a) => a.public_id && a.slug);
+  const artigos = (await buscarArtigosPublicados()).filter((a) => a.public_id && slugifyUrl(a.slug));
 
   const itens = [];
   for (const a of artigos) {
@@ -180,11 +180,11 @@ export async function gerar({ log = console.log } = {}) {
       .sort((x, y) => (Number(y.treatment_id === a.treatment_id && !!a.treatment_id) - Number(x.treatment_id === a.treatment_id && !!a.treatment_id)))
       .slice(0, 3);
     const dimCapa = await dimensoesImagem(urlSegura(a.cover_image_url));
-    itens.push({ id: a.public_id, slug: a.slug, html: paginaHtml(a, { relacionados, dimCapa }) });
+    itens.push({ id: a.public_id, slug: slugifyUrl(a.slug), html: paginaHtml(a, { relacionados, dimCapa }) });
   }
 
   // arquivos antigos de /blog/artigos/<slug>.html (sem marcador) -> reconhecidos pelo slug
-  const idPorSlug = new Map(artigos.map((a) => [a.slug, a.public_id]));
+  const idPorSlug = new Map(artigos.map((a) => [slugifyUrl(a.slug), a.public_id]));
   const rel = sincronizarPastas({
     pastas: [PASTA, PASTA_LEGADA], urlBase: `${SITE}/blog`, itens,
     resolverLegado: (slug) => idPorSlug.get(slug) || null, log,
