@@ -2,7 +2,7 @@
 // painel-auth.js — login único; o papel do usuário decide a área
 // ============================================================
 
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm";
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/+esm";
 
 const SUPABASE_URL = "https://clwaotfbqwvxpykruwed.supabase.co";
 // A chave anon/publishable é pública por desenho; RLS e autorização no servidor
