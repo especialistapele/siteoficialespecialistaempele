@@ -3,8 +3,10 @@
 --
 -- Evidência: anon e authenticated possuem privilégios explícitos
 -- TRUNCATE, REFERENCES, TRIGGER e MAINTAIN nas 38 tabelas do schema public.
--- RLS não restringe TRUNCATE. Este script preserva SELECT/INSERT/UPDATE/DELETE
--- porque a aplicação depende deles e o acesso por linha deve continuar sob RLS.
+-- RLS não restringe TRUNCATE. As roles também possuem SELECT/INSERT/UPDATE/DELETE
+-- nas tabelas atuais; este script preserva DML por ora porque a aplicação depende
+-- de acessos diferentes por tabela. RLS filtra linhas, mas uma futura etapa deve
+-- mapear e reduzir DML por tabela sem quebrar os fluxos legítimos.
 --
 -- Antes de aprovar:
 -- 1. Conferir o diff de privilégios no ambiente-alvo.
