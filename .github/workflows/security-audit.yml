@@ -15,6 +15,7 @@ on:
       - "supabase/migrations/20261011230000_validate_public_pre_atendimento.sql"
       - "supabase/migrations/20261011240000_revoke_direct_anamnesis_writes.sql"
       - "supabase/migrations/20261011250000_harden_anamnesis_attachment_writes.sql"
+      - "supabase/migrations/20261011260000_scope_anamnesis_storage_uploads.sql"
       - "scripts/gerar-paginas-artigos.mjs"
       - "scripts/gerar-paginas-resultados.mjs"
       - "scripts/lib/conteudo.mjs"
