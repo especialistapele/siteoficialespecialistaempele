@@ -4,9 +4,12 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - "assets/js/bot-triagem.js"
       - "painel/assets/js/contrato-pdf.js"
+      - "supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql"
       - "supabase/migrations/20261011170000_constrain_patient_signature_paths.sql"
       - "supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql"
+      - "supabase/migrations/20261011200000_harden_public_bot_logging.sql"
       - "scripts/gerar-paginas-artigos.mjs"
       - "scripts/gerar-paginas-resultados.mjs"
       - "scripts/lib/conteudo.mjs"
@@ -34,9 +37,12 @@ on:
     branches: ["security/audit-hardening"]
     paths:
       - "docs/SECURITY_AUDIT.md"
+      - "assets/js/bot-triagem.js"
       - "painel/assets/js/contrato-pdf.js"
+      - "supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql"
       - "supabase/migrations/20261011170000_constrain_patient_signature_paths.sql"
       - "supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql"
+      - "supabase/migrations/20261011200000_harden_public_bot_logging.sql"
       - "scripts/gerar-paginas-artigos.mjs"
       - "scripts/gerar-paginas-resultados.mjs"
       - "scripts/lib/conteudo.mjs"
@@ -72,6 +78,7 @@ jobs:
           node-version: 22
       - name: Syntax-check changed ES modules
         run: |
+          node --input-type=module --check < assets/js/bot-triagem.js
           node --input-type=module --check < painel/assets/js/contrato-pdf.js
           node --input-type=module --check < painel/assets/js/painel-auth.js
           node --input-type=module --check < painel/assets/js/admin-sidebar.js
