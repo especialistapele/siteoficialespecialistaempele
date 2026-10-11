@@ -84,6 +84,9 @@ assert.ok(sharedSanitize.includes("url.origin === window.location.origin || url.
 assert.ok(richTextSanitize.indexOf("limparNo(filho);") < richTextSanitize.indexOf("while (filho.firstChild)"), "sanitizador deve limpar descendentes antes de desanexá-los");
 assert.ok(adminPolicyMigration.includes("ALTER POLICY %I ON %I.%I TO authenticated"), "políticas administrativas devem ser limitadas a authenticated");
 assert.ok(adminPolicyMigration.includes("admin_full_access_testimonials"), "migração deve corrigir a política administrativa de depoimentos");
+assert.ok(adminPolicyMigration.includes("documentos_admin_gerencia"), "migração deve limitar política administrativa do bucket privado");
+assert.ok(adminPolicyMigration.includes("site_media_admin_gerencia"), "migração deve limitar política administrativa do bucket público");
+assert.ok(adminPolicyMigration.includes("schemaname IN ("), "migração deve abranger os schemas public e storage");
 assert.ok(adminPolicyMigration.includes("admin_gerencia_pre_atendimentos"), "migração deve corrigir a política administrativa de pré-atendimentos");
 assert.ok(contractAdmin.includes("editor.innerHTML = sanitizeRichHtml(substituirDadosPaciente(modelo.content_html || \"\", paciente));"), "modelo de contrato deve ser sanitizado antes de entrar no editor");
 assert.ok(contractPdf.includes('import { sanitizeRichHtml } from "/assets/js/rich-text.js";'), "PDF deve usar o sanitizador compartilhado");
