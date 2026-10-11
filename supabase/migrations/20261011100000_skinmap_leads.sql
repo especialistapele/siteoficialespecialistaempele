@@ -21,7 +21,8 @@ grant select, update, delete on public.skinmap_leads to authenticated;
 drop policy if exists skinmap_leads_public_submit on public.skinmap_leads;
 create policy skinmap_leads_public_submit on public.skinmap_leads for insert to anon, authenticated with check (
  consent = true and char_length(trim(full_name)) between 2 and 120 and char_length(trim(whatsapp)) between 8 and 40
- and char_length(trim(email)) between 5 and 254 and email ~* '^[^[:space:]@]+@[^[:space:]@]+\\.[^[:space:]@]+$'
+ and char_length(trim(email)) between 5 and 254 and position('@' in email) > 1
+ and position('.' in split_part(email, '@', 2)) > 1
 );
 drop policy if exists skinmap_leads_admin_read on public.skinmap_leads;
 create policy skinmap_leads_admin_read on public.skinmap_leads for select to authenticated using (is_admin());
