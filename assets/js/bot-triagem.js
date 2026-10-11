@@ -36,9 +36,14 @@
 
   function uuidFallback() {
     const bytes = new Uint8Array(16);
-    if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
-      crypto.getRandomValues(bytes);
-    } else {
+    let generated = false;
+    try {
+      if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+        crypto.getRandomValues(bytes);
+        generated = true;
+      }
+    } catch {}
+    if (!generated) {
       for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
     }
     bytes[6] = (bytes[6] & 0x0f) | 0x40;
