@@ -19,6 +19,8 @@ const submitAnamnesisMigration = readFileSync("supabase/migrations/2026101121000
 const botSource = readFileSync("assets/js/bot-triagem.js", "utf8");
 const botLoggingMigration = readFileSync("supabase/migrations/20261011200000_harden_public_bot_logging.sql", "utf8");
 const intakeValidationMigration = readFileSync("supabase/migrations/20261011230000_validate_public_pre_atendimento.sql", "utf8");
+const anamnesisWriteMigration = readFileSync("supabase/migrations/20261011240000_revoke_direct_anamnesis_writes.sql", "utf8");
+const patientAnamnesis = readFileSync("painel/paciente/anamnese.html", "utf8");
 const publicSupabaseClient = readFileSync("assets/js/supabase-client.js", "utf8");
 const edgeFunctionSources = [
   readFileSync("supabase/functions/create-patient/index.ts", "utf8"),
@@ -129,6 +131,11 @@ assert.ok(intakeValidationMigration.includes("NEW.status := 'novo';"), "status d
 assert.ok(intakeValidationMigration.includes("NEW.created_at := now();"), "timestamp do pré-atendimento deve ser definido no servidor");
 assert.ok(intakeValidationMigration.includes("length(NEW.observacoes) > 4000"), "campos públicos do pré-atendimento devem ter limite de tamanho");
 assert.ok(intakeValidationMigration.includes("SET search_path TO pg_catalog, public"), "trigger do pré-atendimento deve fixar search_path");
+assert.ok(anamnesisWriteMigration.includes('DROP POLICY IF EXISTS "patient writes own responses"'), "pacientes devem gravar respostas somente pelo RPC");
+assert.ok(anamnesisWriteMigration.includes('DROP POLICY IF EXISTS "patient signs own anamnesis"'), "pacientes devem gravar assinaturas somente pelo RPC");
+assert.ok(patientAnamnesis.includes('supabase.rpc("submit_anamnesis"'), "formulário de anamnese deve usar RPC autorizada");
+assert.ok(!patientAnamnesis.includes('supabase.from("anamnesis_responses").insert'), "formulário não deve inserir respostas diretamente");
+assert.ok(!patientAnamnesis.includes('supabase.from("anamnesis_signatures").insert'), "formulário não deve inserir assinaturas diretamente");
 assert.ok(botLoggingMigration.includes("SET search_path TO pg_catalog, public"), "RPCs do bot devem fixar search_path");
 assert.ok(botLoggingMigration.includes("position(chr(92) in p_page_path) > 0"), "RPC do bot deve rejeitar barra invertida no caminho");
 assert.ok(botLoggingMigration.includes("p_page_path ~ '[[:cntrl:]]'"), "RPC do bot deve rejeitar caracteres de controle no caminho");
