@@ -30,7 +30,7 @@ async function carregar() {
   document.title = `${data.name} — Especialista em Pele`;
   const ctaUrl = data.cta_url ? safeUrl(data.cta_url) : "";
   const ctaHtml = data.cta_label && ctaUrl
-    ? `<p class="texto-centro" style="margin-top:28px"><a class="btn btn-dourado" href="${ctaUrl}">${escapeHtml(data.cta_label)}</a></p>`
+    ? `<p class="texto-centro" style="margin-top:28px"><a class="btn btn-dourado" href="${escapeHtml(ctaUrl)}">${escapeHtml(data.cta_label)}</a></p>`
     : "";
 
   // ------------------------------------------------------------------
@@ -47,7 +47,8 @@ async function carregar() {
   // Google não tratar esta versão dinâmica como conteúdo duplicado.
   const slugArquivo = slug.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   const urlCanonica = `https://www.especialistaempele.com.br/tratamentos/${slugArquivo}.html`;
-  const imagemMeta = data.cover_image_url || "https://www.especialistaempele.com.br/assets/hero-fallback.webp";
+  const imagemMeta = safeUrl(data.cover_image_url) || "https://www.especialistaempele.com.br/assets/hero-fallback.webp";
+  const imagemConteudo = safeUrl(data.cover_image_url);
 
   document.getElementById("meta-description")?.setAttribute("content", descricaoMeta);
   document.getElementById("og-title")?.setAttribute("content", tituloCompleto);
@@ -89,7 +90,7 @@ async function carregar() {
   container.innerHTML = `
     <p class="card__meta texto-centro">Tratamento regenerativo</p>
     <h1 class="texto-centro">${escapeHtml(data.name)}</h1>
-    ${data.cover_image_url ? `<img src="${data.cover_image_url}" alt="${escapeHtml(data.name)}" style="width:100%;border-radius:10px;margin:24px 0" loading="lazy">` : ""}
+    ${imagemConteudo ? `<img src="${escapeHtml(imagemConteudo)}" alt="${escapeHtml(data.name)}" style="width:100%;border-radius:10px;margin:24px 0" loading="lazy">` : ""}
     <div class="artigo-corpo">${renderizarOrientacao(data.description || data.summary || "")}</div>
     ${ctaHtml}
   `;
