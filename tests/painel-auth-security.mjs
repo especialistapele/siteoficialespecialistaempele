@@ -37,6 +37,7 @@ assert.match(logout, /signOut\(\{ scope: "local" \}\)/);
 assert.match(logout, /data-private-content/);
 
 assert.match(loginHtml, /signInWithPassword/);
+assert.match(loginHtml, /destino\?\.erro === "temporario"/, "falha temporária de consulta não deve disparar logout local");
 assert.match(loginHtml, /Não foi possível entrar com essas credenciais/);
 assert.match(loginHtml, /botao\.disabled = false/);
 assert.match(loginHtml, /sistema de login não conseguiu carregar/);
