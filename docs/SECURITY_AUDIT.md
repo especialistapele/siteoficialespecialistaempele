@@ -97,6 +97,14 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Referências upstream:** https://github.com/chartjs/Chart.js/releases ; https://github.com/actions/checkout/releases ; https://github.com/actions/setup-node/releases
 - **Risco residual:** não foi possível concluir uma varredura de todos os scripts externos no repositório nem auditar todos os workflows existentes; pinning por versão não substitui SRI ou revisão da cadeia de suprimentos.
 
+### SEC-016 — Formulário público de pré-atendimento sem controle de abuso no servidor
+- **Gravidade:** média (risco de spam/abuso e tratamento de dados pessoais sensíveis).
+- **Status:** risco potencial confirmado na implementação; correção depende de arquitetura/backend.
+- **Evidência:** `pre-atendimento/index.html` grava diretamente na tabela `pre_atendimentos` via Supabase client. A política RLS permite `INSERT` para `public` com `WITH CHECK (true)`. O formulário solicita queixa de pele, tratamentos anteriores, medicamentos e condições de saúde; não foram encontrados CAPTCHA, rate limit ou limites explícitos de comprimento nos campos, nem validação de entrada no servidor no caminho observado.
+- **Impacto plausível:** envio automatizado em massa, registros muito grandes ou lixo e coleta de dados de saúde sem salvaguardas suficientes. Não foi identificado acesso público de leitura aos registros nessa revisão.
+- **Correção recomendada:** migrar a inserção para uma Edge Function com validação server-side, limites de comprimento/tipo, proteção antiabuso e rate limit; avaliar honeypot/CAPTCHA conforme o risco. Revisar aviso de privacidade e base legal para dados de saúde com assessoria adequada. Não foi alterada a política pública nem publicada função nova.
+- **Risco residual:** o cliente pode ser contornado; validação HTML sozinha não resolve o abuso.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
@@ -132,11 +140,13 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-013 | Média | Cabeçalhos/HTTPS/cache | Confirmar hospedagem e configuração efetiva fora do repositório |
 | SEC-014 | Média | Dependências e Actions | Chart.js e o workflow novo foram fixados; auditar todos os workflows e dependências restantes |
 | SEC-015 | Baixa | Versão flutuante do Chart.js | Corrigida e verificada pelo CI; rastrear outras dependências |
+| SEC-016 | Média | Formulário público sem antiabuso/validação server-side | Projetar Edge Function com limites e rate limit; validar base legal para dados sensíveis |
 
 ## Limitações e próximos passos
 
 - Não foram aplicadas migrações nem alterações de configuração ao banco de produção.
 - A listagem de metadados e o advisor não substituem testes de autorização usando identidades distintas.
 - Ainda é necessário completar o inventário de todas as páginas, scripts, workflows, dependências e histórico Git, bem como revisar os demais endpoints.
+- O formulário público `/pre-atendimento/` continua aceitando inserções diretas na tabela; o endurecimento real exige backend/rate limiting e validação jurídica/operacional.
 - Avaliar juridicamente retenção, consentimento, compartilhamento e procedimentos de incidentes LGPD; esta auditoria técnica não certifica conformidade legal.
 - As alterações desta branch devem permanecer em revisão até que os testes e o relatório sejam concluídos.
