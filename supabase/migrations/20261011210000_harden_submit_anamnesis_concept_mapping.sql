@@ -30,6 +30,27 @@ begin
   if jsonb_typeof(v_personal) <> 'object'
      then raise exception 'Dados pessoais inválidos'; end if;
 
+  if jsonb_array_length(p_responses) > 200
+     or octet_length(p_responses::text) > 200000 then
+    raise exception 'Respostas excedem o limite permitido';
+  end if;
+
+  if octet_length(v_personal::text) > 50000 then
+    raise exception 'Dados pessoais excedem o limite permitido';
+  end if;
+
+  if p_user_agent is not null and length(p_user_agent) > 512 then
+    raise exception 'Identificação do navegador excede o limite permitido';
+  end if;
+
+  if exists (
+    select 1
+    from jsonb_array_elements(p_responses) r
+    where octet_length(coalesce(r->'value', 'null'::jsonb)::text) > 10000
+  ) then
+    raise exception 'Uma resposta excede o limite permitido';
+  end if;
+
   select av.patient_id,av.anamnesis_type_id,av.status
     into v_patient_id,v_type_id,v_status
   from anamnesis_versions av
