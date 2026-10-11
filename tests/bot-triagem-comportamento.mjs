@@ -249,7 +249,7 @@ if (source.includes(String.raw`match(/\\b(?:me incomoda|me preocupa)`)) {
 if (source.includes(String.raw`pretendo)\\s+`)) {
   errors.push("normalização do objetivo contém \\s duplicado");
 }
-const durationProbe = "há aproximadamente 3 meses".normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
+const durationProbe = "há aproximadamente 3 meses".normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   .match(/\b(?:ha|faz)\s+(?:cerca de\s+|aproximadamente\s+|mais de\s+)?\d+\s+(?:dias?|semanas?|meses?|anos?)\b/);
 if (!durationProbe || durationProbe[0] !== "ha aproximadamente 3 meses") {
   errors.push("regressão: a duração 'há aproximadamente 3 meses' não é reconhecida");
