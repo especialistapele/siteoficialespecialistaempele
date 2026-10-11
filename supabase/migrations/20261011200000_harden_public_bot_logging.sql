@@ -30,7 +30,12 @@ BEGIN
   END IF;
 
   IF p_page_path IS NOT NULL
-     AND (left(p_page_path, 1) <> '/' OR left(p_page_path, 2) = '//') THEN
+     AND (
+       left(p_page_path, 1) <> '/'
+       OR left(p_page_path, 2) = '//'
+       OR position(chr(92) in p_page_path) > 0
+       OR p_page_path ~ '[[:cntrl:]]'
+     ) THEN
     RAISE EXCEPTION 'Caminho da página inválido';
   END IF;
 
