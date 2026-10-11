@@ -18,7 +18,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/acne-hormonal-feminina.html",
       "redirect_to": null,
-      "sha256": "1f0b57c5ddcf43eba37bc745a8084897e3457632b8b740809b2838a01a702055"
+      "sha256": "7cb8eae10b42dc37c5b28815a70a20affad55f90f87f42d29dbab196c376b31e"
     },
     {
       "path": "blog/como-escolher-um-tratamento-para-melasma.html",
@@ -651,5 +651,5 @@
       "sha256": "d39bfaa70c55413c91e6dc3299c44f3e024cde39c6c33a03edae79bac9ba9693"
     }
   ],
-  "generated_at": "2026-10-07T13:47:53.297Z"
+  "generated_at": "2026-10-11T14:46:59.455Z"
 }
