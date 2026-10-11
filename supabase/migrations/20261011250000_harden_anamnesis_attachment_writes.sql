@@ -43,3 +43,25 @@ CREATE POLICY "admin uploads anamnesis attachments"
         AND v.patient_id = anamnesis_attachments.patient_id
     )
   );
+
+-- A referência do arquivo também precisa pertencer ao paciente e à versão
+-- indicados na linha; isso evita associar ao prontuário o caminho de outro
+-- paciente, mesmo que o cliente contorne a interface.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'anamnesis_attachments_file_path_owner_check'
+      AND conrelid = 'public.anamnesis_attachments'::regclass
+  ) THEN
+    ALTER TABLE public.anamnesis_attachments
+      ADD CONSTRAINT anamnesis_attachments_file_path_owner_check
+      CHECK (
+        file_path ~ (
+          '^' || patient_id::text || '/anamneses/' ||
+          anamnesis_version_id::text || '/[0-9]+-[A-Za-z0-9._-]+$'
+        )
+      );
+  END IF;
+END
+$$;
