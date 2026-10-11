@@ -112,7 +112,7 @@ function render(){
 }
 async function carregar(){
  lista.innerHTML='<tr><td colspan="7" class="painel-vazio">Carregando solicitações…</td></tr>';
- const {data,error}=await supabase.from('skinmap_leads').select('id,full_name,whatsapp,email,city,interest,indication,skin_type,assessment,skin_profile,questionnaire,consent,consent_text_version,consented_at,status,created_at,source_environment').order('created_at',{ascending:false});
+ const {data,error}=await supabase.from('skinmap_leads').select('id,full_name,whatsapp,email,city,interest,indication,other_indication,skin_type,assessment,skin_profile,questionnaire,consent,consent_text_version,consented_at,status,created_at,source_environment').order('created_at',{ascending:false});
  if(error){lista.innerHTML='<tr><td colspan="7" class="painel-vazio">Não foi possível carregar os leads. Verifique a migração e as permissões administrativas.</td></tr>';mostrarFlash(flash,'Falha ao carregar SkinMap.','erro');return;}
  leads=data||[];render();
 }
