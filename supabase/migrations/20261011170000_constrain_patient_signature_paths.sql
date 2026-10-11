@@ -39,3 +39,20 @@ BEGIN
   END IF;
 END
 $$;
+
+-- Snapshot HTML é enviado pelo navegador ao assinar; limite no banco impede
+-- payloads arbitrariamente grandes mesmo quando o cliente é contornado.
+-- A auditoria encontrou 8 contratos; snapshot máximo atual: 7.400 caracteres.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'contracts_signed_content_html_size_check'
+      AND conrelid = 'public.contracts'::regclass
+  ) THEN
+    ALTER TABLE public.contracts
+      ADD CONSTRAINT contracts_signed_content_html_size_check
+      CHECK (signed_content_html IS NULL OR length(signed_content_html) <= 100000);
+  END IF;
+END
+$$;
