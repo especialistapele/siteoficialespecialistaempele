@@ -10,6 +10,7 @@ const sharedSanitize = readFileSync("assets/js/sanitize.js", "utf8");
 const richTextSanitize = readFileSync("assets/js/rich-text.js", "utf8");
 const publicArticlePage = readFileSync("blog/artigos/artigo-data.js", "utf8");
 const publicTreatmentPage = readFileSync("tratamentos/tratamento-data.js", "utf8");
+const adminPolicyMigration = readFileSync("supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql", "utf8");
 const publicSupabaseClient = readFileSync("assets/js/supabase-client.js", "utf8");
 const edgeFunctionSources = [
   readFileSync("supabase/functions/create-patient/index.ts", "utf8"),
@@ -73,6 +74,11 @@ assert.ok(edgeFunctionSources.every((source) => !source.includes("jsr:@supabase/
 assert.ok(sharedSanitize.includes("!raw.startsWith('//')"), "safeUrl deve rejeitar URLs protocol-relative");
 assert.ok(sharedSanitize.includes("url.origin === window.location.origin || url.protocol === 'https:'"), "safeUrl deve rejeitar HTTP externo");
 assert.ok(richTextSanitize.indexOf("limparNo(filho);") < richTextSanitize.indexOf("while (filho.firstChild)"), "sanitizador deve limpar descendentes antes de desanexá-los");
+assert.ok(adminPolicyMigration.includes("ALTER POLICY %I ON %I.%I TO authenticated"), "políticas administrativas devem ser limitadas a authenticated");
+assert.ok(adminPolicyMigration.includes("admin_full_access_testimonials"), "migração deve corrigir a política administrativa de depoimentos");
+assert.ok(adminPolicyMigration.includes("admin_gerencia_pre_atendimentos"), "migração deve corrigir a política administrativa de pré-atendimentos");
+assert.ok(!adminPolicyMigration.includes("anyone_can_insert_consent"), "migração não deve remover o INSERT público legítimo de consentimento");
+assert.ok(adminPolicyMigration.includes("roles @> ARRAY["), "migração deve alterar somente políticas atualmente destinadas a PUBLIC");
 assert.ok(publicArticlePage.includes("const imagemConteudo = safeUrl(data.cover_image_url);"), "página pública de artigo deve validar URL da imagem");
 assert.ok(publicTreatmentPage.includes("const imagemConteudo = safeUrl(data.cover_image_url);"), "página pública de tratamento deve validar URL da imagem");
 assert.ok(!publicArticlePage.includes('src="${data.cover_image_url}"'), "artigo não deve interpolar URL de imagem crua");
