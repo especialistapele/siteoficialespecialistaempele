@@ -194,7 +194,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Status:** constraints propostas na branch; não aplicadas.
 - **Evidência:** as RPCs `assinar_contrato` e `submit_anamnesis` validam que o contrato/ficha pertence ao usuário, mas aceitam `p_signature_path` enviado pelo navegador sem confirmar que o caminho pertence à pasta daquele paciente. A policy de Storage restringe uploads à pasta própria, porém não impede uma RPC de gravar como referência o caminho de um objeto de outro paciente.
 - **Verificação agregada:** 7 contratos assinados e 2 assinaturas de anamnese; todas as nove referências existentes obedecem ao formato `<patient_id>/assinaturas/<nome>.png`, sem prefixos de outro paciente.
-- **Correção proposta:** `supabase/migrations/20261011170000_constrain_patient_signature_paths.sql` adiciona CHECK constraints que vinculam o prefixo do caminho ao `patient_id`. Não foi aplicada.
+- **Correção proposta:** `supabase/migrations/20261011170000_constrain_patient_signature_paths.sql` adiciona CHECK constraints que vinculam o prefixo do caminho ao `patient_id`; a nova versão de `submit_anamnesis` também valida o caminho antes de gravar. Não foi aplicada.
 - **Risco residual:** validar a migration em homologação e testar assinaturas de contrato/anamnese com duas contas fictícias antes de produção.
 
 ### SEC-030 — RPC de anamnese confiava no clinical_concept_id enviado pelo cliente
@@ -202,7 +202,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Status:** trigger de proteção proposto na branch; não aplicado.
 - **Evidência:** `submit_anamnesis` confere se a pergunta pertence ao tipo de anamnese, mas grava `clinical_concept_id` a partir do JSON enviado pelo navegador. O conceito correto já está cadastrado em `question_definitions`; a função usa o valor recebido para alimentar `patient_clinical_data`.
 - **Verificação agregada:** 294 respostas existentes, zero divergências entre `anamnesis_responses.clinical_concept_id` e o conceito cadastrado na pergunta.
-- **Correção proposta:** `supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql` instala um trigger `BEFORE INSERT` que deriva o conceito de `question_definitions`, usando `SECURITY DEFINER` com `search_path` fixo. Não foi aplicada.
+- **Correção proposta:** `supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql` instala um trigger `BEFORE INSERT` que deriva o conceito de `question_definitions`, usando `SECURITY DEFINER` com `search_path` fixo. A migration `20261011210000_harden_submit_anamnesis_concept_mapping.sql` também altera a RPC para usar o conceito confiável ao inserir respostas e ao invalidar valores atuais, evitando que o JSON do cliente altere conceitos de forma indireta. Nenhuma migration foi aplicada.
 - **Risco residual:** validar o trigger em homologação com envio normal, edição autorizada e rascunho administrativo antes de produção.
 
 ### SEC-031 — PDF de contrato analisava snapshot assinado via innerHTML sem sanitização
