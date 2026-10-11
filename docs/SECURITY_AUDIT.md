@@ -16,7 +16,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 
 ### SEC-001 — Direcionamento de paciente sem cadastro válido
 - **Gravidade:** média (controle de acesso no frontend; RLS permanece a barreira de segurança real).
-- **Status:** corrigido na branch; aguardando testes automatizados.
+- **Status:** corrigido na branch; testes estáticos aprovados; validação manual no navegador pendente.
 - **Evidência:** em `painel/assets/js/painel-auth.js`, a condição anterior `paciente?.acesso_painel !== false` podia ser verdadeira quando `paciente` era nulo.
 - **Impacto plausível:** tentativa de encaminhar usuário sem vínculo válido à página do paciente; a exposição de dados dependeria também das políticas RLS e dos controles da página.
 - **Correção:** exige identificador de usuário válido, consulta sem erro, cadastro de paciente existente e ausência de bloqueio explícito. Falha de consulta retorna um marcador temporário distinto de `null`, para que o login não encerre a sessão indevidamente; ausência de cadastro/bloqueio retorna `null`.
@@ -24,21 +24,21 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 
 ### SEC-002 — Guards encerravam a sessão em falhas de consulta
 - **Gravidade:** baixa a média (disponibilidade/experiência e tratamento de erro).
-- **Status:** corrigido na branch; aguardando testes.
+- **Status:** corrigido na branch; testes estáticos aprovados; validação manual pendente.
 - **Evidência:** as implementações anteriores chamavam `signOut()` para qualquer erro de consulta de perfil/paciente, sem separar indisponibilidade temporária de ausência de autorização.
 - **Correção:** os guards agora falham fechados e distinguem erro de consulta (redirecionamento temporário) de perfil ausente/sem papel adequado ou paciente bloqueado. A falha de banco não concede acesso nem encerra automaticamente a sessão.
 - **Risco residual:** validar em navegador com sessões de teste e indisponibilidade simulada.
 
 ### SEC-003 — Logout e mensagens de autenticação
 - **Gravidade:** baixa a média.
-- **Status:** endurecimento implementado na branch; aguardando testes.
+- **Status:** endurecimento implementado na branch; testes estáticos aprovados; validação manual pendente.
 - **Evidência:** o logout anterior não aguardava nem verificava o resultado de `signOut()`; o login registrava o objeto completo de erro no console e usava mensagens distintas para algumas falhas.
 - **Correção:** espera a operação, impede cliques duplicados, tenta encerrar a sessão local em falha, limpa elementos marcados `data-private-content` e redireciona para a tela de login. Mensagens de credenciais são genéricas e erros técnicos não são despejados no console.
 - **Risco residual:** páginas privadas devem marcar conteúdo sensível com `data-private-content` quando for necessário limpá-lo antes do redirecionamento; os guards e RLS continuam obrigatórios.
 
 ### SEC-009 — Dados de perfil e caminhos de arquivo inseridos em HTML
 - **Gravidade:** baixa a média; sink de XSS potencial identificado e endurecido.
-- **Status:** corrigido na branch; aguardando teste.
+- **Status:** corrigido na branch; testes estáticos aprovados; validação manual pendente.
 - **Evidência:** `painel/assets/js/admin-sidebar.js` inseria o nome e as iniciais do perfil diretamente em `innerHTML`; `painel/paciente/painel.html` inseria `support_documents.file_url` em um atributo HTML sem escape e aceitava links externos com protocolo HTTP no botão do prontuário.
 - **Correção:** escapar nome/iniciais na sidebar, escapar o caminho do arquivo no atributo e aceitar somente HTTPS para links externos (mantendo URLs relativas/mesma origem).
 - **Impacto plausível:** caso valores maliciosos cheguem a esses campos por importação, configuração ou outro fluxo, poderiam alterar o HTML renderizado. A revisão não confirmou um caminho de escrita pública para esses campos; portanto, o achado foi tratado como sink potencial, não como exploração comprovada.
@@ -112,8 +112,8 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 ## Testes
 
 - **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline, ausência de chave privilegiada no frontend e escaping dos sinks identificados.
-- **Pendente de execução:** o teste estático no CI e testes manuais no navegador com contas fictícias.
-- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload e testes de falha de conexão. Não foram executadas operações de escrita no banco.
+- **Executado com sucesso no GitHub Actions:** workflow `Security audit checks` run #37 (checagem de sintaxe dos módulos e testes estáticos); `Validação de sintaxe dos HTML` run #63; `Bot triagem — validação` run #241. Os testes estáticos verificam padrões de segurança, não substituem testes dinâmicos de autorização.
+- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload e testes de falha de conexão. Não foram executadas operações de escrita no banco nem testes destrutivos.
 - **Proposta SQL de revisão:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql`; não é uma migração aplicada nem deve ser executada antes de revisão e autorização.
 
 ## Matriz de riscos pendentes
@@ -125,13 +125,13 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-006 | Média | Limites de upload ausentes | Definir limites e tipos permitidos |
 | SEC-007 | Informativo | CORS amplo nas Edge Functions | Restringir origens se compatível, mantendo autenticação como controle real |
 | SEC-008 | Média | Políticas RLS redundantes | Testes de isolamento com contas fictícias e proposta de migração |
-| SEC-009 | Baixa/média | Sinks de HTML potencialmente inseguros | Correções aplicadas; aguardar teste e continuar rastreamento |
+| SEC-009 | Baixa/média | Sinks de HTML potencialmente inseguros | Correções e teste estático aprovados; continuar rastreamento e teste manual |
 | SEC-010 | Média / impacto potencial elevado | TRUNCATE/TRIGGER/REFERENCES/MAINTAIN concedidos às roles cliente | Revisar e testar o SQL proposto antes de aplicar |
 | SEC-011 | Alta potencial | Auditoria de todas as páginas privadas | Inventariar guards e consultas em todo o repositório |
 | SEC-012 | Média | Segredos no histórico Git | Executar varredura dedicada e documentar rotação se necessário |
 | SEC-013 | Média | Cabeçalhos/HTTPS/cache | Confirmar hospedagem e configuração efetiva fora do repositório |
 | SEC-014 | Média | Dependências e Actions | Chart.js e o workflow novo foram fixados; auditar todos os workflows e dependências restantes |
-| SEC-015 | Baixa | Versão flutuante do Chart.js | Corrigida na branch; aguardar CI e rastrear outras dependências |
+| SEC-015 | Baixa | Versão flutuante do Chart.js | Corrigida e verificada pelo CI; rastrear outras dependências |
 
 ## Limitações e próximos passos
 
