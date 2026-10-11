@@ -44,6 +44,7 @@ on:
       - "supabase/migrations/20261011170000_constrain_patient_signature_paths.sql"
       - "supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql"
       - "supabase/migrations/20261011200000_harden_public_bot_logging.sql"
+      - "supabase/migrations/20261011210000_harden_submit_anamnesis_concept_mapping.sql"
       - "scripts/gerar-paginas-artigos.mjs"
       - "scripts/gerar-paginas-resultados.mjs"
       - "scripts/lib/conteudo.mjs"
