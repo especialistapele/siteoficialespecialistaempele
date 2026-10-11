@@ -14,6 +14,7 @@ const adminPolicyMigration = readFileSync("supabase/migrations/20261011150000_sc
 const contractAdmin = readFileSync("painel/admin/contratos.html", "utf8");
 const contractPdf = readFileSync("painel/assets/js/contrato-pdf.js", "utf8");
 const signaturePathMigration = readFileSync("supabase/migrations/20261011170000_constrain_patient_signature_paths.sql", "utf8");
+const anamnesisConceptMigration = readFileSync("supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql", "utf8");
 const publicSupabaseClient = readFileSync("assets/js/supabase-client.js", "utf8");
 const edgeFunctionSources = [
   readFileSync("supabase/functions/create-patient/index.ts", "utf8"),
@@ -89,6 +90,9 @@ assert.ok(contractPdf.includes('import { sanitizeRichHtml } from "/assets/js/ric
 assert.ok(contractPdf.includes("div.innerHTML = sanitizeRichHtml(String(html ?? \"\"));"), "PDF deve sanitizar snapshot antes de analisar HTML");
 assert.ok(signaturePathMigration.includes("contracts_signature_path_own_patient_check"), "migration deve restringir assinatura de contrato ao paciente dono");
 assert.ok(signaturePathMigration.includes("anamnesis_signatures_signature_path_own_patient_check"), "migration deve restringir assinatura de anamnese ao paciente dono");
+assert.ok(anamnesisConceptMigration.includes("NEW.clinical_concept_id := v_concept_id;"), "conceito clínico deve ser derivado da pergunta cadastrada");
+assert.ok(anamnesisConceptMigration.includes("BEFORE INSERT ON public.anamnesis_responses"), "trigger deve validar toda nova resposta de anamnese");
+assert.ok(anamnesisConceptMigration.includes("SET search_path TO pg_catalog, public"), "trigger SECURITY DEFINER deve fixar search_path seguro");
 assert.ok(contractAdmin.includes("const signatureUrl = safeUrl(data?.signedUrl);"), "URL da assinatura deve ser validada antes da interpolação");
 assert.ok(contractAdmin.includes('src="${escapeHtml(signatureUrl)}"'), "URL da assinatura deve ser escapada no atributo HTML");
 assert.ok(!adminPolicyMigration.includes("anyone_can_insert_consent"), "migração não deve remover o INSERT público legítimo de consentimento");
