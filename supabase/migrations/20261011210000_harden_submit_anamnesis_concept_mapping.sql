@@ -15,6 +15,7 @@ declare
   v_patient_id uuid;
   v_type_id uuid;
   v_status text;
+  v_released_at timestamptz;
   v_edit_id uuid;
   v_target_version_id uuid := p_version_id;
   v_version integer;
@@ -58,6 +59,7 @@ begin
   where av.id=p_version_id and p.user_id=v_uid;
 
   if v_patient_id is null then raise exception 'Ficha não encontrada'; end if;
+  if v_released_at is null then raise exception 'Ficha ainda não liberada para preenchimento'; end if;
   if v_status not in ('draft','submitted','locked')
      then raise exception 'Esta ficha não pode ser enviada neste estado'; end if;
 
