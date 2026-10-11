@@ -358,22 +358,18 @@
       const client = await getSupabaseClient();
       if (!client) return null;
 
-      const { data, error } = await client
-        .from("bot_conversations")
-        .insert({
-          session_id: getSessionId(),
-          treatment_context: state.context,
-          treatment_name: CONFIG.labels[state.context] || state.context,
-          page_path: path
-        })
-        .select("id")
-        .single();
+      const { data, error } = await client.rpc("create_bot_conversation", {
+        p_session_id: getSessionId(),
+        p_treatment_context: state.context,
+        p_treatment_name: CONFIG.labels[state.context] || state.context,
+        p_page_path: path
+      });
 
-      if (error) {
-        console.warn("[Bot] Não foi possível abrir histórico:", error.message);
+      if (error || typeof data !== "string" || !data) {
+        console.warn("[Bot] Não foi possível abrir histórico:", error?.message || "resposta inválida");
         return null;
       }
-      conversationId = data.id;
+      conversationId = data;
       saveSession();
       return conversationId;
     })();
