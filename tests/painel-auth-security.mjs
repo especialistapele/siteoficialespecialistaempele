@@ -102,6 +102,8 @@ assert.ok(botSource.includes('client.rpc("create_bot_conversation"'), "bot públ
 assert.ok(!botSource.includes('.from("bot_conversations")\n        .insert('), "bot não deve depender de INSERT com SELECT em tabela sem policy pública de leitura");
 assert.ok(botLoggingMigration.includes("REVOKE INSERT ON public.bot_conversations FROM PUBLIC, anon, authenticated"), "migration deve bloquear INSERT direto em conversas");
 assert.ok(botLoggingMigration.includes("public.bot_session_matches(conversation_id, session_id)"), "mensagens devem validar a sessão associada à conversa");
+assert.ok(botLoggingMigration.includes("CHECK (length(message) <= 4000)"), "mensagens do bot devem ter tamanho máximo no banco");
+assert.ok(botLoggingMigration.includes("CHECK (sender IN ('visitor', 'bot', 'system'))"), "sender do bot deve aceitar apenas valores conhecidos");
 assert.ok(botLoggingMigration.includes("SET search_path TO pg_catalog, public"), "RPCs do bot devem fixar search_path");
 assert.ok(anamnesisConceptMigration.includes("SET search_path TO pg_catalog, public"), "trigger SECURITY DEFINER deve fixar search_path seguro");
 assert.ok(contractAdmin.includes("const signatureUrl = safeUrl(data?.signedUrl);"), "URL da assinatura deve ser validada antes da interpolação");
