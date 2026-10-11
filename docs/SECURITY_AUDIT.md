@@ -253,6 +253,13 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Correção proposta:** `supabase/migrations/20261011240000_revoke_direct_anamnesis_writes.sql` remove as duas policies de INSERT direto; o RPC `SECURITY DEFINER` continua podendo gravar e mantém as validações de propriedade, versão, permissão e assinatura.
 - **Risco residual:** testar envio normal, versão bloqueada e edição autorizada com duas contas fictícias em homologação antes de aplicar. Não foi executado INSERT de teste em produção.
 
+### SEC-037 — Anexos podiam ser vinculados a versões bloqueadas e o INSERT administrativo não tinha policy
+- **Gravidade:** média (integridade do prontuário e disponibilidade do painel).
+- **Status:** migration proposta na branch; CI pendente; sem teste de escrita em produção.
+- **Evidência:** duas policies permitiam ao paciente inserir anexos em qualquer versão própria, sem conferir `status` ou permissão ativa de edição. Ao mesmo tempo, o painel administrativo também insere metadados de anexos, mas as policies atuais não concediam INSERT administrativo.
+- **Correção proposta:** `supabase/migrations/20261011250000_harden_anamnesis_attachment_writes.sql` substitui as policies duplicadas por uma policy de paciente que exige versão em rascunho ou permissão ativa não expirada, e uma policy administrativa que exige `is_admin()` e vínculo válido entre anexo, versão e paciente.
+- **Risco residual:** validar upload/INSERT do paciente em rascunho, versão bloqueada e edição autorizada; validar também o fluxo administrativo com duas contas fictícias em homologação. Não foi aplicado.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
@@ -310,6 +317,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-034 | Baixa/média | Fallback de sessão do bot não respeitava tipo UUID | Corrigido na branch; testes de cenário passaram; testar navegador sem `crypto.randomUUID` |
 | SEC-035 | Média | Formulário público aceitava status/campos sem validação server-side | Trigger proposta; aguardar CI e validar formulário em homologação; rate limit continua pendente |
 | SEC-036 | Alta para integridade de prontuário | Policies INSERT diretas permitiam contornar RPC de anamnese | Policies propostas para remoção; aguardar CI e testar fluxos em homologação |
+| SEC-037 | Média | Anexos podiam ser vinculados a versões bloqueadas e INSERT administrativo não tinha policy | Policies propostas; aguardar CI e testar os fluxos em homologação |
 
 ## Limitações e próximos passos
 
