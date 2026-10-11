@@ -167,16 +167,31 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Correção:** sanitizar o modelo já com os dados do paciente substituídos antes de injetar no editor; validar a URL assinada com `safeUrl()` e escapar no atributo.
 - **Risco residual:** templates de contrato precisam ser validados funcionalmente porque o sanitizador restringe tags/atributos a uma allowlist; testar opções interativas, assinatura, edição e geração do PDF em homologação.
 
+### SEC-026 — Gerador de páginas estáticas de tratamentos não sanitizava HTML rico
+- **Gravidade:** média (possível XSS armazenado nas páginas públicas geradas).
+- **Status:** corrigido na branch; teste estático de regressão adicionado; CI pendente.
+- **Evidência:** `scripts/gerar-paginas-tratamentos.mjs` usava `renderizarOrientacao()`, que devolvia diretamente qualquer descrição que parecesse HTML; o CTA e a imagem também eram interpolados sem validação de protocolo.
+- **Correção:** o gerador agora usa `renderizarConteudo()` da biblioteca compartilhada para sanitizar HTML rico, `urlSegura()` para a imagem e CTA, e só aceita HTTPS para URLs absolutas. Caminhos relativos precisam ser locais à raiz, não protocol-relative nem conter barra invertida; caracteres de controle são rejeitados.
+- **Impacto plausível:** conteúdo HTML persistido na tabela de tratamentos poderia virar markup ativo nas páginas estáticas publicadas pela GitHub Action.
+- **Risco residual:** a correção foi verificada estaticamente; revisar HTML de tratamentos existentes e testar a geração completa antes do próximo deploy automático.
+
+### SEC-027 — GitHub Actions usavam tags de release em vez de SHA imutável
+- **Gravidade:** baixa (endurecimento de cadeia de suprimentos).
+- **Status:** corrigido na branch; CI pendente.
+- **Evidência:** quatro workflows usavam tags de release para `actions/checkout` e `actions/setup-node`.
+- **Correção:** referências foram fixadas nos SHAs verificados das releases `checkout v7.0.1` e `setup-node v7.1.0`, mantendo comentários de versão para manutenção.
+- **Risco residual:** continuar revisando actions e dependências externas; pinning não substitui atualização periódica e revisão de permissões.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
 - Inventário de páginas privadas: 17 páginas administrativas e 2 páginas de paciente (19 no total) foram examinadas; todas chamam o guard correspondente antes da primeira consulta direta observada, e não foi identificado caminho de consulta sensível antes do guard nessa varredura estática.
-- Arquivos revisados em detalhe: `painel/assets/js/painel-auth.js`, `painel/index.html`, `painel/assets/js/sanitize.js`, `painel/assets/js/admin-sidebar.js`, `painel/assets/js/notifications.js`, `painel/admin/contratos.html`, `assets/js/sanitize.js`, `assets/js/supabase-client.js`, `assets/js/rich-text.js`, `blog/artigos/artigo-data.js`, `tratamentos/tratamento-data.js`, `painel/admin/dashboard.html`, `painel/admin/pacientes.html`, `painel/admin/documentos.html`, `painel/admin/agenda.html`, `painel/admin/financeiro.html`, `painel/admin/paciente.html`, `painel/paciente/painel.html`, `painel/paciente/anamnese.html`, `pre-atendimento/index.html`, `robots.txt`.
+- Arquivos revisados em detalhe: `painel/assets/js/painel-auth.js`, `painel/index.html`, `painel/assets/js/sanitize.js`, `painel/assets/js/admin-sidebar.js`, `painel/assets/js/notifications.js`, `painel/admin/contratos.html`, `assets/js/sanitize.js`, `assets/js/supabase-client.js`, `assets/js/rich-text.js`, `scripts/lib/conteudo.mjs`, `scripts/gerar-paginas-tratamentos.mjs`, `scripts/gerar-paginas-artigos.mjs`, `scripts/gerar-paginas-resultados.mjs`, `blog/artigos/artigo-data.js`, `tratamentos/tratamento-data.js`, `painel/admin/dashboard.html`, `painel/admin/pacientes.html`, `painel/admin/documentos.html`, `painel/admin/agenda.html`, `painel/admin/financeiro.html`, `painel/admin/paciente.html`, `painel/paciente/painel.html`, `painel/paciente/anamnese.html`, `pre-atendimento/index.html`, `robots.txt`.
 - `sanitize.js` oferece `escapeHtml()` e `safeUrl()`; foi corrigido o caminho de unwrap em `rich-text.js`, mas ainda falta rastrear o uso de ambos em todos os renderizadores.
 - Supabase: listagem de tabelas, status RLS, 87 políticas em `public`, grants efetivos para `anon`/`authenticated`, privilégios padrão, Security Advisor, histórico de migrations e comparação entre código implantado e versionado de três Edge Functions; consulta read-only executada como `anon` reproduziu erro de permissão em `testimonials`.
 - Todas as tabelas dos schemas `public` e `storage` retornaram RLS habilitado: 38/38 e 8/8, respectivamente. Não há views no schema `public` na consulta feita. Todas as funções `SECURITY DEFINER` consultadas têm `search_path` configurado; `anon` e `authenticated` não têm privilégio `CREATE` no schema `public`. Isso não prova que cada política seja correta nem substitui testes com roles reais.
 - Bucket `documentos-pacientes`: privado. Bucket `site-media`: público; 11 objetos sem referência atual foram identificados (4 em `resultados/`, 7 em `tratamentos/`) e exigem revisão antes de qualquer exclusão/movimentação.
-- O SDK Supabase foi fixado em `2.117.3` no cliente público, no painel e nas três Edge Functions. Chart.js foi fixado em `4.5.1` nas três páginas administrativas encontradas. A integridade/SRI e o inventário de todas as dependências externas ainda precisam ser avaliados.
+- O SDK Supabase foi fixado em `2.117.3` no cliente público, no painel e nas três Edge Functions. Chart.js foi fixado em `4.5.1` nas três páginas administrativas encontradas. As quatro GitHub Actions usam SHAs verificados para checkout/setup-node. A integridade/SRI e o inventário de todas as dependências externas ainda precisam ser avaliados.
 - `robots.txt` bloqueia rastreamento de `/painel/`; isso não é controle de acesso.
 - A chave `anon` presente no frontend é pública por desenho e não foi classificada como segredo privilegiado. Não foi encontrado uso de `service_role` no arquivo de autenticação revisado.
 
@@ -184,7 +199,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 
 - **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline, ausência de chave privilegiada no frontend e escaping dos sinks identificados.
 - **Executado com sucesso no GitHub Actions:** workflow `Security audit checks` run #62 (checagem de sintaxe dos módulos e testes estáticos, incluindo SDKs e URLs); `Validação de sintaxe dos HTML` run #82; `Bot triagem — validação` run #260. A validação do bot também passou usando `actions/checkout@v7.0.1` e `actions/setup-node@v7.1.0`. Os testes estáticos verificam padrões de segurança, não substituem testes dinâmicos de autorização.
-- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, teste da migration em homologação, teste funcional dos modelos de contrato/assinatura/PDF e da Edge Function reconciliada, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
+- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, teste da migration em homologação, geração completa de páginas estáticas em ambiente de teste, teste funcional dos modelos de contrato/assinatura/PDF e da Edge Function reconciliada, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
 - **Propostas SQL de revisão:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql` e `supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql`; nenhum dos arquivos foi aplicado. A migration de RLS requer teste específico em ambiente de homologação antes de qualquer implantação.
 
 ## Matriz de riscos pendentes
@@ -213,6 +228,8 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-023 | Baixa/média | URLs de imagem e texto dinâmico sem validação/escape nas páginas públicas | Corrigido na branch; aguardar CI e continuar rastreamento de atributos dinâmicos |
 | SEC-024 | Alta para disponibilidade pública | Políticas administrativas em `PUBLIC` chamam `is_admin()` sem EXECUTE para `anon` | Migração proposta na branch; validar fluxos públicos e administrativos em homologação antes de aplicar |
 | SEC-025 | Média | Modelo de contrato inserido no editor sem sanitização prévia | Corrigido na branch; testar opções, assinatura e PDF em homologação |
+| SEC-026 | Média | Gerador de páginas estáticas de tratamentos não sanitizava HTML rico | Corrigido na branch; aguardar CI e testar geração completa antes do deploy automático |
+| SEC-027 | Baixa | Actions fixadas por tag, não por SHA imutável | Corrigido na branch; aguardar CI e continuar revisão de cadeia de suprimentos |
 
 ## Limitações e próximos passos
 
