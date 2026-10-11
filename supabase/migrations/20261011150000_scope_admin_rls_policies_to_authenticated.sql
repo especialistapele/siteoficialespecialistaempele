@@ -13,7 +13,7 @@ BEGIN
   FOR policy_row IN
     SELECT schemaname, tablename, policyname
     FROM pg_policies
-    WHERE schemaname = 'public'
+    WHERE schemaname IN ('public', 'storage')
       AND roles @> ARRAY['public']::name[]
       AND policyname = ANY (ARRAY[
         'admin_full_access_announcements',
@@ -33,7 +33,9 @@ BEGIN
         'admin_update_publication_requests',
         'admin_full_access_documents',
         'support_documents_admin_all',
-        'admin_full_access_testimonials'
+        'admin_full_access_testimonials',
+        'documentos_admin_gerencia',
+        'site_media_admin_gerencia'
       ]::name[])
       AND (
         coalesce(qual, '') ILIKE '%is_admin()%'
