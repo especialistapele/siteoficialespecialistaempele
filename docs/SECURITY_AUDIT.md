@@ -83,11 +83,11 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 ### SEC-010 — Privilégios de tabela excessivos para anon e authenticated
 - **Gravidade:** média, com impacto potencial elevado; exploração direta por API REST não confirmada.
 - **Status:** configuração confirmada; script de correção proposto para revisão, não executado.
-- **Evidência:** consulta de privilégios efetivos encontrou `TRUNCATE` concedido a `anon` e `authenticated` nas 38 tabelas de `public`. A ACL de `patients`, `profiles` e `medical_records` também inclui `REFERENCES`, `TRIGGER` e `MAINTAIN` para ambas as roles. Uma consulta separada confirmou que as permissões são concessões explícitas às roles, não apenas herdadas de `PUBLIC`.
+- **Evidência:** consulta de privilégios efetivos encontrou `TRUNCATE` concedido a `anon` e `authenticated` nas 38 tabelas de `public`. A ACL de `patients`, `profiles` e `medical_records` também inclui `REFERENCES`, `TRIGGER` e `MAINTAIN` para ambas as roles. Uma consulta separada confirmou que as permissões são concessões explícitas às roles, não apenas herdadas de `PUBLIC`. Os privilégios padrão de criação de tabelas para `postgres` e `supabase_admin` também concedem esse conjunto de privilégios às roles cliente.
 - **Impacto:** RLS não restringe `TRUNCATE`; `TRIGGER`, `REFERENCES` e `MAINTAIN` são privilégios administrativos de tabela desnecessários para o uso normal do frontend. Não foi identificado caminho de API REST que permita executar `TRUNCATE` diretamente, então não classifico o achado como exploração confirmada.
-- **Correção proposta:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql` revoga somente `TRUNCATE`, `REFERENCES`, `TRIGGER` e `MAINTAIN` de `anon` e `authenticated` nas tabelas de `public`, preservando privilégios DML que dependem de RLS.
+- **Correção proposta:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql` propõe revogar somente `TRUNCATE`, `REFERENCES`, `TRIGGER` e `MAINTAIN` de `anon` e `authenticated` nas tabelas atuais de `public`, além de ajustar os privilégios padrão para tabelas futuras criadas por `postgres` e `supabase_admin`, preservando privilégios DML que dependem de RLS.
 - **Validação necessária antes de executar:** revisar em ambiente de teste, validar os fluxos legítimos e conferir as permissões pós-aplicação. Nenhum privilégio foi alterado no banco conectado.
-- **Risco residual:** permissões futuras em tabelas novas precisam ser revistas; a proposta ainda não configura privilégios padrão para objetos futuros.
+- **Risco residual:** a proposta ainda não foi aplicada nem testada em ambiente de homologação; as mudanças de privilégios padrão devem ser validadas com os responsáveis pela administração do projeto.
 
 ## Escopo verificado até aqui
 
