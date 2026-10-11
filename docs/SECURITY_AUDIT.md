@@ -36,6 +36,14 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Correção:** espera a operação, impede cliques duplicados, tenta encerrar a sessão local em falha, limpa elementos marcados `data-private-content` e redireciona para a tela de login. Mensagens de credenciais são genéricas e erros técnicos não são despejados no console.
 - **Risco residual:** páginas privadas devem marcar conteúdo sensível com `data-private-content` quando for necessário limpá-lo antes do redirecionamento; os guards e RLS continuam obrigatórios.
 
+### SEC-009 — Dados de perfil e caminhos de arquivo inseridos em HTML
+- **Gravidade:** baixa a média; sink de XSS potencial identificado e endurecido.
+- **Status:** corrigido na branch; aguardando teste.
+- **Evidência:** `painel/assets/js/admin-sidebar.js` inseria o nome e as iniciais do perfil diretamente em `innerHTML`; `painel/paciente/painel.html` inseria `support_documents.file_url` em um atributo HTML sem escape e aceitava links externos com protocolo HTTP no botão do prontuário.
+- **Correção:** escapar nome/iniciais na sidebar, escapar o caminho do arquivo no atributo e aceitar somente HTTPS para links externos (mantendo URLs relativas/mesma origem).
+- **Impacto plausível:** caso valores maliciosos cheguem a esses campos por importação, configuração ou outro fluxo, poderiam alterar o HTML renderizado. A revisão não confirmou um caminho de escrita pública para esses campos; portanto, o achado foi tratado como sink potencial, não como exploração comprovada.
+- **Risco residual:** continuar rastreando todos os usos de `innerHTML` e validar as fontes de dados e atributos de URL em cada módulo.
+
 ### SEC-004 — Proteção contra senhas comprometidas desabilitada
 - **Gravidade:** média (endurecimento de autenticação).
 - **Status:** confirmado no Supabase Security Advisor; requer configuração manual/validação no painel Supabase.
@@ -75,7 +83,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
-- Arquivos revisados: `painel/assets/js/painel-auth.js`, `painel/index.html`, `painel/assets/js/sanitize.js`, `robots.txt`.
+- Arquivos revisados: `painel/assets/js/painel-auth.js`, `painel/index.html`, `painel/assets/js/sanitize.js`, `painel/assets/js/admin-sidebar.js`, `painel/assets/js/notifications.js`, `assets/js/rich-text.js`, `painel/admin/dashboard.html`, `painel/admin/pacientes.html`, `painel/admin/documentos.html`, `painel/admin/agenda.html`, `painel/admin/financeiro.html`, `painel/admin/paciente.html`, `painel/paciente/painel.html`, `painel/paciente/anamnese.html`, `robots.txt`.
 - `sanitize.js` oferece `escapeHtml()` e `safeUrl()`; ainda falta rastrear o uso de ambos em todos os renderizadores.
 - Supabase: listagem de tabelas, status RLS, políticas relevantes, buckets e Security Advisor; inspeção parcial de três Edge Functions e dos corpos de funções SQL selecionadas.
 - Todas as tabelas listadas nos schemas `public` e `storage` retornaram RLS habilitado na consulta de metadados. Isso não é uma prova de que cada política seja correta, nem testa privilégios reais por role.
@@ -86,7 +94,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 
 ## Testes
 
-- **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline e ausência de chave privilegiada no frontend.
+- **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline, ausência de chave privilegiada no frontend e escaping dos sinks identificados.
 - **Pendente de execução:** o teste estático no CI e testes manuais no navegador com contas fictícias.
 - **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload e testes de falha de conexão. Não foram executadas operações de escrita no banco.
 
@@ -98,10 +106,10 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-005 | Média | Funções SECURITY DEFINER | Revisar grants e cenários negativos função a função |
 | SEC-006 | Média | Limites de upload ausentes | Definir limites e tipos permitidos |
 | SEC-008 | Média | Políticas RLS redundantes | Testes de isolamento com contas fictícias e proposta de migração |
-| SEC-009 | Alta potencial | Auditoria de todas as páginas privadas | Inventariar guards e consultas em todo o repositório |
-| SEC-010 | Média | Segredos no histórico Git | Executar varredura dedicada e documentar rotação se necessário |
-| SEC-011 | Média | Cabeçalhos/HTTPS/cache | Confirmar hospedagem e configuração efetiva fora do repositório |
-| SEC-012 | Média | Dependências e Actions | Inventariar workflows, versões de actions, lockfiles e executar scanners |
+| SEC-010 | Alta potencial | Auditoria de todas as páginas privadas | Inventariar guards e consultas em todo o repositório |
+| SEC-011 | Média | Segredos no histórico Git | Executar varredura dedicada e documentar rotação se necessário |
+| SEC-012 | Média | Cabeçalhos/HTTPS/cache | Confirmar hospedagem e configuração efetiva fora do repositório |
+| SEC-013 | Média | Dependências e Actions | Inventariar workflows, versões de actions, lockfiles e executar scanners |
 
 ## Limitações e próximos passos
 
