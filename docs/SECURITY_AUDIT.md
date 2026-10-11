@@ -121,6 +121,13 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Correção recomendada:** reconciliar cada entrada aplicada com o SQL versionado, registrar equivalências e criar migrações incrementais revisáveis para alterações ausentes; não reexecutar migrations históricas automaticamente nem marcar versões como aplicadas sem revisão.
 - **Risco residual:** não foi possível recuperar o corpo SQL histórico apenas a partir da tabela de versões; nenhuma migração foi executada ou alterada no banco.
 
+### SEC-019 — Validação de URLs aceitava HTTP externo e URLs protocol-relative
+- **Gravidade:** baixa a média (validação de URL/mixed content).
+- **Status:** corrigido na branch; teste estático aprovado.
+- **Evidência:** `assets/js/sanitize.js` aceitava URLs `http:` externas e, quando `allowRelative` estava ativo, retornava qualquer valor iniciado por `/`, incluindo URLs protocol-relative e caminhos com barra invertida.
+- **Correção:** URLs externas agora precisam usar HTTPS; URLs da mesma origem continuam permitidas; caminhos relativos só são retornados se forem relativos à raiz, não começarem com `//` e não contiverem barra invertida.
+- **Risco residual:** cada chamador ainda precisa escapar a URL no contexto HTML e avaliar se URLs externas são permitidas para aquele campo.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
@@ -159,6 +166,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-016 | Média | Formulário público sem antiabuso/validação server-side | Projetar Edge Function com limites e rate limit; validar base legal para dados sensíveis |
 | SEC-017 | Média potencial | Objetos órfãos em bucket público | Revisar conteúdo/consentimento de 11 objetos antes de decidir remoção ou migração |
 | SEC-018 | Média | Histórico de migrations não reconciliado | Comparar SQL aplicado com arquivos versionados antes de novas implantações |
+| SEC-019 | Baixa/média | URLs externas HTTP e protocol-relative | Corrigido e testado estaticamente; revisar todos os chamadores |
 
 ## Limitações e próximos passos
 
