@@ -97,7 +97,7 @@
 <script type="module">
   import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash } from "/painel/assets/js/painel-auth.js";
   import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
-  import { escapeHtml } from "/painel/assets/js/sanitize.js";
+  import { escapeHtml, safeUrl } from "/painel/assets/js/sanitize.js";
   import { sanitizeRichHtml } from "/assets/js/rich-text.js";
 
   const contexto = await exigirAdmin();
@@ -218,7 +218,7 @@
     const paciente = pacientesDetalhados.get(document.getElementById("patient_id").value);
     if (!modelo) return;
     document.getElementById("title").value = modelo.title || "";
-    editor.innerHTML = substituirDadosPaciente(modelo.content_html || "", paciente);
+    editor.innerHTML = sanitizeRichHtml(substituirDadosPaciente(modelo.content_html || "", paciente));
     sincronizarEditor();
   }
 
@@ -273,8 +273,9 @@
     blocoAssinatura.innerHTML = "";
     if (c.status === "assinado" && c.signature_image_path) {
       const { data } = await supabase.storage.from("documentos-pacientes").createSignedUrl(c.signature_image_path, 3600);
-      if (data?.signedUrl) {
-        blocoAssinatura.innerHTML = `<strong>Assinatura:</strong><br><img class="assinatura" src="${data.signedUrl}" alt="Assinatura do paciente">`;
+      const signatureUrl = safeUrl(data?.signedUrl);
+      if (signatureUrl) {
+        blocoAssinatura.innerHTML = `<strong>Assinatura:</strong><br><img class="assinatura" src="${escapeHtml(signatureUrl)}" alt="Assinatura do paciente">`;
       }
     }
     modalVer.style.display = "flex";

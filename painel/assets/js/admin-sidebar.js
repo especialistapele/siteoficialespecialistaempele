@@ -2,6 +2,8 @@
 // admin-sidebar.js — sidebar reutilizável do painel administrativo
 // ============================================================
 
+import { escapeHtml } from "/painel/assets/js/sanitize.js";
+
 const ICONES = {
   notificacoes: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4"/></svg>`,
   dashboard: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>`,
@@ -59,8 +61,8 @@ export function renderSidebarAdmin(ativo, nome = "Admin") {
         <div class="selo-ep"><img src="/painel/assets/img/logo-especialista.webp" alt="Especialista em Pele — Danielle Brito"></div>
       </div>
       <div class="painel-sidebar__perfil">
-        <div class="painel-sidebar__avatar">${iniciaisNome}</div>
-        <div><div style="font-size:13px;font-weight:700">${nome}</div><small>Administrador</small></div>
+        <div class="painel-sidebar__avatar">${escapeHtml(iniciaisNome)}</div>
+        <div><div style="font-size:13px;font-weight:700">${escapeHtml(nome)}</div><small>Administrador</small></div>
       </div>
       <nav>${links}</nav>
       <button class="painel-sidebar__sair" data-sair>${ICONES.sair} Sair</button>

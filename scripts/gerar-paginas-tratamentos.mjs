@@ -23,6 +23,7 @@
 // ============================================================
 
 import { writeFileSync, mkdirSync, existsSync, readFileSync, readdirSync, unlinkSync } from "node:fs";
+import { urlSegura, renderizarConteudo } from "./lib/conteudo.mjs";
 
 const SITE = "https://www.especialistaempele.com.br";
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://clwaotfbqwvxpykruwed.supabase.co";
@@ -48,19 +49,6 @@ function escapeHtml(str) {
   }[c]));
 }
 
-// Espelha renderizarOrientacao() de tratamentos/tratamento-data.js:
-// se o texto salvo já parece HTML (produzido pelo editor do painel),
-// usa como está; se for texto simples antigo, escapa e separa em <p>.
-function pareceHtml(valor) {
-  return /<\/?[a-z][\s\S]*>/i.test(String(valor ?? ""));
-}
-function paragrafar(texto) {
-  return texto.split(/\n\s*\n/).map((p) => `<p>${escapeHtml(p.trim())}</p>`).join("");
-}
-function renderizarOrientacao(texto) {
-  return pareceHtml(texto) ? String(texto ?? "") : paragrafar(String(texto ?? ""));
-}
-
 async function buscarPublicados(tabela) {
   const url = `${SUPABASE_URL}/rest/v1/${tabela}?select=*&published=eq.true`;
   const resp = await fetch(url, {
@@ -76,9 +64,11 @@ export function paginaHtml(t) {
   const resumoBruto = (t.summary || t.description || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   const descricaoMeta = (resumoBruto.slice(0, 155) || "Tratamento regenerativo — Especialista em Pele.");
   const urlCanonica = `${SITE}/tratamentos/${slugArquivo}.html`;
-  const imagemMeta = t.cover_image_url || `${SITE}/assets/hero-fallback.webp`;
-  const ctaHtml = t.cta_label && t.cta_url
-    ? `<p class="texto-centro" style="margin-top:28px"><a class="btn btn-dourado" href="${escapeHtml(t.cta_url)}">${escapeHtml(t.cta_label)}</a></p>`
+  const imagem = urlSegura(t.cover_image_url);
+  const imagemMeta = imagem || `${SITE}/assets/hero-fallback.webp`;
+  const ctaUrl = t.cta_url ? urlSegura(t.cta_url, { relativa: true }) : "";
+  const ctaHtml = t.cta_label && ctaUrl
+    ? `<p class="texto-centro" style="margin-top:28px"><a class="btn btn-dourado" href="${escapeHtml(ctaUrl)}">${escapeHtml(t.cta_label)}</a></p>`
     : "";
 
   const schema = {
@@ -154,8 +144,8 @@ export function paginaHtml(t) {
   <article class="secao wrap" style="max-width:70ch">
     <p class="card__meta texto-centro">Tratamento regenerativo</p>
     <h1 class="texto-centro">${escapeHtml(t.name)}</h1>
-    ${t.cover_image_url ? `<img src="${escapeHtml(t.cover_image_url)}" alt="${escapeHtml(t.name)}" style="width:100%;border-radius:10px;margin:24px 0" loading="lazy">` : ""}
-    <div class="artigo-corpo">${renderizarOrientacao(t.description || t.summary || "")}</div>
+    ${imagem ? `<img src="${escapeHtml(imagem)}" alt="${escapeHtml(t.name)}" style="width:100%;border-radius:10px;margin:24px 0" loading="lazy">` : ""}
+    <div class="artigo-corpo">${renderizarConteudo(t.description || t.summary || "")}</div>
     ${ctaHtml}
   </article>
   <section class="secao fundo-escura texto-centro">

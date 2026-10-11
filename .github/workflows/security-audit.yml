@@ -1,0 +1,108 @@
+name: Security audit checks
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "assets/js/bot-triagem.js"
+      - "tests/bot-triagem-cenarios.mjs"
+      - "painel/assets/js/contrato-pdf.js"
+      - "supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql"
+      - "supabase/migrations/20261011170000_constrain_patient_signature_paths.sql"
+      - "supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql"
+      - "supabase/migrations/20261011200000_harden_public_bot_logging.sql"
+      - "supabase/migrations/20261011210000_harden_submit_anamnesis_concept_mapping.sql"
+      - "supabase/migrations/20261011230000_validate_public_pre_atendimento.sql"
+      - "supabase/migrations/20261011240000_revoke_direct_anamnesis_writes.sql"
+      - "supabase/migrations/20261011250000_harden_anamnesis_attachment_writes.sql"
+      - "supabase/migrations/20261011260000_scope_anamnesis_storage_uploads.sql"
+      - "supabase/migrations/20261011260000_scope_anamnesis_storage_uploads.sql"
+      - "scripts/gerar-paginas-artigos.mjs"
+      - "scripts/gerar-paginas-resultados.mjs"
+      - "scripts/lib/conteudo.mjs"
+      - "scripts/gerar-paginas-tratamentos.mjs"
+      - "tests/publication-content-security.mjs"
+      - "painel/assets/js/painel-auth.js"
+      - "supabase/functions/create-patient/index.ts"
+      - "supabase/functions/disparar-publicacao/index.ts"
+      - "supabase/functions/reconciliar-publicacao/index.ts"
+      - "painel/assets/js/admin-sidebar.js"
+      - "painel/paciente/painel.html"
+      - "painel/assets/js/sanitize.js"
+      - "assets/js/rich-text.js"
+      - "assets/js/sanitize.js"
+      - "assets/js/supabase-client.js"
+      - "painel/index.html"
+      - "painel/admin/dashboard.html"
+      - "painel/admin/paciente.html"
+      - "painel/admin/configuracoes.html"
+      - "painel/admin/contratos.html"
+      - "tests/painel-auth-security.mjs"
+      - "docs/SECURITY_AUDIT.md"
+      - ".github/workflows/security-audit.yml"
+  push:
+    branches: ["security/audit-hardening"]
+    paths:
+      - "docs/SECURITY_AUDIT.md"
+      - "assets/js/bot-triagem.js"
+      - "tests/bot-triagem-cenarios.mjs"
+      - "painel/assets/js/contrato-pdf.js"
+      - "supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql"
+      - "supabase/migrations/20261011170000_constrain_patient_signature_paths.sql"
+      - "supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql"
+      - "supabase/migrations/20261011200000_harden_public_bot_logging.sql"
+      - "supabase/migrations/20261011210000_harden_submit_anamnesis_concept_mapping.sql"
+      - "supabase/migrations/20261011230000_validate_public_pre_atendimento.sql"
+      - "supabase/migrations/20261011240000_revoke_direct_anamnesis_writes.sql"
+      - "supabase/migrations/20261011250000_harden_anamnesis_attachment_writes.sql"
+      - "scripts/gerar-paginas-artigos.mjs"
+      - "scripts/gerar-paginas-resultados.mjs"
+      - "scripts/lib/conteudo.mjs"
+      - "scripts/gerar-paginas-tratamentos.mjs"
+      - "tests/publication-content-security.mjs"
+      - "painel/assets/js/painel-auth.js"
+      - "supabase/functions/create-patient/index.ts"
+      - "supabase/functions/disparar-publicacao/index.ts"
+      - "supabase/functions/reconciliar-publicacao/index.ts"
+      - "painel/assets/js/admin-sidebar.js"
+      - "painel/paciente/painel.html"
+      - "painel/assets/js/sanitize.js"
+      - "assets/js/rich-text.js"
+      - "assets/js/sanitize.js"
+      - "assets/js/supabase-client.js"
+      - "painel/index.html"
+      - "painel/admin/contratos.html"
+      - "tests/painel-auth-security.mjs"
+      - ".github/workflows/security-audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  auth-security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Syntax-check changed ES modules
+        run: |
+          node --input-type=module --check < assets/js/bot-triagem.js
+          node --input-type=module --check < painel/assets/js/contrato-pdf.js
+          node --input-type=module --check < painel/assets/js/painel-auth.js
+          node --input-type=module --check < painel/assets/js/admin-sidebar.js
+          node --input-type=module --check < painel/assets/js/sanitize.js
+          node --input-type=module --check < assets/js/rich-text.js
+          node --check scripts/lib/conteudo.mjs
+          node --check scripts/gerar-paginas-tratamentos.mjs
+          node --check scripts/gerar-paginas-artigos.mjs
+          node --check scripts/gerar-paginas-resultados.mjs
+      - name: Static auth security regression checks
+        run: node tests/painel-auth-security.mjs
+      - name: Static publication content security checks
+        run: node tests/publication-content-security.mjs
+      - name: Bot triage scenario checks
+        run: node tests/bot-triagem-cenarios.mjs

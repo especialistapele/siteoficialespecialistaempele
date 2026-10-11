@@ -1,3 +1,5 @@
+import { sanitizeRichHtml } from "/assets/js/rich-text.js";
+
 // ============================================================
 // contrato-pdf.js — monta um PDF simples do contrato assinado
 // (texto + assinatura desenhada) para o paciente baixar.
@@ -7,7 +9,7 @@
 
 function htmlParaTexto(html) {
   const div = document.createElement("div");
-  div.innerHTML = String(html ?? "");
+  div.innerHTML = sanitizeRichHtml(String(html ?? ""));
   div.querySelectorAll("br").forEach((br) => br.replaceWith("\n"));
   div.querySelectorAll("p, div").forEach((el) => el.append("\n"));
   return (div.textContent || "").replace(/\n{3,}/g, "\n\n").trim();

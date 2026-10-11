@@ -30,7 +30,7 @@ async function carregar() {
   const dataFormatada = data.published_at ? new Date(data.published_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }) : "";
   const ctaUrl = data.cta_url ? safeUrl(data.cta_url) : "";
   const ctaHtml = data.cta_label && ctaUrl
-    ? `<p class="texto-centro" style="margin-top:28px"><a class="btn btn-dourado" href="${ctaUrl}">${escapeHtml(data.cta_label)}</a></p>`
+    ? `<p class="texto-centro" style="margin-top:28px"><a class="btn btn-dourado" href="${escapeHtml(ctaUrl)}">${escapeHtml(data.cta_label)}</a></p>`
     : "";
 
   // ------------------------------------------------------------------
@@ -46,7 +46,8 @@ async function carregar() {
   // Google não tratar esta versão dinâmica como conteúdo duplicado.
   const slugArquivo = slug.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   const urlCanonica = `https://www.especialistaempele.com.br/blog/${slugArquivo}.html`;
-  const imagemMeta = data.cover_image_url || "https://www.especialistaempele.com.br/assets/hero-fallback.webp";
+  const imagemMeta = safeUrl(data.cover_image_url) || "https://www.especialistaempele.com.br/assets/hero-fallback.webp";
+  const imagemConteudo = safeUrl(data.cover_image_url);
 
   document.getElementById("meta-description")?.setAttribute("content", descricaoMeta);
   document.getElementById("og-title")?.setAttribute("content", tituloCompleto);
@@ -87,9 +88,9 @@ async function carregar() {
   document.head.appendChild(schema);
 
   container.innerHTML = `
-    <p class="card__meta texto-centro">${dataFormatada}${data.treatments ? " · " + data.treatments.name : ""}</p>
+    <p class="card__meta texto-centro">${dataFormatada}${data.treatments ? " · " + escapeHtml(data.treatments.name) : ""}</p>
     <h1 class="texto-centro">${escapeHtml(data.title)}</h1>
-    ${data.cover_image_url ? `<img src="${data.cover_image_url}" alt="${escapeHtml(data.title)}" style="width:100%;border-radius:10px;margin:24px 0" loading="lazy">` : ""}
+    ${imagemConteudo ? `<img src="${escapeHtml(imagemConteudo)}" alt="${escapeHtml(data.title)}" style="width:100%;border-radius:10px;margin:24px 0" loading="lazy">` : ""}
     <div class="artigo-corpo">${renderizarConteudo(data.content || "")}</div>
     ${ctaHtml}
   `;

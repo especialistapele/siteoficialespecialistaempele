@@ -34,12 +34,31 @@
     }
   }
 
+  function uuidFallback() {
+    const bytes = new Uint8Array(16);
+    let generated = false;
+    try {
+      if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+        crypto.getRandomValues(bytes);
+        generated = true;
+      }
+    } catch {}
+    if (!generated) {
+      for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+    }
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+  }
+
   function getSessionId() {
     if (sessionId) return sessionId;
     try {
       sessionId = crypto.randomUUID();
     } catch {
-      sessionId = "sess-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+      // session_id é UUID no banco; o fallback também precisa manter esse formato.
+      sessionId = uuidFallback();
     }
     return sessionId;
   }
@@ -358,22 +377,18 @@
       const client = await getSupabaseClient();
       if (!client) return null;
 
-      const { data, error } = await client
-        .from("bot_conversations")
-        .insert({
-          session_id: getSessionId(),
-          treatment_context: state.context,
-          treatment_name: CONFIG.labels[state.context] || state.context,
-          page_path: path
-        })
-        .select("id")
-        .single();
+      const { data, error } = await client.rpc("create_bot_conversation", {
+        p_session_id: getSessionId(),
+        p_treatment_context: state.context,
+        p_treatment_name: CONFIG.labels[state.context] || state.context,
+        p_page_path: path
+      });
 
-      if (error) {
-        console.warn("[Bot] Não foi possível abrir histórico:", error.message);
+      if (error || typeof data !== "string" || !data) {
+        console.warn("[Bot] Não foi possível abrir histórico:", error?.message || "resposta inválida");
         return null;
       }
-      conversationId = data.id;
+      conversationId = data;
       saveSession();
       return conversationId;
     })();

@@ -44,10 +44,10 @@ export async function buscarResultadosPublicados() {
     if (!porResultado.has(im.result_id)) porResultado.set(im.result_id, []);
     porResultado.get(im.result_id).push(im);
   }
-  return resultados.filter((r) => r.public_id && r.slug).map((r) => ({ ...r, extras: porResultado.get(r.id) || [] }));
+  return resultados.filter((r) => r.public_id && slugifyUrl(r.slug)).map((r) => ({ ...r, slug: slugifyUrl(r.slug), extras: porResultado.get(r.id) || [] }));
 }
 
-export const urlDoResultado = (r) => `${SITE}/resultados/${r.slug}.html`;
+export const urlDoResultado = (r) => `${SITE}/resultados/${slugifyUrl(r.slug)}.html`;
 
 // Lista ordenada de TODAS as fotos do resultado (antes, depois, extras).
 export function fotosDoResultado(r) {
@@ -67,7 +67,7 @@ function cardResultado(r) {
   const antes = urlSegura(r.before_image_url), depois = urlSegura(r.after_image_url);
   const slider = antes && depois
     ? `<div class="antes-depois-slider" data-antes-depois><img class="ad-depois" src="${escapeHtml(depois)}" alt="Depois — ${escapeHtml(r.title)}"><img class="ad-antes" src="${escapeHtml(antes)}" alt="Antes — ${escapeHtml(r.title)}"><span class="ad-tag ad-tag-antes">Antes</span><span class="ad-tag ad-tag-depois">Depois</span><div class="ad-handle"><span class="ad-handle-grip"></span></div></div>` : "";
-  return `<article class="card">${slider}<div class="card__corpo">${r.treatments ? `<span class="selo">${escapeHtml(r.treatments.name)}</span>` : ""}<h3>${escapeHtml(r.title)}</h3><p>${escapeHtml(r.description)}</p><a class="card__link" href="/resultados/${escapeHtml(r.slug)}.html">Ver caso completo →</a></div></article>`;
+  return `<article class="card">${slider}<div class="card__corpo">${r.treatments ? `<span class="selo">${escapeHtml(r.treatments.name)}</span>` : ""}<h3>${escapeHtml(r.title)}</h3><p>${escapeHtml(r.description)}</p><a class="card__link" href="/resultados/${escapeHtml(slugifyUrl(r.slug))}.html">Ver caso completo →</a></div></article>`;
 }
 
 export function paginaHtml(r, { fotos, dims, outros = [] }) {
@@ -146,7 +146,7 @@ export function paginaHtml(r, { fotos, dims, outros = [] }) {
   const corpo = corpoTexto ? renderizarConteudo(corpoTexto) : "";
   const linkTrat = trat?.slug ? `${SITE}/tratamentos/${slugifyUrl(trat.slug)}.html` : "";
   const outrosHtml = outros.length
-    ? `<h2 style="font-size:1.25rem;margin-top:44px">Outros resultados${trat ? ` de ${escapeHtml(trat.name)}` : ""}</h2><ul style="margin:12px 0 0 20px;line-height:1.9">${outros.map((o) => `<li><a href="/resultados/${escapeHtml(o.slug)}.html">${escapeHtml(o.title)}</a></li>`).join("")}</ul>` : "";
+    ? `<h2 style="font-size:1.25rem;margin-top:44px">Outros resultados${trat ? ` de ${escapeHtml(trat.name)}` : ""}</h2><ul style="margin:12px 0 0 20px;line-height:1.9">${outros.map((o) => `<li><a href="/resultados/${escapeHtml(slugifyUrl(o.slug))}.html">${escapeHtml(o.title)}</a></li>`).join("")}</ul>` : "";
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -225,7 +225,7 @@ export async function gerar({ log = console.log } = {}) {
   const itens = resultados.map((r) => {
     const mesmos = resultados.filter((o) => o.id !== r.id && r.treatment_id && o.treatment_id === r.treatment_id);
     const outros = mesmos.slice(0, 4);
-    return { id: r.public_id, slug: r.slug, html: paginaHtml(r, { fotos: fotosDoResultado(r), dims, outros }) };
+    return { id: r.public_id, slug: slugifyUrl(r.slug), html: paginaHtml(r, { fotos: fotosDoResultado(r), dims, outros }) };
   });
 
   const rel = sincronizarPastas({ pastas: [PASTA], urlBase: `${SITE}/resultados`, itens, log });

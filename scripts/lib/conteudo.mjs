@@ -49,17 +49,18 @@ export function dataISO(iso) {
   return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
 }
 
-// Só aceita http(s) — nunca javascript: etc.
+// URLs externas precisam de HTTPS. Caminhos relativos são aceitos apenas
+// quando começam na raiz e não podem ser protocol-relative nem conter barra invertida.
 export function urlSegura(valor, { relativa = false } = {}) {
   const raw = String(valor ?? "").trim();
-  if (!raw) return "";
-  if (relativa && raw.startsWith("/") && !raw.startsWith("//")) return raw;
+  if (!raw || [...raw].some((ch) => ch.charCodeAt(0) < 32 || ch.charCodeAt(0) === 127)) return "";
+  const barraInvertida = String.fromCharCode(92);
+  if (relativa && raw.startsWith("/") && !raw.startsWith("//") && !raw.includes(barraInvertida)) return raw;
   try {
     const u = new URL(raw);
-    return u.protocol === "https:" || u.protocol === "http:" ? u.href : "";
+    return u.protocol === "https:" ? u.href : "";
   } catch { return ""; }
 }
-
 // ------------------------------------------------------------
 // Texto rico. Espelha assets/js/rich-text.js: só passa a formatação
 // que o editor do painel produz. Defesa em profundidade (o painel
@@ -266,9 +267,20 @@ function escreverSeMudou(caminho, conteudo) {
 }
 
 export function sincronizarPastas({ pastas, urlBase, itens, resolverLegado = null, log = console.log }) {
+  if (!Array.isArray(pastas) || !pastas.length) throw new Error("É necessário informar ao menos uma pasta de saída.");
   const [principal] = pastas;
+  const slugsVistos = new Map();
+  const itensSeguros = itens.map((item) => {
+    const slug = slugifyUrl(item?.slug);
+    if (!slug) throw new Error("Slug vazio ou inválido; publicação cancelada para evitar escrita fora da pasta.");
+    if (slugsVistos.has(slug)) {
+      throw new Error(`Slug duplicado após normalização: "${item.slug}" e "${slugsVistos.get(slug)}" -> ${slug}.`);
+    }
+    slugsVistos.set(slug, String(item.slug));
+    return { ...item, slug };
+  });
   for (const p of pastas) mkdirSync(p, { recursive: true });
-  const porId = new Map(itens.map((i) => [i.id, i]));
+  const porId = new Map(itensSeguros.map((i) => [i.id, i]));
   const relatorio = { criadas: [], atualizadas: [], redirecionadas: [], removidas: [], erros: [], legadasIgnoradas: [] };
 
   // 1) inventário do que existe
@@ -306,7 +318,7 @@ export function sincronizarPastas({ pastas, urlBase, itens, resolverLegado = nul
   }
 
   // 5) páginas completas
-  for (const item of itens) {
+  for (const item of itensSeguros) {
     const caminho = `${principal}/${item.slug}.html`;
     if (existsSync(caminho)) {
       const dono = idDoArquivo(caminho);

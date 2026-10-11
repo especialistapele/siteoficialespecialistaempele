@@ -1,0 +1,338 @@
+# Auditoria de segurança — Especialista em Pele
+
+**Status:** em andamento; esta documentação registra evidências observadas e não representa certificação de segurança nem conformidade jurídica.
+**Repositório:** `especialistapele/siteoficialespecialistaempele`
+**Branch de trabalho:** `security/audit-hardening`
+**Projeto Supabase verificado:** `clwaotfbqwvxpykruwed` (Especialista)
+**Última verificação do banco:** 11/10/2026
+
+## Resumo executivo
+
+A auditoria inicial encontrou uma falha confirmada no direcionamento do login: `resolverDestino()` podia aceitar um resultado sem cadastro de paciente porque só verificava se `acesso_painel` era diferente de `false`. Também foram identificadas melhorias necessárias no tratamento de falhas de consulta, no logout e nas mensagens do login.
+
+As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem executar migrações no banco. A auditoria do Supabase identificou que RLS está habilitado nas tabelas consultadas do schema `public` e nas tabelas de `storage`; isso é positivo, mas não prova por si só que cada política está correta. O Security Advisor reporta proteção contra senhas comprometidas desabilitada e nove funções `SECURITY DEFINER` executáveis por usuários autenticados. As funções devem continuar sob revisão individual: esse alerta não prova, isoladamente, uma exploração, e várias funções verificadas fazem checagens explícitas de administrador ou propriedade.
+
+## Achados
+
+### SEC-001 — Direcionamento de paciente sem cadastro válido
+- **Gravidade:** média (controle de acesso no frontend; RLS permanece a barreira de segurança real).
+- **Status:** corrigido na branch; testes estáticos aprovados; validação manual no navegador pendente.
+- **Evidência:** em `painel/assets/js/painel-auth.js`, a condição anterior `paciente?.acesso_painel !== false` podia ser verdadeira quando `paciente` era nulo.
+- **Impacto plausível:** tentativa de encaminhar usuário sem vínculo válido à página do paciente; a exposição de dados dependeria também das políticas RLS e dos controles da página.
+- **Correção:** exige identificador de usuário válido, consulta sem erro, cadastro de paciente existente e ausência de bloqueio explícito. Falha de consulta retorna um marcador temporário distinto de `null`, para que o login não encerre a sessão indevidamente; ausência de cadastro/bloqueio retorna `null`.
+- **Risco residual:** o navegador não substitui autorização no banco/backend.
+
+### SEC-002 — Guards encerravam a sessão em falhas de consulta
+- **Gravidade:** baixa a média (disponibilidade/experiência e tratamento de erro).
+- **Status:** corrigido na branch; testes estáticos aprovados; validação manual pendente.
+- **Evidência:** as implementações anteriores chamavam `signOut()` para qualquer erro de consulta de perfil/paciente, sem separar indisponibilidade temporária de ausência de autorização.
+- **Correção:** os guards agora falham fechados e distinguem erro de consulta (redirecionamento temporário) de perfil ausente/sem papel adequado ou paciente bloqueado. A falha de banco não concede acesso nem encerra automaticamente a sessão.
+- **Risco residual:** validar em navegador com sessões de teste e indisponibilidade simulada.
+
+### SEC-003 — Logout e mensagens de autenticação
+- **Gravidade:** baixa a média.
+- **Status:** endurecimento implementado na branch; testes estáticos aprovados; validação manual pendente.
+- **Evidência:** o logout anterior não aguardava nem verificava o resultado de `signOut()`; o login registrava o objeto completo de erro no console e usava mensagens distintas para algumas falhas.
+- **Correção:** espera a operação, impede cliques duplicados, tenta encerrar a sessão local em falha, limpa elementos marcados `data-private-content` e redireciona para a tela de login. Mensagens de credenciais são genéricas e erros técnicos não são despejados no console.
+- **Risco residual:** páginas privadas devem marcar conteúdo sensível com `data-private-content` quando for necessário limpá-lo antes do redirecionamento; os guards e RLS continuam obrigatórios.
+
+### SEC-009 — Dados de perfil e caminhos de arquivo inseridos em HTML
+- **Gravidade:** baixa a média; sink de XSS potencial identificado e endurecido.
+- **Status:** corrigido na branch; testes estáticos aprovados; validação manual pendente.
+- **Evidência:** `painel/assets/js/admin-sidebar.js` inseria o nome e as iniciais do perfil diretamente em `innerHTML`; `painel/paciente/painel.html` inseria `support_documents.file_url` em um atributo HTML sem escape e aceitava links externos com protocolo HTTP no botão do prontuário.
+- **Correção:** escapar nome/iniciais na sidebar, escapar o caminho do arquivo no atributo e aceitar somente HTTPS para links externos (mantendo URLs relativas/mesma origem).
+- **Impacto plausível:** caso valores maliciosos cheguem a esses campos por importação, configuração ou outro fluxo, poderiam alterar o HTML renderizado. A revisão não confirmou um caminho de escrita pública para esses campos; portanto, o achado foi tratado como sink potencial, não como exploração comprovada.
+- **Risco residual:** continuar rastreando todos os usos de `innerHTML` e validar as fontes de dados e atributos de URL em cada módulo.
+
+### SEC-004 — Proteção contra senhas comprometidas desabilitada
+- **Gravidade:** média (endurecimento de autenticação).
+- **Status:** confirmado no Supabase Security Advisor; requer configuração manual/validação no painel Supabase.
+- **Evidência:** advisor `auth_leaked_password_protection` indica que a proteção contra senhas vazadas está desabilitada.
+- **Impacto:** senhas conhecidas em vazamentos podem ser aceitas, conforme as demais regras de senha.
+- **Ação recomendada:** habilitar proteção contra senhas comprometidas no ambiente Supabase após avaliar compatibilidade e fluxo de redefinição. Não foi alterada configuração de produção nesta etapa.
+- **Referência:** https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
+
+### SEC-005 — Funções SECURITY DEFINER expostas a authenticated
+- **Gravidade:** média, sob revisão; não classificado como exploração confirmada.
+- **Status:** alerta do Security Advisor confirmado; revisão de código parcial.
+- **Evidência:** o advisor listou `admin_stats()`, `admin_storage_stats()`, duas sobrecargas de `assinar_contrato(...)`, `grant_anamnesis_edit(...)`, `is_admin()`, `release_anamnesis(...)`, `save_anamnesis_draft(...)` e `submit_anamnesis(...)` como funções `SECURITY DEFINER` executáveis por `authenticated`.
+- **Observações:** a implementação consultada de `is_admin()` verifica `profiles.id = auth.uid()` e `role = 'admin'`. Os corpos consultados de funções administrativas verificam administrador; as funções de assinatura/envio consultam o vínculo com o próprio paciente. Isso reduz o risco, mas é necessário concluir revisão de todos os corpos, privilégios efetivos, argumentos, retornos e cenários negativos.
+- **Ação recomendada:** restringir `EXECUTE` quando a função não precisar ser chamada diretamente por pacientes autenticados; não revogar em bloco sem mapear os fluxos legítimos.
+- **Referência:** https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable
+
+### SEC-006 — Limites de upload ausentes no bucket privado
+- **Gravidade:** média (abuso de recursos e validação de arquivo).
+- **Status:** configuração observada; requer decisão e configuração no Supabase.
+- **Evidência:** o bucket `documentos-pacientes` está privado, mas `file_size_limit` e `allowed_mime_types` aparecem como nulos.
+- **Impacto plausível:** uploads excessivamente grandes ou tipos de arquivo inesperados podem aumentar risco operacional, de armazenamento e de processamento.
+- **Ação recomendada:** definir tamanho máximo e tipos permitidos com base nos documentos e assinaturas realmente aceitos; validar tipo/tamanho também no fluxo de upload. Não alterado em produção.
+
+### SEC-007 — CORS amplo nas Edge Functions
+- **Gravidade:** informativa por si só; avaliar em conjunto com autenticação e abuso.
+- **Status:** observado em funções consultadas.
+- **Evidência:** `create-patient`, `reconciliar-publicacao` e `disparar-publicacao` respondem com `Access-Control-Allow-Origin: *`. As três têm `verify_jwt: true` no inventário de funções e o código consultado verifica usuário autenticado e papel de administrador antes das operações privilegiadas.
+- **Interpretação:** CORS não substitui autenticação e o wildcard não comprova, sozinho, acesso indevido. Recomenda-se limitar origens quando compatível com os clientes existentes, sem confiar nisso como controle de autorização.
+
+### SEC-008 — Políticas RLS redundantes em tabelas de pacientes
+- **Gravidade:** baixa a média, revisão pendente.
+- **Status:** observado; não foi feita alteração no banco.
+- **Evidência:** a consulta encontrou 87 políticas em `public` e múltiplas políticas permissivas de SELECT em cinco tabelas: `anamnesis_attachments`, `announcements`, `financial_transactions`, `medical_records` e `support_documents`. Em quatro delas existem predicados `patient_id = auth.uid()` além de políticas que relacionam `patient_id` ao registro em `patients`. A consulta agregada encontrou cinco registros em que `patients.id = patients.user_id`; isso não significa que todos os pacientes tenham essa igualdade. Não foi feito teste de acesso cruzado.
+- **Impacto plausível:** políticas permissivas combinam-se por OR; duplicações podem causar confusão futura e uma política simplificada pode ampliar acesso se a relação de IDs mudar.
+- **Ação recomendada:** testar com duas contas fictícias e simplificar apenas após confirmar todos os fluxos e chaves de propriedade. Nenhum teste de acesso cruzado foi executado contra contas reais e nenhuma política foi alterada.
+
+### SEC-010 — Privilégios de tabela excessivos para anon e authenticated
+- **Gravidade:** média, com impacto potencial elevado; exploração direta por API REST não confirmada.
+- **Status:** configuração confirmada; script de correção proposto para revisão, não executado.
+- **Evidência:** consulta de privilégios efetivos encontrou `TRUNCATE` concedido a `anon` e `authenticated` nas 38 tabelas de `public`. A ACL de `patients`, `profiles` e `medical_records` também inclui `REFERENCES`, `TRIGGER` e `MAINTAIN` para ambas as roles. Além disso, `SELECT/INSERT/UPDATE/DELETE` estão concedidos amplamente a ambas as roles nas tabelas; no momento, RLS restringe as linhas e as políticas observadas não mostram leitura pública de prontuários. Uma consulta separada confirmou que as permissões são concessões explícitas às roles, não apenas herdadas de `PUBLIC`. Os privilégios padrão de criação de tabelas para `postgres` e `supabase_admin` também concedem esse conjunto de privilégios às roles cliente.
+- **Impacto:** RLS não restringe `TRUNCATE`; `TRIGGER`, `REFERENCES` e `MAINTAIN` são privilégios administrativos de tabela desnecessários para o uso normal do frontend. Não foi identificado caminho de API REST que permita executar `TRUNCATE` diretamente, então não classifico o achado como exploração confirmada.
+- **Correção proposta:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql` propõe revogar somente `TRUNCATE`, `REFERENCES`, `TRIGGER` e `MAINTAIN` de `anon` e `authenticated` nas tabelas atuais de `public`, ajustar os privilégios padrão para tabelas futuras criadas por `postgres` e `supabase_admin` e retirar `EXECUTE` padrão de novas funções criadas por `supabase_admin`. Privilégios DML que dependem de RLS são preservados.
+- **Validação necessária antes de executar:** revisar em ambiente de teste, validar os fluxos legítimos e conferir as permissões pós-aplicação. Nenhum privilégio foi alterado no banco conectado.
+- **Risco residual:** a proposta ainda não foi aplicada nem testada em ambiente de homologação; as mudanças de privilégios padrão devem ser validadas com os responsáveis pela administração do projeto.
+
+### SEC-015 — Dependências externas com versões flutuantes
+- **Gravidade:** baixa (risco de cadeia de suprimentos e reprodutibilidade).
+- **Status:** corrigido na branch; teste automatizado incluído.
+- **Evidência:** três páginas administrativas carregavam `https://cdn.jsdelivr.net/npm/chart.js@4`; o cliente público importava `@supabase/supabase-js@2/+esm`; e as três Edge Functions importavam `jsr:@supabase/supabase-js@2`, deixando a versão variar dentro da linha major.
+- **Correção:** referências do Chart.js alteradas para `4.5.1` em `painel/admin/dashboard.html`, `painel/admin/paciente.html` e `painel/admin/configuracoes.html`; o SDK Supabase foi fixado em `2.117.3` no cliente público, no painel e nas três Edge Functions. O workflow desta branch usa versões de release específicas de `actions/checkout` e `actions/setup-node` e testa os pins.
+- **Referências upstream:** https://github.com/chartjs/Chart.js/releases ; https://jsr.io/@supabase/supabase-js/versions ; https://github.com/supabase/supabase-js/blob/master/packages/core/supabase-js/CHANGELOG.md ; https://github.com/actions/checkout/releases ; https://github.com/actions/setup-node/releases
+- **Risco residual:** não foi possível concluir uma varredura de todos os scripts externos no repositório nem auditar todos os workflows existentes; pinning por versão não substitui SRI ou revisão da cadeia de suprimentos.
+
+### SEC-016 — Formulário público de pré-atendimento sem controle de abuso no servidor
+- **Gravidade:** média (risco de spam/abuso e tratamento de dados pessoais sensíveis).
+- **Status:** risco potencial confirmado na implementação; correção depende de arquitetura/backend.
+- **Evidência:** `pre-atendimento/index.html` grava diretamente na tabela `pre_atendimentos` via Supabase client. A política RLS permite `INSERT` para `public` com `WITH CHECK (true)`. O formulário solicita queixa de pele, tratamentos anteriores, medicamentos e condições de saúde; não foram encontrados CAPTCHA, rate limit ou limites explícitos de comprimento nos campos, nem validação de entrada no servidor no caminho observado.
+- **Impacto plausível:** envio automatizado em massa, registros muito grandes ou lixo e coleta de dados de saúde sem salvaguardas suficientes. Não foi identificado acesso público de leitura aos registros nessa revisão.
+- **Correção recomendada:** migrar a inserção para uma Edge Function com validação server-side, limites de comprimento/tipo, proteção antiabuso e rate limit; avaliar honeypot/CAPTCHA conforme o risco. Revisar aviso de privacidade e base legal para dados de saúde com assessoria adequada. Não foi alterada a política pública nem publicada função nova.
+- **Risco residual:** o cliente pode ser contornado; validação HTML sozinha não resolve o abuso.
+
+### SEC-017 — Objetos sem referência em bucket público de mídia
+- **Gravidade:** média potencial, sem exposição indevida confirmada.
+- **Status:** inventário agregado concluído; revisão do conteúdo e destino pendente. Nenhum objeto foi aberto, movido ou excluído.
+- **Evidência:** o bucket `site-media` é público. A contagem agregada encontrou 91 objetos sob `resultados/`, dos quais 87 são referenciados pelos campos legados de resultados ou por `result_images`; 4 não têm referência encontrada. Sob `tratamentos/`, 19 de 26 objetos são referenciados e 7 não têm referência encontrada. Os registros de resultados que referenciam os 87 objetos verificados estavam publicados e com consentimento confirmado.
+- **Impacto plausível:** objetos órfãos continuam acessíveis publicamente enquanto estiverem no bucket público, mesmo sem referência atual no banco. Os metadados não revelam se os 11 objetos sem referência são material público antigo ou imagens de pacientes.
+- **Correção recomendada:** revisar visualmente e documentalmente os objetos órfãos; confirmar consentimento e finalidade. Remover somente após confirmação de que não são necessários, ou mover imagens não públicas para o bucket privado com política de acesso adequada.
+- **Risco residual:** URLs antigas podem continuar circulando; não foi possível confirmar conteúdo/consentimento dos objetos órfãos sem inspecioná-los.
+
+### SEC-018 — Histórico de migrations do Supabase não reconciliado com o repositório
+- **Gravidade:** média (integridade/reprodutibilidade de implantação).
+- **Status:** divergência de nomes/quantidade confirmada; equivalência de conteúdo ainda não determinada.
+- **Evidência:** o repositório contém 34 arquivos `supabase/migrations/*.sql`; o histórico consultado no Supabase contém 39 entradas. Apenas 15 nomes de migrations coincidem após remover o prefixo de timestamp; nos 15 casos, o timestamp versionado também difere do timestamp aplicado. Vinte e quatro nomes aplicados não têm arquivo com o mesmo nome no repositório e 19 arquivos do repositório não têm nome correspondente no histórico. Isso é uma divergência de rastreabilidade, não prova de que 19 mudanças nunca foram aplicadas ou que 24 arquivos estejam ausentes em conteúdo: algumas alterações podem ter sido renomeadas, combinadas, divididas ou aplicadas manualmente. Exemplos de migrations aplicadas sem arquivo de mesmo nome incluem `revoke_is_admin_anon_execute`, `fix_treatments_admin_policy_roles` e `fix_result_images_rls_for_public_read`. Algumas diferenças podem ser equivalências semânticas/renomeações; isso ainda precisa ser comparado pelo conteúdo.
+- **Impacto plausível:** reconstruções, novos ambientes ou futuras implantações podem não reproduzir o estado atual do banco ou deixar de incluir correções de segurança que foram aplicadas diretamente.
+- **Correção recomendada:** reconciliar cada entrada aplicada com o SQL versionado, registrar equivalências e criar migrações incrementais revisáveis para alterações ausentes; não reexecutar migrations históricas automaticamente nem marcar versões como aplicadas sem revisão.
+- **Risco residual:** não foi possível recuperar o corpo SQL histórico apenas a partir da tabela de versões; nenhuma migração foi executada ou alterada no banco.
+
+### SEC-019 — Validação de URLs aceitava HTTP externo e URLs protocol-relative
+- **Gravidade:** baixa a média (validação de URL/mixed content).
+- **Status:** corrigido na branch; teste estático aprovado.
+- **Evidência:** `assets/js/sanitize.js` aceitava URLs `http:` externas e, quando `allowRelative` estava ativo, retornava qualquer valor iniciado por `/`, incluindo URLs protocol-relative e caminhos com barra invertida.
+- **Correção:** URLs externas agora precisam usar HTTPS; URLs da mesma origem continuam permitidas; caminhos relativos só são retornados se forem relativos à raiz, não começarem com `//` e não contiverem barra invertida.
+- **Risco residual:** cada chamador ainda precisa escapar a URL no contexto HTML e avaliar se URLs externas são permitidas para aquele campo.
+
+### SEC-020 — Código de Edge Function implantada diverge do repositório
+- **Gravidade:** média (risco de regressão e falta de reprodutibilidade).
+- **Status:** reconciliado no código versionado da branch com os comportamentos implantados; SDK permanece fixado em `2.117.3`; sem deploy.
+- **Evidência:** comparação do código implantado com `main` mostrou `create-patient` idêntica; `disparar-publicacao` difere apenas em comentário; `reconciliar-publicacao` diverge funcionalmente. A versão implantada usa uma lista de URLs alternativas para o manifesto, normaliza caminhos e valida o status HTTP do item; esses comportamentos não aparecem no arquivo versionado.
+- **Impacto plausível:** um redeploy baseado no repositório poderia substituir a versão implantada por uma implementação menos resiliente e remover comportamentos já presentes em produção.
+- **Correção na branch:** o código versionado agora preserva a lista de URLs de fallback, normalização de caminhos, diagnóstico de erros do manifesto e validação do status HTTP, mantendo o SDK fixado em `2.117.3`. Foram adicionadas verificações estáticas para esses comportamentos. Não fiz deploy nem sobrescrevi o código implantado.
+- **Risco residual:** a correspondência de código foi feita por comparação do arquivo implantado com a versão versionada, mas a função não foi implantada nem testada com chamadas funcionais; validar em homologação antes de qualquer redeploy.
+
+### SEC-022 — Sanitizador de HTML podia preservar descendentes ativos de tags rejeitadas
+- **Gravidade:** média (possível XSS armazenado caso conteúdo malicioso seja salvo no editor).
+- **Status:** corrigido na branch; teste estático de regressão adicionado; execução do CI pendente.
+- **Evidência:** em `assets/js/rich-text.js`, ao encontrar uma tag não permitida, `limparNo()` removia o wrapper e movia os nós filhos diretamente para o documento, sem sanitizá-los recursivamente. Um wrapper não permitido contendo descendentes HTML ativos poderia contornar a limpeza de atributos.
+- **Correção:** sanitizar os descendentes antes de desanexá-los do wrapper não permitido; o teste estático confirma que a limpeza ocorre antes da operação de unwrap.
+- **Impacto plausível:** conteúdo persistido no editor de contratos/artigos/tratamentos poderia manter nós ou atributos ativos se uma sequência de tags aninhadas explorasse o caminho de unwrap.
+- **Risco residual:** a regressão é verificada estaticamente, não por teste dinâmico de navegador; realizar testes com payloads de HTML inofensivos em ambiente de homologação antes de encerrar a auditoria.
+
+### SEC-023 — URLs de imagem e texto dinâmico sem validação/escape nas páginas públicas
+- **Gravidade:** baixa a média; sinks HTML confirmados, sem exploração demonstrada.
+- **Status:** corrigido na branch; testes estáticos de regressão adicionados; execução do CI pendente.
+- **Evidência:** `blog/artigos/artigo-data.js` e `tratamentos/tratamento-data.js` interpolavam `cover_image_url` diretamente em atributo `src`; a página dinâmica de artigo também inseria `treatments.name` sem escape. As URLs de CTA já passavam por `safeUrl`, mas eram interpoladas sem escape explícito do atributo.
+- **Correção:** validar a URL de imagem com `safeUrl()`, escapar a URL validada e o CTA no contexto do atributo HTML, e escapar o nome do tratamento no artigo. A URL usada nas metatags de imagem também passa por `safeUrl()` com fallback estático.
+- **Impacto plausível:** um valor malformado ou controlado no banco poderia alterar o HTML renderizado; a revisão não demonstrou que usuários públicos possam escrever diretamente nesses campos.
+- **Risco residual:** revisar os demais atributos dinâmicos e manter a validação/escape em todo caminho de publicação.
+
+### SEC-024 — Políticas administrativas em PUBLIC chamam função sem EXECUTE para anon
+- **Gravidade:** alta para disponibilidade dos fluxos públicos afetados; sem evidência de leitura indevida.
+- **Status:** falha reproduzida em consulta read-only; migração proposta na branch, não aplicada.
+- **Evidência dinâmica:** dentro de transação read-only, com `SET LOCAL ROLE anon`, a consulta a `public.testimonials` falhou com `permission denied for function is_admin`. A consulta de privilégios confirmou `anon` sem `EXECUTE` em `public.is_admin()`, enquanto `authenticated` tem `EXECUTE`. Em testes read-only como `anon`, a leitura de conteúdo publicado funcionou para `articles` (5 registros), `treatments` (20) e `results` com consentimento (39), mas a leitura de `testimonials` falhou com a mensagem de permissão. Um `EXPLAIN INSERT` em `pre_atendimentos` foi analisado sem execução e sem erro de planejamento; isso não confirma que a inserção seja bem-sucedida, e o INSERT real não foi testado para evitar qualquer escrita.
+- **Evidência de configuração:** 18 políticas administrativas no schema `public` e 3 políticas no schema `storage` ainda estão destinadas ao papel `public` e chamam `is_admin()`. Como `public` inclui `anon`, o planejador pode tentar avaliar a função sem permissão e interromper consultas. O erro foi reproduzido em `public.testimonials` e ao listar `storage.objects` do bucket público `site-media`; os demais fluxos afetados precisam de validação específica.
+- **Correção proposta:** `supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql` muda apenas essas 21 políticas administrativas para `authenticated`, preservando políticas públicas separadas, como leitura publicada e inserções públicas explicitamente previstas. Não foi aplicada no Supabase.
+- **Risco residual:** não aplicar em produção antes de validar consultas públicas de artigos, tratamentos, resultados, depoimentos, consentimentos e pré-atendimento; confirmar também que contas administrativas continuam funcionando. As leituras públicas de artigos, tratamentos e resultados passaram; depoimentos falhou; INSERT de pré-atendimento continua sem teste.
+
+### SEC-025 — Modelo de contrato inserido no editor sem sanitização prévia
+- **Gravidade:** média (XSS potencial no contexto administrativo).
+- **Status:** corrigido na branch; CI passou; teste funcional de PDF em homologação pendente.
+- **Evidência:** `painel/admin/contratos.html` inseria `document_templates.content_html` no `contenteditable` por `innerHTML` após substituir placeholders. Diferentemente dos editores de artigos/tratamentos, o conteúdo não passava por `sanitizeRichHtml()` antes de entrar no DOM. A URL de assinatura gerada pelo Storage também era interpolada diretamente em atributo `src`.
+- **Correção:** sanitizar o modelo já com os dados do paciente substituídos antes de injetar no editor; validar a URL assinada com `safeUrl()` e escapar no atributo.
+- **Risco residual:** templates de contrato precisam ser validados funcionalmente porque o sanitizador restringe tags/atributos a uma allowlist; testar opções interativas, assinatura, edição e geração do PDF em homologação.
+
+### SEC-026 — Gerador de páginas estáticas de tratamentos não sanitizava HTML rico
+- **Gravidade:** média (possível XSS armazenado nas páginas públicas geradas).
+- **Status:** corrigido na branch; teste estático de regressão adicionado; CI pendente.
+- **Evidência:** `scripts/gerar-paginas-tratamentos.mjs` usava `renderizarOrientacao()`, que devolvia diretamente qualquer descrição que parecesse HTML; o CTA e a imagem também eram interpolados sem validação de protocolo.
+- **Correção:** o gerador agora usa `renderizarConteudo()` da biblioteca compartilhada para sanitizar HTML rico, `urlSegura()` para a imagem e CTA, e só aceita HTTPS para URLs absolutas. Caminhos relativos precisam ser locais à raiz, não protocol-relative nem conter barra invertida; caracteres de controle são rejeitados.
+- **Impacto plausível:** conteúdo HTML persistido na tabela de tratamentos poderia virar markup ativo nas páginas estáticas publicadas pela GitHub Action.
+- **Risco residual:** a correção foi verificada estaticamente; revisar HTML de tratamentos existentes e testar a geração completa antes do próximo deploy automático.
+
+### SEC-027 — GitHub Actions usavam tags de release em vez de SHA imutável
+- **Gravidade:** baixa (endurecimento de cadeia de suprimentos).
+- **Status:** corrigido na branch; CI pendente.
+- **Evidência:** quatro workflows usavam tags de release para `actions/checkout` e `actions/setup-node`.
+- **Correção:** referências foram fixadas nos SHAs verificados das releases `checkout v7.0.1` e `setup-node v7.1.0`, mantendo comentários de versão para manutenção.
+- **Risco residual:** continuar revisando actions e dependências externas; pinning não substitui atualização periódica e revisão de permissões.
+
+### SEC-028 — Slugs de conteúdo podiam escapar da pasta de publicação
+- **Gravidade:** alta para integridade da publicação automática.
+- **Status:** corrigido na branch; teste dinâmico em pasta temporária passou no CI.
+- **Evidência:** `sincronizarPastas()` concatenava `item.slug` diretamente no caminho `${principal}/${item.slug}.html` e no destino de redirecionamentos. Os geradores de artigos/resultados também usavam slugs brutos em URLs; um slug com segmentos `../` podia tentar criar um arquivo HTML fora da pasta de conteúdo. O token do workflow de publicação tem `contents: write`.
+- **Correção:** o helper normaliza slugs com `slugifyUrl()`, rejeita slugs vazios e colisões após normalização; geradores de artigos/resultados usam slugs normalizados em arquivos, canonical e links. Foi adicionado teste que tenta publicar `../outside` em pasta temporária e confirma que nenhum arquivo é escrito fora da pasta de saída.
+- **Risco residual:** a escrita de arquivos fora do repositório não foi testada em produção; o teste de regressão usa somente diretório temporário. Executar geração completa com fixture e revisar arquivos resultantes antes de reativar/publicar alterações.
+
+### SEC-029 — RPCs de assinatura aceitavam caminho de arquivo sem vincular ao paciente
+- **Gravidade:** média (integridade de evidência/assinatura).
+- **Status:** constraints propostas na branch; não aplicadas.
+- **Evidência:** as RPCs `assinar_contrato` e `submit_anamnesis` validam que o contrato/ficha pertence ao usuário, mas aceitam `p_signature_path` enviado pelo navegador sem confirmar que o caminho pertence à pasta daquele paciente. A policy de Storage restringe uploads à pasta própria, porém não impede uma RPC de gravar como referência o caminho de um objeto de outro paciente.
+- **Verificação agregada:** 7 contratos assinados e 2 assinaturas de anamnese; todas as nove referências existentes obedecem ao formato `<patient_id>/assinaturas/<nome>.png`, sem prefixos de outro paciente.
+- **Correção proposta:** `supabase/migrations/20261011170000_constrain_patient_signature_paths.sql` adiciona CHECK constraints que vinculam o prefixo do caminho ao `patient_id`, além de limitar `signed_content_html` a 100.000 caracteres; a nova versão de `submit_anamnesis` também valida o caminho antes de gravar. Os 8 snapshots atuais têm no máximo 7.400 caracteres. CI estático passou; migration não aplicada.
+- **Risco residual:** validar a migration em homologação e testar assinaturas de contrato/anamnese com duas contas fictícias antes de produção.
+
+### SEC-030 — RPC de anamnese confiava no clinical_concept_id enviado pelo cliente
+- **Gravidade:** média (integridade do prontuário clínico).
+- **Status:** trigger de proteção proposto na branch; não aplicado.
+- **Evidência:** `submit_anamnesis` confere se a pergunta pertence ao tipo de anamnese, mas grava `clinical_concept_id` a partir do JSON enviado pelo navegador. O conceito correto já está cadastrado em `question_definitions`; a função usa o valor recebido para alimentar `patient_clinical_data`.
+- **Verificação agregada:** 294 respostas existentes, zero divergências entre `anamnesis_responses.clinical_concept_id` e o conceito cadastrado na pergunta.
+- **Correção proposta:** `supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql` instala um trigger `BEFORE INSERT` que deriva o conceito de `question_definitions`, usando `SECURITY DEFINER` com `search_path` fixo. A migration `20261011210000_harden_submit_anamnesis_concept_mapping.sql` também altera a RPC para usar o conceito confiável ao inserir respostas e ao invalidar valores atuais, evitando que o JSON do cliente altere conceitos de forma indireta. Ela limita a 200 respostas, 200 KB de JSON, 10 KB por resposta, 50 KB de dados pessoais e 512 caracteres de user-agent. Nenhuma migration foi aplicada.
+- **Risco residual:** validar o trigger em homologação com envio normal, edição autorizada e rascunho administrativo antes de produção.
+
+### SEC-031 — PDF de contrato analisava snapshot assinado via innerHTML sem sanitização
+- **Gravidade:** baixa a média (XSS de defesa em profundidade; snapshot enviado pelo cliente).
+- **Status:** corrigido na branch; teste estático adicionado; CI pendente.
+- **Evidência:** `painel/assets/js/contrato-pdf.js` atribuía o conteúdo de `signed_content_html` diretamente a `div.innerHTML` para extrair texto. O snapshot é enviado pelo cliente à RPC de assinatura, então não deve ser considerado confiável apenas porque o fluxo normal o sanitiza no navegador.
+- **Correção:** o conversor de PDF agora passa o conteúdo por `sanitizeRichHtml()` antes de inserir no DOM temporário; a migration de assinatura também limita o snapshot armazenado.
+- **Risco residual:** validar a geração de PDF e os modelos interativos em homologação. A revisão não demonstrou acesso cruzado a snapshots de outros pacientes.
+
+### SEC-032 — Criação de conversa do bot dependia de SELECT público inexistente
+- **Gravidade:** média para disponibilidade/registro de atendimento.
+- **Status:** RPC e frontend alterados na branch; CI passou; sem teste de INSERT em produção.
+- **Evidência:** `assets/js/bot-triagem.js` criava conversa com `INSERT ... SELECT id`, mas `bot_conversations` não tem política SELECT para `anon`; uma consulta read-only como `anon` retornou zero linhas visíveis. A policy de INSERT em `bot_messages` também verificava a sessão com subconsulta sujeita às políticas de leitura da tabela de conversas.
+- **Correção proposta:** `supabase/migrations/20261011200000_harden_public_bot_logging.sql` cria RPC `create_bot_conversation` para inserir/retornar apenas o ID, revoga INSERT direto e valida o par conversa/sessão por uma função `SECURITY DEFINER` de retorno booleano. A migration limita metadados, mensagens a 4.000 caracteres e senders a `visitor`, `bot` e `system`, além de rejeitar caminhos com barra invertida/caracteres de controle. O frontend chama a RPC, mantém o ID UUID e usa fallback UUID compatível com as colunas do banco.
+- **Risco residual:** nenhuma inserção real foi testada; validar o fluxo do bot em homologação com visitante anônimo e usuário autenticado. A migração não foi aplicada.
+
+### SEC-033 — Registros públicos do bot sem rate limit server-side observado
+- **Gravidade:** média-baixa (abuso e crescimento de banco).
+- **Status:** pendente de desenho; a migration do bot melhora a validação de sessão, mas não adiciona rate limit por IP.
+- **Evidência:** o bot usa chave anon pública e permite registrar conversas/mensagens pelo frontend; a interface limita o texto, mas isso pode ser contornado por chamadas diretas à API. Não foi identificado rate limit por IP/sessão no código ou nas políticas consultadas.
+- **Mitigação recomendada:** após validar a RPC, avaliar um Edge Function proxy com rate limit server-side, limites de tamanho/volume e, se necessário, CAPTCHA. Não remover o fluxo atual até validar a alternativa e medir impacto no atendimento.
+- **Risco residual:** um atacante ainda pode gerar sessões novas para contornar um limite baseado somente em `session_id`.
+
+### SEC-021 — Drift de migrations e políticas RLS permissivas redundantes
+- **Gravidade:** média (rastreabilidade e risco de acesso indevido por sobreposição de políticas).
+- **Status:** inventário atualizado; sem alteração de policies em produção.
+- **Evidência:** 39 entradas no histórico do Supabase e 34 arquivos SQL no repositório; 15 nomes coincidem após retirar timestamps, mas os timestamps divergem. Vinte e quatro entradas aplicadas e 19 arquivos versionados não têm correspondência pelo nome. Também há SELECT permissivos sobrepostos em `anamnesis_attachments`, `announcements`, `financial_transactions`, `medical_records` e `support_documents`.
+- **Correção recomendada:** reconciliar migrations por conteúdo e revisar as policies com testes A/B antes de remover duplicatas. Não renomear migrations históricas nem aplicar SQL automaticamente.
+
+### SEC-034 — Fallback de sessão do bot não respeitava o tipo UUID do banco
+- **Gravidade:** baixa/média (compatibilidade e disponibilidade do registro).
+- **Status:** corrigido na branch; testes de cenário e CI passaram.
+- **Evidência:** `bot_conversations.session_id` e `bot_messages.session_id` são colunas UUID, mas o fallback de `getSessionId()` gerava `sess-<timestamp>-<random>`, que não pode ser convertido para UUID.
+- **Correção:** fallback agora gera UUID v4 usando `crypto.getRandomValues` quando disponível e mantém o formato UUID mesmo no fallback de compatibilidade.
+- **Risco residual:** testar em navegador de homologação sem `crypto.randomUUID`; o fallback sem Web Crypto usa `Math.random` e não oferece a mesma entropia criptográfica.
+
+### SEC-035 — Formulário público aceitava status e campos sem validação server-side
+- **Gravidade:** média (integridade do atendimento e abuso de recursos).
+- **Status:** trigger de validação proposto na branch; CI pendente; sem INSERT em produção.
+- **Evidência:** a policy de INSERT público em `pre_atendimentos` permite a gravação de uma linha sem validação de comprimento ou restrição do campo `status`. O formulário normal envia apenas dados de contato/queixa, mas chamadas diretas à API poderiam tentar definir `status` ou enviar campos excessivamente grandes.
+- **Correção proposta:** `supabase/migrations/20261011230000_validate_public_pre_atendimento.sql` valida nome, telefone, e-mail, idade e comprimentos dos campos; força `status='novo'` e `created_at=now()` no servidor. Não foi aplicada.
+- **Risco residual:** a trigger não limita a frequência de envios por IP e não substitui CAPTCHA/Edge Function; rate limit server-side permanece pendente.
+
+### SEC-036 — Policies INSERT de anamnese permitiam contornar o RPC de submissão
+- **Gravidade:** alta para integridade de prontuário.
+- **Status:** migration proposta na branch; CI pendente; não aplicada.
+- **Evidência:** `patient writes own responses` permitia INSERT direto em `anamnesis_responses` para qualquer versão pertencente ao paciente, sem verificar status ou autorização de edição ativa. `patient signs own anamnesis` permitia INSERT direto em `anamnesis_signatures` sem passar pelas validações transacionais de `submit_anamnesis`. O frontend já usa o RPC, então essas policies não são necessárias para o fluxo normal.
+- **Correção proposta:** `supabase/migrations/20261011240000_revoke_direct_anamnesis_writes.sql` remove as duas policies de INSERT direto; o RPC `SECURITY DEFINER` continua podendo gravar e mantém as validações de propriedade, versão, permissão e assinatura.
+- **Risco residual:** testar envio normal, versão bloqueada e edição autorizada com duas contas fictícias em homologação antes de aplicar. Não foi executado INSERT de teste em produção.
+
+### SEC-037 — Anexos podiam ser vinculados a versões bloqueadas e o INSERT administrativo não tinha policy
+- **Gravidade:** média (integridade do prontuário e disponibilidade do painel).
+- **Status:** migration proposta na branch; CI pendente; sem teste de escrita em produção.
+- **Evidência:** duas policies permitiam ao paciente inserir anexos em qualquer versão própria, sem conferir `status` ou permissão ativa de edição. Ao mesmo tempo, o painel administrativo também insere metadados de anexos, mas as policies atuais não concediam INSERT administrativo.
+- **Correção proposta:** `supabase/migrations/20261011250000_harden_anamnesis_attachment_writes.sql` substitui as policies duplicadas por uma policy de paciente que exige versão em rascunho ou permissão ativa não expirada, e uma policy administrativa que exige `is_admin()` e vínculo válido entre anexo, versão e paciente. A mesma migration adiciona CHECK constraint que obriga `file_path` a conter o `patient_id` e `anamnesis_version_id` da linha. Consulta read-only encontrou zero anexos atuais, então não há registros existentes incompatíveis com a regra.
+- **Risco residual:** validar upload/INSERT do paciente em rascunho, versão bloqueada e edição autorizada; validar também o fluxo administrativo com duas contas fictícias em homologação. Não foi aplicado.
+
+### SEC-038 — Storage aceitava uploads em versões de anamnese sem validar a versão
+- **Gravidade:** média (abuso de armazenamento e arquivos órfãos).
+- **Status:** migration proposta e verificação estática aprovada no GitHub Actions; não aplicada.
+- **Evidência:** a policy `documentos_paciente_envia_anamnese` verificava apenas que o primeiro segmento do caminho era o paciente autenticado e o segundo era `anamneses`. Não conferia se o terceiro segmento correspondia a uma versão daquele paciente, se a ficha estava liberada, nem se a versão estava em rascunho ou com edição autorizada. Assim, uploads órfãos poderiam ser enviados para caminhos de versões bloqueadas.
+- **Correção proposta:** `supabase/migrations/20261011260000_scope_anamnesis_storage_uploads.sql` restringe a policy ao papel `authenticated`, valida a versão no terceiro segmento e exige versão liberada em rascunho ou permissão de edição ativa e não expirada.
+- **Risco residual:** a policy de assinatura de Storage ainda permite uploads no diretório `assinaturas` do próprio paciente sem associar o caminho a uma versão; revisar separadamente para evitar quebrar outros fluxos de assinatura. Limites de tamanho/MIME e limpeza de objetos órfãos continuam pendentes.
+
+## Escopo verificado até aqui
+
+- Branch principal identificada como `main`; branch de auditoria criada separadamente.
+- Inventário de páginas privadas: 17 páginas administrativas e 2 páginas de paciente (19 no total) foram examinadas; todas chamam o guard correspondente antes da primeira consulta direta observada, e não foi identificado caminho de consulta sensível antes do guard nessa varredura estática.
+- Arquivos revisados em detalhe: `painel/assets/js/painel-auth.js`, `painel/index.html`, `painel/assets/js/sanitize.js`, `painel/assets/js/admin-sidebar.js`, `painel/assets/js/notifications.js`, `painel/admin/contratos.html`, `painel/assets/js/contrato-pdf.js`, `assets/js/sanitize.js`, `assets/js/supabase-client.js`, `assets/js/rich-text.js`, `scripts/lib/conteudo.mjs`, `scripts/gerar-paginas-tratamentos.mjs`, `scripts/gerar-paginas-artigos.mjs`, `scripts/gerar-paginas-resultados.mjs`, `blog/artigos/artigo-data.js`, `tratamentos/tratamento-data.js`, `painel/admin/dashboard.html`, `painel/admin/pacientes.html`, `painel/admin/documentos.html`, `painel/admin/agenda.html`, `painel/admin/financeiro.html`, `painel/admin/paciente.html`, `painel/paciente/painel.html`, `painel/paciente/anamnese.html`, `pre-atendimento/index.html`, `robots.txt`.
+- `sanitize.js` oferece `escapeHtml()` e `safeUrl()`; foi corrigido o caminho de unwrap em `rich-text.js`, mas ainda falta rastrear o uso de ambos em todos os renderizadores.
+- Supabase: listagem de tabelas, status RLS, 87 políticas em `public`, grants efetivos para `anon`/`authenticated`, privilégios padrão, Security Advisor, histórico de migrations e comparação entre código implantado e versionado de três Edge Functions; consulta read-only executada como `anon` reproduziu erro de permissão em `testimonials`.
+- Todas as tabelas dos schemas `public` e `storage` retornaram RLS habilitado: 38/38 e 8/8, respectivamente. Não há views no schema `public` na consulta feita. Todas as funções `SECURITY DEFINER` consultadas têm `search_path` configurado; `anon` e `authenticated` não têm privilégio `CREATE` no schema `public`. Isso não prova que cada política seja correta nem substitui testes com roles reais.
+- Bucket `documentos-pacientes`: privado. Bucket `site-media`: público; 11 objetos sem referência atual foram identificados (4 em `resultados/`, 7 em `tratamentos/`) e exigem revisão antes de qualquer exclusão/movimentação.
+- O SDK Supabase foi fixado em `2.117.3` no cliente público, no painel e nas três Edge Functions. Chart.js foi fixado em `4.5.1` nas três páginas administrativas encontradas. As quatro GitHub Actions usam SHAs verificados para checkout/setup-node. A integridade/SRI e o inventário de todas as dependências externas ainda precisam ser avaliados.
+- `robots.txt` bloqueia rastreamento de `/painel/`; isso não é controle de acesso.
+- A chave `anon` presente no frontend é pública por desenho e não foi classificada como segredo privilegiado. Não foi encontrado uso de `service_role` no arquivo de autenticação revisado.
+
+## Testes
+
+- **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline, ausência de chave privilegiada no frontend e escaping dos sinks identificados.
+- **CI de regressão aprovado:** [Security audit checks](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38158257140) passou no commit `14ca86a27aaeb423d37ab807d4992ddf4fc171f1`, incluindo verificações da nova policy de Storage. A última rodada completa de [sintaxe HTML](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38151971626) e [Bot triagem](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38151971676) também passou; esses dois workflows não foram disparados pela alteração somente SQL mais recente. Isso não substitui testes reais de autorização nem aplicação das migrations em homologação.
+- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, validação em homologação das migrations de políticas/assinaturas/conceitos/bot/pré-atendimento/remoção de INSERT direto de anamnese/escopo de uploads de Storage, geração completa de páginas estáticas em ambiente de teste, teste funcional dos modelos de contrato/assinatura/PDF, do bot e da Edge Function reconciliada, desenho de rate limit para bot e pré-atendimento, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
+- **Propostas SQL de revisão:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql` e `supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql`; nenhum dos arquivos foi aplicado. A migration de RLS requer teste específico em ambiente de homologação antes de qualquer implantação.
+
+## Matriz de riscos pendentes
+
+| ID | Prioridade | Item | Próximo passo |
+|---|---|---|---|
+| SEC-004 | Média | Proteção de senha vazada desabilitada | Configurar no Supabase após validar fluxo |
+| SEC-005 | Média | Funções SECURITY DEFINER | Revisar grants e cenários negativos função a função |
+| SEC-006 | Média | Limites de upload ausentes | Definir limites e tipos permitidos |
+| SEC-007 | Informativo | CORS amplo nas Edge Functions | Restringir origens se compatível, mantendo autenticação como controle real |
+| SEC-008 | Média | Políticas RLS redundantes | Testes de isolamento com contas fictícias e proposta de migração |
+| SEC-009 | Baixa/média | Sinks de HTML potencialmente inseguros | Correções e teste estático aprovados; continuar rastreamento e teste manual |
+| SEC-010 | Média / impacto potencial elevado | TRUNCATE/TRIGGER/REFERENCES/MAINTAIN concedidos às roles cliente | Revisar e testar o SQL proposto antes de aplicar |
+| SEC-011 | Média | Inventário estático das páginas privadas concluído; rastreamento de sinks e fluxos ainda incompleto | Rastrear renderizadores, fontes de dados e fluxos restantes; realizar teste dinâmico de autorização |
+| SEC-012 | Média | Segredos no histórico Git | Executar varredura dedicada e documentar rotação se necessário |
+| SEC-013 | Média | Cabeçalhos/HTTPS/cache | Confirmar hospedagem e configuração efetiva fora do repositório |
+| SEC-014 | Baixa/média | Dependências e Actions | Os quatro workflows usam SHAs verificados para checkout/setup-node; revisar outras dependências e integridade/SRI |
+| SEC-015 | Baixa | Versão flutuante do Chart.js | Chart.js e Supabase JS fixados e verificados pelo CI; rastrear outras dependências |
+| SEC-016 | Média | Formulário público sem antiabuso/validação server-side | Projetar Edge Function com limites e rate limit; validar base legal para dados sensíveis |
+| SEC-017 | Média potencial | Objetos órfãos em bucket público | Revisar conteúdo/consentimento de 11 objetos antes de decidir remoção ou migração |
+| SEC-018 | Média | Histórico de migrations não reconciliado | Comparar SQL aplicado com arquivos versionados antes de novas implantações |
+| SEC-019 | Baixa/média | URLs externas HTTP e protocol-relative | Corrigido; teste estático e checagem de sintaxe aprovados; revisar todos os chamadores |
+| SEC-020 | Média | Código de Edge Functions e versões de SDK divergiam | Código funcional reconciliado; branch fixa SDK 2.117.3; produção ainda exige redeploy aprovado |
+| SEC-021 | Média | Drift de migrations e políticas RLS permissivas redundantes | Mapear equivalências por conteúdo e testar isolamento com contas fictícias antes de simplificar políticas |
+| SEC-022 | Média | Sanitizador de HTML podia preservar descendentes ativos de tags rejeitadas | Corrigido na branch; CI passou; teste dinâmico de navegador ainda pendente |
+| SEC-023 | Baixa/média | URLs de imagem e texto dinâmico sem validação/escape nas páginas públicas | Corrigido na branch; CI passou; continuar rastreamento de atributos dinâmicos |
+| SEC-024 | Alta para disponibilidade pública | Políticas administrativas em `PUBLIC` chamam `is_admin()` sem EXECUTE para `anon` | 21 políticas identificadas; migração proposta e CI estático passou; validar em homologação antes de aplicar |
+| SEC-025 | Média | Modelo de contrato inserido no editor sem sanitização prévia | Corrigido na branch; CI passou; testar opções, assinatura e PDF em homologação |
+| SEC-026 | Média | Gerador de páginas estáticas de tratamentos não sanitizava HTML rico | Corrigido na branch; CI passou; testar geração completa antes do deploy automático |
+| SEC-027 | Baixa | Actions fixadas por tag, não por SHA imutável | Corrigido com SHAs verificados; CI passou; continuar revisão de cadeia de suprimentos |
+| SEC-028 | Alta para integridade da publicação | Slugs de conteúdo podiam escapar da pasta de publicação | Corrigido na branch; teste dinâmico em pasta temporária passou; revisar geração completa |
+| SEC-029 | Média | RPCs de assinatura aceitavam caminho de arquivo sem vincular ao paciente | CHECK constraints propostas e CI passou; testar duas contas fictícias em homologação |
+| SEC-030 | Média | RPC de anamnese confiava no `clinical_concept_id` enviado pelo cliente | RPC/trigger propostos e CI passou; testar submissão/edição/rascunho em homologação |
+| SEC-031 | Baixa/média | PDF analisava snapshot assinado via `innerHTML` sem sanitização | Corrigido e CI passou; testar PDF em homologação |
+| SEC-032 | Média | Criação de conversa do bot dependia de SELECT público inexistente | RPC proposta, frontend atualizado e CI passou; testar com visitante anônimo em homologação |
+| SEC-033 | Média-baixa | Registros públicos do bot sem rate limit server-side | Pendente; avaliar Edge Function proxy e limites de volume |
+| SEC-034 | Baixa/média | Fallback de sessão do bot não respeitava tipo UUID | Corrigido na branch; testes de cenário passaram; testar navegador sem `crypto.randomUUID` |
+| SEC-035 | Média | Formulário público aceitava status/campos sem validação server-side | Trigger proposta e CI passou; validar formulário em homologação; rate limit continua pendente |
+| SEC-036 | Alta para integridade de prontuário | Policies INSERT diretas permitiam contornar RPC de anamnese | Policies propostas para remoção e CI passou; testar fluxos em homologação |
+| SEC-037 | Média | Anexos podiam ser vinculados a versões bloqueadas e INSERT administrativo não tinha policy | Policies/constraint propostas e CI passou; testar os fluxos em homologação |
+| SEC-038 | Média | Storage aceitava uploads de anamnese sem validar a versão | Policy proposta e CI passou; testar em homologação; assinatura e limites ainda pendentes |
+
+## Limitações e próximos passos
+
+- Não foram aplicadas migrações nem alterações de configuração ao banco de produção.
+- A listagem de metadados e o advisor não substituem testes de autorização usando identidades distintas.
+- Ainda é necessário completar o inventário de todas as páginas, scripts, workflows, dependências e histórico Git, bem como revisar os demais endpoints.
+- A configuração do projeto na Vercel não pôde ser inspecionada: a API retornou `403 forbidden` para o escopo `especialista-em-pele`. Assim, cabeçalhos, redirects e cache configurados no painel externo permanecem não verificados.
+- O formulário público `/pre-atendimento/` continua aceitando inserções diretas na tabela; o endurecimento real exige backend/rate limiting e validação jurídica/operacional.
+- Avaliar juridicamente retenção, consentimento, compartilhamento e procedimentos de incidentes LGPD; esta auditoria técnica não certifica conformidade legal.
+- As alterações desta branch devem permanecer em revisão até que os testes e o relatório sejam concluídos.

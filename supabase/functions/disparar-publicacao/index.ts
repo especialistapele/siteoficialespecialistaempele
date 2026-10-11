@@ -12,7 +12,7 @@
 //   GH_REF (padrão main)
 // ============================================================
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from "jsr:@supabase/supabase-js@2";
+import { createClient } from "jsr:@supabase/supabase-js@2.117.3";
 
 Deno.serve(async (req: Request) => {
   const cors = {
