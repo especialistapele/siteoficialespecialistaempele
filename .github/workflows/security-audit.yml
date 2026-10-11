@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "assets/js/bot-triagem.js"
+      - "tests/bot-triagem-cenarios.mjs"
       - "painel/assets/js/contrato-pdf.js"
       - "supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql"
       - "supabase/migrations/20261011170000_constrain_patient_signature_paths.sql"
@@ -39,6 +40,7 @@ on:
     paths:
       - "docs/SECURITY_AUDIT.md"
       - "assets/js/bot-triagem.js"
+      - "tests/bot-triagem-cenarios.mjs"
       - "painel/assets/js/contrato-pdf.js"
       - "supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql"
       - "supabase/migrations/20261011170000_constrain_patient_signature_paths.sql"
@@ -94,3 +96,5 @@ jobs:
         run: node tests/painel-auth-security.mjs
       - name: Static publication content security checks
         run: node tests/publication-content-security.mjs
+      - name: Bot triage scenario checks
+        run: node tests/bot-triagem-cenarios.mjs
