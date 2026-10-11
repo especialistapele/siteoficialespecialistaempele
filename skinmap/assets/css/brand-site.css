@@ -124,3 +124,14 @@ footer {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+.brand-logo-nav {
+  display:block;
+  width:clamp(112px, 15vw, 170px);
+  max-height:48px;
+  object-fit:contain;
+  margin-right:8px;
+}
+.nav .logo { text-decoration:none; }
+@media (max-width:600px) {
+  .brand-logo-nav { width:100px; max-height:38px; }
+}
