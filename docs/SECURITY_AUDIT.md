@@ -226,6 +226,12 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Mitigação recomendada:** após validar a RPC, avaliar um Edge Function proxy com rate limit server-side, limites de tamanho/volume e, se necessário, CAPTCHA. Não remover o fluxo atual até validar a alternativa e medir impacto no atendimento.
 - **Risco residual:** um atacante ainda pode gerar sessões novas para contornar um limite baseado somente em `session_id`.
 
+### SEC-021 — Drift de migrations e políticas RLS permissivas redundantes
+- **Gravidade:** média (rastreabilidade e risco de acesso indevido por sobreposição de políticas).
+- **Status:** inventário atualizado; sem alteração de policies em produção.
+- **Evidência:** 39 entradas no histórico do Supabase e 34 arquivos SQL no repositório; 15 nomes coincidem após retirar timestamps, mas os timestamps divergem. Vinte e quatro entradas aplicadas e 19 arquivos versionados não têm correspondência pelo nome. Também há SELECT permissivos sobrepostos em `anamnesis_attachments`, `announcements`, `financial_transactions`, `medical_records` e `support_documents`.
+- **Correção recomendada:** reconciliar migrations por conteúdo e revisar as policies com testes A/B antes de remover duplicatas. Não renomear migrations históricas nem aplicar SQL automaticamente.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
@@ -242,7 +248,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 ## Testes
 
 - **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline, ausência de chave privilegiada no frontend e escaping dos sinks identificados.
-- **Executado com sucesso no GitHub Actions no commit `490a4a6eecb414e4a0c0871b301d133610aeb448`:** [Security audit checks](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38149441602), [Validação de sintaxe dos HTML](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38149441606) e [Bot triagem — validação](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38149441597). A checagem estática inclui o sanitizador, sinks de páginas públicas, proteção contra path traversal na publicação, PDF de contratos e migrations propostas. Os testes estáticos/dinâmicos de diretório temporário não substituem testes reais de autorização em homologação.
+- **Executado com sucesso no GitHub Actions no commit `00f7100ab3209c6d8015967554cddfd419849921`:** [Security audit checks](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38150157271), [Validação de sintaxe dos HTML](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38150157282) e [Bot triagem — validação](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38150157281). A checagem cobre sanitizador, sinks públicos, path traversal em diretório temporário, PDF de contratos, migrações propostas e RPC de logging do bot. Isso não substitui testes reais de autorização nem aplicação das migrations em homologação.
 - **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, validação em homologação das migrations de políticas/assinaturas/conceitos/bot, geração completa de páginas estáticas em ambiente de teste, teste funcional dos modelos de contrato/assinatura/PDF, do bot e da Edge Function reconciliada, desenho de rate limit, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
 - **Propostas SQL de revisão:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql` e `supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql`; nenhum dos arquivos foi aplicado. A migration de RLS requer teste específico em ambiente de homologação antes de qualquer implantação.
 
@@ -260,25 +266,25 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-011 | Média | Inventário estático das páginas privadas concluído; rastreamento de sinks e fluxos ainda incompleto | Rastrear renderizadores, fontes de dados e fluxos restantes; realizar teste dinâmico de autorização |
 | SEC-012 | Média | Segredos no histórico Git | Executar varredura dedicada e documentar rotação se necessário |
 | SEC-013 | Média | Cabeçalhos/HTTPS/cache | Confirmar hospedagem e configuração efetiva fora do repositório |
-| SEC-014 | Média | Dependências e Actions | Chart.js e o workflow novo foram fixados; auditar todos os workflows e dependências restantes |
+| SEC-014 | Baixa/média | Dependências e Actions | Os quatro workflows usam SHAs verificados para checkout/setup-node; revisar outras dependências e integridade/SRI |
 | SEC-015 | Baixa | Versão flutuante do Chart.js | Chart.js e Supabase JS fixados e verificados pelo CI; rastrear outras dependências |
 | SEC-016 | Média | Formulário público sem antiabuso/validação server-side | Projetar Edge Function com limites e rate limit; validar base legal para dados sensíveis |
 | SEC-017 | Média potencial | Objetos órfãos em bucket público | Revisar conteúdo/consentimento de 11 objetos antes de decidir remoção ou migração |
 | SEC-018 | Média | Histórico de migrations não reconciliado | Comparar SQL aplicado com arquivos versionados antes de novas implantações |
 | SEC-019 | Baixa/média | URLs externas HTTP e protocol-relative | Corrigido; teste estático e checagem de sintaxe aprovados; revisar todos os chamadores |
-| SEC-020 | Média | Código de Edge Function divergia do repositório | Comportamentos reconciliados na branch e teste estático adicionado; validar em homologação antes de redeploy |
+| SEC-020 | Média | Código de Edge Function divergia do repositório | Comportamentos reconciliados na branch e CI passou; validar em homologação antes de redeploy |
 | SEC-021 | Média | Drift de migrations e políticas RLS permissivas redundantes | Mapear equivalências por conteúdo e testar isolamento com contas fictícias antes de simplificar políticas |
-| SEC-022 | Média | Sanitizador de HTML podia preservar descendentes ativos de tags rejeitadas | Corrigido na branch; aguardar CI e fazer teste dinâmico de homologação |
-| SEC-023 | Baixa/média | URLs de imagem e texto dinâmico sem validação/escape nas páginas públicas | Corrigido na branch; aguardar CI e continuar rastreamento de atributos dinâmicos |
-| SEC-024 | Alta para disponibilidade pública | Políticas administrativas em `PUBLIC` chamam `is_admin()` sem EXECUTE para `anon` | Migração proposta na branch; validar fluxos públicos e administrativos em homologação antes de aplicar |
-| SEC-025 | Média | Modelo de contrato inserido no editor sem sanitização prévia | Corrigido na branch; testar opções, assinatura e PDF em homologação |
-| SEC-026 | Média | Gerador de páginas estáticas de tratamentos não sanitizava HTML rico | Corrigido na branch; aguardar CI e testar geração completa antes do deploy automático |
-| SEC-027 | Baixa | Actions fixadas por tag, não por SHA imutável | Corrigido na branch; aguardar CI e continuar revisão de cadeia de suprimentos |
+| SEC-022 | Média | Sanitizador de HTML podia preservar descendentes ativos de tags rejeitadas | Corrigido na branch; CI passou; teste dinâmico de navegador ainda pendente |
+| SEC-023 | Baixa/média | URLs de imagem e texto dinâmico sem validação/escape nas páginas públicas | Corrigido na branch; CI passou; continuar rastreamento de atributos dinâmicos |
+| SEC-024 | Alta para disponibilidade pública | Políticas administrativas em `PUBLIC` chamam `is_admin()` sem EXECUTE para `anon` | 21 políticas identificadas; migração proposta e CI estático passou; validar em homologação antes de aplicar |
+| SEC-025 | Média | Modelo de contrato inserido no editor sem sanitização prévia | Corrigido na branch; CI passou; testar opções, assinatura e PDF em homologação |
+| SEC-026 | Média | Gerador de páginas estáticas de tratamentos não sanitizava HTML rico | Corrigido na branch; CI passou; testar geração completa antes do deploy automático |
+| SEC-027 | Baixa | Actions fixadas por tag, não por SHA imutável | Corrigido com SHAs verificados; CI passou; continuar revisão de cadeia de suprimentos |
 | SEC-028 | Alta para integridade da publicação | Slugs de conteúdo podiam escapar da pasta de publicação | Corrigido na branch; teste dinâmico em pasta temporária passou; revisar geração completa |
 | SEC-029 | Média | RPCs de assinatura aceitavam caminho de arquivo sem vincular ao paciente | CHECK constraints propostas; testar duas contas fictícias em homologação |
 | SEC-030 | Média | RPC de anamnese confiava no `clinical_concept_id` enviado pelo cliente | Trigger proposto; testar submissão/edição/rascunho em homologação |
-| SEC-031 | Baixa/média | PDF analisava snapshot assinado via `innerHTML` sem sanitização | Corrigido na branch; CI passou em commit anterior; testar PDF em homologação |
-| SEC-032 | Média | Criação de conversa do bot dependia de SELECT público inexistente | RPC proposta e frontend atualizado; aguardar CI e testar com visitante anônimo |
+| SEC-031 | Baixa/média | PDF analisava snapshot assinado via `innerHTML` sem sanitização | Corrigido na branch; CI passou; testar PDF em homologação |
+| SEC-032 | Média | Criação de conversa do bot dependia de SELECT público inexistente | RPC proposta, frontend atualizado e CI passou; testar com visitante anônimo em homologação |
 | SEC-033 | Média-baixa | Registros públicos do bot sem rate limit server-side | Pendente; avaliar Edge Function proxy e limites de volume |
 
 ## Limitações e próximos passos
