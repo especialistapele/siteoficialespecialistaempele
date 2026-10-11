@@ -9,7 +9,14 @@
 .skinmap-filtros input,.skinmap-filtros select{font:inherit;font-weight:400;padding:10px 12px;border:1px solid var(--linha);border-radius:8px;background:#fff;color:var(--ink)}
 .skinmap-filtros input{min-width:min(320px,80vw)}.skinmap-status{min-width:130px}
 .skinmap-detalhes summary{cursor:pointer;font-weight:700;color:var(--ink)}
-.skinmap-detalhes pre{white-space:pre-wrap;overflow-wrap:anywhere;max-width:520px;max-height:280px;overflow:auto;font-size:12px;background:#f7f7f7;padding:12px;border-radius:8px}
+.skinmap-detalhes summary{padding:8px 0}
+.skinmap-analise{min-width:260px;max-width:460px;padding:12px 0;color:var(--ink)}
+.skinmap-analise h4{font-size:13px;margin:14px 0 7px;color:var(--ink)}
+.skinmap-analise h4:first-child{margin-top:0}
+.skinmap-resposta{padding:9px 0;border-bottom:1px solid var(--linha)}
+.skinmap-pergunta{font-size:12px;color:var(--muted);margin-bottom:4px}
+.skinmap-valor{font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.skinmap-analise-vazio{font-size:12px;color:var(--muted);padding:8px 0}
 .skinmap-tabela td{vertical-align:top}.skinmap-tabela select{max-width:150px;padding:8px;border:1px solid var(--linha);border-radius:7px;background:white}
 .skinmap-resumo{max-width:260px;white-space:pre-wrap}
 @media(max-width:700px){.skinmap-filtros{align-items:stretch}.skinmap-filtros label,.skinmap-filtros input{width:100%;min-width:0}}
@@ -26,6 +33,7 @@
 <script type="module">
 import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash } from '/painel/assets/js/painel-auth.js';
 import { renderSidebarAdmin } from '/painel/assets/js/admin-sidebar.js';
+import { QUESTION_DEFINITIONS } from '/skinmap/js/engine-v2/variables/questionDefinitions.js';
 const ctx = await exigirAdmin();
 if (!ctx || !ctx.session?.access_token) throw new Error('Sessão administrativa não encontrada.');
 document.querySelector('[data-sidebar]').innerHTML = renderSidebarAdmin('skinmap', ctx.perfil.full_name);
@@ -35,17 +43,57 @@ let leads=[];
 const esc=(v)=>String(v??'').replace(/[&<>"']/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const dataPt=(v)=>{if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});};
 const statusLabel={novo:'Novo',contato:'Em contato',convertido:'Convertido',arquivado:'Arquivado'};
+const perfilLabels={
+ age_range:'Faixa etária',skin_type:'Como percebe a pele',hydration_level:'Hidratação',sensitivity_level:'Sensibilidade',
+ barrier_level:'Barreira cutânea',texture_level:'Textura',appearance_level:'Aspecto da pele',consultation_intention:'Objetivo da consulta',
+ product_usage_notes:'Produtos utilizados',additional_notes:'Observações adicionais',skin_observations:'Observações sobre a pele',
+ characteristics:'Características percebidas',goals:'Objetivos',routine_patterns:'Hábitos de rotina',regenerative_context:'Contexto de regeneração',
+ current_products:'Produtos atuais',lifestyle_factors:'Fatores de estilo de vida',photoaging_context:'Contexto de fotoenvelhecimento'
+};
+const rotulo=(v)=>String(v??'').replace(/_/g,' ').replace(/\\b\\w/g,(m)=>m.toLocaleUpperCase('pt-BR'));
+function valorLegivel(v){
+ if(v===null||v===undefined||v==='')return '';
+ if(Array.isArray(v))return v.map(valorLegivel).filter(Boolean).join(', ');
+ if(typeof v==='object')return '';
+ const s=String(v);
+ const map={normal:'Equilibrada',dry:'Mais seca',oily:'Mais oleosa',combination:'Mista',low:'Baixo',medium:'Moderado',high:'Alto',very_high:'Muito alto',yes:'Sim',no:'Não',true:'Sim',false:'Não'};
+ return map[s]||rotulo(s);
+}
+function renderAnalise(l){
+ const a=l.assessment&&typeof l.assessment==='object'?l.assessment:{};
+ const p=l.skin_profile&&typeof l.skin_profile==='object'?l.skin_profile:{};
+ const q=l.questionnaire&&typeof l.questionnaire==='object'?l.questionnaire:{};
+ const respostas=Array.isArray(q.answers)?q.answers:(Array.isArray(q)?q:[]);
+ let html='';
+ if(a.summary)html+='<h4>Resumo da análise</h4><div class="skinmap-resposta"><div class="skinmap-valor">'+esc(a.summary)+'</div></div>';
+ const campos=Object.entries(perfilLabels).filter(([k])=>p[k]!==null&&p[k]!==undefined&&p[k]!==''&&!(Array.isArray(p[k])&&!p[k].length));
+ if(campos.length)html+='<h4>Perfil de pele informado</h4>'+campos.map(([k,label])=>'<div class="skinmap-resposta"><div class="skinmap-pergunta">'+esc(label)+'</div><div class="skinmap-valor">'+esc(valorLegivel(p[k]))+'</div></div>').join('');
+ if(respostas.length){
+  html+='<h4>Respostas do paciente</h4>'+respostas.map((r)=>{
+   const id=r.question_id||r.key||'';
+   const def=QUESTION_DEFINITIONS[id]||{};
+   const pergunta=def.question||r.question||perfilLabels[id]||'Resposta informada';
+   let valores=[];
+   if(Array.isArray(r.selected_values))valores=r.selected_values.map((v)=>def.options?.find((o)=>o.value===v)?.label||valorLegivel(v));
+   if(r.text_response?.trim())valores.push(r.text_response.trim());
+   if(!valores.length&&r.answer!==undefined)valores.push(valorLegivel(r.answer));
+   if(!valores.length)return '';
+   return '<div class="skinmap-resposta"><div class="skinmap-pergunta">'+esc(pergunta)+'</div><div class="skinmap-valor">'+esc(valores.join(', '))+'</div></div>';
+  }).join('');
+ }
+ if(!html)html='<div class="skinmap-analise-vazio">Não há respostas detalhadas disponíveis para este registro.</div>';
+ return '<div class="skinmap-analise">'+html+'</div>';
+}
 function render(){
  const termo=busca.value.trim().toLocaleLowerCase('pt-BR'), status=filtroStatus.value;
  const filtrados=leads.filter((l)=>[l.full_name,l.whatsapp,l.email,l.city].some((v)=>String(v||'').toLocaleLowerCase('pt-BR').includes(termo))&&(status==='todos'||l.status===status));
  if(!filtrados.length){lista.innerHTML='<tr><td colspan="7" class="painel-vazio">Nenhuma solicitação encontrada.</td></tr>';return;}
  lista.innerHTML=filtrados.map((l)=>{
-  const dados=JSON.stringify({avaliacao:l.assessment||{},perfil:l.skin_profile||{},respostas:l.questionnaire||{},consentimento:{autorizado:l.consent,versao:l.consent_text_version,em:l.consented_at}},null,2);
   return '<tr><td><strong>'+esc(l.full_name)+'</strong><br>'+esc(l.whatsapp)+'<br><a href="mailto:'+esc(l.email)+'">'+esc(l.email)+'</a><br>'+esc(l.city||'Cidade não informada')+'</td>'+
    '<td>'+esc(l.skin_type||l.assessment?.skin_type||'—')+'<div class="skinmap-resumo">'+esc(l.assessment?.summary||'')+'</div></td>'+
    '<td>'+esc(l.interest||'—')+'<br><small>Origem: '+esc(l.indication||'—')+'</small></td><td>'+esc(dataPt(l.created_at))+'</td><td>'+((l.source_environment==='preview')?'<strong>Teste</strong>':'Produção')+'</td>'+
    '<td><select aria-label="Status de '+esc(l.full_name)+'" data-status-id="'+esc(l.id)+'">'+Object.keys(statusLabel).map((k)=>'<option value="'+k+'"'+(l.status===k?' selected':'')+'>'+statusLabel[k]+'</option>').join('')+'</select></td>'+
-   '<td><details class="skinmap-detalhes"><summary>Ver análise</summary><pre>'+esc(dados)+'</pre></details></td></tr>';
+   '<td><details class="skinmap-detalhes"><summary>Ver análise</summary>'+renderAnalise(l)+'</details></td></tr>';
  }).join('');
  lista.querySelectorAll('[data-status-id]').forEach((s)=>s.addEventListener('change',async()=>{
   s.disabled=true;const {error}=await supabase.from('skinmap_leads').update({status:s.value}).eq('id',s.dataset.statusId);s.disabled=false;
