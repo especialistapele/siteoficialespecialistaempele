@@ -4,6 +4,9 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - "scripts/lib/conteudo.mjs"
+      - "scripts/gerar-paginas-tratamentos.mjs"
+      - "tests/publication-content-security.mjs"
       - "painel/assets/js/painel-auth.js"
       - "supabase/functions/create-patient/index.ts"
       - "supabase/functions/disparar-publicacao/index.ts"
@@ -24,6 +27,9 @@ on:
   push:
     branches: ["security/audit-hardening"]
     paths:
+      - "scripts/lib/conteudo.mjs"
+      - "scripts/gerar-paginas-tratamentos.mjs"
+      - "tests/publication-content-security.mjs"
       - "docs/SECURITY_AUDIT.md"
       - "painel/assets/js/painel-auth.js"
       - "supabase/functions/create-patient/index.ts"
@@ -47,9 +53,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Setup Node
-        uses: actions/setup-node@v7.1.0
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
       - name: Syntax-check changed ES modules
@@ -58,5 +64,9 @@ jobs:
           node --input-type=module --check < painel/assets/js/admin-sidebar.js
           node --input-type=module --check < painel/assets/js/sanitize.js
           node --input-type=module --check < assets/js/rich-text.js
+          node --check scripts/lib/conteudo.mjs
+          node --check scripts/gerar-paginas-tratamentos.mjs
       - name: Static auth security regression checks
         run: node tests/painel-auth-security.mjs
+      - name: Static publication content security checks
+        run: node tests/publication-content-security.mjs
