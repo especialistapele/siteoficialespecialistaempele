@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - "painel/assets/js/painel-auth.js"
+      - "painel/assets/js/admin-sidebar.js"
+      - "painel/paciente/painel.html"
+      - "painel/assets/js/sanitize.js"
+      - "assets/js/rich-text.js"
       - "painel/index.html"
       - "painel/admin/dashboard.html"
       - "painel/admin/paciente.html"
@@ -16,6 +20,10 @@ on:
     branches: ["security/audit-hardening"]
     paths:
       - "painel/assets/js/painel-auth.js"
+      - "painel/assets/js/admin-sidebar.js"
+      - "painel/paciente/painel.html"
+      - "painel/assets/js/sanitize.js"
+      - "assets/js/rich-text.js"
       - "painel/index.html"
       - "tests/painel-auth-security.mjs"
       - ".github/workflows/security-audit.yml"
@@ -33,5 +41,11 @@ jobs:
         uses: actions/setup-node@v7.1.0
         with:
           node-version: 22
+      - name: Syntax-check changed ES modules
+        run: |
+          node --input-type=module --check < painel/assets/js/painel-auth.js
+          node --input-type=module --check < painel/assets/js/admin-sidebar.js
+          node --input-type=module --check < painel/assets/js/sanitize.js
+          node --input-type=module --check < assets/js/rich-text.js
       - name: Static auth security regression checks
         run: node tests/painel-auth-security.mjs
