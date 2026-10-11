@@ -257,7 +257,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Gravidade:** média (integridade do prontuário e disponibilidade do painel).
 - **Status:** migration proposta na branch; CI pendente; sem teste de escrita em produção.
 - **Evidência:** duas policies permitiam ao paciente inserir anexos em qualquer versão própria, sem conferir `status` ou permissão ativa de edição. Ao mesmo tempo, o painel administrativo também insere metadados de anexos, mas as policies atuais não concediam INSERT administrativo.
-- **Correção proposta:** `supabase/migrations/20261011250000_harden_anamnesis_attachment_writes.sql` substitui as policies duplicadas por uma policy de paciente que exige versão em rascunho ou permissão ativa não expirada, e uma policy administrativa que exige `is_admin()` e vínculo válido entre anexo, versão e paciente.
+- **Correção proposta:** `supabase/migrations/20261011250000_harden_anamnesis_attachment_writes.sql` substitui as policies duplicadas por uma policy de paciente que exige versão em rascunho ou permissão ativa não expirada, e uma policy administrativa que exige `is_admin()` e vínculo válido entre anexo, versão e paciente. A mesma migration adiciona CHECK constraint que obriga `file_path` a conter o `patient_id` e `anamnesis_version_id` da linha. Consulta read-only encontrou zero anexos atuais, então não há registros existentes incompatíveis com a regra.
 - **Risco residual:** validar upload/INSERT do paciente em rascunho, versão bloqueada e edição autorizada; validar também o fluxo administrativo com duas contas fictícias em homologação. Não foi aplicado.
 
 ## Escopo verificado até aqui
