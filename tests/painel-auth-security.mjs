@@ -138,6 +138,7 @@ assert.ok(anamnesisWriteMigration.includes('DROP POLICY IF EXISTS "patient signs
 assert.ok(patientAnamnesis.includes('supabase.rpc("submit_anamnesis"'), "formulário de anamnese deve usar RPC autorizada");
 assert.ok(!patientAnamnesis.includes('supabase.from("anamnesis_responses").insert'), "formulário não deve inserir respostas diretamente");
 assert.ok(!patientAnamnesis.includes('supabase.from("anamnesis_signatures").insert'), "formulário não deve inserir assinaturas diretamente");
+assert.ok(attachmentPolicyMigration.includes('DROP POLICY IF EXISTS "anamnesis_attachments_patient_insert"'), "policy permissiva antiga de anexos deve ser removida");
 assert.ok(attachmentPolicyMigration.includes("v.status = 'draft'"), "anexos do paciente devem exigir versão editável");
 assert.ok(attachmentPolicyMigration.includes("ep.status = 'active'"), "anexos após submissão exigem permissão ativa");
 assert.ok(attachmentPolicyMigration.includes('"admin uploads anamnesis attachments"'), "painel administrativo deve poder anexar a uma versão existente");
