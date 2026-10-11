@@ -4,6 +4,7 @@ on:
     paths:
       - 'skinmap/**'
       - 'painel/assets/js/admin-sidebar.js'
+      - 'painel/assets/css/painel.css'
       - 'painel/admin/skinmap.html'
       - 'supabase/migrations/*skinmap*'
       - 'tests/skinmap-static-check.mjs'
