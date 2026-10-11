@@ -52,8 +52,8 @@ begin
     raise exception 'Uma resposta excede o limite permitido';
   end if;
 
-  select av.patient_id,av.anamnesis_type_id,av.status
-    into v_patient_id,v_type_id,v_status
+  select av.patient_id,av.anamnesis_type_id,av.status,av.released_at
+    into v_patient_id,v_type_id,v_status,v_released_at
   from anamnesis_versions av
   join patients p on p.id=av.patient_id
   where av.id=p_version_id and p.user_id=v_uid;
