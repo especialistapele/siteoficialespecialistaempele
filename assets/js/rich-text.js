@@ -23,6 +23,9 @@ function limparNo(pai) {
   [...pai.childNodes].forEach((filho) => {
     if (filho.nodeType === 1) {
       if (!ALLOWED_TAGS.has(filho.tagName)) {
+        // Sanitize descendants before unwrapping to prevent active child nodes
+        // inside disallowed SVG/MathML wrappers from bypassing this sanitizer.
+        limparNo(filho);
         while (filho.firstChild) pai.insertBefore(filho.firstChild, filho);
         pai.removeChild(filho);
         return;
