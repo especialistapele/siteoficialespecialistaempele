@@ -183,13 +183,7 @@ const SkinMapQuestionnaire = {
 
 
 
-            console.log(
-
-                "Questionário carregado:",
-
-                response
-
-            );
+            
 
 
 
@@ -252,13 +246,7 @@ const SkinMapQuestionnaire = {
 
 
 
-            console.error(
-
-                "Erro carregando questionário:",
-
-                error
-
-            );
+            
 
 
 
@@ -1950,13 +1938,7 @@ const SkinMapQuestionnaire = {
 
 
 
-        console.log(
-
-            "SkinProfile normalizado:",
-
-            profile
-
-        );
+        
 
 
 
@@ -2075,11 +2057,7 @@ const SkinMapQuestionnaire = {
 
 
 
-            console.log(
-
-                "Finalizando questionário..."
-
-            );
+            
 
 
 
@@ -2127,6 +2105,9 @@ const SkinMapQuestionnaire = {
 
                 );
 
+            if (!validation?.success || validation?.data?.valid === false) {
+                throw new Error("Não foi possível validar suas respostas. Revise o questionário e tente novamente.");
+            }
 
 
 
@@ -2135,16 +2116,8 @@ const SkinMapQuestionnaire = {
 
 
 
-            console.log(
 
-
-                "Questionário validado:",
-
-
-                validation
-
-
-            );
+            
 
 
 
@@ -2173,16 +2146,7 @@ const SkinMapQuestionnaire = {
 
 
 
-            console.log(
-
-
-                "Profile enviado:",
-
-
-                profilePayload
-
-
-            );
+            
 
 
 
@@ -2190,28 +2154,7 @@ const SkinMapQuestionnaire = {
 
 
 
-            console.log(
-
-
-                "PROFILE JSON:",
-
-
-                JSON.stringify(
-
-
-                    profilePayload,
-
-
-                    null,
-
-
-                    2
-
-
-                )
-
-
-            );
+            
 
 
 
@@ -2246,16 +2189,7 @@ const SkinMapQuestionnaire = {
 
 
 
-            console.log(
-
-
-                "Assessment gerado:",
-
-
-                assessment
-
-
-            );
+            
 
 
 
@@ -2352,16 +2286,7 @@ const SkinMapQuestionnaire = {
 
 
 
-            console.error(
-
-
-                "Erro ao finalizar análise:",
-
-
-                error
-
-
-            );
+            
 
 
 
@@ -2382,16 +2307,7 @@ const SkinMapQuestionnaire = {
 
 
 
-                console.error(
-
-
-                    "Detalhes API:",
-
-
-                    error.response
-
-
-                );
+                
 
 
             }
@@ -2406,16 +2322,7 @@ const SkinMapQuestionnaire = {
 
 
 
-                console.error(
-
-
-                    "Mensagem:",
-
-
-                    error.message
-
-
-                );
+                
 
 
             }

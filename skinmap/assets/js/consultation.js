@@ -1,29 +1,9 @@
-/**
- * ============================================================
- *
- * SkinMap Regenerativo™
- *
- * Consultation Controller
- *
- * Responsável por:
- *
- * - carregar SkinAssessment existente
- * - apresentar resumo do SkinMap
- * - apresentar características observadas
- * - capturar dados da consultoria
- * - preparar dados para Google Sheets
- * - controlar envio seguro
- *
- * Abas:
- *
- * 1 - Avaliações_SkinMap
- * 2 - Leads
- * 3 - Reuniões
- *
- * ============================================================
- */
-
-
+/** SkinMap Regenerativo™ — envio de leads com consentimento e acesso administrativo via Supabase. */
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm";
+const skinMapSupabase = createClient(
+  "https://clwaotfbqwvxpykruwed.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsd2FvdGZicXd2eHB5a3J1d2VkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4MDc0OTMsImV4cCI6MjEwNDM4MzQ5M30.Cw9zJU8UIkxhzjI-adNHoRTyNuGingHpTHZ6pjJBgBc"
+);
 "use strict";
 
 
@@ -44,10 +24,7 @@ const SkinMapConsultation = {
     // ========================================================
 
 
-    GOOGLE_SCRIPT_URL:
-
-
-        "https://script.google.com/macros/s/AKfycbxIhElvXjbBhHLTSq78pXFRKTuVE2Yo7KG3rQhiVd1w-Kdes_IAn_GdNVaBgCYNR9VBaA/exec",
+    
 
 
 
@@ -159,13 +136,7 @@ const SkinMapConsultation = {
 
 
 
-                console.warn(
-
-
-                    "Nenhum assessment encontrado."
-
-
-                );
+                
 
 
 
@@ -196,17 +167,7 @@ const SkinMapConsultation = {
 
 
 
-            console.log(
-
-
-                "Assessment carregado:",
-
-
-                this.assessment
-
-
-
-            );
+            
 
 
 
@@ -222,17 +183,7 @@ const SkinMapConsultation = {
 
 
 
-            console.error(
-
-
-                "Erro ao carregar assessment:",
-
-
-                error
-
-
-
-            );
+            
 
 
 
@@ -1718,409 +1669,55 @@ const SkinMapConsultation = {
 
 
     async submitForm(){
-
-
-
-
-
-        if(this.isSubmitting){
-
-
-
-            console.warn(
-
-
-                "Envio já está em andamento."
-
-
-            );
-
-
-
+        if (this.isSubmitting) return;
+        const form = document.getElementById("consultationForm");
+        const button = document.getElementById("submitButton");
+        const message = document.getElementById("formMessage");
+        const consent = document.getElementById("skinmapConsent");
+        if (!form?.reportValidity()) return;
+        if (!consent?.checked) {
+            if (message) message.textContent = "Para enviar, marque a autorização de uso dos dados.";
+            consent?.focus();
             return;
-
-
-
         }
-
-
-
-
-
-
-
         this.isSubmitting = true;
-
-
-
-
-
-
-
-
-
-        const button =
-
-
-            document.getElementById(
-
-                "submitButton"
-
-            );
-
-
-
-
-
-
-
-
-
-        const message =
-
-
-            document.getElementById(
-
-                "formMessage"
-
-            );
-
-
-
-
-
-
-
-
-
-        if(button){
-
-
-
-            button.disabled = true;
-
-
-
-            button.textContent =
-
-
-                "Enviando seus dados...";
-
-
-
-        }
-
-
-
-
-
-
-
-
-
-        if(message){
-
-
-
-            message.textContent =
-
-
-                "Estamos preparando sua solicitação personalizada...";
-
-
-
-        }
-
-
-
-
-
-
-
-
-
-        const payload =
-
-
-            this.buildPayload();
-
-
-
-
-
-
-
-
-
-        console.log(
-
-
-            "Dados enviados:",
-
-
-            payload
-
-
-
-        );
-
-
-
-
-
-
-
-
-
-        try{
-
-
-
-            const response =
-
-
-                await fetch(
-
-
-                    this.GOOGLE_SCRIPT_URL,
-
-
-                    {
-
-
-
-                        method:"POST",
-
-
-
-                        headers:{
-
-
-                            "Content-Type":
-
-
-                                "text/plain"
-
-
-                        },
-
-
-
-                        body:
-
-
-                            JSON.stringify(
-
-                                payload
-
-                            )
-
-
-
-                    }
-
-
-
-                );
-
-
-
-
-
-
-
-
-
-            if(!response.ok){
-
-
-                throw new Error(
-
-
-                    "Falha no envio para Google Sheets"
-
-
-                );
-
-
-            }
-
-
-
-
-
-
-
-
-
-            if(message){
-
-
-
-                message.textContent =
-
-
-                    "Solicitação enviada com sucesso! Sua estratégia personalizada será preparada.";
-
-
-
-            }
-
-
-
-
-
-
-
-
-
-            if(button){
-
-
-
-                button.textContent =
-
-
-                    "Solicitação recebida ✓";
-
-
-
-            }
-
-
-
-
-
-
-
-
-
-            document
-
-
-                .getElementById(
-
-                    "consultationForm"
-
-                )
-
-
-                .reset();
-
-
-
-
-
-        }
-
-
-
-
-
-
-
-        catch(error){
-
-
-
-
-
-            console.error(error);
-
-
-
-
-
-
-
-
-
-            if(message){
-
-
-
-                message.textContent =
-
-
-                    "Não foi possível enviar neste momento. Tente novamente.";
-
-
-
-            }
-
-
-
-
-
-
-
-
-
-            if(button){
-
-
-
-                button.disabled = false;
-
-
-
-                button.textContent =
-
-
-                    "Receber minha estratégia";
-
-
-
-            }
-
-
-
-
-
-
-
-
-
+        if (button) { button.disabled = true; button.textContent = "Enviando com segurança..."; }
+        if (message) message.textContent = "Registrando sua solicitação...";
+        try {
+            const assessment = this.assessment || {};
+            const profile = window.SkinMapStorage?.getProfile() || {};
+            const questionnaire = window.SkinMapStorage?.getQuestionnaire() || {};
+            const { error } = await skinMapSupabase.from("skinmap_leads").insert({
+                full_name: this.value("name"),
+                whatsapp: this.value("whatsapp"),
+                email: this.value("email").toLowerCase(),
+                city: this.value("city"),
+                interest: this.value("interest"),
+                indication: this.getIndication(),
+                other_indication: this.value("otherIndication"),
+                skin_type: this.translate(assessment.skin_type),
+                assessment,
+                skin_profile: profile,
+                questionnaire,
+                consent: true,
+                consent_text_version: "skinmap-consent-v1"
+            });
+            if (error) throw error;
+            if (message) message.textContent = "Solicitação recebida com sucesso. Em breve entraremos em contato.";
+            if (button) button.textContent = "Solicitação recebida ✓";
+            form.reset();
+            window.SkinMapStorage?.clear();
+        } catch (_) {
+            if (message) message.textContent = "Não foi possível enviar agora. Confira sua conexão e tente novamente.";
+            if (button) { button.disabled = false; button.textContent = "Receber minha estratégia"; }
+        } finally {
             this.isSubmitting = false;
-
-
-
         }
-
-
-
     },
-
-
-
-
-
-
-
-
-
-
-
-
 
     // ========================================================
     // Montagem dos dados
-    //
-    // Estrutura enviada para Google Sheets:
-    //
-    // {
-    //
-    //   avaliacaoSkinMap:{},
-    //
-    //   lead:{},
-    //
-    //   reuniao:{}
-    //
-    // }
-    //
     // ========================================================
-
-
     buildPayload(){
 
 

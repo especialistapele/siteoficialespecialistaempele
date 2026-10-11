@@ -1,0 +1,28 @@
+name: SkinMap static checks
+on:
+  pull_request:
+    paths:
+      - 'skinmap/**'
+      - 'painel/assets/js/admin-sidebar.js'
+      - 'painel/admin/skinmap.html'
+      - 'supabase/migrations/*skinmap*'
+      - 'tests/skinmap-static-check.mjs'
+      - '.github/workflows/skinmap-check.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'skinmap/**'
+      - 'painel/assets/js/admin-sidebar.js'
+      - 'painel/admin/skinmap.html'
+      - 'supabase/migrations/*skinmap*'
+      - 'tests/skinmap-static-check.mjs'
+      - '.github/workflows/skinmap-check.yml'
+jobs:
+  skinmap-static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node tests/skinmap-static-check.mjs
