@@ -12,6 +12,8 @@ const publicArticlePage = readFileSync("blog/artigos/artigo-data.js", "utf8");
 const publicTreatmentPage = readFileSync("tratamentos/tratamento-data.js", "utf8");
 const adminPolicyMigration = readFileSync("supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql", "utf8");
 const contractAdmin = readFileSync("painel/admin/contratos.html", "utf8");
+const contractPdf = readFileSync("painel/assets/js/contrato-pdf.js", "utf8");
+const signaturePathMigration = readFileSync("supabase/migrations/20261011170000_constrain_patient_signature_paths.sql", "utf8");
 const publicSupabaseClient = readFileSync("assets/js/supabase-client.js", "utf8");
 const edgeFunctionSources = [
   readFileSync("supabase/functions/create-patient/index.ts", "utf8"),
@@ -83,6 +85,10 @@ assert.ok(adminPolicyMigration.includes("ALTER POLICY %I ON %I.%I TO authenticat
 assert.ok(adminPolicyMigration.includes("admin_full_access_testimonials"), "migração deve corrigir a política administrativa de depoimentos");
 assert.ok(adminPolicyMigration.includes("admin_gerencia_pre_atendimentos"), "migração deve corrigir a política administrativa de pré-atendimentos");
 assert.ok(contractAdmin.includes("editor.innerHTML = sanitizeRichHtml(substituirDadosPaciente(modelo.content_html || \"\", paciente));"), "modelo de contrato deve ser sanitizado antes de entrar no editor");
+assert.ok(contractPdf.includes('import { sanitizeRichHtml } from "/assets/js/rich-text.js";'), "PDF deve usar o sanitizador compartilhado");
+assert.ok(contractPdf.includes("div.innerHTML = sanitizeRichHtml(String(html ?? \"\"));"), "PDF deve sanitizar snapshot antes de analisar HTML");
+assert.ok(signaturePathMigration.includes("contracts_signature_path_own_patient_check"), "migration deve restringir assinatura de contrato ao paciente dono");
+assert.ok(signaturePathMigration.includes("anamnesis_signatures_signature_path_own_patient_check"), "migration deve restringir assinatura de anamnese ao paciente dono");
 assert.ok(contractAdmin.includes("const signatureUrl = safeUrl(data?.signedUrl);"), "URL da assinatura deve ser validada antes da interpolação");
 assert.ok(contractAdmin.includes('src="${escapeHtml(signatureUrl)}"'), "URL da assinatura deve ser escapada no atributo HTML");
 assert.ok(!adminPolicyMigration.includes("anyone_can_insert_consent"), "migração não deve remover o INSERT público legítimo de consentimento");
