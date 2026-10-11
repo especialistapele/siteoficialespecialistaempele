@@ -97,3 +97,29 @@ CREATE POLICY "Bot can create messages"
   FOR INSERT
   TO anon, authenticated
   WITH CHECK (public.bot_session_matches(conversation_id, session_id));
+
+-- Limites de integridade que já são respeitados pelos registros existentes
+-- (máximo observado: 157 caracteres; senders atuais: visitor, bot, system).
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'bot_messages_message_length_check'
+      AND conrelid = 'public.bot_messages'::regclass
+  ) THEN
+    ALTER TABLE public.bot_messages
+      ADD CONSTRAINT bot_messages_message_length_check
+      CHECK (length(message) <= 4000);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'bot_messages_sender_check'
+      AND conrelid = 'public.bot_messages'::regclass
+  ) THEN
+    ALTER TABLE public.bot_messages
+      ADD CONSTRAINT bot_messages_sender_check
+      CHECK (sender IN ('visitor', 'bot', 'system'));
+  END IF;
+END
+$$;
