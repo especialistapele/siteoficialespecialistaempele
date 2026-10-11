@@ -113,12 +113,20 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Correção recomendada:** revisar visualmente e documentalmente os objetos órfãos; confirmar consentimento e finalidade. Remover somente após confirmação de que não são necessários, ou mover imagens não públicas para o bucket privado com política de acesso adequada.
 - **Risco residual:** URLs antigas podem continuar circulando; não foi possível confirmar conteúdo/consentimento dos objetos órfãos sem inspecioná-los.
 
+### SEC-018 — Histórico de migrations do Supabase não reconciliado com o repositório
+- **Gravidade:** média (integridade/reprodutibilidade de implantação).
+- **Status:** divergência de nomes/quantidade confirmada; equivalência de conteúdo ainda não determinada.
+- **Evidência:** o repositório contém 34 arquivos `supabase/migrations/*.sql`; o histórico consultado no Supabase contém 39 entradas. Apenas 15 nomes coincidem exatamente após remover o prefixo de timestamp; 24 nomes aplicados não têm arquivo com o mesmo nome no repositório e 19 arquivos do repositório não têm nome correspondente no histórico. Exemplos de migrations aplicadas sem arquivo de mesmo nome incluem `revoke_is_admin_anon_execute`, `fix_treatments_admin_policy_roles` e `fix_result_images_rls_for_public_read`. Algumas diferenças podem ser equivalências semânticas/renomeações; isso ainda precisa ser comparado pelo conteúdo.
+- **Impacto plausível:** reconstruções, novos ambientes ou futuras implantações podem não reproduzir o estado atual do banco ou deixar de incluir correções de segurança que foram aplicadas diretamente.
+- **Correção recomendada:** reconciliar cada entrada aplicada com o SQL versionado, registrar equivalências e criar migrações incrementais revisáveis para alterações ausentes; não reexecutar migrations históricas automaticamente nem marcar versões como aplicadas sem revisão.
+- **Risco residual:** não foi possível recuperar o corpo SQL histórico apenas a partir da tabela de versões; nenhuma migração foi executada ou alterada no banco.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
 - Arquivos revisados: `painel/assets/js/painel-auth.js`, `painel/index.html`, `painel/assets/js/sanitize.js`, `painel/assets/js/admin-sidebar.js`, `painel/assets/js/notifications.js`, `assets/js/rich-text.js`, `painel/admin/dashboard.html`, `painel/admin/pacientes.html`, `painel/admin/documentos.html`, `painel/admin/agenda.html`, `painel/admin/financeiro.html`, `painel/admin/paciente.html`, `painel/paciente/painel.html`, `painel/paciente/anamnese.html`, `robots.txt`.
 - `sanitize.js` oferece `escapeHtml()` e `safeUrl()`; ainda falta rastrear o uso de ambos em todos os renderizadores.
-- Supabase: listagem de tabelas, status RLS, políticas relevantes, buckets, grants efetivos para roles cliente e Security Advisor; inspeção parcial de três Edge Functions e dos corpos de funções SQL selecionadas.
+- Supabase: listagem de tabelas, status RLS, políticas relevantes, buckets, grants efetivos para roles cliente, Security Advisor e histórico de migrations; inspeção parcial de três Edge Functions e dos corpos de funções SQL selecionadas.
 - Todas as tabelas listadas nos schemas `public` e `storage` retornaram RLS habilitado na consulta de metadados. Isso não é uma prova de que cada política seja correta, nem testa privilégios reais por role.
 - Bucket `documentos-pacientes`: privado. Bucket `site-media`: público; 11 objetos sem referência atual foram identificados (4 em `resultados/`, 7 em `tratamentos/`) e exigem revisão antes de qualquer exclusão/movimentação.
 - O SDK Supabase é importado de CDN com versão especificada `@2.117.2`. Chart.js foi fixado em `4.5.1` nas três páginas administrativas encontradas. A integridade/SRI e o inventário de todas as dependências externas ainda precisam ser avaliados.
@@ -150,6 +158,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-015 | Baixa | Versão flutuante do Chart.js | Corrigida e verificada pelo CI; rastrear outras dependências |
 | SEC-016 | Média | Formulário público sem antiabuso/validação server-side | Projetar Edge Function com limites e rate limit; validar base legal para dados sensíveis |
 | SEC-017 | Média potencial | Objetos órfãos em bucket público | Revisar conteúdo/consentimento de 11 objetos antes de decidir remoção ou migração |
+| SEC-018 | Média | Histórico de migrations não reconciliado | Comparar SQL aplicado com arquivos versionados antes de novas implantações |
 
 ## Limitações e próximos passos
 
