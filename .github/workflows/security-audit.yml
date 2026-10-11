@@ -27,7 +27,8 @@ on:
       - "painel/admin/configuracoes.html"
       - "tests/painel-auth-security.mjs"
       - "docs/SECURITY_AUDIT.md"
-      - ".github/workflows/security-audit.yml"
+      - ".github/workflows/security-audit.yml"      - "supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql"
+
   push:
     branches: ["security/audit-hardening"]
     paths:
@@ -81,3 +82,4 @@ jobs:
         run: node tests/painel-auth-security.mjs
       - name: Static publication content security checks
         run: node tests/publication-content-security.mjs
+      - "supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql"
