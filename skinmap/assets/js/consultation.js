@@ -1687,6 +1687,12 @@ const SkinMapConsultation = {
             const assessment = this.assessment || {};
             const profile = window.SkinMapStorage?.getProfile() || {};
             const questionnaire = window.SkinMapStorage?.getQuestionnaire() || {};
+            const consultationPreferences = {
+                preferred_time: this.value("preferredTime"),
+                interest: this.value("interest"),
+                indication: this.getIndication(),
+                other_indication: this.value("otherIndication")
+            };
             const { error } = await skinMapSupabase.from("skinmap_leads").insert({
                 full_name: this.value("name"),
                 whatsapp: this.value("whatsapp"),
@@ -1698,9 +1704,12 @@ const SkinMapConsultation = {
                 skin_type: this.translate(assessment.skin_type),
                 assessment,
                 skin_profile: profile,
-                questionnaire,
+                questionnaire: {
+                    ...(Array.isArray(questionnaire) ? { answers: questionnaire } : questionnaire),
+                    consultation_preferences: consultationPreferences
+                },
                 consent: true,
-                consent_text_version: "skinmap-consent-v1",
+                consent_text_version: "skinmap-consent-v2",
                 source_environment: window.location.hostname.endsWith(".vercel.app") ? "preview" : "production"
             });
             if (error) throw error;

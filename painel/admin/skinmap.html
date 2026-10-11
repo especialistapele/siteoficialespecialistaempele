@@ -64,6 +64,13 @@ function renderAnalise(l){
  const p=l.skin_profile&&typeof l.skin_profile==='object'?l.skin_profile:{};
  const q=l.questionnaire&&typeof l.questionnaire==='object'?l.questionnaire:{};
  const respostas=Array.isArray(q.answers)?q.answers:(Array.isArray(q)?q:[]);
+ const preferencias=q.consultation_preferences&&typeof q.consultation_preferences==='object'?q.consultation_preferences:{};
+ const outrasPreferencias=[
+  ['Melhor horário para contato',preferencias.preferred_time],
+  ['Interesse principal',preferencias.interest||l.interest],
+  ['Como conheceu o SkinMap',preferencias.indication||l.indication],
+  ['Detalhe da origem',preferencias.other_indication||l.other_indication]
+ ].filter(([,v])=>v!==null&&v!==undefined&&String(v).trim()!=='');
  let html='';
  if(a.summary)html+='<h4>Resumo da análise</h4><div class="skinmap-resposta"><div class="skinmap-valor">'+esc(a.summary)+'</div></div>';
  const campos=Object.entries(perfilLabels).filter(([k])=>p[k]!==null&&p[k]!==undefined&&p[k]!==''&&!(Array.isArray(p[k])&&!p[k].length));
@@ -81,6 +88,7 @@ function renderAnalise(l){
    return '<div class="skinmap-resposta"><div class="skinmap-pergunta">'+esc(pergunta)+'</div><div class="skinmap-valor">'+esc(valores.join(', '))+'</div></div>';
   }).join('');
  }
+ if(outrasPreferencias.length)html+='<h4>Preferências de contato</h4>'+outrasPreferencias.map(([label,value])=>'<div class="skinmap-resposta"><div class="skinmap-pergunta">'+esc(label)+'</div><div class="skinmap-valor">'+esc(value)+'</div></div>').join('');
  if(!html)html='<div class="skinmap-analise-vazio">Não há respostas detalhadas disponíveis para este registro.</div>';
  return '<div class="skinmap-analise">'+html+'</div>';
 }
@@ -91,7 +99,7 @@ function render(){
  lista.innerHTML=filtrados.map((l)=>{
   return '<tr><td><strong>'+esc(l.full_name)+'</strong><br>'+esc(l.whatsapp)+'<br><a href="mailto:'+esc(l.email)+'">'+esc(l.email)+'</a><br>'+esc(l.city||'Cidade não informada')+'</td>'+
    '<td>'+esc(l.skin_type||l.assessment?.skin_type||'—')+'<div class="skinmap-resumo">'+esc(l.assessment?.summary||'')+'</div></td>'+
-   '<td>'+esc(l.interest||'—')+'<br><small>Origem: '+esc(l.indication||'—')+'</small></td><td>'+esc(dataPt(l.created_at))+'</td><td>'+((l.source_environment==='preview')?'<strong>Teste</strong>':'Produção')+'</td>'+
+   '<td>'+esc(l.interest||'—')+'<br><small>Origem: '+esc(l.indication||'—')+'</small>'+(l.questionnaire?.consultation_preferences?.preferred_time?'<br><small>Horário: '+esc(l.questionnaire.consultation_preferences.preferred_time)+'</small>':'')+'</td><td>'+esc(dataPt(l.created_at))+'</td><td>'+((l.source_environment==='preview')?'<strong>Teste</strong>':'Produção')+'</td>'+
    '<td><select aria-label="Status de '+esc(l.full_name)+'" data-status-id="'+esc(l.id)+'">'+Object.keys(statusLabel).map((k)=>'<option value="'+k+'"'+(l.status===k?' selected':'')+'>'+statusLabel[k]+'</option>').join('')+'</select></td>'+
    '<td><details class="skinmap-detalhes"><summary>Ver análise</summary>'+renderAnalise(l)+'</details></td></tr>';
  }).join('');
@@ -104,7 +112,7 @@ function render(){
 }
 async function carregar(){
  lista.innerHTML='<tr><td colspan="7" class="painel-vazio">Carregando solicitações…</td></tr>';
- const {data,error}=await supabase.from('skinmap_leads').select('id,full_name,whatsapp,email,city,interest,indication,skin_type,assessment,skin_profile,questionnaire,consent,consent_text_version,consented_at,status,created_at,source_environment').order('created_at',{ascending:false});
+ const {data,error}=await supabase.from('skinmap_leads').select('id,full_name,whatsapp,email,city,interest,indication,other_indication,skin_type,assessment,skin_profile,questionnaire,consent,consent_text_version,consented_at,status,created_at,source_environment').order('created_at',{ascending:false});
  if(error){lista.innerHTML='<tr><td colspan="7" class="painel-vazio">Não foi possível carregar os leads. Verifique a migração e as permissões administrativas.</td></tr>';mostrarFlash(flash,'Falha ao carregar SkinMap.','erro');return;}
  leads=data||[];render();
 }
