@@ -49,14 +49,15 @@ export function dataISO(iso) {
   return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
 }
 
-// Só aceita http(s) — nunca javascript: etc.
+// URLs externas precisam de HTTPS. Caminhos relativos são aceitos apenas
+// quando começam na raiz e não podem ser protocol-relative nem conter barra invertida.
 export function urlSegura(valor, { relativa = false } = {}) {
   const raw = String(valor ?? "").trim();
-  if (!raw) return "";
-  if (relativa && raw.startsWith("/") && !raw.startsWith("//")) return raw;
+  if (!raw || /[\\u0000-\\u001f\\u007f]/.test(raw)) return "";
+  if (relativa && raw.startsWith("/") && !raw.startsWith("//") && !raw.includes("\\\\")) return raw;
   try {
     const u = new URL(raw);
-    return u.protocol === "https:" || u.protocol === "http:" ? u.href : "";
+    return u.protocol === "https:" ? u.href : "";
   } catch { return ""; }
 }
 
