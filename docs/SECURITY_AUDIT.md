@@ -246,6 +246,13 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Correção proposta:** `supabase/migrations/20261011230000_validate_public_pre_atendimento.sql` valida nome, telefone, e-mail, idade e comprimentos dos campos; força `status='novo'` e `created_at=now()` no servidor. Não foi aplicada.
 - **Risco residual:** a trigger não limita a frequência de envios por IP e não substitui CAPTCHA/Edge Function; rate limit server-side permanece pendente.
 
+### SEC-036 — Policies INSERT de anamnese permitiam contornar o RPC de submissão
+- **Gravidade:** alta para integridade de prontuário.
+- **Status:** migration proposta na branch; CI pendente; não aplicada.
+- **Evidência:** `patient writes own responses` permitia INSERT direto em `anamnesis_responses` para qualquer versão pertencente ao paciente, sem verificar status ou autorização de edição ativa. `patient signs own anamnesis` permitia INSERT direto em `anamnesis_signatures` sem passar pelas validações transacionais de `submit_anamnesis`. O frontend já usa o RPC, então essas policies não são necessárias para o fluxo normal.
+- **Correção proposta:** `supabase/migrations/20261011240000_revoke_direct_anamnesis_writes.sql` remove as duas policies de INSERT direto; o RPC `SECURITY DEFINER` continua podendo gravar e mantém as validações de propriedade, versão, permissão e assinatura.
+- **Risco residual:** testar envio normal, versão bloqueada e edição autorizada com duas contas fictícias em homologação antes de aplicar. Não foi executado INSERT de teste em produção.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
@@ -263,7 +270,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 
 - **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline, ausência de chave privilegiada no frontend e escaping dos sinks identificados.
 - **Executado com sucesso no GitHub Actions no commit `f901aa447b01650995e4d8770128ca39c6d54df6`:** [Security audit checks](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38151019959), [Validação de sintaxe dos HTML](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38151019939) e [Bot triagem — validação](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38151019952). A checagem cobre sanitizador, sinks públicos, path traversal em diretório temporário, PDF de contratos, migrações propostas, RPC de logging do bot, limites de payload e fallback UUID. Isso não substitui testes reais de autorização nem aplicação das migrations em homologação.
-- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, validação em homologação das migrations de políticas/assinaturas/conceitos/bot/pré-atendimento, geração completa de páginas estáticas em ambiente de teste, teste funcional dos modelos de contrato/assinatura/PDF, do bot e da Edge Function reconciliada, desenho de rate limit para bot e pré-atendimento, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
+- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, validação em homologação das migrations de políticas/assinaturas/conceitos/bot/pré-atendimento/remoção de INSERT direto de anamnese, geração completa de páginas estáticas em ambiente de teste, teste funcional dos modelos de contrato/assinatura/PDF, do bot e da Edge Function reconciliada, desenho de rate limit para bot e pré-atendimento, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
 - **Propostas SQL de revisão:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql` e `supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql`; nenhum dos arquivos foi aplicado. A migration de RLS requer teste específico em ambiente de homologação antes de qualquer implantação.
 
 ## Matriz de riscos pendentes
@@ -302,6 +309,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-033 | Média-baixa | Registros públicos do bot sem rate limit server-side | Pendente; avaliar Edge Function proxy e limites de volume |
 | SEC-034 | Baixa/média | Fallback de sessão do bot não respeitava tipo UUID | Corrigido na branch; testes de cenário passaram; testar navegador sem `crypto.randomUUID` |
 | SEC-035 | Média | Formulário público aceitava status/campos sem validação server-side | Trigger proposta; aguardar CI e validar formulário em homologação; rate limit continua pendente |
+| SEC-036 | Alta para integridade de prontuário | Policies INSERT diretas permitiam contornar RPC de anamnese | Policies propostas para remoção; aguardar CI e testar fluxos em homologação |
 
 ## Limitações e próximos passos
 
