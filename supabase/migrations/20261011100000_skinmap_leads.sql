@@ -10,10 +10,12 @@ create table if not exists public.skinmap_leads (
  questionnaire jsonb not null default '{}'::jsonb,
  consent boolean not null default false check (consent = true),
  consent_text_version text not null default 'skinmap-consent-v1',
+ source_environment text not null default 'production' check (source_environment in ('preview','production')),
  consented_at timestamptz not null default now(),
  status text not null default 'novo' check (status in ('novo','contato','convertido','arquivado')),
  created_at timestamptz not null default now(), updated_at timestamptz not null default now()
 );
+alter table public.skinmap_leads add column if not exists source_environment text not null default 'production' check (source_environment in ('preview','production'));
 alter table public.skinmap_leads enable row level security;
 revoke all on public.skinmap_leads from anon, authenticated;
 grant insert (full_name, whatsapp, email, city, interest, indication, other_indication, skin_type, assessment, skin_profile, questionnaire, consent, consent_text_version) on public.skinmap_leads to anon, authenticated;
