@@ -130,11 +130,11 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 
 ### SEC-020 — Código de Edge Function implantada diverge do repositório
 - **Gravidade:** média (risco de regressão e falta de reprodutibilidade).
-- **Status:** divergência confirmada; sem alteração ou redeploy.
+- **Status:** reconciliado no código versionado da branch com os comportamentos implantados; SDK permanece fixado em `2.117.3`; sem deploy.
 - **Evidência:** comparação do código implantado com `main` mostrou `create-patient` idêntica; `disparar-publicacao` difere apenas em comentário; `reconciliar-publicacao` diverge funcionalmente. A versão implantada usa uma lista de URLs alternativas para o manifesto, normaliza caminhos e valida o status HTTP do item; esses comportamentos não aparecem no arquivo versionado.
 - **Impacto plausível:** um redeploy baseado no repositório poderia substituir a versão implantada por uma implementação menos resiliente e remover comportamentos já presentes em produção.
-- **Correção recomendada:** reconciliar a implementação implantada com o arquivo versionado após revisão funcional e de segurança; adicionar testes de regressão para fallback de manifesto, normalização de caminho e status HTTP. Não fiz deploy nem sobrescrevi o código implantado.
-- **Risco residual:** até a reconciliação, o repositório não é uma fonte exata de verdade para `reconciliar-publicacao`.
+- **Correção na branch:** o código versionado agora preserva a lista de URLs de fallback, normalização de caminhos, diagnóstico de erros do manifesto e validação do status HTTP, mantendo o SDK fixado em `2.117.3`. Foram adicionadas verificações estáticas para esses comportamentos. Não fiz deploy nem sobrescrevi o código implantado.
+- **Risco residual:** a correspondência de código foi feita por comparação do arquivo implantado com a versão versionada, mas a função não foi implantada nem testada com chamadas funcionais; validar em homologação antes de qualquer redeploy.
 
 ### SEC-022 — Sanitizador de HTML podia preservar descendentes ativos de tags rejeitadas
 - **Gravidade:** média (possível XSS armazenado caso conteúdo malicioso seja salvo no editor).
@@ -184,7 +184,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 
 - **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline, ausência de chave privilegiada no frontend e escaping dos sinks identificados.
 - **Executado com sucesso no GitHub Actions:** workflow `Security audit checks` run #62 (checagem de sintaxe dos módulos e testes estáticos, incluindo SDKs e URLs); `Validação de sintaxe dos HTML` run #82; `Bot triagem — validação` run #260. A validação do bot também passou usando `actions/checkout@v7.0.1` e `actions/setup-node@v7.1.0`. Os testes estáticos verificam padrões de segurança, não substituem testes dinâmicos de autorização.
-- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, teste da migration em homologação, teste funcional dos modelos de contrato/assinatura/PDF, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
+- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, teste da migration em homologação, teste funcional dos modelos de contrato/assinatura/PDF e da Edge Function reconciliada, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
 - **Propostas SQL de revisão:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql` e `supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql`; nenhum dos arquivos foi aplicado. A migration de RLS requer teste específico em ambiente de homologação antes de qualquer implantação.
 
 ## Matriz de riscos pendentes
@@ -207,7 +207,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-017 | Média potencial | Objetos órfãos em bucket público | Revisar conteúdo/consentimento de 11 objetos antes de decidir remoção ou migração |
 | SEC-018 | Média | Histórico de migrations não reconciliado | Comparar SQL aplicado com arquivos versionados antes de novas implantações |
 | SEC-019 | Baixa/média | URLs externas HTTP e protocol-relative | Corrigido; teste estático e checagem de sintaxe aprovados; revisar todos os chamadores |
-| SEC-020 | Média | Código de Edge Function diverge do repositório | Reconciliar `reconciliar-publicacao` e adicionar testes de regressão antes de redeploy |
+| SEC-020 | Média | Código de Edge Function divergia do repositório | Comportamentos reconciliados na branch e teste estático adicionado; validar em homologação antes de redeploy |
 | SEC-021 | Média | Drift de migrations e políticas RLS permissivas redundantes | Mapear equivalências por conteúdo e testar isolamento com contas fictícias antes de simplificar políticas |
 | SEC-022 | Média | Sanitizador de HTML podia preservar descendentes ativos de tags rejeitadas | Corrigido na branch; aguardar CI e fazer teste dinâmico de homologação |
 | SEC-023 | Baixa/média | URLs de imagem e texto dinâmico sem validação/escape nas páginas públicas | Corrigido na branch; aguardar CI e continuar rastreamento de atributos dinâmicos |
