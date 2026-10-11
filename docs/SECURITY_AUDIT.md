@@ -151,7 +151,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 ## Testes
 
 - **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline, ausência de chave privilegiada no frontend e escaping dos sinks identificados.
-- **Executado com sucesso no GitHub Actions:** workflow `Security audit checks` run #56 (checagem de sintaxe dos módulos e testes estáticos, incluindo SDKs e URLs); `Validação de sintaxe dos HTML` run #76; `Bot triagem — validação` run #254. Os testes estáticos verificam padrões de segurança, não substituem testes dinâmicos de autorização.
+- **Executado com sucesso no GitHub Actions:** workflow `Security audit checks` run #62 (checagem de sintaxe dos módulos e testes estáticos, incluindo SDKs e URLs); `Validação de sintaxe dos HTML` run #82; `Bot triagem — validação` run #260. A validação do bot também passou usando `actions/checkout@v7.0.1` e `actions/setup-node@v7.1.0`. Os testes estáticos verificam padrões de segurança, não substituem testes dinâmicos de autorização.
 - **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload e testes de falha de conexão. Não foram executadas operações de escrita no banco nem testes destrutivos.
 - **Proposta SQL de revisão:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql`; não é uma migração aplicada nem deve ser executada antes de revisão e autorização.
 
