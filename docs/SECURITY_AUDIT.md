@@ -143,7 +143,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 ## Testes
 
 - **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline, ausência de chave privilegiada no frontend e escaping dos sinks identificados.
-- **Executado com sucesso no GitHub Actions:** workflow `Security audit checks` run #37 (checagem de sintaxe dos módulos e testes estáticos); `Validação de sintaxe dos HTML` run #63; `Bot triagem — validação` run #241. Os testes estáticos verificam padrões de segurança, não substituem testes dinâmicos de autorização.
+- **Executado com sucesso no GitHub Actions:** workflow `Security audit checks` run #56 (checagem de sintaxe dos módulos e testes estáticos, incluindo SDKs e URLs); `Validação de sintaxe dos HTML` run #76; `Bot triagem — validação` run #254. Os testes estáticos verificam padrões de segurança, não substituem testes dinâmicos de autorização.
 - **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload e testes de falha de conexão. Não foram executadas operações de escrita no banco nem testes destrutivos.
 - **Proposta SQL de revisão:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql`; não é uma migração aplicada nem deve ser executada antes de revisão e autorização.
 
@@ -166,7 +166,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-016 | Média | Formulário público sem antiabuso/validação server-side | Projetar Edge Function com limites e rate limit; validar base legal para dados sensíveis |
 | SEC-017 | Média potencial | Objetos órfãos em bucket público | Revisar conteúdo/consentimento de 11 objetos antes de decidir remoção ou migração |
 | SEC-018 | Média | Histórico de migrations não reconciliado | Comparar SQL aplicado com arquivos versionados antes de novas implantações |
-| SEC-019 | Baixa/média | URLs externas HTTP e protocol-relative | Corrigido e testado estaticamente; revisar todos os chamadores |
+| SEC-019 | Baixa/média | URLs externas HTTP e protocol-relative | Corrigido; teste estático e checagem de sintaxe aprovados; revisar todos os chamadores |
 
 ## Limitações e próximos passos
 
