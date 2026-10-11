@@ -90,6 +90,18 @@ assert.ok(adminPolicyMigration.includes("documentos_admin_gerencia"), "migraçã
 assert.ok(adminPolicyMigration.includes("documentos_paciente_le_anamnese"), "migração deve limitar leitura/admin do bucket privado a authenticated");
 assert.ok(adminPolicyMigration.includes("site_media_admin_gerencia"), "migração deve limitar política administrativa do bucket público");
 assert.ok(adminPolicyMigration.includes("schemaname IN ("), "migração deve abranger os schemas public e storage");
+const expectedAdminPolicyNames = [
+  "admin_full_access_announcements", "admin_full_access_appointments", "admin_gerencia_configuracoes",
+  "admin_read_content_ids", "admin_full_access_contracts", "admin_reads_consents",
+  "admin_full_access_financial_transactions", "admin_full_access_medical_records", "admin_full_access_patients",
+  "admin_full_access_photo_records", "admin_gerencia_pre_atendimentos", "admin_full_access_profiles",
+  "admin_insert_publication_requests", "admin_read_publication_requests", "admin_update_publication_requests",
+  "admin_full_access_documents", "support_documents_admin_all", "admin_full_access_testimonials",
+  "documentos_admin_gerencia", "documentos_paciente_le_anamnese", "site_media_admin_gerencia",
+];
+for (const policyName of expectedAdminPolicyNames) {
+  assert.ok(adminPolicyMigration.includes(policyName), "migration deve cobrir política administrativa: " + policyName);
+}
 assert.ok(adminPolicyMigration.includes("admin_gerencia_pre_atendimentos"), "migração deve corrigir a política administrativa de pré-atendimentos");
 assert.ok(contractAdmin.includes("editor.innerHTML = sanitizeRichHtml(substituirDadosPaciente(modelo.content_html || \"\", paciente));"), "modelo de contrato deve ser sanitizado antes de entrar no editor");
 assert.ok(contractPdf.includes('import { sanitizeRichHtml } from "/assets/js/rich-text.js";'), "PDF deve usar o sanitizador compartilhado");
