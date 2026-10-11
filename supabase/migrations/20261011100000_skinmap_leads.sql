@@ -18,7 +18,7 @@ create table if not exists public.skinmap_leads (
 alter table public.skinmap_leads add column if not exists source_environment text not null default 'production' check (source_environment in ('preview','production'));
 alter table public.skinmap_leads enable row level security;
 revoke all on public.skinmap_leads from anon, authenticated;
-grant insert (full_name, whatsapp, email, city, interest, indication, other_indication, skin_type, assessment, skin_profile, questionnaire, consent, consent_text_version) on public.skinmap_leads to anon, authenticated;
+grant insert (full_name, whatsapp, email, city, interest, indication, other_indication, skin_type, assessment, skin_profile, questionnaire, consent, consent_text_version, source_environment) on public.skinmap_leads to anon, authenticated;
 grant select, update, delete on public.skinmap_leads to authenticated;
 drop policy if exists skinmap_leads_public_submit on public.skinmap_leads;
 create policy skinmap_leads_public_submit on public.skinmap_leads for insert to anon, authenticated with check (
