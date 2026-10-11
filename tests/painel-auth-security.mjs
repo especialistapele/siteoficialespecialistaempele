@@ -21,6 +21,7 @@ const botLoggingMigration = readFileSync("supabase/migrations/20261011200000_har
 const intakeValidationMigration = readFileSync("supabase/migrations/20261011230000_validate_public_pre_atendimento.sql", "utf8");
 const anamnesisWriteMigration = readFileSync("supabase/migrations/20261011240000_revoke_direct_anamnesis_writes.sql", "utf8");
 const attachmentPolicyMigration = readFileSync("supabase/migrations/20261011250000_harden_anamnesis_attachment_writes.sql", "utf8");
+const storageUploadMigration = readFileSync("supabase/migrations/20261011260000_scope_anamnesis_storage_uploads.sql", "utf8");
 const adminAnamnesisDraft = readFileSync("painel/admin/anamnese-rascunho.html", "utf8");
 const patientAnamnesis = readFileSync("painel/paciente/anamnese.html", "utf8");
 const publicSupabaseClient = readFileSync("assets/js/supabase-client.js", "utf8");
@@ -143,6 +144,10 @@ assert.ok(attachmentPolicyMigration.includes("v.status = 'draft'"), "anexos do p
 assert.ok(attachmentPolicyMigration.includes("ep.status = 'active'"), "anexos após submissão exigem permissão ativa");
 assert.ok(attachmentPolicyMigration.includes('"admin uploads anamnesis attachments"'), "painel administrativo deve poder anexar a uma versão existente");
 assert.ok(attachmentPolicyMigration.includes("anamnesis_attachments_file_path_owner_check"), "caminho do anexo deve pertencer ao paciente e à versão");
+assert.ok(storageUploadMigration.includes('ALTER POLICY "documentos_paciente_envia_anamnese"'), "policy de Storage deve ser endurecida");
+assert.ok(storageUploadMigration.includes("v.id::text = (storage.foldername(name))[3]"), "upload de anamnese deve corresponder à versão do diretório");
+assert.ok(storageUploadMigration.includes("v.released_at IS NOT NULL"), "upload de anamnese deve exigir versão própria liberada");
+assert.ok(storageUploadMigration.includes("ep.status = 'active'"), "upload após envio deve exigir permissão ativa");
 assert.ok(adminAnamnesisDraft.includes('supabase.from("anamnesis_attachments").insert'), "fluxo administrativo de anexos deve ser preservado");
 assert.ok(botLoggingMigration.includes("SET search_path TO pg_catalog, public"), "RPCs do bot devem fixar search_path");
 assert.ok(botLoggingMigration.includes("position(chr(92) in p_page_path) > 0"), "RPC do bot deve rejeitar barra invertida no caminho");
