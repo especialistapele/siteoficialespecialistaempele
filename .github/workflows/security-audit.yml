@@ -24,6 +24,7 @@ on:
   push:
     branches: ["security/audit-hardening"]
     paths:
+      - "docs/SECURITY_AUDIT.md"
       - "painel/assets/js/painel-auth.js"
       - "supabase/functions/create-patient/index.ts"
       - "supabase/functions/disparar-publicacao/index.ts"
