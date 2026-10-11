@@ -76,7 +76,7 @@ assert.ok(edgeFunctionSources[2].includes("const normalizarPath ="), "reconcilia
 assert.ok(edgeFunctionSources[2].includes("httpStatus >= 200 && httpStatus < 400"), "reconciliação publicada deve validar o status HTTP");
 assert.ok(edgeFunctionSources[2].includes("manifest_errors: manifestErrors"), "falha em todos os manifestos deve expor diagnóstico sem confirmar publicação");
 assert.ok(edgeFunctionSources.every((source) => !source.includes("jsr:@supabase/supabase-js@2\"")), "Edge Functions não devem usar versão flutuante");
-assert.ok(sharedSanitize.includes("!raw.startsWith('//')"), "safeUrl deve rejeitar URLs protocol-relative");
+assert.ok(sharedSanitize.includes("raw.startsWith(\
 assert.ok(sharedSanitize.includes("url.origin === window.location.origin || url.protocol === 'https:'"), "safeUrl deve rejeitar HTTP externo");
 assert.ok(richTextSanitize.indexOf("limparNo(filho);") < richTextSanitize.indexOf("while (filho.firstChild)"), "sanitizador deve limpar descendentes antes de desanexá-los");
 assert.ok(adminPolicyMigration.includes("ALTER POLICY %I ON %I.%I TO authenticated"), "políticas administrativas devem ser limitadas a authenticated");
