@@ -115,6 +115,8 @@ assert.ok(submitAnamnesisMigration.includes("select v_target_version_id,qd.id,qd
 assert.ok(!submitAnamnesisMigration.includes("nullif(r->>'clinical_concept_id','')::uuid"), "RPC não deve confiar no conceito enviado pelo navegador");
 assert.ok(submitAnamnesisMigration.includes("qd.clinical_concept_id is not null"), "invalidação de conceitos atuais deve usar o mapeamento confiável");
 assert.ok(submitAnamnesisMigration.includes("Caminho de assinatura inválido"), "RPC deve validar caminho da assinatura do próprio paciente");
+assert.ok(submitAnamnesisMigration.includes("octet_length(p_responses::text) > 200000"), "payload da anamnese deve ter limite de tamanho");
+assert.ok(submitAnamnesisMigration.includes("octet_length(coalesce(r->'value', 'null'::jsonb)::text) > 10000"), "cada resposta deve ter limite de tamanho");
 assert.ok(botSource.includes('client.rpc("create_bot_conversation"'), "bot público deve criar conversas pela RPC");
 assert.ok(!botSource.includes('.from("bot_conversations")\n        .insert('), "bot não deve depender de INSERT com SELECT em tabela sem policy pública de leitura");
 assert.ok(botLoggingMigration.includes("REVOKE INSERT ON public.bot_conversations FROM PUBLIC, anon, authenticated"), "migration deve bloquear INSERT direto em conversas");
