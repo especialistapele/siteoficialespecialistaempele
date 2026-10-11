@@ -14,8 +14,9 @@ new vm.Script(inlineScript, { filename: "painel/index.html:inline-script" });
 const resolver = auth.match(/export async function resolverDestino\(userId\) \{([\s\S]*?)\n\}/)?.[1];
 assert.ok(resolver, "resolverDestino deve existir");
 assert.match(resolver, /if \(typeof userId !== "string" \|\| !userId\.trim\(\)\) return null/);
-assert.match(resolver, /if \(erroPerfil\) return null/);
-assert.match(resolver, /if \(erroPaciente \|\| !paciente \|\| paciente\.acesso_painel === false\) return null/);
+assert.match(resolver, /if \(erroPerfil\) return \{ erro: "temporario" \}/);
+assert.match(resolver, /if \(erroPaciente\) return \{ erro: "temporario" \}/);
+assert.match(resolver, /if \(!paciente \|\| paciente\.acesso_painel === false\) return null/);
 assert.match(resolver, /\.maybeSingle\(\)/);
 assert.doesNotMatch(resolver, /acesso_painel !== false/, "cadastro ausente nunca pode ser interpretado como paciente autorizado");
 
@@ -37,6 +38,7 @@ assert.match(logout, /signOut\(\{ scope: "local" \}\)/);
 assert.match(logout, /data-private-content/);
 
 assert.match(loginHtml, /signInWithPassword/);
+assert.match(loginHtml, /destino\?\.erro === "temporario"/, "falha temporária de consulta não deve disparar logout local");
 assert.match(loginHtml, /destino\?\.erro === "temporario"/, "falha temporária de consulta não deve disparar logout local");
 assert.match(loginHtml, /destino\?\.erro === "temporario"/, "falha temporária de consulta não deve disparar logout local");
 assert.match(loginHtml, /Não foi possível entrar com essas credenciais/);
