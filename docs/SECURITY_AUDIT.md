@@ -19,7 +19,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Status:** corrigido na branch; aguardando testes automatizados.
 - **Evidência:** em `painel/assets/js/painel-auth.js`, a condição anterior `paciente?.acesso_painel !== false` podia ser verdadeira quando `paciente` era nulo.
 - **Impacto plausível:** tentativa de encaminhar usuário sem vínculo válido à página do paciente; a exposição de dados dependeria também das políticas RLS e dos controles da página.
-- **Correção:** exige identificador de usuário válido, consulta sem erro, cadastro de paciente existente e ausência de bloqueio explícito. Consulta sem sucesso retorna `null`.
+- **Correção:** exige identificador de usuário válido, consulta sem erro, cadastro de paciente existente e ausência de bloqueio explícito. Falha de consulta retorna um marcador temporário distinto de `null`, para que o login não encerre a sessão indevidamente; ausência de cadastro/bloqueio retorna `null`.
 - **Risco residual:** o navegador não substitui autorização no banco/backend.
 
 ### SEC-002 — Guards encerravam a sessão em falhas de consulta
