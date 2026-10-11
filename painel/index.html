@@ -67,8 +67,14 @@
         mostrarMensagem("Não foi possível validar a sessão. Tente novamente em instantes.");
       } else if (data?.session && params.get("erro") !== "saida") {
         const destino = await resolverDestino(data.session.user.id);
-        if (destino) { window.location.replace(destino.destino); return; }
-        mostrarMensagem("Não foi possível validar as permissões desta conta. Tente novamente em instantes.");
+        if (destino?.erro === "temporario") {
+          mostrarMensagem("Não foi possível validar o acesso agora. Tente novamente em instantes.");
+        } else if (destino) {
+          window.location.replace(destino.destino);
+          return;
+        } else {
+          mostrarMensagem("Esta conta não tem acesso ao painel.");
+        }
       }
 
       autenticar = async (event) => {
@@ -92,9 +98,13 @@
           }
 
           const destino = await resolverDestino(loginData.user.id);
+          if (destino?.erro === "temporario") {
+            mostrarFlash(flashLogin, "Não foi possível validar o acesso agora. Tente novamente em instantes.", "erro");
+            return;
+          }
           if (!destino) {
             try { await supabase.auth.signOut({ scope: "local" }); } catch {}
-            mostrarFlash(flashLogin, "Não foi possível validar as permissões desta conta. Se o problema continuar, entre em contato com a clínica.", "erro");
+            mostrarFlash(flashLogin, "Esta conta não tem acesso ao painel. Se precisar de ajuda, entre em contato com a clínica.", "erro");
             return;
           }
 
