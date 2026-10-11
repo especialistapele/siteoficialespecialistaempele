@@ -6,6 +6,9 @@ on:
     paths:
       - "painel/assets/js/painel-auth.js"
       - "painel/index.html"
+      - "painel/admin/dashboard.html"
+      - "painel/admin/paciente.html"
+      - "painel/admin/configuracoes.html"
       - "tests/painel-auth-security.mjs"
       - "docs/SECURITY_AUDIT.md"
       - ".github/workflows/security-audit.yml"
