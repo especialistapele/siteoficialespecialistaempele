@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+
+
+    <meta charset="UTF-8">
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>
+        Consultoria SkinMap Regenerativo™
+    </title>
+
+
+
+    <!-- CSS Global -->
+
+    <link rel="stylesheet" href="assets/css/style.css">
+
+
+
+    <!-- CSS Página -->
+
+    <link rel="stylesheet" href="assets/css/consultation.css">
+
+
+
+</head>
+
+
+
+<body>
+
+
+<main class="consultation-page">
+
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+
+    <section class="consultation-hero">
+
+
+        <div class="hero-content">
+
+
+            <span class="hero-label">
+                SkinMap Regenerativo™
+            </span>
+
+
+
+            <h1>
+                Sua estratégia regenerativa personalizada
+            </h1>
+
+
+
+            <p>
+
+                Sua análise inicial identificou características
+                importantes da sua pele.
+
+                Agora vamos organizar uma estratégia personalizada
+                baseada no seu perfil SkinMap.
+
+            </p>
+
+
+
+        </div>
+
+
+    </section>
+
+
+
+
+
+
+
+    <!-- =====================================================
+         RESUMO SKINMAP
+    ====================================================== -->
+
+
+    <section class="skinmap-section">
+
+
+
+        <div class="section-header">
+
+
+            <span>
+                Análise inicial
+            </span>
+
+
+            <h2>
+                Seu SkinMap
+            </h2>
+
+
+            <p>
+                Resultado gerado a partir das informações
+                preenchidas no questionário.
+            </p>
+
+
+        </div>
+
+
+
+
+
+
+
+        <div class="skinmap-cards">
+
+
+
+
+
+            <!-- Tipo de pele -->
+
+
+            <article class="skin-card">
+
+
+                <span class="card-title">
+                    Tipo de pele
+                </span>
+
+
+                <strong id="skinType">
+                    Carregando...
+                </strong>
+
+
+            </article>
+
+
+
+
+
+
+
+            <!-- Hidratação -->
+
+
+            <article class="skin-card">
+
+
+                <span class="card-title">
+                    Hidratação
+                </span>
+
+
+                <strong id="hydration">
+                    Carregando...
+                </strong>
+
+
+            </article>
+
+
+
+
+
+
+
+            <!-- Sensibilidade -->
+
+
+            <article class="skin-card">
+
+
+                <span class="card-title">
+                    Sensibilidade
+                </span>
+
+
+                <strong id="sensitivity">
+                    Carregando...
+                </strong>
+
+
+            </article>
+
+
+
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <!-- Pontos atenção -->
+
+
+        <div class="attention-card">
+
+
+            <h3>
+                Pontos de atenção identificados
+            </h3>
+
+
+
+            <div id="attention">
+
+
+                <div class="attention-item">
+
+                    Carregando...
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+
+
+        <!-- Resumo -->
+
+
+        <div class="summary-card">
+
+
+            <h3>
+                Interpretação inicial
+            </h3>
+
+
+
+            <p id="summary">
+
+                Carregando...
+
+            </p>
+
+
+        </div>
+
+
+
+
+    </section>
+
+
+
+
+
+    <!-- =====================================================
+         FORMULÁRIO CONSULTORIA
+    ====================================================== -->
+
+
+    <section class="consultation-form-section">
+
+
+
+        <div class="section-header">
+
+
+            <span>
+                Próximo passo
+            </span>
+
+
+
+            <h2>
+                Solicitar consultoria
+            </h2>
+
+
+
+            <p>
+
+                Preencha seus dados para receber
+                uma orientação personalizada.
+
+            </p>
+
+
+        </div>
+
+
+
+
+
+
+
+
+
+        <form id="consultationForm" class="consultation-form">
+
+
+
+
+
+
+
+            <!-- =================================================
+                 GRUPO 1
+                 Dados pessoais
+            ================================================== -->
+
+
+            <div class="form-group-card">
+
+
+                <h3>
+                    Seus dados
+                </h3>
+
+
+
+
+
+
+                <!-- Nome -->
+
+
+                <div class="form-field">
+
+
+                    <label for="name">
+
+                        Nome completo *
+
+                    </label>
+
+
+
+                    <input
+
+                        type="text"
+
+                        id="name"
+
+                        name="name"
+
+                        placeholder="Digite seu nome"
+
+                        required
+
+                    >
+
+
+                </div>
+
+
+
+
+
+
+
+
+
+                <!-- WhatsApp -->
+
+
+                <div class="form-field">
+
+
+                    <label for="whatsapp">
+
+                        WhatsApp *
+
+                    </label>
+
+
+
+                    <input
+
+                        type="tel"
+
+                        id="whatsapp"
+
+                        name="whatsapp"
+
+                        placeholder="(00) 00000-0000"
+
+                        required
+
+                    >
+
+
+                </div>
+
+
+
+
+
+
+
+
+
+                <!-- Email -->
+
+
+                <div class="form-field">
+
+
+                    <label for="email">
+
+                        Email *
+
+                    </label>
+
+
+
+                    <input
+
+                        type="email"
+
+                        id="email"
+
+                        name="email"
+
+                        placeholder="seu@email.com"
+
+                        required
+
+                    >
+
+
+                </div>
+
+
+
+
+
+
+
+
+
+                <!-- Cidade -->
+
+
+                <div class="form-field">
+
+
+                    <label for="city">
+
+                        Cidade
+
+                    </label>
+
+
+
+                    <input
+
+                        type="text"
+
+                        id="city"
+
+                        name="city"
+
+                        placeholder="Sua cidade"
+
+                    >
+
+
+                </div>
+
+
+
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+            <!-- =================================================
+                 GRUPO 2
+                 Estratégia
+            ================================================== -->
+
+
+            <div class="form-group-card">
+
+
+
+                <h3>
+                    Sua estratégia
+                </h3>
+
+
+
+
+
+
+
+
+
+                <!-- Horário -->
+
+
+                <div class="form-field">
+
+
+                    <label for="preferredTime">
+
+                        Melhor horário para contato *
+
+                    </label>
+
+
+
+                    <select
+
+                        id="preferredTime"
+
+                        name="preferredTime"
+
+                        required
+
+                    >
+
+
+                        <option value="">
+
+                            Selecione
+
+                        </option>
+
+
+
+                        <option value="Manhã">
+
+                            Manhã
+
+                        </option>
+
+
+
+                        <option value="Tarde">
+
+                            Tarde
+
+                        </option>
+
+
+
+                        <option value="Noite">
+
+                            Noite
+
+                        </option>
+
+
+                    </select>
+
+
+                </div>
+
+
+
+
+
+
+
+
+
+                <!-- Interesse -->
+
+
+                <div class="form-field">
+
+
+                    <label for="interest">
+
+                        Interesse principal
+
+                    </label>
+
+
+
+                    <select
+
+                        id="interest"
+
+                        name="interest"
+
+                    >
+
+
+
+                        <option>
+
+                            Estratégia regenerativa personalizada
+
+                        </option>
+
+
+
+                        <option>
+
+                            Melhorar textura da pele
+
+                        </option>
+
+
+
+                        <option>
+
+                            Controle de oleosidade
+
+                        </option>
+
+
+
+                        <option>
+
+                            Recuperação da barreira cutânea
+
+                        </option>
+
+
+
+                        <option>
+
+                            Redução de sinais do envelhecimento
+
+                        </option>
+
+
+
+                    </select>
+
+
+                </div>
+
+
+
+
+
+
+
+
+
+                <!-- Indicação -->
+
+
+                <div class="form-field">
+
+
+                    <label for="indication">
+
+                        Como conheceu o SkinMap? *
+
+                    </label>
+
+
+
+                    <select
+
+                        id="indication"
+
+                        name="indication"
+
+                        required
+
+                    >
+
+
+
+                        <option value="">
+
+                            Selecione
+
+                        </option>
+
+
+
+                        <option value="Instagram">
+
+                            Instagram
+
+                        </option>
+
+
+
+                        <option value="Google">
+
+                            Google
+
+                        </option>
+
+
+
+                        <option value="Indicação de amiga(o)">
+
+                            Indicação de amiga(o)
+
+                        </option>
+
+
+
+                        <option value="Site Danny Queiroz">
+
+                            Site Danny Queiroz
+
+                        </option>
+
+
+
+                        <option value="WhatsApp">
+
+                            WhatsApp
+
+                        </option>
+
+
+
+                        <option value="Outro">
+
+                            Outro
+
+                        </option>
+
+
+
+                    </select>
+
+
+                </div>
+
+
+
+
+
+
+
+
+
+                <!-- Outro -->
+
+
+                <div
+
+                    id="otherIndicationContainer"
+
+                    class="form-field"
+
+                    style="display:none;"
+
+                >
+
+
+
+                    <label for="otherIndication">
+
+                        Como conheceu?
+
+                    </label>
+
+
+
+                    <input
+
+                        type="text"
+
+                        id="otherIndication"
+
+                        name="otherIndication"
+
+                        placeholder="Conte como conheceu"
+
+                    >
+
+
+
+                </div>
+
+
+
+            </div>
+
+
+
+
+
+
+
+            <!-- =================================================
+                 CAMPOS INTERNOS SKINMAP
+                 
+                 Não aparecem visualmente.
+                 Usados para manter compatibilidade
+                 futura com integrações.
+            ================================================== -->
+
+
+            <input
+
+                type="hidden"
+
+                id="assessmentSkinType"
+
+            >
+
+
+
+            <input
+
+                type="hidden"
+
+                id="assessmentCondition"
+
+            >
+
+
+
+            <input
+
+                type="hidden"
+
+                id="assessmentBarrier"
+
+            >
+
+
+
+            <input
+
+                type="hidden"
+
+                id="assessmentRecommendation"
+
+            >
+
+
+
+
+
+
+
+
+
+
+
+
+            <!-- =================================================
+                 BOTÃO ENVIO
+            ================================================== -->
+
+
+            <button
+
+                type="submit"
+
+                id="submitButton"
+
+                class="consultation-button"
+
+            >
+
+
+                ✨ Receber minha estratégia personalizada
+
+
+            </button>
+
+
+
+
+
+
+
+
+
+            <!-- =================================================
+                 RETORNO DO ENVIO
+            ================================================== -->
+
+
+            <p
+
+                id="formMessage"
+
+                class="form-message"
+
+            ></p>
+
+
+
+
+
+        </form>
+
+
+
+
+    </section>
+
+
+
+
+
+
+
+    <!-- =====================================================
+         ENCERRAMENTO
+    ====================================================== -->
+
+
+    <section class="consultation-footer">
+
+
+        <p>
+
+            Seus dados serão utilizados exclusivamente
+            para continuidade da sua jornada SkinMap.
+
+        </p>
+
+
+    </section>
+
+
+
+
+
+</main>
+
+
+
+
+
+
+
+
+
+<!-- =====================================================
+     JAVASCRIPT
+====================================================== -->
+
+
+
+<script src="assets/js/storage.js"></script>
+
+
+<script src="assets/js/consultation.js"></script>
+
+
+
+
+
+</body>
+
+
+</html>
