@@ -160,11 +160,18 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Correção proposta:** `supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql` muda apenas essas políticas administrativas para `authenticated`, preservando políticas públicas separadas, como leitura publicada e inserções públicas explicitamente previstas. Não foi aplicada no Supabase.
 - **Risco residual:** não aplicar em produção antes de validar consultas públicas de artigos, tratamentos, resultados, depoimentos, consentimentos e pré-atendimento; confirmar também que contas administrativas continuam funcionando. As leituras públicas de artigos, tratamentos e resultados passaram; depoimentos falhou; INSERT de pré-atendimento continua sem teste.
 
+### SEC-025 — Modelo de contrato inserido no editor sem sanitização prévia
+- **Gravidade:** média (XSS potencial no contexto administrativo).
+- **Status:** corrigido na branch; teste estático adicionado; CI pendente.
+- **Evidência:** `painel/admin/contratos.html` inseria `document_templates.content_html` no `contenteditable` por `innerHTML` após substituir placeholders. Diferentemente dos editores de artigos/tratamentos, o conteúdo não passava por `sanitizeRichHtml()` antes de entrar no DOM. A URL de assinatura gerada pelo Storage também era interpolada diretamente em atributo `src`.
+- **Correção:** sanitizar o modelo já com os dados do paciente substituídos antes de injetar no editor; validar a URL assinada com `safeUrl()` e escapar no atributo.
+- **Risco residual:** templates de contrato precisam ser validados funcionalmente porque o sanitizador restringe tags/atributos a uma allowlist; testar opções interativas, assinatura, edição e geração do PDF em homologação.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
 - Inventário de páginas privadas: 17 páginas administrativas e 2 páginas de paciente (19 no total) foram examinadas; todas chamam o guard correspondente antes da primeira consulta direta observada, e não foi identificado caminho de consulta sensível antes do guard nessa varredura estática.
-- Arquivos revisados em detalhe: `painel/assets/js/painel-auth.js`, `painel/index.html`, `painel/assets/js/sanitize.js`, `painel/assets/js/admin-sidebar.js`, `painel/assets/js/notifications.js`, `assets/js/sanitize.js`, `assets/js/supabase-client.js`, `assets/js/rich-text.js`, `blog/artigos/artigo-data.js`, `tratamentos/tratamento-data.js`, `painel/admin/dashboard.html`, `painel/admin/pacientes.html`, `painel/admin/documentos.html`, `painel/admin/agenda.html`, `painel/admin/financeiro.html`, `painel/admin/paciente.html`, `painel/paciente/painel.html`, `painel/paciente/anamnese.html`, `pre-atendimento/index.html`, `robots.txt`.
+- Arquivos revisados em detalhe: `painel/assets/js/painel-auth.js`, `painel/index.html`, `painel/assets/js/sanitize.js`, `painel/assets/js/admin-sidebar.js`, `painel/assets/js/notifications.js`, `painel/admin/contratos.html`, `assets/js/sanitize.js`, `assets/js/supabase-client.js`, `assets/js/rich-text.js`, `blog/artigos/artigo-data.js`, `tratamentos/tratamento-data.js`, `painel/admin/dashboard.html`, `painel/admin/pacientes.html`, `painel/admin/documentos.html`, `painel/admin/agenda.html`, `painel/admin/financeiro.html`, `painel/admin/paciente.html`, `painel/paciente/painel.html`, `painel/paciente/anamnese.html`, `pre-atendimento/index.html`, `robots.txt`.
 - `sanitize.js` oferece `escapeHtml()` e `safeUrl()`; foi corrigido o caminho de unwrap em `rich-text.js`, mas ainda falta rastrear o uso de ambos em todos os renderizadores.
 - Supabase: listagem de tabelas, status RLS, 87 políticas em `public`, grants efetivos para `anon`/`authenticated`, privilégios padrão, Security Advisor, histórico de migrations e comparação entre código implantado e versionado de três Edge Functions; consulta read-only executada como `anon` reproduziu erro de permissão em `testimonials`.
 - Todas as tabelas dos schemas `public` e `storage` retornaram RLS habilitado: 38/38 e 8/8, respectivamente. Não há views no schema `public` na consulta feita. Todas as funções `SECURITY DEFINER` consultadas têm `search_path` configurado; `anon` e `authenticated` não têm privilégio `CREATE` no schema `public`. Isso não prova que cada política seja correta nem substitui testes com roles reais.
@@ -177,7 +184,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 
 - **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline, ausência de chave privilegiada no frontend e escaping dos sinks identificados.
 - **Executado com sucesso no GitHub Actions:** workflow `Security audit checks` run #62 (checagem de sintaxe dos módulos e testes estáticos, incluindo SDKs e URLs); `Validação de sintaxe dos HTML` run #82; `Bot triagem — validação` run #260. A validação do bot também passou usando `actions/checkout@v7.0.1` e `actions/setup-node@v7.1.0`. Os testes estáticos verificam padrões de segurança, não substituem testes dinâmicos de autorização.
-- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, teste da migration em homologação, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
+- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, teste da migration em homologação, teste funcional dos modelos de contrato/assinatura/PDF, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
 - **Propostas SQL de revisão:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql` e `supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql`; nenhum dos arquivos foi aplicado. A migration de RLS requer teste específico em ambiente de homologação antes de qualquer implantação.
 
 ## Matriz de riscos pendentes
@@ -205,6 +212,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-022 | Média | Sanitizador de HTML podia preservar descendentes ativos de tags rejeitadas | Corrigido na branch; aguardar CI e fazer teste dinâmico de homologação |
 | SEC-023 | Baixa/média | URLs de imagem e texto dinâmico sem validação/escape nas páginas públicas | Corrigido na branch; aguardar CI e continuar rastreamento de atributos dinâmicos |
 | SEC-024 | Alta para disponibilidade pública | Políticas administrativas em `PUBLIC` chamam `is_admin()` sem EXECUTE para `anon` | Migração proposta na branch; validar fluxos públicos e administrativos em homologação antes de aplicar |
+| SEC-025 | Média | Modelo de contrato inserido no editor sem sanitização prévia | Corrigido na branch; testar opções, assinatura e PDF em homologação |
 
 ## Limitações e próximos passos
 
