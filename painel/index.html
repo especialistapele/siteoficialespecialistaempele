@@ -16,7 +16,7 @@
   <div class="painel-login__card">
     <div class="painel-login__logo"><img src="/painel/assets/img/logo-especialista.webp" alt="Especialista em Pele — Danielle Brito"></div>
 
-    <div class="aviso-flash" data-flash></div>
+    <div class="aviso-flash" data-flash aria-live="polite" role="status"></div>
 
     <form id="form-login">
       <div class="form-campo">
@@ -37,8 +37,8 @@
 </div>
 
 <script>
-  // Bloqueia o submit nativo imediatamente. Assim, se o módulo do Supabase
-  // demorar ou falhar ao carregar, a página não recarrega e não apaga os campos.
+  // Bloqueia o submit nativo imediatamente para não perder os campos caso
+  // o módulo de autenticação falhe ao carregar.
   const formLogin = document.getElementById("form-login");
   const flashLogin = document.querySelector("[data-flash]");
   formLogin.addEventListener("submit", (event) => event.preventDefault());
@@ -47,62 +47,70 @@
     const botao = document.getElementById("botao-entrar");
     const emailInput = document.getElementById("email");
     const senhaInput = document.getElementById("senha");
+    const mostrarMensagem = (mensagem) => {
+      flashLogin.textContent = mensagem;
+      flashLogin.className = "aviso-flash visivel erro";
+    };
+    let autenticar;
 
     try {
-      const { supabase, resolverDestino, mostrarFlash } = await import("/painel/assets/js/painel-auth.js");
+      const modulo = await import("/painel/assets/js/painel-auth.js");
+      const { supabase, resolverDestino, mostrarFlash } = modulo;
       const params = new URLSearchParams(window.location.search);
-      if (params.get("erro") === "acesso") mostrarFlash(flashLogin, "Esta conta não tem acesso ao painel.", "erro");
 
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        const destino = await resolverDestino(session.user.id);
+      if (params.get("erro") === "acesso") mostrarFlash(flashLogin, "Esta conta não tem acesso ao painel.", "erro");
+      if (params.get("erro") === "temporario") mostrarFlash(flashLogin, "Não foi possível validar o acesso agora. Tente novamente em instantes.", "erro");
+      if (params.get("erro") === "saida") mostrarFlash(flashLogin, "A saída foi solicitada, mas não foi possível confirmá-la com o servidor. A sessão local foi encerrada quando possível; entre novamente para continuar.", "erro");
+
+      const { data, error: erroSessao } = await supabase.auth.getSession();
+      if (erroSessao) {
+        mostrarMensagem("Não foi possível validar a sessão. Tente novamente em instantes.");
+      } else if (data?.session && params.get("erro") !== "saida") {
+        const destino = await resolverDestino(data.session.user.id);
         if (destino) { window.location.replace(destino.destino); return; }
+        mostrarMensagem("Não foi possível validar as permissões desta conta. Tente novamente em instantes.");
       }
 
-      formLogin.addEventListener("submit", async (event) => {
+      autenticar = async (event) => {
         event.preventDefault();
         if (botao.disabled) return;
         botao.disabled = true;
         botao.textContent = "Entrando…";
+        flashLogin.textContent = "";
+        flashLogin.className = "aviso-flash";
 
         try {
-          const { data, error } = await supabase.auth.signInWithPassword({
+          const { data: loginData, error } = await supabase.auth.signInWithPassword({
             email: emailInput.value.trim(),
             password: senhaInput.value,
           });
 
-          if (error) {
-            console.error("Falha no login Supabase:", error);
-            const mensagem = /invalid login credentials/i.test(error.message)
-              ? "E-mail ou senha incorretos."
-              : "Não foi possível entrar agora. Tente novamente em instantes.";
-            mostrarFlash(flashLogin, mensagem, "erro");
-            botao.disabled = false;
-            botao.textContent = "Entrar";
+          if (error || !loginData?.user?.id) {
+            // Mensagem única para não revelar se o e-mail está cadastrado.
+            mostrarFlash(flashLogin, "Não foi possível entrar com essas credenciais. Confira os dados e tente novamente.", "erro");
             return;
           }
 
-          const destino = await resolverDestino(data.user.id);
+          const destino = await resolverDestino(loginData.user.id);
           if (!destino) {
-            await supabase.auth.signOut();
-            mostrarFlash(flashLogin, "Esta conta não tem acesso ao painel.", "erro");
-            botao.disabled = false;
-            botao.textContent = "Entrar";
+            try { await supabase.auth.signOut({ scope: "local" }); } catch {}
+            mostrarFlash(flashLogin, "Não foi possível validar as permissões desta conta. Se o problema continuar, entre em contato com a clínica.", "erro");
             return;
           }
 
           window.location.replace(destino.destino);
-        } catch (erro) {
-          console.error("Erro inesperado no login:", erro);
+        } catch {
           mostrarFlash(flashLogin, "Não foi possível conectar ao sistema. Verifique sua conexão e tente novamente.", "erro");
+        } finally {
           botao.disabled = false;
           botao.textContent = "Entrar";
         }
-      });
-    } catch (erro) {
-      console.error("Falha ao carregar autenticação do painel:", erro);
-      flashLogin.textContent = "O sistema de login não conseguiu carregar. Atualize a página e tente novamente.";
-      flashLogin.className = "aviso-flash visivel erro";
+      };
+
+      formLogin.addEventListener("submit", autenticar);
+    } catch {
+      mostrarMensagem("O sistema de login não conseguiu carregar. Atualize a página e tente novamente.");
+      botao.disabled = true;
     }
   })();
 </script>
