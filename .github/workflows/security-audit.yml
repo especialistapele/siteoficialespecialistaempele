@@ -4,6 +4,8 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - "scripts/gerar-paginas-artigos.mjs"
+      - "scripts/gerar-paginas-resultados.mjs"
       - "scripts/lib/conteudo.mjs"
       - "scripts/gerar-paginas-tratamentos.mjs"
       - "tests/publication-content-security.mjs"
@@ -27,6 +29,8 @@ on:
   push:
     branches: ["security/audit-hardening"]
     paths:
+      - "scripts/gerar-paginas-artigos.mjs"
+      - "scripts/gerar-paginas-resultados.mjs"
       - "scripts/lib/conteudo.mjs"
       - "scripts/gerar-paginas-tratamentos.mjs"
       - "tests/publication-content-security.mjs"
@@ -66,6 +70,8 @@ jobs:
           node --input-type=module --check < assets/js/rich-text.js
           node --check scripts/lib/conteudo.mjs
           node --check scripts/gerar-paginas-tratamentos.mjs
+          node --check scripts/gerar-paginas-artigos.mjs
+          node --check scripts/gerar-paginas-resultados.mjs
       - name: Static auth security regression checks
         run: node tests/painel-auth-security.mjs
       - name: Static publication content security checks
