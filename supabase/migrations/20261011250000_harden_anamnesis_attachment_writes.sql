@@ -16,6 +16,7 @@ CREATE POLICY "patient uploads attachments to editable version"
       WHERE v.id = anamnesis_attachments.anamnesis_version_id
         AND v.patient_id = anamnesis_attachments.patient_id
         AND pt.user_id = (SELECT auth.uid())
+        AND v.released_at IS NOT NULL
         AND (
           v.status = 'draft'
           OR EXISTS (
