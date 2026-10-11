@@ -108,6 +108,7 @@ assert.ok(contractAdmin.includes("editor.innerHTML = sanitizeRichHtml(substituir
 assert.ok(contractPdf.includes('import { sanitizeRichHtml } from "/assets/js/rich-text.js";'), "PDF deve usar o sanitizador compartilhado");
 assert.ok(contractPdf.includes("div.innerHTML = sanitizeRichHtml(String(html ?? \"\"));"), "PDF deve sanitizar snapshot antes de analisar HTML");
 assert.ok(signaturePathMigration.includes("contracts_signature_path_own_patient_check"), "migration deve restringir assinatura de contrato ao paciente dono");
+assert.ok(signaturePathMigration.includes("length(signed_content_html) <= 100000"), "snapshot assinado deve ter limite no banco");
 assert.ok(signaturePathMigration.includes("anamnesis_signatures_signature_path_own_patient_check"), "migration deve restringir assinatura de anamnese ao paciente dono");
 assert.ok(anamnesisConceptMigration.includes("NEW.clinical_concept_id := v_concept_id;"), "conceito clínico deve ser derivado da pergunta cadastrada");
 assert.ok(anamnesisConceptMigration.includes("BEFORE INSERT ON public.anamnesis_responses"), "trigger deve validar toda nova resposta de anamnese");
