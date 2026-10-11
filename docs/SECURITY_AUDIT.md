@@ -126,12 +126,12 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-007 | Informativo | CORS amplo nas Edge Functions | Restringir origens se compatível, mantendo autenticação como controle real |
 | SEC-008 | Média | Políticas RLS redundantes | Testes de isolamento com contas fictícias e proposta de migração |
 | SEC-009 | Baixa/média | Sinks de HTML potencialmente inseguros | Correções aplicadas; aguardar teste e continuar rastreamento |
-| SEC-010 | Média / impacto potencial elevado | TRUNCATE/TRIGGER/REFERENCES/MAINTAIN concedidos às roles cliente | Revisar e testar o SQL proposto antes de aplicar
+| SEC-010 | Média / impacto potencial elevado | TRUNCATE/TRIGGER/REFERENCES/MAINTAIN concedidos às roles cliente | Revisar e testar o SQL proposto antes de aplicar |
 | SEC-011 | Alta potencial | Auditoria de todas as páginas privadas | Inventariar guards e consultas em todo o repositório |
 | SEC-012 | Média | Segredos no histórico Git | Executar varredura dedicada e documentar rotação se necessário |
 | SEC-013 | Média | Cabeçalhos/HTTPS/cache | Confirmar hospedagem e configuração efetiva fora do repositório |
-| SEC-015 | Baixa | Versão flutuante do Chart.js | Corrigida na branch; aguardar CI e rastrear outras dependências |
 | SEC-014 | Média | Dependências e Actions | Chart.js e o workflow novo foram fixados; auditar todos os workflows e dependências restantes |
+| SEC-015 | Baixa | Versão flutuante do Chart.js | Corrigida na branch; aguardar CI e rastrear outras dependências |
 
 ## Limitações e próximos passos
 
