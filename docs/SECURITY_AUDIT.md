@@ -216,7 +216,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Gravidade:** média para disponibilidade/registro de atendimento.
 - **Status:** correção proposta na branch; CI pendente; sem teste de INSERT em produção.
 - **Evidência:** `assets/js/bot-triagem.js` criava conversa com `INSERT ... SELECT id`, mas `bot_conversations` não tem política SELECT para `anon`; uma consulta read-only como `anon` retornou zero linhas visíveis. A policy de INSERT em `bot_messages` também verificava a sessão com subconsulta sujeita às políticas de leitura da tabela de conversas.
-- **Correção proposta:** `supabase/migrations/20261011200000_harden_public_bot_logging.sql` cria RPC `create_bot_conversation` para inserir/retornar apenas o ID, revoga INSERT direto e valida o par conversa/sessão por uma função `SECURITY DEFINER` de retorno booleano. O frontend foi alterado para chamar a RPC.
+- **Correção proposta:** `supabase/migrations/20261011200000_harden_public_bot_logging.sql` cria RPC `create_bot_conversation` para inserir/retornar apenas o ID, revoga INSERT direto e valida o par conversa/sessão por uma função `SECURITY DEFINER` de retorno booleano. O frontend foi alterado para chamar a RPC, mantém o ID UUID retornado e usa fallback UUID compatível com as colunas do banco.
 - **Risco residual:** nenhuma inserção real foi testada; validar o fluxo do bot em homologação com visitante anônimo e usuário autenticado. A migração não foi aplicada.
 
 ### SEC-033 — Registros públicos do bot sem rate limit server-side observado
@@ -231,6 +231,13 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Status:** inventário atualizado; sem alteração de policies em produção.
 - **Evidência:** 39 entradas no histórico do Supabase e 34 arquivos SQL no repositório; 15 nomes coincidem após retirar timestamps, mas os timestamps divergem. Vinte e quatro entradas aplicadas e 19 arquivos versionados não têm correspondência pelo nome. Também há SELECT permissivos sobrepostos em `anamnesis_attachments`, `announcements`, `financial_transactions`, `medical_records` e `support_documents`.
 - **Correção recomendada:** reconciliar migrations por conteúdo e revisar as policies com testes A/B antes de remover duplicatas. Não renomear migrations históricas nem aplicar SQL automaticamente.
+
+### SEC-034 — Fallback de sessão do bot não respeitava o tipo UUID do banco
+- **Gravidade:** baixa/média (compatibilidade e disponibilidade do registro).
+- **Status:** corrigido na branch; teste de cenário adicionado; CI pendente.
+- **Evidência:** `bot_conversations.session_id` e `bot_messages.session_id` são colunas UUID, mas o fallback de `getSessionId()` gerava `sess-<timestamp>-<random>`, que não pode ser convertido para UUID.
+- **Correção:** fallback agora gera UUID v4 usando `crypto.getRandomValues` quando disponível e mantém o formato UUID mesmo no fallback de compatibilidade.
+- **Risco residual:** testar em navegador de homologação sem `crypto.randomUUID`; o fallback sem Web Crypto usa `Math.random` e não oferece a mesma entropia criptográfica.
 
 ## Escopo verificado até aqui
 
@@ -286,6 +293,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-031 | Baixa/média | PDF analisava snapshot assinado via `innerHTML` sem sanitização | Corrigido na branch; CI passou; testar PDF em homologação |
 | SEC-032 | Média | Criação de conversa do bot dependia de SELECT público inexistente | RPC proposta, frontend atualizado e CI passou; testar com visitante anônimo em homologação |
 | SEC-033 | Média-baixa | Registros públicos do bot sem rate limit server-side | Pendente; avaliar Edge Function proxy e limites de volume |
+| SEC-034 | Baixa/média | Fallback de sessão do bot não respeitava tipo UUID | Corrigido na branch; testar navegador sem `crypto.randomUUID` |
 
 ## Limitações e próximos passos
 
