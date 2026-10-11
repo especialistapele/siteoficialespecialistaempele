@@ -19,6 +19,15 @@ REVOKE TRUNCATE, REFERENCES, TRIGGER, MAINTAIN
 ON ALL TABLES IN SCHEMA public
 FROM anon, authenticated;
 
+-- Também evitar que novas tabelas herdem esses privilégios excessivos.
+-- Os ACLs padrão observados concedem os privilégios às roles anon e
+-- authenticated para objetos criados por postgres e supabase_admin.
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+REVOKE TRUNCATE, REFERENCES, TRIGGER, MAINTAIN ON TABLES FROM anon, authenticated;
+
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public
+REVOKE TRUNCATE, REFERENCES, TRIGGER, MAINTAIN ON TABLES FROM anon, authenticated;
+
 COMMIT;
 
 -- Verificação pós-aplicação (esperado: 0 em ambas as colunas):
