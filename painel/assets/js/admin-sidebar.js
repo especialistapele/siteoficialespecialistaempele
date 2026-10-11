@@ -20,6 +20,7 @@ const ICONES = {
   agenda: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 9h18M7 13h3M14 13h3M7 17h3"/></svg>`,
   financeiro: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h16v12H4z"/><path d="M4 9h16M8 13h3"/></svg>`,
   "atendente-virtual": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 5h14v11H8l-3 3V5Z"/><path d="M8 9h8M8 12h5"/></svg>`,
+  skinmap: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 3c-2 3-2 6 0 9s2 6 0 9M3 12h18M6 6c2 1 4 1 6 0s4-1 6 0M6 18c2-1 4-1 6 0s4 1 6 0"/></svg>`,
   sair: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M15 17l5-5-5-5M20 12H9M12 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6"/></svg>`,
 };
 
@@ -38,6 +39,7 @@ const ITENS = [
   { id: "financeiro", label: "Financeiro", href: "/painel/admin/financeiro.html" },
   { id: "atendente-virtual", label: "Atendente Virtual", href: "/painel/admin/atendente-virtual.html" },
   { id: "pre-atendimentos", label: "Pré-atendimentos", href: "/painel/admin/pre-atendimentos.html" },
+  { id: "skinmap", label: "SkinMap", href: "/painel/admin/skinmap.html" },
   { id: "configuracoes", label: "Configurações", href: "/painel/admin/configuracoes.html" },
 ];
 

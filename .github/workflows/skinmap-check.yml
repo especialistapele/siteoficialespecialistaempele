@@ -1,0 +1,36 @@
+name: SkinMap static checks
+on:
+  pull_request:
+    paths:
+      - 'skinmap/**'
+      - 'painel/assets/js/admin-sidebar.js'
+      - 'painel/assets/css/painel.css'
+      - 'painel/admin/skinmap.html'
+      - 'supabase/migrations/*skinmap*'
+      - 'tests/skinmap-static-check.mjs'
+      - '.github/workflows/skinmap-check.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'skinmap/**'
+      - 'painel/assets/js/admin-sidebar.js'
+      - 'painel/admin/skinmap.html'
+      - 'supabase/migrations/*skinmap*'
+      - 'tests/skinmap-static-check.mjs'
+      - '.github/workflows/skinmap-check.yml'
+jobs:
+  skinmap-static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node tests/skinmap-static-check.mjs
+      - name: Validar sintaxe dos scripts SkinMap
+        shell: bash
+        run: |
+          set -euo pipefail
+          find skinmap/assets/js skinmap/js/engine-v2 -name '*.js' -print0 | while IFS= read -r -d '' file; do
+            node --input-type=module --check < "$file"
+          done
