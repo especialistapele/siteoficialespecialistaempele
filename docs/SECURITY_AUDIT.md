@@ -260,6 +260,13 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Correção proposta:** `supabase/migrations/20261011250000_harden_anamnesis_attachment_writes.sql` substitui as policies duplicadas por uma policy de paciente que exige versão em rascunho ou permissão ativa não expirada, e uma policy administrativa que exige `is_admin()` e vínculo válido entre anexo, versão e paciente. A mesma migration adiciona CHECK constraint que obriga `file_path` a conter o `patient_id` e `anamnesis_version_id` da linha. Consulta read-only encontrou zero anexos atuais, então não há registros existentes incompatíveis com a regra.
 - **Risco residual:** validar upload/INSERT do paciente em rascunho, versão bloqueada e edição autorizada; validar também o fluxo administrativo com duas contas fictícias em homologação. Não foi aplicado.
 
+### SEC-038 — Storage aceitava uploads em versões de anamnese sem validar a versão
+- **Gravidade:** média (abuso de armazenamento e arquivos órfãos).
+- **Status:** migration proposta e verificação estática aprovada no GitHub Actions; não aplicada.
+- **Evidência:** a policy `documentos_paciente_envia_anamnese` verificava apenas que o primeiro segmento do caminho era o paciente autenticado e o segundo era `anamneses`. Não conferia se o terceiro segmento correspondia a uma versão daquele paciente, se a ficha estava liberada, nem se a versão estava em rascunho ou com edição autorizada. Assim, uploads órfãos poderiam ser enviados para caminhos de versões bloqueadas.
+- **Correção proposta:** `supabase/migrations/20261011260000_scope_anamnesis_storage_uploads.sql` restringe a policy ao papel `authenticated`, valida a versão no terceiro segmento e exige versão liberada em rascunho ou permissão de edição ativa e não expirada.
+- **Risco residual:** a policy de assinatura de Storage ainda permite uploads no diretório `assinaturas` do próprio paciente sem associar o caminho a uma versão; revisar separadamente para evitar quebrar outros fluxos de assinatura. Limites de tamanho/MIME e limpeza de objetos órfãos continuam pendentes.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
@@ -276,8 +283,8 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 ## Testes
 
 - **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline, ausência de chave privilegiada no frontend e escaping dos sinks identificados.
-- **Executado com sucesso no GitHub Actions no commit `d0e26e45d7a7ad82b88214118a11b40d8d617a0e`:** [Security audit checks](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38151794248), [Validação de sintaxe dos HTML](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38151794241) e [Bot triagem — validação](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38151794247). A checagem cobre sanitizador, sinks públicos, path traversal em diretório temporário, PDF de contratos, migrations propostas, RPC de logging do bot, limites de payload, políticas de anexos e fallback UUID. Isso não substitui testes reais de autorização nem aplicação das migrations em homologação.
-- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, validação em homologação das migrations de políticas/assinaturas/conceitos/bot/pré-atendimento/remoção de INSERT direto de anamnese, geração completa de páginas estáticas em ambiente de teste, teste funcional dos modelos de contrato/assinatura/PDF, do bot e da Edge Function reconciliada, desenho de rate limit para bot e pré-atendimento, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
+- **CI de regressão aprovado:** [Security audit checks](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38158257140) passou no commit `14ca86a27aaeb423d37ab807d4992ddf4fc171f1`, incluindo verificações da nova policy de Storage. A última rodada completa de [sintaxe HTML](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38151971626) e [Bot triagem](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38151971676) também passou; esses dois workflows não foram disparados pela alteração somente SQL mais recente. Isso não substitui testes reais de autorização nem aplicação das migrations em homologação.
+- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, validação em homologação das migrations de políticas/assinaturas/conceitos/bot/pré-atendimento/remoção de INSERT direto de anamnese/escopo de uploads de Storage, geração completa de páginas estáticas em ambiente de teste, teste funcional dos modelos de contrato/assinatura/PDF, do bot e da Edge Function reconciliada, desenho de rate limit para bot e pré-atendimento, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
 - **Propostas SQL de revisão:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql` e `supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql`; nenhum dos arquivos foi aplicado. A migration de RLS requer teste específico em ambiente de homologação antes de qualquer implantação.
 
 ## Matriz de riscos pendentes
@@ -318,6 +325,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-035 | Média | Formulário público aceitava status/campos sem validação server-side | Trigger proposta e CI passou; validar formulário em homologação; rate limit continua pendente |
 | SEC-036 | Alta para integridade de prontuário | Policies INSERT diretas permitiam contornar RPC de anamnese | Policies propostas para remoção e CI passou; testar fluxos em homologação |
 | SEC-037 | Média | Anexos podiam ser vinculados a versões bloqueadas e INSERT administrativo não tinha policy | Policies/constraint propostas e CI passou; testar os fluxos em homologação |
+| SEC-038 | Média | Storage aceitava uploads de anamnese sem validar a versão | Policy proposta e CI passou; testar em homologação; assinatura e limites ainda pendentes |
 
 ## Limitações e próximos passos
 
