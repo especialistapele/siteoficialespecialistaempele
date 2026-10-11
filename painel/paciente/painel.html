@@ -258,7 +258,7 @@ setTimeout(function () {
   const { data: avisos } = await supabase.from("announcements").select("title,message,created_at,anamnesis_version_id").eq("patient_id", patientId).order("created_at", { ascending: false }).limit(5);
   const avisosBloco = document.querySelector("[data-avisos]");
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>\"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;", "'":"&#39;"}[c]));
-  const safeUrl = (value) => { try { const u = new URL(String(value ?? ""), window.location.origin); return ["http:", "https:"].includes(u.protocol) ? escapeHtml(u.href) : ""; } catch { return ""; } };
+  const safeUrl = (value) => { try { const u = new URL(String(value ?? ""), window.location.origin); return u.origin === window.location.origin || u.protocol === "https:" ? escapeHtml(u.href) : ""; } catch { return ""; } };
   let versoesAviso = [];
   if (avisos?.some(a => a.title === "Nova anamnese disponível")) {
     const { data } = await supabase.from("anamnesis_versions").select("id,version_number,status,created_at,anamnesis_types(name)").eq("patient_id", patientId).order("created_at",{ascending:false}).limit(10);
@@ -457,7 +457,7 @@ setTimeout(function () {
     listaDocs.innerHTML = documentos.map((d) => `
       <div class="lista-simples__item">
         <div><div class="pessoa__nome">${escapeHtml(d.title)}</div><div class="pessoa__sub">${new Date(d.created_at).toLocaleDateString("pt-BR")}</div></div>
-        <button class="btn-p btn-p-mini btn-p-fora" data-baixar="${d.file_url}">↓ Baixar documento</button>
+        <button class="btn-p btn-p-mini btn-p-fora" data-baixar="${escapeHtml(d.file_url)}">↓ Baixar documento</button>
       </div>`).join("");
 
     listaDocs.querySelectorAll("[data-baixar]").forEach((btn) => {
