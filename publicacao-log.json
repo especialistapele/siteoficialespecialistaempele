@@ -105,8 +105,21 @@
       "workflow_run_id": "37163868119",
       "workflow_sha": "8e34b0c76e8ebe94a253c91549988252556c0938",
       "ref": "main"
+    },
+    {
+      "request_id": "46d409c0-15c3-4155-8173-895905bba1db",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/acne-hormonal-feminina.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-10-11T14:46:33.748Z",
+      "completed_at": "2026-10-11T14:47:01.743Z",
+      "workflow_run_id": "38148551487",
+      "workflow_sha": "4c18fbbc705758074a581b7d8b426089535df644",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-04T00:06:26.122Z",
-  "total": 8
+  "updated_at": "2026-10-11T14:47:01.743Z",
+  "total": 9
 }
