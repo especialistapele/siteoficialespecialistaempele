@@ -141,6 +141,7 @@ assert.ok(!patientAnamnesis.includes('supabase.from("anamnesis_signatures").inse
 assert.ok(attachmentPolicyMigration.includes("v.status = 'draft'"), "anexos do paciente devem exigir versão editável");
 assert.ok(attachmentPolicyMigration.includes("ep.status = 'active'"), "anexos após submissão exigem permissão ativa");
 assert.ok(attachmentPolicyMigration.includes('"admin uploads anamnesis attachments"'), "painel administrativo deve poder anexar a uma versão existente");
+assert.ok(attachmentPolicyMigration.includes("anamnesis_attachments_file_path_owner_check"), "caminho do anexo deve pertencer ao paciente e à versão");
 assert.ok(adminAnamnesisDraft.includes('supabase.from("anamnesis_attachments").insert'), "fluxo administrativo de anexos deve ser preservado");
 assert.ok(botLoggingMigration.includes("SET search_path TO pg_catalog, public"), "RPCs do bot devem fixar search_path");
 assert.ok(botLoggingMigration.includes("position(chr(92) in p_page_path) > 0"), "RPC do bot deve rejeitar barra invertida no caminho");
