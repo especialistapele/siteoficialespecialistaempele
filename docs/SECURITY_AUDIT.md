@@ -80,12 +80,21 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Impacto plausível:** políticas permissivas combinam-se por OR; duplicações podem causar confusão futura e uma política simplificada pode ampliar acesso se a relação de IDs mudar.
 - **Ação recomendada:** testar com duas contas fictícias e simplificar apenas após confirmar todos os fluxos e chaves de propriedade. Nenhum teste de acesso cruzado foi executado contra contas reais e nenhuma política foi alterada.
 
+### SEC-010 — Privilégios de tabela excessivos para anon e authenticated
+- **Gravidade:** média, com impacto potencial elevado; exploração direta por API REST não confirmada.
+- **Status:** configuração confirmada; script de correção proposto para revisão, não executado.
+- **Evidência:** consulta de privilégios efetivos encontrou `TRUNCATE` concedido a `anon` e `authenticated` nas 38 tabelas de `public`. A ACL de `patients`, `profiles` e `medical_records` também inclui `REFERENCES`, `TRIGGER` e `MAINTAIN` para ambas as roles. Uma consulta separada confirmou que as permissões são concessões explícitas às roles, não apenas herdadas de `PUBLIC`.
+- **Impacto:** RLS não restringe `TRUNCATE`; `TRIGGER`, `REFERENCES` e `MAINTAIN` são privilégios administrativos de tabela desnecessários para o uso normal do frontend. Não foi identificado caminho de API REST que permita executar `TRUNCATE` diretamente, então não classifico o achado como exploração confirmada.
+- **Correção proposta:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql` revoga somente `TRUNCATE`, `REFERENCES`, `TRIGGER` e `MAINTAIN` de `anon` e `authenticated` nas tabelas de `public`, preservando privilégios DML que dependem de RLS.
+- **Validação necessária antes de executar:** revisar em ambiente de teste, validar os fluxos legítimos e conferir as permissões pós-aplicação. Nenhum privilégio foi alterado no banco conectado.
+- **Risco residual:** permissões futuras em tabelas novas precisam ser revistas; a proposta ainda não configura privilégios padrão para objetos futuros.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
 - Arquivos revisados: `painel/assets/js/painel-auth.js`, `painel/index.html`, `painel/assets/js/sanitize.js`, `painel/assets/js/admin-sidebar.js`, `painel/assets/js/notifications.js`, `assets/js/rich-text.js`, `painel/admin/dashboard.html`, `painel/admin/pacientes.html`, `painel/admin/documentos.html`, `painel/admin/agenda.html`, `painel/admin/financeiro.html`, `painel/admin/paciente.html`, `painel/paciente/painel.html`, `painel/paciente/anamnese.html`, `robots.txt`.
 - `sanitize.js` oferece `escapeHtml()` e `safeUrl()`; ainda falta rastrear o uso de ambos em todos os renderizadores.
-- Supabase: listagem de tabelas, status RLS, políticas relevantes, buckets e Security Advisor; inspeção parcial de três Edge Functions e dos corpos de funções SQL selecionadas.
+- Supabase: listagem de tabelas, status RLS, políticas relevantes, buckets, grants efetivos para roles cliente e Security Advisor; inspeção parcial de três Edge Functions e dos corpos de funções SQL selecionadas.
 - Todas as tabelas listadas nos schemas `public` e `storage` retornaram RLS habilitado na consulta de metadados. Isso não é uma prova de que cada política seja correta, nem testa privilégios reais por role.
 - Bucket `documentos-pacientes`: privado. Bucket `site-media`: público, comportamento compatível com mídia pública se intencional.
 - O SDK Supabase é importado de CDN com versão especificada `@2.117.2`. A integridade da cadeia de suprimentos e a disponibilidade/versionamento efetivo da CDN ainda precisam ser avaliados.
@@ -97,6 +106,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline, ausência de chave privilegiada no frontend e escaping dos sinks identificados.
 - **Pendente de execução:** o teste estático no CI e testes manuais no navegador com contas fictícias.
 - **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload e testes de falha de conexão. Não foram executadas operações de escrita no banco.
+- **Proposta SQL de revisão:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql`; não é uma migração aplicada nem deve ser executada antes de revisão e autorização.
 
 ## Matriz de riscos pendentes
 
@@ -106,10 +116,10 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-005 | Média | Funções SECURITY DEFINER | Revisar grants e cenários negativos função a função |
 | SEC-006 | Média | Limites de upload ausentes | Definir limites e tipos permitidos |
 | SEC-008 | Média | Políticas RLS redundantes | Testes de isolamento com contas fictícias e proposta de migração |
-| SEC-010 | Alta potencial | Auditoria de todas as páginas privadas | Inventariar guards e consultas em todo o repositório |
-| SEC-011 | Média | Segredos no histórico Git | Executar varredura dedicada e documentar rotação se necessário |
-| SEC-012 | Média | Cabeçalhos/HTTPS/cache | Confirmar hospedagem e configuração efetiva fora do repositório |
-| SEC-013 | Média | Dependências e Actions | Inventariar workflows, versões de actions, lockfiles e executar scanners |
+| SEC-011 | Alta potencial | Auditoria de todas as páginas privadas | Inventariar guards e consultas em todo o repositório |
+| SEC-012 | Média | Segredos no histórico Git | Executar varredura dedicada e documentar rotação se necessário |
+| SEC-013 | Média | Cabeçalhos/HTTPS/cache | Confirmar hospedagem e configuração efetiva fora do repositório |
+| SEC-014 | Média | Dependências e Actions | Inventariar workflows, versões de actions, lockfiles e executar scanners |
 
 ## Limitações e próximos passos
 
