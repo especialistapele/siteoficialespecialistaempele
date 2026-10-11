@@ -162,7 +162,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 
 ### SEC-025 — Modelo de contrato inserido no editor sem sanitização prévia
 - **Gravidade:** média (XSS potencial no contexto administrativo).
-- **Status:** corrigido na branch; teste estático adicionado; CI pendente.
+- **Status:** corrigido na branch; CI passou; teste funcional de PDF em homologação pendente.
 - **Evidência:** `painel/admin/contratos.html` inseria `document_templates.content_html` no `contenteditable` por `innerHTML` após substituir placeholders. Diferentemente dos editores de artigos/tratamentos, o conteúdo não passava por `sanitizeRichHtml()` antes de entrar no DOM. A URL de assinatura gerada pelo Storage também era interpolada diretamente em atributo `src`.
 - **Correção:** sanitizar o modelo já com os dados do paciente substituídos antes de injetar no editor; validar a URL assinada com `safeUrl()` e escapar no atributo.
 - **Risco residual:** templates de contrato precisam ser validados funcionalmente porque o sanitizador restringe tags/atributos a uma allowlist; testar opções interativas, assinatura, edição e geração do PDF em homologação.
@@ -184,7 +184,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 
 ### SEC-028 — Slugs de conteúdo podiam escapar da pasta de publicação
 - **Gravidade:** alta para integridade da publicação automática.
-- **Status:** corrigido na branch; teste dinâmico local ao CI adicionado; CI pendente.
+- **Status:** corrigido na branch; teste dinâmico em pasta temporária passou no CI.
 - **Evidência:** `sincronizarPastas()` concatenava `item.slug` diretamente no caminho `${principal}/${item.slug}.html` e no destino de redirecionamentos. Os geradores de artigos/resultados também usavam slugs brutos em URLs; um slug com segmentos `../` podia tentar criar um arquivo HTML fora da pasta de conteúdo. O token do workflow de publicação tem `contents: write`.
 - **Correção:** o helper normaliza slugs com `slugifyUrl()`, rejeita slugs vazios e colisões após normalização; geradores de artigos/resultados usam slugs normalizados em arquivos, canonical e links. Foi adicionado teste que tenta publicar `../outside` em pasta temporária e confirma que nenhum arquivo é escrito fora da pasta de saída.
 - **Risco residual:** a escrita de arquivos fora do repositório não foi testada em produção; o teste de regressão usa somente diretório temporário. Executar geração completa com fixture e revisar arquivos resultantes antes de reativar/publicar alterações.
@@ -194,7 +194,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Status:** constraints propostas na branch; não aplicadas.
 - **Evidência:** as RPCs `assinar_contrato` e `submit_anamnesis` validam que o contrato/ficha pertence ao usuário, mas aceitam `p_signature_path` enviado pelo navegador sem confirmar que o caminho pertence à pasta daquele paciente. A policy de Storage restringe uploads à pasta própria, porém não impede uma RPC de gravar como referência o caminho de um objeto de outro paciente.
 - **Verificação agregada:** 7 contratos assinados e 2 assinaturas de anamnese; todas as nove referências existentes obedecem ao formato `<patient_id>/assinaturas/<nome>.png`, sem prefixos de outro paciente.
-- **Correção proposta:** `supabase/migrations/20261011170000_constrain_patient_signature_paths.sql` adiciona CHECK constraints que vinculam o prefixo do caminho ao `patient_id`; a nova versão de `submit_anamnesis` também valida o caminho antes de gravar. Não foi aplicada.
+- **Correção proposta:** `supabase/migrations/20261011170000_constrain_patient_signature_paths.sql` adiciona CHECK constraints que vinculam o prefixo do caminho ao `patient_id`, além de limitar `signed_content_html` a 100.000 caracteres; a nova versão de `submit_anamnesis` também valida o caminho antes de gravar. Os 8 snapshots atuais têm no máximo 7.400 caracteres. CI estático passou; migration não aplicada.
 - **Risco residual:** validar a migration em homologação e testar assinaturas de contrato/anamnese com duas contas fictícias antes de produção.
 
 ### SEC-030 — RPC de anamnese confiava no clinical_concept_id enviado pelo cliente
@@ -209,14 +209,14 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Gravidade:** baixa a média (XSS de defesa em profundidade; snapshot enviado pelo cliente).
 - **Status:** corrigido na branch; teste estático adicionado; CI pendente.
 - **Evidência:** `painel/assets/js/contrato-pdf.js` atribuía o conteúdo de `signed_content_html` diretamente a `div.innerHTML` para extrair texto. O snapshot é enviado pelo cliente à RPC de assinatura, então não deve ser considerado confiável apenas porque o fluxo normal o sanitiza no navegador.
-- **Correção:** o conversor de PDF agora passa o conteúdo por `sanitizeRichHtml()` antes de inserir no DOM temporário.
+- **Correção:** o conversor de PDF agora passa o conteúdo por `sanitizeRichHtml()` antes de inserir no DOM temporário; a migration de assinatura também limita o snapshot armazenado.
 - **Risco residual:** validar a geração de PDF e os modelos interativos em homologação. A revisão não demonstrou acesso cruzado a snapshots de outros pacientes.
 
 ### SEC-032 — Criação de conversa do bot dependia de SELECT público inexistente
 - **Gravidade:** média para disponibilidade/registro de atendimento.
-- **Status:** correção proposta na branch; CI pendente; sem teste de INSERT em produção.
+- **Status:** RPC e frontend alterados na branch; CI passou; sem teste de INSERT em produção.
 - **Evidência:** `assets/js/bot-triagem.js` criava conversa com `INSERT ... SELECT id`, mas `bot_conversations` não tem política SELECT para `anon`; uma consulta read-only como `anon` retornou zero linhas visíveis. A policy de INSERT em `bot_messages` também verificava a sessão com subconsulta sujeita às políticas de leitura da tabela de conversas.
-- **Correção proposta:** `supabase/migrations/20261011200000_harden_public_bot_logging.sql` cria RPC `create_bot_conversation` para inserir/retornar apenas o ID, revoga INSERT direto e valida o par conversa/sessão por uma função `SECURITY DEFINER` de retorno booleano. O frontend foi alterado para chamar a RPC, mantém o ID UUID retornado e usa fallback UUID compatível com as colunas do banco.
+- **Correção proposta:** `supabase/migrations/20261011200000_harden_public_bot_logging.sql` cria RPC `create_bot_conversation` para inserir/retornar apenas o ID, revoga INSERT direto e valida o par conversa/sessão por uma função `SECURITY DEFINER` de retorno booleano. A migration limita metadados, mensagens a 4.000 caracteres e senders a `visitor`, `bot` e `system`, além de rejeitar caminhos com barra invertida/caracteres de controle. O frontend chama a RPC, mantém o ID UUID e usa fallback UUID compatível com as colunas do banco.
 - **Risco residual:** nenhuma inserção real foi testada; validar o fluxo do bot em homologação com visitante anônimo e usuário autenticado. A migração não foi aplicada.
 
 ### SEC-033 — Registros públicos do bot sem rate limit server-side observado
@@ -234,7 +234,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 
 ### SEC-034 — Fallback de sessão do bot não respeitava o tipo UUID do banco
 - **Gravidade:** baixa/média (compatibilidade e disponibilidade do registro).
-- **Status:** corrigido na branch; teste de cenário adicionado; CI pendente.
+- **Status:** corrigido na branch; testes de cenário e CI passaram.
 - **Evidência:** `bot_conversations.session_id` e `bot_messages.session_id` são colunas UUID, mas o fallback de `getSessionId()` gerava `sess-<timestamp>-<random>`, que não pode ser convertido para UUID.
 - **Correção:** fallback agora gera UUID v4 usando `crypto.getRandomValues` quando disponível e mantém o formato UUID mesmo no fallback de compatibilidade.
 - **Risco residual:** testar em navegador de homologação sem `crypto.randomUUID`; o fallback sem Web Crypto usa `Math.random` e não oferece a mesma entropia criptográfica.
@@ -288,12 +288,12 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-026 | Média | Gerador de páginas estáticas de tratamentos não sanitizava HTML rico | Corrigido na branch; CI passou; testar geração completa antes do deploy automático |
 | SEC-027 | Baixa | Actions fixadas por tag, não por SHA imutável | Corrigido com SHAs verificados; CI passou; continuar revisão de cadeia de suprimentos |
 | SEC-028 | Alta para integridade da publicação | Slugs de conteúdo podiam escapar da pasta de publicação | Corrigido na branch; teste dinâmico em pasta temporária passou; revisar geração completa |
-| SEC-029 | Média | RPCs de assinatura aceitavam caminho de arquivo sem vincular ao paciente | CHECK constraints propostas; testar duas contas fictícias em homologação |
-| SEC-030 | Média | RPC de anamnese confiava no `clinical_concept_id` enviado pelo cliente | Trigger proposto; testar submissão/edição/rascunho em homologação |
-| SEC-031 | Baixa/média | PDF analisava snapshot assinado via `innerHTML` sem sanitização | Corrigido na branch; CI passou; testar PDF em homologação |
+| SEC-029 | Média | RPCs de assinatura aceitavam caminho de arquivo sem vincular ao paciente | CHECK constraints propostas e CI passou; testar duas contas fictícias em homologação |
+| SEC-030 | Média | RPC de anamnese confiava no `clinical_concept_id` enviado pelo cliente | RPC/trigger propostos e CI passou; testar submissão/edição/rascunho em homologação |
+| SEC-031 | Baixa/média | PDF analisava snapshot assinado via `innerHTML` sem sanitização | Corrigido e CI passou; testar PDF em homologação |
 | SEC-032 | Média | Criação de conversa do bot dependia de SELECT público inexistente | RPC proposta, frontend atualizado e CI passou; testar com visitante anônimo em homologação |
 | SEC-033 | Média-baixa | Registros públicos do bot sem rate limit server-side | Pendente; avaliar Edge Function proxy e limites de volume |
-| SEC-034 | Baixa/média | Fallback de sessão do bot não respeitava tipo UUID | Corrigido na branch; testar navegador sem `crypto.randomUUID` |
+| SEC-034 | Baixa/média | Fallback de sessão do bot não respeitava tipo UUID | Corrigido na branch; testes de cenário passaram; testar navegador sem `crypto.randomUUID` |
 
 ## Limitações e próximos passos
 
