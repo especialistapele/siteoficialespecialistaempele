@@ -53,14 +53,14 @@ export function dataISO(iso) {
 // quando começam na raiz e não podem ser protocol-relative nem conter barra invertida.
 export function urlSegura(valor, { relativa = false } = {}) {
   const raw = String(valor ?? "").trim();
-  if (!raw || /[\\u0000-\\u001f\\u007f]/.test(raw)) return "";
-  if (relativa && raw.startsWith("/") && !raw.startsWith("//") && !raw.includes("\\\\")) return raw;
+  if (!raw || [...raw].some((ch) => ch.charCodeAt(0) < 32 || ch.charCodeAt(0) === 127)) return "";
+  const barraInvertida = String.fromCharCode(92);
+  if (relativa && raw.startsWith("/") && !raw.startsWith("//") && !raw.includes(barraInvertida)) return raw;
   try {
     const u = new URL(raw);
     return u.protocol === "https:" ? u.href : "";
   } catch { return ""; }
 }
-
 // ------------------------------------------------------------
 // Texto rico. Espelha assets/js/rich-text.js: só passa a formatação
 // que o editor do painel produz. Defesa em profundidade (o painel
