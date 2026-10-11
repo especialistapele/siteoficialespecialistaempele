@@ -115,7 +115,10 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-004 | Média | Proteção de senha vazada desabilitada | Configurar no Supabase após validar fluxo |
 | SEC-005 | Média | Funções SECURITY DEFINER | Revisar grants e cenários negativos função a função |
 | SEC-006 | Média | Limites de upload ausentes | Definir limites e tipos permitidos |
+| SEC-007 | Informativo | CORS amplo nas Edge Functions | Restringir origens se compatível, mantendo autenticação como controle real |
 | SEC-008 | Média | Políticas RLS redundantes | Testes de isolamento com contas fictícias e proposta de migração |
+| SEC-009 | Baixa/média | Sinks de HTML potencialmente inseguros | Correções aplicadas; aguardar teste e continuar rastreamento |
+| SEC-010 | Média / impacto potencial elevado | TRUNCATE/TRIGGER/REFERENCES/MAINTAIN concedidos às roles cliente | Revisar e testar o SQL proposto antes de aplicar
 | SEC-011 | Alta potencial | Auditoria de todas as páginas privadas | Inventariar guards e consultas em todo o repositório |
 | SEC-012 | Média | Segredos no histórico Git | Executar varredura dedicada e documentar rotação se necessário |
 | SEC-013 | Média | Cabeçalhos/HTTPS/cache | Confirmar hospedagem e configuração efetiva fora do repositório |
