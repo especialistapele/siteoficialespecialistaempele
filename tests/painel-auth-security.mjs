@@ -15,6 +15,8 @@ const contractAdmin = readFileSync("painel/admin/contratos.html", "utf8");
 const contractPdf = readFileSync("painel/assets/js/contrato-pdf.js", "utf8");
 const signaturePathMigration = readFileSync("supabase/migrations/20261011170000_constrain_patient_signature_paths.sql", "utf8");
 const anamnesisConceptMigration = readFileSync("supabase/migrations/20261011180000_enforce_anamnesis_response_concepts.sql", "utf8");
+const botSource = readFileSync("assets/js/bot-triagem.js", "utf8");
+const botLoggingMigration = readFileSync("supabase/migrations/20261011200000_harden_public_bot_logging.sql", "utf8");
 const publicSupabaseClient = readFileSync("assets/js/supabase-client.js", "utf8");
 const edgeFunctionSources = [
   readFileSync("supabase/functions/create-patient/index.ts", "utf8"),
@@ -96,6 +98,11 @@ assert.ok(signaturePathMigration.includes("contracts_signature_path_own_patient_
 assert.ok(signaturePathMigration.includes("anamnesis_signatures_signature_path_own_patient_check"), "migration deve restringir assinatura de anamnese ao paciente dono");
 assert.ok(anamnesisConceptMigration.includes("NEW.clinical_concept_id := v_concept_id;"), "conceito clínico deve ser derivado da pergunta cadastrada");
 assert.ok(anamnesisConceptMigration.includes("BEFORE INSERT ON public.anamnesis_responses"), "trigger deve validar toda nova resposta de anamnese");
+assert.ok(botSource.includes('client.rpc("create_bot_conversation"'), "bot público deve criar conversas pela RPC");
+assert.ok(!botSource.includes('.from("bot_conversations")\n        .insert('), "bot não deve depender de INSERT com SELECT em tabela sem policy pública de leitura");
+assert.ok(botLoggingMigration.includes("REVOKE INSERT ON public.bot_conversations FROM PUBLIC, anon, authenticated"), "migration deve bloquear INSERT direto em conversas");
+assert.ok(botLoggingMigration.includes("public.bot_session_matches(conversation_id, session_id)"), "mensagens devem validar a sessão associada à conversa");
+assert.ok(botLoggingMigration.includes("SET search_path TO pg_catalog, public"), "RPCs do bot devem fixar search_path");
 assert.ok(anamnesisConceptMigration.includes("SET search_path TO pg_catalog, public"), "trigger SECURITY DEFINER deve fixar search_path seguro");
 assert.ok(contractAdmin.includes("const signatureUrl = safeUrl(data?.signedUrl);"), "URL da assinatura deve ser validada antes da interpolação");
 assert.ok(contractAdmin.includes('src="${escapeHtml(signatureUrl)}"'), "URL da assinatura deve ser escapada no atributo HTML");
