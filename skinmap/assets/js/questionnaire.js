@@ -2074,16 +2074,19 @@ const SkinMapQuestionnaire = {
             */
 
 
+            // Respostas de texto opcionais podem ficar em branco.
+            // O validador exige conteúdo em cada resposta recebida, então
+            // omitimos somente campos de texto opcionais sem conteúdo.
             const questionnairePayload = {
-
-
-
-                answers:
-
-                    this.answers.filter(Boolean)
-
-
-
+                answers: this.answers.filter(Boolean).filter((answer) => {
+                    const question = this.questions.find(
+                        (item) => item.question_id === answer.question_id
+                    );
+                    if (question?.question_type === "text" && !question.required) {
+                        return Boolean(answer.text_response?.trim());
+                    }
+                    return true;
+                })
             };
 
 
