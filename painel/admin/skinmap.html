@@ -21,7 +21,7 @@
 <label>Buscar contato<input id="busca-skinmap" type="search" placeholder="Nome, WhatsApp, e-mail ou cidade" autocomplete="off"></label>
 <label>Status<select id="status-skinmap" class="skinmap-status"><option value="todos">Todos</option><option value="novo">Novo</option><option value="contato">Em contato</option><option value="convertido">Convertido</option><option value="arquivado">Arquivado</option></select></label>
 </div>
-<div class="painel-card"><div style="overflow:auto"><table class="tabela-p skinmap-tabela"><thead><tr><th>Contato</th><th>Perfil inicial</th><th>Interesse</th><th>Recebido em</th><th>Status</th><th>Dados SkinMap</th></tr></thead><tbody data-lista><tr><td colspan="6" class="painel-vazio">Carregando solicitações…</td></tr></tbody></table></div></div>
+<div class="painel-card"><div style="overflow:auto"><table class="tabela-p skinmap-tabela"><thead><tr><th>Contato</th><th>Perfil inicial</th><th>Interesse</th><th>Recebido em</th><th>Ambiente</th><th>Status</th><th>Dados SkinMap</th></tr></thead><tbody data-lista><tr><td colspan="7" class="painel-vazio">Carregando solicitações…</td></tr></tbody></table></div></div>
 </main></div>
 <script type="module">
 import { supabase, exigirAdmin, configurarBotaoSair, mostrarFlash } from '/painel/assets/js/painel-auth.js';
@@ -38,7 +38,7 @@ const statusLabel={novo:'Novo',contato:'Em contato',convertido:'Convertido',arqu
 function render(){
  const termo=busca.value.trim().toLocaleLowerCase('pt-BR'), status=filtroStatus.value;
  const filtrados=leads.filter((l)=>[l.full_name,l.whatsapp,l.email,l.city].some((v)=>String(v||'').toLocaleLowerCase('pt-BR').includes(termo))&&(status==='todos'||l.status===status));
- if(!filtrados.length){lista.innerHTML='<tr><td colspan="6" class="painel-vazio">Nenhuma solicitação encontrada.</td></tr>';return;}
+ if(!filtrados.length){lista.innerHTML='<tr><td colspan="7" class="painel-vazio">Nenhuma solicitação encontrada.</td></tr>';return;}
  lista.innerHTML=filtrados.map((l)=>{
   const dados=JSON.stringify({avaliacao:l.assessment||{},perfil:l.skin_profile||{},respostas:l.questionnaire||{},consentimento:{autorizado:l.consent,versao:l.consent_text_version,em:l.consented_at}},null,2);
   return '<tr><td><strong>'+esc(l.full_name)+'</strong><br>'+esc(l.whatsapp)+'<br><a href="mailto:'+esc(l.email)+'">'+esc(l.email)+'</a><br>'+esc(l.city||'Cidade não informada')+'</td>'+
@@ -55,9 +55,9 @@ function render(){
  }));
 }
 async function carregar(){
- lista.innerHTML='<tr><td colspan="6" class="painel-vazio">Carregando solicitações…</td></tr>';
- const {data,error}=await supabase.from('skinmap_leads').select('id,full_name,whatsapp,email,city,interest,indication,skin_type,assessment,skin_profile,questionnaire,consent,consent_text_version,consented_at,status,created_at').order('created_at',{ascending:false});
- if(error){lista.innerHTML='<tr><td colspan="6" class="painel-vazio">Não foi possível carregar os leads. Verifique a migração e as permissões administrativas.</td></tr>';mostrarFlash(flash,'Falha ao carregar SkinMap.','erro');return;}
+ lista.innerHTML='<tr><td colspan="7" class="painel-vazio">Carregando solicitações…</td></tr>';
+ const {data,error}=await supabase.from('skinmap_leads').select('id,full_name,whatsapp,email,city,interest,indication,skin_type,assessment,skin_profile,questionnaire,consent,consent_text_version,consented_at,status,created_at,source_environment').order('created_at',{ascending:false});
+ if(error){lista.innerHTML='<tr><td colspan="7" class="painel-vazio">Não foi possível carregar os leads. Verifique a migração e as permissões administrativas.</td></tr>';mostrarFlash(flash,'Falha ao carregar SkinMap.','erro');return;}
  leads=data||[];render();
 }
 busca.addEventListener('input',render);filtroStatus.addEventListener('change',render);document.querySelector('#atualizar-skinmap').addEventListener('click',carregar);

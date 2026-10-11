@@ -1700,7 +1700,8 @@ const SkinMapConsultation = {
                 skin_profile: profile,
                 questionnaire,
                 consent: true,
-                consent_text_version: "skinmap-consent-v1"
+                consent_text_version: "skinmap-consent-v1",
+                source_environment: window.location.hostname.endsWith(".vercel.app") ? "preview" : "production"
             });
             if (error) throw error;
             if (message) message.textContent = "Solicitação recebida com sucesso. Em breve entraremos em contato.";
