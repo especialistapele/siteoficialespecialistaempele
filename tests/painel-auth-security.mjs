@@ -41,10 +41,10 @@ assert.match(loginHtml, /Não foi possível entrar com essas credenciais/);
 assert.match(loginHtml, /botao\.disabled = false/);
 assert.match(loginHtml, /sistema de login não conseguiu carregar/);
 assert.doesNotMatch(loginHtml, /console\.error\(/, "login não deve despejar objetos de erro no console");
-assert.doesNotMatch(auth, /SUPABASE_SERVICE_ROLE_KEY\\s*=|sb_secret_[A-Za-z0-9]+/i, "segredos privilegiados não podem aparecer no frontend");
-assert.match(sidebar, /import \\{ escapeHtml \\} from "\/painel\/assets\/js\/sanitize\\.js"/);
-assert.match(sidebar, /\\$\\{escapeHtml\\(nome\\)\\}/, "nome de perfil não deve entrar cru em innerHTML");
-assert.match(patientPanel, /data-baixar="\\$\\{escapeHtml\\(d\\.file_url\\)\\}"/, "caminho do arquivo deve ser escapado no atributo HTML");
-assert.match(patientPanel, /u\\.origin === window\\.location\\.origin \\|\\| u\\.protocol === "https:"/, "URLs externas HTTP não devem ser aceitas como links de prontuário");
+assert.doesNotMatch(auth, /SUPABASE_SERVICE_ROLE_KEY\s*=|sb_secret_[A-Za-z0-9]+/i, "segredos privilegiados não podem aparecer no frontend");
+assert.ok(sidebar.includes('import { escapeHtml } from "/painel/assets/js/sanitize.js";'));
+assert.ok(sidebar.includes('${escapeHtml(nome)}'), "nome de perfil não deve entrar cru em innerHTML");
+assert.ok(patientPanel.includes('data-baixar="${escapeHtml(d.file_url)}"'), "caminho do arquivo deve ser escapado no atributo HTML");
+assert.ok(patientPanel.includes('u.origin === window.location.origin || u.protocol === "https:"'), "URLs externas HTTP não devem ser aceitas como links de prontuário");
 
 console.log("Segurança estática da autenticação: OK — guards, fail-closed, login, logout e ausência de chaves privilegiadas.");
