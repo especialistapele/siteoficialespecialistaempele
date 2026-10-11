@@ -1,0 +1,1235 @@
+/**
+ * ============================================================
+ *
+ * SkinMap Regenerativo™
+ *
+ * Consultation Premium Interface
+ *
+ * ============================================================
+ */
+
+
+
+/* ============================================================
+   BASE
+============================================================ */
+
+
+.consultation-page * {
+
+    box-sizing: border-box;
+
+}
+
+
+
+body {
+
+    margin:0;
+
+
+    font-family:
+
+        "Inter",
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+
+
+    background:
+
+        linear-gradient(
+
+            180deg,
+
+            #071827 0%,
+
+            #102b42 42%,
+
+            #f5f7fb 100%
+
+        );
+
+
+
+    color:#1e293b;
+
+
+}
+
+
+
+
+
+
+
+/* ============================================================
+   CONTAINER
+============================================================ */
+
+
+.consultation-page {
+
+
+    max-width:
+
+        980px;
+
+
+
+    margin:
+
+        0 auto;
+
+
+
+    padding:
+
+        40px 20px 80px;
+
+
+
+}
+
+
+
+
+
+
+
+/* ============================================================
+   HERO
+============================================================ */
+
+
+.consultation-hero {
+
+
+    padding:
+
+        55px 45px;
+
+
+
+    border-radius:
+
+        30px;
+
+
+
+    margin-bottom:
+
+        35px;
+
+
+
+    color:white;
+
+
+
+    background:
+
+        linear-gradient(
+
+            135deg,
+
+            rgba(255,255,255,.18),
+
+            rgba(255,255,255,.06)
+
+        );
+
+
+
+    backdrop-filter:
+
+        blur(18px);
+
+
+
+    border:
+
+        1px solid
+
+        rgba(255,255,255,.25);
+
+
+
+    box-shadow:
+
+        0 25px 60px
+
+        rgba(0,0,0,.25);
+
+
+
+}
+
+
+
+.hero-label {
+
+
+    font-size:.8rem;
+
+
+    letter-spacing:2px;
+
+
+    text-transform:uppercase;
+
+
+    opacity:.8;
+
+
+}
+
+
+
+.consultation-hero h1 {
+
+
+    margin:
+
+        15px 0;
+
+
+
+    font-size:
+
+        clamp(
+
+            2rem,
+
+            5vw,
+
+            3rem
+
+        );
+
+
+    font-weight:600;
+
+
+}
+
+
+
+.consultation-hero p {
+
+
+    max-width:
+
+        720px;
+
+
+
+    line-height:
+
+        1.7;
+
+
+
+    opacity:.9;
+
+
+}
+
+
+
+
+
+
+
+/* ============================================================
+   SEÇÕES
+============================================================ */
+
+
+.skinmap-section,
+.consultation-form-section {
+
+
+    background:
+
+        rgba(255,255,255,.96);
+
+
+
+    border-radius:
+
+        30px;
+
+
+
+    padding:
+
+        40px;
+
+
+
+    margin-bottom:
+
+        35px;
+
+
+
+    box-shadow:
+
+        0 25px 60px
+
+        rgba(15,23,42,.12);
+
+
+
+}
+
+
+
+.section-header {
+
+
+    margin-bottom:
+
+        30px;
+
+
+}
+
+
+
+.section-header span {
+
+
+    color:
+
+        #4a2fc6;
+
+
+
+    font-size:
+
+        .8rem;
+
+
+
+    text-transform:
+
+        uppercase;
+
+
+
+    letter-spacing:
+
+        2px;
+
+
+
+    font-weight:
+
+        700;
+
+
+
+}
+
+
+
+.section-header h2 {
+
+
+    margin:
+
+        10px 0;
+
+
+
+    color:
+
+        #102b42;
+
+
+
+    font-size:
+
+        2rem;
+
+
+}
+
+
+
+.section-header p {
+
+
+    color:
+
+        #64748b;
+
+
+
+    line-height:
+
+        1.6;
+
+
+}
+
+
+
+
+
+
+
+/* ============================================================
+   CARDS RESUMO SKINMAP
+============================================================ */
+
+
+.skinmap-cards {
+
+
+    display:
+
+        grid;
+
+
+
+    grid-template-columns:
+
+        repeat(
+
+            3,
+
+            1fr
+
+        );
+
+
+
+    gap:
+
+        20px;
+
+
+}
+
+
+
+.skin-card {
+
+
+    padding:
+
+        28px;
+
+
+
+    border-radius:
+
+        22px;
+
+
+
+    background:
+
+        linear-gradient(
+
+            145deg,
+
+            #ffffff,
+
+            #f1f5f9
+
+        );
+
+
+
+    border:
+
+        1px solid
+
+        #e2e8f0;
+
+
+
+    text-align:center;
+
+
+
+}
+
+
+
+.card-title {
+
+
+    display:block;
+
+
+    color:#64748b;
+
+
+    font-size:.9rem;
+
+
+    margin-bottom:15px;
+
+
+}
+
+
+
+.skin-card strong {
+
+
+    color:#102b42;
+
+
+    font-size:1.4rem;
+
+
+}
+
+
+
+
+
+
+
+/* ============================================================
+   NOVOS CARDS DE DIMENSÕES SKINMAP
+============================================================ */
+
+
+.attention-card {
+
+
+    margin-top:
+
+        30px;
+
+
+
+    background:
+
+        #f8fafc;
+
+
+
+    border-radius:
+
+        24px;
+
+
+
+    padding:
+
+        30px;
+
+
+
+    border:
+
+        1px solid
+
+        #e2e8f0;
+
+
+
+}
+
+
+
+.attention-card h3 {
+
+
+    margin-top:0;
+
+
+    margin-bottom:25px;
+
+
+    color:#102b42;
+
+
+}
+
+
+
+
+
+
+
+#attention {
+
+
+    display:
+
+        flex;
+
+
+
+    flex-direction:
+
+        column;
+
+
+
+    gap:
+
+        16px;
+
+
+
+}
+
+
+
+
+
+
+
+.attention-item {
+
+
+    display:
+
+        flex;
+
+
+
+    align-items:
+
+        flex-start;
+
+
+
+    gap:
+
+        18px;
+
+
+
+    padding:
+
+        22px;
+
+
+
+    border-radius:
+
+        20px;
+
+
+
+    background:
+
+        white;
+
+
+
+    border:
+
+        1px solid
+
+        #e5e7eb;
+
+
+
+    box-shadow:
+
+        0 8px 25px
+
+        rgba(15,23,42,.06);
+
+
+
+    transition:
+
+        .3s;
+
+
+
+}
+
+
+
+.attention-item:hover {
+
+
+    transform:
+
+        translateY(-3px);
+
+
+}
+
+
+
+.attention-icon {
+
+
+    min-width:
+
+        50px;
+
+
+
+    height:
+
+        50px;
+
+
+
+    display:
+
+        flex;
+
+
+
+    align-items:
+
+        center;
+
+
+
+    justify-content:
+
+        center;
+
+
+
+    border-radius:
+
+        50%;
+
+
+
+    background:
+
+        #eef2ff;
+
+
+
+    font-size:
+
+        1.5rem;
+
+
+
+}
+
+
+
+.attention-content h4 {
+
+
+    margin:
+
+        0 0 8px;
+
+
+
+    color:
+
+        #102b42;
+
+
+
+    font-size:
+
+        1.1rem;
+
+
+
+}
+
+
+
+.attention-content p {
+
+
+    margin:
+
+        0;
+
+
+
+    line-height:
+
+        1.7;
+
+
+
+    color:
+
+        #475569;
+
+
+
+}
+
+
+
+
+
+
+
+/* ============================================================
+   RESUMO
+============================================================ */
+
+
+.summary-card {
+
+
+    margin-top:
+
+        25px;
+
+
+
+    padding:
+
+        30px;
+
+
+
+    border-radius:
+
+        22px;
+
+
+
+    background:
+
+        linear-gradient(
+
+            135deg,
+
+            #f8fafc,
+
+            #ffffff
+
+        );
+
+
+
+    border-left:
+
+        5px solid
+
+        #4a2fc6;
+
+
+
+}
+
+
+
+.summary-card h3 {
+
+
+    color:
+
+        #102b42;
+
+
+}
+
+
+
+.summary-card p {
+
+
+    text-align:
+
+        justify;
+
+
+
+    line-height:
+
+        1.8;
+
+
+
+    color:
+
+        #475569;
+
+
+
+}
+
+
+
+
+
+
+
+/* ============================================================
+   FORMULÁRIO
+============================================================ */
+
+
+.form-group-card {
+
+
+    padding:
+
+        30px;
+
+
+
+    border-radius:
+
+        24px;
+
+
+
+    background:
+
+        #f8fafc;
+
+
+
+    border:
+
+        1px solid
+
+        #e2e8f0;
+
+
+
+}
+
+
+
+.form-group-card h3 {
+
+
+    margin-top:0;
+
+
+    color:#102b42;
+
+
+}
+
+
+
+.form-field {
+
+
+    display:flex;
+
+
+    flex-direction:column;
+
+
+    margin-bottom:18px;
+
+
+}
+
+
+
+.form-field label {
+
+
+    margin-bottom:8px;
+
+
+    font-weight:600;
+
+
+}
+
+
+
+.form-field input,
+.form-field select {
+
+
+    padding:
+
+        15px;
+
+
+
+    border-radius:
+
+        14px;
+
+
+
+    border:
+
+        1px solid
+
+        #cbd5e1;
+
+
+
+    background:white;
+
+
+
+    font-size:1rem;
+
+
+
+}
+
+
+
+.form-field input:focus,
+.form-field select:focus {
+
+
+    outline:none;
+
+
+
+    border-color:
+
+        #4a2fc6;
+
+
+
+}
+
+
+
+
+
+
+
+/* ============================================================
+   BOTÃO
+============================================================ */
+
+
+.consultation-button {
+
+
+    width:100%;
+
+
+    padding:
+
+        18px;
+
+
+
+    border:none;
+
+
+
+    border-radius:
+
+        18px;
+
+
+
+    background:
+
+        linear-gradient(
+
+            135deg,
+
+            #4a2fc6,
+
+            #102b42
+
+        );
+
+
+
+    color:white;
+
+
+
+    font-weight:600;
+
+
+
+    font-size:1.05rem;
+
+
+
+    cursor:pointer;
+
+
+
+    transition:.3s;
+
+
+
+}
+
+
+
+.consultation-button:hover {
+
+
+    transform:
+
+        translateY(-2px);
+
+
+}
+
+
+
+.consultation-button:disabled {
+
+
+    opacity:.65;
+
+
+    cursor:not-allowed;
+
+
+}
+
+
+
+
+
+
+
+.form-message {
+
+
+    text-align:center;
+
+
+    margin-top:20px;
+
+
+    color:#4a2fc6;
+
+
+    font-weight:600;
+
+
+}
+
+
+
+
+
+
+
+/* ============================================================
+   FOOTER
+============================================================ */
+
+
+.consultation-footer {
+
+
+    text-align:center;
+
+
+    color:white;
+
+
+    opacity:.85;
+
+
+}
+
+
+
+
+
+
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+
+@media(max-width:768px){
+
+
+
+    .consultation-page {
+
+
+        padding:
+
+            20px 15px 50px;
+
+
+    }
+
+
+
+    .consultation-hero {
+
+
+        padding:
+
+            35px 25px;
+
+
+    }
+
+
+
+    .skinmap-section,
+    .consultation-form-section {
+
+
+        padding:
+
+            25px;
+
+
+    }
+
+
+
+    .skinmap-cards {
+
+
+        grid-template-columns:
+
+            1fr;
+
+
+    }
+
+
+
+    .attention-item {
+
+
+        flex-direction:
+
+            column;
+
+
+    }
+
+
+
+    .attention-icon {
+
+
+        width:
+
+            50px;
+
+
+    }
+
+
+
+}

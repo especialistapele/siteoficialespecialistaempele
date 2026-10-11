@@ -1,0 +1,12 @@
+import { readFileSync } from 'node:fs';
+import { strict as assert } from 'node:assert';
+const read=(path)=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
+const sidebar=read('painel/assets/js/admin-sidebar.js'), admin=read('painel/admin/skinmap.html'), form=read('skinmap/consultation.html'), submit=read('skinmap/assets/js/consultation.js'), questionnaire=read('skinmap/assets/js/questionnaire.js'), migration=read('supabase/migrations/20261011100000_skinmap_leads.sql'), panelCss=read('painel/assets/css/painel.css');
+const skinmapScripts=['api.js','assessment.js','lead.js','result.js','storage.js'].map((name)=>read('skinmap/assets/js/'+name));
+assert.match(sidebar,/id:\s*"skinmap",\s*label:\s*"SkinMap",\s*href:\s*"\/painel\/admin\/skinmap\.html"/); assert.match(panelCss,/\.painel-sidebar\{[^}]*overflow-y:auto/);
+assert.match(admin,/exigirAdmin\(\)/); assert.match(admin,/from\('skinmap_leads'\)/); assert.match(admin,/source_environment/); assert.match(admin,/update\(\{status:s\.value\}\)/);
+assert.match(form,/id="skinmapConsent"[^>]*required/); assert.match(submit,/source_environment: window\.location\.hostname\.endsWith\("\.vercel\.app"\) \? "preview" : "production"/); assert.match(submit,/from\("skinmap_leads"\)\.insert/);
+assert.doesNotMatch(submit,/script\.google\.com|GOOGLE_SCRIPT_URL|Dados enviados:/);
+assert.doesNotMatch(submit,/console\.(?:log|warn|error)\s*\(/); assert.doesNotMatch(questionnaire,/console\.(?:log|warn|error)\s*\(/); skinmapScripts.forEach((source)=>assert.doesNotMatch(source,/console\.(?:log|warn|error)\s*\(/));
+assert.match(questionnaire,/!validation\?\.success/); assert.match(migration,/enable row level security/i); assert.match(migration,/skinmap_leads_admin_read[\s\S]*?using \(is_admin\(\)\)/i);
+console.log('SkinMap static checks: OK');
