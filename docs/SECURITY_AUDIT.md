@@ -286,7 +286,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-017 | Média potencial | Objetos órfãos em bucket público | Revisar conteúdo/consentimento de 11 objetos antes de decidir remoção ou migração |
 | SEC-018 | Média | Histórico de migrations não reconciliado | Comparar SQL aplicado com arquivos versionados antes de novas implantações |
 | SEC-019 | Baixa/média | URLs externas HTTP e protocol-relative | Corrigido; teste estático e checagem de sintaxe aprovados; revisar todos os chamadores |
-| SEC-020 | Média | Código de Edge Function divergia do repositório | Comportamentos reconciliados na branch e CI passou; validar em homologação antes de redeploy |
+| SEC-020 | Média | Código de Edge Functions e versões de SDK divergiam | Código funcional reconciliado; branch fixa SDK 2.117.3; produção ainda exige redeploy aprovado |
 | SEC-021 | Média | Drift de migrations e políticas RLS permissivas redundantes | Mapear equivalências por conteúdo e testar isolamento com contas fictícias antes de simplificar políticas |
 | SEC-022 | Média | Sanitizador de HTML podia preservar descendentes ativos de tags rejeitadas | Corrigido na branch; CI passou; teste dinâmico de navegador ainda pendente |
 | SEC-023 | Baixa/média | URLs de imagem e texto dinâmico sem validação/escape nas páginas públicas | Corrigido na branch; CI passou; continuar rastreamento de atributos dinâmicos |
