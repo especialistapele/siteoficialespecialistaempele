@@ -28,6 +28,12 @@ REVOKE TRUNCATE, REFERENCES, TRIGGER, MAINTAIN ON TABLES FROM anon, authenticate
 ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public
 REVOKE TRUNCATE, REFERENCES, TRIGGER, MAINTAIN ON TABLES FROM anon, authenticated;
 
+-- O ACL padrão observado para funções criadas por supabase_admin concede
+-- EXECUTE a anon/authenticated. Revogar para novas funções exige GRANT
+-- explícito em cada RPC que deva ser acessível pelo frontend.
+ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public
+REVOKE EXECUTE ON FUNCTIONS FROM anon, authenticated;
+
 COMMIT;
 
 -- Verificação pós-aplicação (esperado: 0 em ambas as colunas):
