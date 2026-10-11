@@ -71,6 +71,10 @@ assert.ok(publicSupabaseClient.includes("@supabase/supabase-js@2.117.3/+esm"), "
 assert.ok(!publicSupabaseClient.includes("@supabase/supabase-js@2/+esm"), "SDK Supabase não deve usar versão flutuante");
 assert.ok(auth.includes("@supabase/supabase-js@2.117.3/+esm"), "SDK Supabase do painel deve usar versão exata");
 assert.ok(edgeFunctionSources.every((source) => source.includes("jsr:@supabase/supabase-js@2.117.3")), "Edge Functions devem usar versão exata do SDK");
+assert.ok(edgeFunctionSources[2].includes("const MANIFEST_URLS = ["), "reconciliar-publicacao deve manter fallback de manifesto");
+assert.ok(edgeFunctionSources[2].includes("const normalizarPath ="), "reconciliar-publicacao deve normalizar caminhos do manifesto");
+assert.ok(edgeFunctionSources[2].includes("httpStatus >= 200 && httpStatus < 400"), "reconciliação publicada deve validar o status HTTP");
+assert.ok(edgeFunctionSources[2].includes("manifest_errors: manifestErrors"), "falha em todos os manifestos deve expor diagnóstico sem confirmar publicação");
 assert.ok(edgeFunctionSources.every((source) => !source.includes("jsr:@supabase/supabase-js@2\"")), "Edge Functions não devem usar versão flutuante");
 assert.ok(sharedSanitize.includes("!raw.startsWith('//')"), "safeUrl deve rejeitar URLs protocol-relative");
 assert.ok(sharedSanitize.includes("url.origin === window.location.origin || url.protocol === 'https:'"), "safeUrl deve rejeitar HTTP externo");
