@@ -237,6 +237,32 @@ for (const [input, expectedGoal] of pendingAnswerScenarios) {
 }
 
 
+
+// Regressão da extração de detalhes: os padrões devem usar escapes RegExp reais,
+// não barras invertidas literais duplicadas no código-fonte.
+if (source.includes(String.raw`match(/\\b(?:ha|faz)`)) {
+  errors.push("extração de duração contém \\b duplicado e não reconhece duração natural");
+}
+if (source.includes(String.raw`match(/\\b(?:me incomoda|me preocupa)`)) {
+  errors.push("extração da necessidade contém \\b duplicado");
+}
+if (source.includes(String.raw`pretendo)\\s+`)) {
+  errors.push("normalização do objetivo contém \\s duplicado");
+}
+const durationProbe = "há aproximadamente 3 meses".normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  .match(/\b(?:ha|faz)\s+(?:cerca de\s+|aproximadamente\s+|mais de\s+)?\d+\s+(?:dias?|semanas?|meses?|anos?)\b/);
+if (!durationProbe || durationProbe[0] !== "ha aproximadamente 3 meses") {
+  errors.push("regressão: a duração 'há aproximadamente 3 meses' não é reconhecida");
+}
+const needProbe = "me incomoda a oleosidade".match(/\b(?:me incomoda|me preocupa|o que mais me incomoda e|principalmente me incomoda)\s+([^.!?]+)/);
+if (!needProbe || needProbe[1].trim() !== "a oleosidade") {
+  errors.push("regressão: a necessidade declarada não é extraída corretamente");
+}
+const goalProbe = "quero controlar a oleosidade".match(/\b(?:meu objetivo e|quero|gostaria de|pretendo)\s+([^.!?]+)/);
+if (!goalProbe || goalProbe[1].trim() !== "controlar a oleosidade") {
+  errors.push("regressão: o objetivo declarado não é extraído corretamente");
+}
+
 if (errors.length) {
   console.error("ERROS DE COMPORTAMENTO DO BOT:");
   errors.forEach((e) => console.error("-", e));
