@@ -18,6 +18,7 @@ const anamnesisConceptMigration = readFileSync("supabase/migrations/202610111800
 const submitAnamnesisMigration = readFileSync("supabase/migrations/20261011210000_harden_submit_anamnesis_concept_mapping.sql", "utf8");
 const botSource = readFileSync("assets/js/bot-triagem.js", "utf8");
 const botLoggingMigration = readFileSync("supabase/migrations/20261011200000_harden_public_bot_logging.sql", "utf8");
+const intakeValidationMigration = readFileSync("supabase/migrations/20261011230000_validate_public_pre_atendimento.sql", "utf8");
 const publicSupabaseClient = readFileSync("assets/js/supabase-client.js", "utf8");
 const edgeFunctionSources = [
   readFileSync("supabase/functions/create-patient/index.ts", "utf8"),
@@ -124,6 +125,10 @@ assert.ok(botLoggingMigration.includes("REVOKE INSERT ON public.bot_conversation
 assert.ok(botLoggingMigration.includes("public.bot_session_matches(conversation_id, session_id)"), "mensagens devem validar a sessão associada à conversa");
 assert.ok(botLoggingMigration.includes("CHECK (length(message) <= 4000)"), "mensagens do bot devem ter tamanho máximo no banco");
 assert.ok(botLoggingMigration.includes("CHECK (sender IN ('visitor', 'bot', 'system'))"), "sender do bot deve aceitar apenas valores conhecidos");
+assert.ok(intakeValidationMigration.includes("NEW.status := 'novo';"), "status de pré-atendimento deve ser definido no servidor");
+assert.ok(intakeValidationMigration.includes("NEW.created_at := now();"), "timestamp do pré-atendimento deve ser definido no servidor");
+assert.ok(intakeValidationMigration.includes("length(NEW.observacoes) > 4000"), "campos públicos do pré-atendimento devem ter limite de tamanho");
+assert.ok(intakeValidationMigration.includes("SET search_path TO pg_catalog, public"), "trigger do pré-atendimento deve fixar search_path");
 assert.ok(botLoggingMigration.includes("SET search_path TO pg_catalog, public"), "RPCs do bot devem fixar search_path");
 assert.ok(botLoggingMigration.includes("position(chr(92) in p_page_path) > 0"), "RPC do bot deve rejeitar barra invertida no caminho");
 assert.ok(botLoggingMigration.includes("p_page_path ~ '[[:cntrl:]]'"), "RPC do bot deve rejeitar caracteres de controle no caminho");
