@@ -35,6 +35,7 @@ BEGIN
         'support_documents_admin_all',
         'admin_full_access_testimonials',
         'documentos_admin_gerencia',
+        'documentos_paciente_le_anamnese',
         'site_media_admin_gerencia'
       ]::name[])
       AND (
