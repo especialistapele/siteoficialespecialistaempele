@@ -239,6 +239,13 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Correção:** fallback agora gera UUID v4 usando `crypto.getRandomValues` quando disponível e mantém o formato UUID mesmo no fallback de compatibilidade.
 - **Risco residual:** testar em navegador de homologação sem `crypto.randomUUID`; o fallback sem Web Crypto usa `Math.random` e não oferece a mesma entropia criptográfica.
 
+### SEC-035 — Formulário público aceitava status e campos sem validação server-side
+- **Gravidade:** média (integridade do atendimento e abuso de recursos).
+- **Status:** trigger de validação proposto na branch; CI pendente; sem INSERT em produção.
+- **Evidência:** a policy de INSERT público em `pre_atendimentos` permite a gravação de uma linha sem validação de comprimento ou restrição do campo `status`. O formulário normal envia apenas dados de contato/queixa, mas chamadas diretas à API poderiam tentar definir `status` ou enviar campos excessivamente grandes.
+- **Correção proposta:** `supabase/migrations/20261011230000_validate_public_pre_atendimento.sql` valida nome, telefone, e-mail, idade e comprimentos dos campos; força `status='novo'` e `created_at=now()` no servidor. Não foi aplicada.
+- **Risco residual:** a trigger não limita a frequência de envios por IP e não substitui CAPTCHA/Edge Function; rate limit server-side permanece pendente.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
@@ -256,7 +263,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 
 - **Adicionado:** `tests/painel-auth-security.mjs`, com verificações estáticas de fail-closed, guards, logout, mensagens genéricas, parsing do script inline, ausência de chave privilegiada no frontend e escaping dos sinks identificados.
 - **Executado com sucesso no GitHub Actions no commit `f901aa447b01650995e4d8770128ca39c6d54df6`:** [Security audit checks](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38151019959), [Validação de sintaxe dos HTML](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38151019939) e [Bot triagem — validação](https://github.com/especialistapele/siteoficialespecialistaempele/actions/runs/38151019952). A checagem cobre sanitizador, sinks públicos, path traversal em diretório temporário, PDF de contratos, migrações propostas, RPC de logging do bot, limites de payload e fallback UUID. Isso não substitui testes reais de autorização nem aplicação das migrations em homologação.
-- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, validação em homologação das migrations de políticas/assinaturas/conceitos/bot, geração completa de páginas estáticas em ambiente de teste, teste funcional dos modelos de contrato/assinatura/PDF, do bot e da Edge Function reconciliada, desenho de rate limit, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
+- **Pendente:** teste real de isolamento A/B via RLS, tentativas de modificar papel, validação de upload, teste dinâmico do sanitizador com HTML aninhado, validação em homologação das migrations de políticas/assinaturas/conceitos/bot/pré-atendimento, geração completa de páginas estáticas em ambiente de teste, teste funcional dos modelos de contrato/assinatura/PDF, do bot e da Edge Function reconciliada, desenho de rate limit para bot e pré-atendimento, testes de falha de conexão e revisão completa dos atributos dinâmicos. Não foram executadas operações de escrita no banco nem testes destrutivos.
 - **Propostas SQL de revisão:** `docs/sql/REVIEW_ONLY_revoke_excessive_client_table_privileges.sql` e `supabase/migrations/20261011150000_scope_admin_rls_policies_to_authenticated.sql`; nenhum dos arquivos foi aplicado. A migration de RLS requer teste específico em ambiente de homologação antes de qualquer implantação.
 
 ## Matriz de riscos pendentes
@@ -294,6 +301,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-032 | Média | Criação de conversa do bot dependia de SELECT público inexistente | RPC proposta, frontend atualizado e CI passou; testar com visitante anônimo em homologação |
 | SEC-033 | Média-baixa | Registros públicos do bot sem rate limit server-side | Pendente; avaliar Edge Function proxy e limites de volume |
 | SEC-034 | Baixa/média | Fallback de sessão do bot não respeitava tipo UUID | Corrigido na branch; testes de cenário passaram; testar navegador sem `crypto.randomUUID` |
+| SEC-035 | Média | Formulário público aceitava status/campos sem validação server-side | Trigger proposta; aguardar CI e validar formulário em homologação; rate limit continua pendente |
 
 ## Limitações e próximos passos
 
