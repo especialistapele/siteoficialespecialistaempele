@@ -1,0 +1,137 @@
+/* SkinMap — identidade visual Especialista em Pele
+   Paleta alinhada ao site oficial: dourado, creme e verde-escuro.
+   Mantém os componentes e fluxos do SkinMap. */
+:root {
+  --primary: #c9a45b;
+  --primary-hover: #b18b43;
+  --primary-dark: #26312d;
+  --primary-light: #f4eee3;
+  --lilac: #eadcc0;
+  --white: #fffdf8;
+  --bg: #f4eee3;
+  --text: #26312d;
+  --text-secondary: #56615b;
+  --text-light: #56615b;
+  --border: #e4d8c3;
+  --shadow: 0 20px 55px rgba(38,49,45,.10);
+}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+h1, h2, h3, h4, .logo, .foot-brand {
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+}
+a { color: inherit; }
+.logo-mark {
+  background: linear-gradient(135deg, #e4c77f, #c9a45b) !important;
+  border-radius: 50% !important;
+}
+.logo, .logo-sub, .logo-subtitle { color: var(--text) !important; }
+.logo-sub, .logo-subtitle {
+  letter-spacing: .12em !important;
+}
+.screen {
+  width: min(920px, calc(100% - 36px)) !important;
+  max-width: 920px !important;
+  margin: 34px auto !important;
+  padding: clamp(24px, 4.5vw, 56px) !important;
+  background: #fffdf8 !important;
+  border: 1px solid rgba(201,164,91,.42);
+  border-radius: 6px !important;
+  box-shadow: 0 20px 55px rgba(38,49,45,.10) !important;
+}
+.logo-area { padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+.brand-logo {
+  display: block;
+  width: min(240px, 70%);
+  height: auto;
+  max-height: 76px;
+  object-fit: contain;
+  margin: 0 auto 18px;
+}
+.hero { margin-top: clamp(24px, 4vw, 48px) !important; }
+.hero-icon {
+  background: linear-gradient(135deg, #e4c77f, #c9a45b) !important;
+  color: var(--text) !important;
+  box-shadow: 0 14px 34px rgba(201,164,91,.24) !important;
+}
+.hero h1, .benefits h2, .section-head h2 { color: var(--text) !important; }
+.hero p, .info-card p, footer p, footer small { color: var(--text-secondary) !important; }
+.benefit, .info-card, .step-card, .a-card {
+  border-color: var(--border) !important;
+  background: #fffdf8 !important;
+  box-shadow: 0 8px 24px rgba(38,49,45,.035);
+}
+.benefit:hover { border-color: var(--primary) !important; box-shadow: 0 12px 28px rgba(201,164,91,.13) !important; }
+.info-icon, .step-num, .a-icon {
+  background: var(--primary-light) !important;
+  color: var(--text) !important;
+}
+.highlight {
+  background: linear-gradient(135deg, #26312d, #34443b) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 16px 36px rgba(38,49,45,.14) !important;
+}
+.btn-primary, .btn.btn-primary {
+  background: var(--primary) !important;
+  color: #26312d !important;
+  border: 1px solid #b18b43 !important;
+  border-radius: 3px !important;
+  box-shadow: 0 8px 22px rgba(201,164,91,.20) !important;
+  font-weight: 700 !important;
+}
+.btn-primary:hover, .btn.btn-primary:hover {
+  background: #e4c77f !important;
+  color: #26312d !important;
+  transform: translateY(-2px);
+}
+.cta:not(.highlight) {
+  background: linear-gradient(135deg, #26312d, #34443b) !important;
+  border-radius: 6px !important;
+}
+.cta .btn-primary {
+  background: var(--primary) !important;
+  color: #26312d !important;
+}
+.nav {
+  padding-top: 22px !important;
+}
+.nav .container { gap: 18px; }
+.nav .logo { gap: 10px; }
+.nav .logo-mark { width: 18px; height: 18px; }
+.nav .logo-sub { color: var(--text-secondary) !important; }
+footer {
+  border-color: var(--border) !important;
+  background: #fffdf8 !important;
+}
+.foot-brand { color: var(--text) !important; }
+.foot-sub { color: var(--text-secondary) !important; }
+:focus-visible { outline: 3px solid rgba(201,164,91,.8); outline-offset: 3px; }
+@media (max-width: 600px) {
+  .screen { width: calc(100% - 20px) !important; margin: 10px auto !important; padding: 24px 18px !important; }
+  .logo-row { flex-wrap: wrap; }
+  .logo { font-size: 17px !important; }
+  .benefits-grid { grid-template-columns: 1fr !important; }
+  .nav { padding-top: 14px !important; }
+  .nav .container { padding: 0 18px; }
+  .scan-tag { font-size: 11px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+.brand-logo-nav {
+  display:block;
+  width:clamp(112px, 15vw, 170px);
+  max-height:48px;
+  object-fit:contain;
+  margin-right:8px;
+}
+.nav .logo { text-decoration:none; }
+@media (max-width:600px) {
+  .brand-logo-nav { width:100px; max-height:38px; }
+}
