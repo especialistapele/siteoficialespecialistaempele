@@ -120,7 +120,7 @@ expect(bot.includes('if (topic && topic !== previousContext)'), "troca de tratam
 expect(bot.indexOf('if (topic && topic !== previousContext)') < bot.indexOf('if (state.stage === "presential")'), "troca de tratamento deve ocorrer antes do estágio presencial");
 expect(bot.indexOf('if (topic && topic !== previousContext)') < bot.indexOf('if (state.stage === "online")'), "troca de tratamento deve ocorrer antes do estágio online");
 expect(bot.includes("transcript = Array.isArray(saved.transcript)"), "restauração do histórico não encontrada");
-expect(bot.includes("conversationId = data.id;"), "conversationId não é preservado após criação");
+expect(bot.includes("conversationId = data;"), "conversationId retornado pela RPC não é preservado após criação");
 expect(bot.includes('sessionStorage.setItem("ep-bot-teaser:" + path, "1")'), "teaser não está protegido contra repetição na mesma página");
 expect(bot.includes('els.teaserAction.addEventListener("click", openAssistant)'), "ação do teaser não abre o assistente");
 expect(bot.includes("const teaserTimer = window.setTimeout(showContextualTeaser, 4500)"), "gatilho temporal do teaser não encontrado");
