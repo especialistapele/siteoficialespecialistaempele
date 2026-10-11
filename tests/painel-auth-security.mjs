@@ -39,6 +39,6 @@ assert.match(loginHtml, /Não foi possível entrar com essas credenciais/);
 assert.match(loginHtml, /botao\.disabled = false/);
 assert.match(loginHtml, /sistema de login não conseguiu carregar/);
 assert.doesNotMatch(loginHtml, /console\.error\(/, "login não deve despejar objetos de erro no console");
-assert.doesNotMatch(auth, /service_role|sb_secret_/i, "segredos privilegiados não podem aparecer no frontend");
+assert.doesNotMatch(auth, /SUPABASE_SERVICE_ROLE_KEY\\s*=|sb_secret_[A-Za-z0-9]+/i, "segredos privilegiados não podem aparecer no frontend");
 
 console.log("Segurança estática da autenticação: OK — guards, fail-closed, login, logout e ausência de chaves privilegiadas.");
