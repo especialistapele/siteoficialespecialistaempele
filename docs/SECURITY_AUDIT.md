@@ -89,6 +89,14 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - **Validação necessária antes de executar:** revisar em ambiente de teste, validar os fluxos legítimos e conferir as permissões pós-aplicação. Nenhum privilégio foi alterado no banco conectado.
 - **Risco residual:** a proposta ainda não foi aplicada nem testada em ambiente de homologação; as mudanças de privilégios padrão devem ser validadas com os responsáveis pela administração do projeto.
 
+### SEC-015 — Versão flutuante do Chart.js via CDN
+- **Gravidade:** baixa (risco de cadeia de suprimentos e reprodutibilidade).
+- **Status:** corrigido na branch; teste automatizado incluído.
+- **Evidência:** três páginas administrativas carregavam `https://cdn.jsdelivr.net/npm/chart.js@4`, que permite variar a versão recebida dentro da linha major.
+- **Correção:** referências alteradas para a versão exata `chart.js@4.5.1` em `painel/admin/dashboard.html`, `painel/admin/paciente.html` e `painel/admin/configuracoes.html`. O workflow desta branch usa versões de release específicas de `actions/checkout` e `actions/setup-node` para evitar o aviso de runtime Node 20 observado nos logs.
+- **Referências upstream:** https://github.com/chartjs/Chart.js/releases ; https://github.com/actions/checkout/releases ; https://github.com/actions/setup-node/releases
+- **Risco residual:** não foi possível concluir uma varredura de todos os scripts externos no repositório nem auditar todos os workflows existentes; pinning por versão não substitui SRI ou revisão da cadeia de suprimentos.
+
 ## Escopo verificado até aqui
 
 - Branch principal identificada como `main`; branch de auditoria criada separadamente.
@@ -97,7 +105,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - Supabase: listagem de tabelas, status RLS, políticas relevantes, buckets, grants efetivos para roles cliente e Security Advisor; inspeção parcial de três Edge Functions e dos corpos de funções SQL selecionadas.
 - Todas as tabelas listadas nos schemas `public` e `storage` retornaram RLS habilitado na consulta de metadados. Isso não é uma prova de que cada política seja correta, nem testa privilégios reais por role.
 - Bucket `documentos-pacientes`: privado. Bucket `site-media`: público, comportamento compatível com mídia pública se intencional.
-- O SDK Supabase é importado de CDN com versão especificada `@2.117.2`. A integridade da cadeia de suprimentos e a disponibilidade/versionamento efetivo da CDN ainda precisam ser avaliados.
+- O SDK Supabase é importado de CDN com versão especificada `@2.117.2`. Chart.js foi fixado em `4.5.1` nas três páginas administrativas encontradas. A integridade/SRI e o inventário de todas as dependências externas ainda precisam ser avaliados.
 - `robots.txt` bloqueia rastreamento de `/painel/`; isso não é controle de acesso.
 - A chave `anon` presente no frontend é pública por desenho e não foi classificada como segredo privilegiado. Não foi encontrado uso de `service_role` no arquivo de autenticação revisado.
 
@@ -122,7 +130,8 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 | SEC-011 | Alta potencial | Auditoria de todas as páginas privadas | Inventariar guards e consultas em todo o repositório |
 | SEC-012 | Média | Segredos no histórico Git | Executar varredura dedicada e documentar rotação se necessário |
 | SEC-013 | Média | Cabeçalhos/HTTPS/cache | Confirmar hospedagem e configuração efetiva fora do repositório |
-| SEC-014 | Média | Dependências e Actions | Inventariar workflows, versões de actions, lockfiles e executar scanners |
+| SEC-015 | Baixa | Versão flutuante do Chart.js | Corrigida na branch; aguardar CI e rastrear outras dependências |
+| SEC-014 | Média | Dependências e Actions | Chart.js e o workflow novo foram fixados; auditar todos os workflows e dependências restantes |
 
 ## Limitações e próximos passos
 
