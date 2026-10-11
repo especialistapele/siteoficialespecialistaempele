@@ -125,6 +125,8 @@ assert.ok(botLoggingMigration.includes("public.bot_session_matches(conversation_
 assert.ok(botLoggingMigration.includes("CHECK (length(message) <= 4000)"), "mensagens do bot devem ter tamanho máximo no banco");
 assert.ok(botLoggingMigration.includes("CHECK (sender IN ('visitor', 'bot', 'system'))"), "sender do bot deve aceitar apenas valores conhecidos");
 assert.ok(botLoggingMigration.includes("SET search_path TO pg_catalog, public"), "RPCs do bot devem fixar search_path");
+assert.ok(botLoggingMigration.includes("position(chr(92) in p_page_path) > 0"), "RPC do bot deve rejeitar barra invertida no caminho");
+assert.ok(botLoggingMigration.includes("p_page_path ~ '[[:cntrl:]]'"), "RPC do bot deve rejeitar caracteres de controle no caminho");
 assert.ok(anamnesisConceptMigration.includes("SET search_path TO pg_catalog, public"), "trigger SECURITY DEFINER deve fixar search_path seguro");
 assert.ok(contractAdmin.includes("const signatureUrl = safeUrl(data?.signedUrl);"), "URL da assinatura deve ser validada antes da interpolação");
 assert.ok(contractAdmin.includes('src="${escapeHtml(signatureUrl)}"'), "URL da assinatura deve ser escapada no atributo HTML");
