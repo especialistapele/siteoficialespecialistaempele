@@ -156,6 +156,7 @@ As primeiras correções foram aplicadas nesta branch, sem alterar `main` nem ex
 - Não foram aplicadas migrações nem alterações de configuração ao banco de produção.
 - A listagem de metadados e o advisor não substituem testes de autorização usando identidades distintas.
 - Ainda é necessário completar o inventário de todas as páginas, scripts, workflows, dependências e histórico Git, bem como revisar os demais endpoints.
+- A configuração do projeto na Vercel não pôde ser inspecionada: a API retornou `403 forbidden` para o escopo `especialista-em-pele`. Assim, cabeçalhos, redirects e cache configurados no painel externo permanecem não verificados.
 - O formulário público `/pre-atendimento/` continua aceitando inserções diretas na tabela; o endurecimento real exige backend/rate limiting e validação jurídica/operacional.
 - Avaliar juridicamente retenção, consentimento, compartilhamento e procedimentos de incidentes LGPD; esta auditoria técnica não certifica conformidade legal.
 - As alterações desta branch devem permanecer em revisão até que os testes e o relatório sejam concluídos.
