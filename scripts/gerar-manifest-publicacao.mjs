@@ -14,6 +14,7 @@
 
 import { readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { paginaGerada } from "./lib/manifesto.mjs";
 
 const SITE = "https://www.especialistaempele.com.br";
 const dirs = ["blog", "resultados", "tratamentos"];
@@ -41,7 +42,7 @@ for (const dir of dirs) {
     const id = meta(html, "conteudo-id");
     const moved = meta(html, "conteudo-movido-para");
     const canonicalUrl = canonical(html);
-    const generated = /AUTO-GENERATED:(?:TREATMENT-PAGE|)/i.test(html) || !!id;
+    const generated = paginaGerada(html, id);
     items.push({
       path,
       url: `${SITE}/${path}`,
