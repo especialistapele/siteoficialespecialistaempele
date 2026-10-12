@@ -54,6 +54,9 @@ export function paginaHtml(a, { relacionados = [], dimCapa = null } = {}) {
   const capa = urlSegura(a.cover_image_url);
   const imagemMeta = capa || `${SITE}/assets/hero-fallback.webp`;
   const altCapa = `Imagem de capa do artigo: ${a.title}`;
+  const imagemVisivel = capa || `${SITE}/assets/hero-fallback.webp`;
+  const altImagemVisivel = capa ? altCapa : `Imagem ilustrativa sobre saúde da pele — ${a.title}`;
+  const dimImagemVisivel = dimCapa || (!capa ? { w: 1374, h: 544 } : null);
   const publicado = dataISO(a.published_at);
   const modificado = dataISO(a.updated_at) || publicado;
   const trat = a.treatments || null;
@@ -151,7 +154,7 @@ ${cabecalho("blog")}
     <p class="card__meta texto-centro">${dataTxt ? `Publicado em <time datetime="${publicado}">${escapeHtml(dataTxt)}</time>` : ""}${mostrarAtualizacao ? ` · Atualizado em <time datetime="${modificado}">${escapeHtml(atualizadoTxt)}</time>` : ""}${trat ? " · " + escapeHtml(trat.name) : ""}</p>
     <h1 class="texto-centro">${escapeHtml(a.title)}</h1>
     <p class="card__meta texto-centro">Por <a href="/quemsomos.html" rel="author">Danielle Brito</a> — Especialista em Pele</p>
-    ${capa ? `<img src="${escapeHtml(capa)}" alt="${escapeHtml(altCapa)}"${attrDim(dimCapa)} style="width:100%;height:auto;border-radius:10px;margin:24px 0" fetchpriority="high" decoding="async">` : ""}
+    <img src="${escapeHtml(imagemVisivel)}" alt="${escapeHtml(altImagemVisivel)}"${attrDim(dimImagemVisivel)} style="width:100%;height:auto;border-radius:10px;margin:24px 0" fetchpriority="high" decoding="async">
     <div class="artigo-corpo">${corpo}</div>
     ${ctaHtml}
     ${faq.length ? `<section class="artigo-faq" aria-labelledby="faq-titulo"><h2 id="faq-titulo">Perguntas frequentes</h2>${faq.map((item) => `<details><summary>${escapeHtml(item.pergunta)}</summary><div class="faq-resposta">${renderizarConteudo(item.resposta)}</div></details>`).join("")}</section>` : ""}
