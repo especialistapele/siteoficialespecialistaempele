@@ -58,7 +58,11 @@ async function main() {
 
   for (const caminho of htmlFiles("tratamentos")) validarArquivo(caminho, false);
 
-  const tratamentos = await buscar("treatments?select=id,slug,published&published=eq.true");
+  const [tratamentos, artigos, resultados] = await Promise.all([
+    buscar("treatments?select=id,slug,published&published=eq.true"),
+    buscar("articles?select=id,public_id,slug,published&published=eq.true"),
+    buscar("results?select=id,public_id,slug,published,consent_confirmed&published=eq.true&consent_confirmed=eq.true"),
+  ]);
   const arquivosTratamentos = htmlFiles("tratamentos");
   const nomesTratamentos = new Set(arquivosTratamentos.map((p) => p.split("/").pop()));
   for (const t of tratamentos) {
@@ -68,7 +72,31 @@ async function main() {
 
   }
 
+  // Conferir que cada registro publicável tem identidade estável, slug único
+  // após normalização e página estática correspondente.
+  for (const [nome, dir, registros] of [
+    ["artigo", "blog", artigos],
+    ["resultado", "resultados", resultados],
+  ]) {
+    const slugs = new Map();
+    for (const item of registros) {
+      if (!item.public_id) erros.push(`${nome} ${item.id}: publicado sem public_id.`);
+      if (!item.slug) { erros.push(`${nome} ${item.id}: publicado sem slug.`); continue; }
+      const slug = slugify(item.slug);
+      if (!slug) { erros.push(`${nome} ${item.id}: slug inválido após normalização.`); continue; }
+      if (slugs.has(slug)) erros.push(`${nome}: slug duplicado após normalização "${slug}" (IDs ${slugs.get(slug)} e ${item.id}).`);
+      else slugs.set(slug, item.id);
+      const arquivo = `${dir}/${slug}.html`;
+      if (!existsSync(arquivo)) erros.push(`${nome} publicado sem página estática: ${arquivo}`);
+    }
+  }
+
   const sitemap = extrairSitemap(), sitemapSet = new Set(sitemap);
+  if (sitemap.length !== sitemapSet.size) {
+    const contagens = new Map();
+    for (const url of sitemap) contagens.set(url, (contagens.get(url) || 0) + 1);
+    for (const [url, quantidade] of contagens) if (quantidade > 1) erros.push(`URL duplicada no sitemap (${quantidade} vezes): ${url}`);
+  }
   const skinMapUrl = `${SITE}/skinmap/skinmapinicio.html`;
   if (!existsSync("skinmap/skinmapinicio.html")) erros.push("Página inicial do SkinMap não existe: skinmap/skinmapinicio.html");
   if (!sitemapSet.has(skinMapUrl)) erros.push("Página inicial do SkinMap fora do sitemap: skinmap/skinmapinicio.html");
