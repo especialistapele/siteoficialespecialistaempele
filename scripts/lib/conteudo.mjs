@@ -236,6 +236,7 @@ export function paginaRedirecionamento(id, destinoAbsoluto) {
 <title>Página movida — Especialista em Pele</title>
 ${marcadorId(id)}
 <meta name="conteudo-movido-para" content="${u}">
+<meta name="robots" content="noindex,follow">
 <link rel="canonical" href="${u}">
 <meta http-equiv="refresh" content="0; url=${u}">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
