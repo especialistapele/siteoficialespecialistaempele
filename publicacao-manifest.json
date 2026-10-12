@@ -18,7 +18,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/acne-e-estresse.html",
       "redirect_to": null,
-      "sha256": "f08bb00e8591bee2850c09eecf0d245b8b4a8046e4407f6be9c9005bb46d034e"
+      "sha256": "228477db4820b097ba3ab9098deb3d68d2b098b8ddfc97b5e85855401c53115a"
     },
     {
       "path": "blog/acne-hormonal-feminina.html",
@@ -28,7 +28,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/acne-hormonal-feminina.html",
       "redirect_to": null,
-      "sha256": "9e187286cfc43063a9bfdcf4d2817fd1cc054af6e2f92f1bc8900e8ee7a1bdd8"
+      "sha256": "1ea9ac797f1a7bd23160042ccafbde1918f4e823053229429a6c8df6dd463825"
     },
     {
       "path": "blog/como-escolher-um-tratamento-para-melasma.html",
@@ -58,7 +58,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/por-que-a-acne-persiste.html",
       "redirect_to": null,
-      "sha256": "59c6fe71c0ce1921b7ef42f55abf74df4cb6e0ddd38732edd9fd59f9a53316b1"
+      "sha256": "bd46930028cc5988402c2eca695201b7cf444e0daae848b65d222a006563a381"
     },
     {
       "path": "blog/rejuvenescimento-facial-ou-harmonizacao.html",
@@ -701,5 +701,5 @@
       "sha256": "055a1219cc6c3be5ddf0dc9ead0037332b6d8993b952612ffe8f877f55bfd4a5"
     }
   ],
-  "generated_at": "2026-10-12T22:19:19.894Z"
+  "generated_at": "2026-10-12T23:01:31.247Z"
 }
