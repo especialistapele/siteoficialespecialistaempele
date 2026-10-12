@@ -8,7 +8,7 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 65,
+  "total": 66,
   "items": [
     {
       "path": "blog/acne-hormonal-feminina.html",
@@ -139,6 +139,16 @@
       "canonical": "https://www.especialistaempele.com.br/resultados/poros-dilatados.html",
       "redirect_to": null,
       "sha256": "9ad78a31ff9cc6939a63ef5cd2ef981b45e2c57c3adf52f9f5416475f3bc04ee"
+    },
+    {
+      "path": "resultados/reducao-corporal-com-apenas-tres-sessoes.html",
+      "url": "https://www.especialistaempele.com.br/resultados/reducao-corporal-com-apenas-tres-sessoes.html",
+      "id": "RESULTADO-000041",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/reducao-corporal-com-apenas-tres-sessoes.html",
+      "redirect_to": null,
+      "sha256": "3dcc0d8f98f8cf16acf96e427196bd938af881bbe681e38db1be9c47a1b76096"
     },
     {
       "path": "resultados/rejuvenescimento-de-colo.html",
@@ -661,5 +671,5 @@
       "sha256": "d39bfaa70c55413c91e6dc3299c44f3e024cde39c6c33a03edae79bac9ba9693"
     }
   ],
-  "generated_at": "2026-10-12T11:45:02.860Z"
+  "generated_at": "2026-10-12T11:48:15.899Z"
 }
