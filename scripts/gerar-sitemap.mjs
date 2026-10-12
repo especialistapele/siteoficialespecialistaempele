@@ -207,8 +207,13 @@ async function main() {
   const urlsTratamentos = new Set();
   for (const t of tratamentos) {
     if (!t.slug) continue;
-    const loc = `${SITE}/tratamentos/${slugifyUrl(t.slug)}.html`;
+    const slug = slugifyUrl(t.slug);
+    const loc = `${SITE}/tratamentos/${slug}.html`;
     if (urlsTratamentos.has(loc)) continue;
+    // A página pode ter sido marcada como noindex no HTML gerado.
+    // Respeita a diretiva e evita anunciá-la ao buscador.
+    const caminho = `tratamentos/${slug}.html`;
+    if (existsSync(caminho) && temNoindex(readFileSync(caminho, "utf-8"))) continue;
     urlsTratamentos.add(loc);
     entradas.push(urlXml({ loc, lastmod: ultimaData(t), changefreq: "monthly", priority: "0.7" }));
   }
