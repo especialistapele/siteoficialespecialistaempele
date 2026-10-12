@@ -23,7 +23,7 @@
 // ============================================================
 
 import { writeFileSync, mkdirSync, existsSync, readFileSync, readdirSync, unlinkSync } from "node:fs";
-import { resumir } from "./lib/conteudo.mjs";
+import { resumir, tituloSeo } from "./lib/conteudo.mjs";
 
 const SITE = "https://www.especialistaempele.com.br";
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://clwaotfbqwvxpykruwed.supabase.co";
@@ -73,7 +73,7 @@ async function buscarPublicados(tabela) {
 
 export function paginaHtml(t) {
   const slugArquivo = slugifyUrl(t.slug);
-  const tituloCompleto = `${t.name} — Especialista em Pele`;
+  const tituloCompleto = tituloSeo(t.name);
   const resumoBruto = (t.summary || t.description || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
   const descricaoMeta = (resumir(resumoBruto, 155) || "Tratamento regenerativo — Especialista em Pele.");
   const urlCanonica = `${SITE}/tratamentos/${slugArquivo}.html`;
