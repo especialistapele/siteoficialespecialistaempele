@@ -55,6 +55,24 @@ test("título SEO não acrescenta marca quando ultrapassa o limite, sem truncar 
   assert.equal(tituloSeo("Acne e saúde da pele"), "Acne e saúde da pele — Especialista em Pele");
 });
 
+test("artigo sem capa usa imagem alternativa visível e metadados de compartilhamento", () => {
+  const html = paginaArtigoHtml({
+    public_id: "TEST-SEO-000004",
+    slug: "artigo-sem-capa",
+    title: "Artigo sem capa",
+    excerpt: "Conteúdo de teste.",
+    content: "Conteúdo de teste.",
+    published_at: null,
+    updated_at: null,
+    cover_image_url: "",
+    treatments: null,
+  });
+  const fallback = "https://www.especialistaempele.com.br/assets/hero-fallback.webp";
+  assert.ok(html.includes('<img src="' + fallback + '" alt="Imagem ilustrativa sobre saúde da pele — Artigo sem capa"'));
+  assert.ok(html.includes('<meta property="og:image" content="' + fallback + '">'));
+  assert.ok(html.includes('<meta name="twitter:image" content="' + fallback + '">'));
+});
+
 test("gerador de artigos mantém title, Open Graph e Twitter alinhados", () => {
   const titulo = "Por que a acne persiste mesmo com cuidados adequados";
   const html = paginaArtigoHtml({
