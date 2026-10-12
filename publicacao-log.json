@@ -157,8 +157,21 @@
       "workflow_run_id": "38245648213",
       "workflow_sha": "64d863446c3f407befdaaac6bc71faa9d3e8ec1b",
       "ref": "main"
+    },
+    {
+      "request_id": "fa5fd81c-bfd6-4464-977e-cf6934de34cd",
+      "status": "success",
+      "trigger": "panel",
+      "path": "resultados/resultado-imediato-com-a-limpeza-de-pele-nanotecnologica.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-10-12T11:57:57.531Z",
+      "completed_at": "2026-10-12T11:59:22.170Z",
+      "workflow_run_id": "38246032789",
+      "workflow_sha": "24b9edb83cb67f2a65ce42ac3b0490814d2a00b5",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-12T11:54:45.487Z",
-  "total": 12
+  "updated_at": "2026-10-12T11:59:22.170Z",
+  "total": 13
 }
