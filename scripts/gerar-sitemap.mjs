@@ -17,7 +17,7 @@
 // do Google), então não é preciso um sitemap de imagens separado.
 // ============================================================
 
-import { writeFileSync, readdirSync, readFileSync } from "node:fs";
+import { writeFileSync, readdirSync, readFileSync, existsSync } from "node:fs";
 import { temNoindex } from "./lib/sitemap.mjs";
 
 const SITE = "https://www.especialistaempele.com.br";
@@ -166,6 +166,11 @@ async function main() {
 
   for (const a of artigos) {
     if (!a.slug || !a.public_id) continue;
+    // Não anunciar no sitemap uma página que explicitamente pede noindex.
+    // Se o arquivo não existir, mantemos a URL para que o validador de
+    // publicação detecte a inconsistência em vez de ocultar o erro.
+    const caminho = `blog/${slugifyUrl(a.slug)}.html`;
+    if (existsSync(caminho) && temNoindex(readFileSync(caminho, "utf-8"))) continue;
     // Página estática pré-renderizada em /blog/<slug>.html
     // (gerada por gerar-paginas-artigos.mjs).
     entradas.push(urlXml({
@@ -184,6 +189,10 @@ async function main() {
   }
   for (const r of resultados) {
     if (!r.slug || !r.public_id) continue;
+    // A mesma regra vale para páginas de resultados: redirects e outras
+    // páginas marcadas noindex não devem entrar no sitemap.
+    const caminho = `resultados/${slugifyUrl(r.slug)}.html`;
+    if (existsSync(caminho) && temNoindex(readFileSync(caminho, "utf-8"))) continue;
     // Página estática em /resultados/<slug>.html (gerada por
     // gerar-paginas-resultados.mjs), com todas as fotos do caso.
     entradas.push(urlXml({
