@@ -1,7 +1,10 @@
 import test from "node:test";
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import assert from "node:assert/strict";
 import { paginaHtml } from "../gerar-paginas-tratamentos.mjs";
-import { resumir, tituloSeo } from "../lib/conteudo.mjs";
+import { resumir, tituloSeo, sincronizarPastas } from "../lib/conteudo.mjs";
 import { paginaHtml as paginaArtigoHtml } from "../gerar-paginas-artigos.mjs";
 import { paginaHtml as paginaResultadoHtml } from "../gerar-paginas-resultados.mjs";
 
@@ -69,4 +72,25 @@ test("gerador de resultados mantém o título SEO conciso e os metadados alinhad
   assert.ok(html.includes('<meta property="og:title" content="' + titleSeo + '">'));
   assert.ok(html.includes('<meta name="twitter:title" content="' + titleSeo + '">'));
   assert.ok(!html.includes(titleSeo + " — Especialista em Pele"), "marca não deve alongar ainda mais o título");
+});
+
+test("sincronização não apaga páginas geradas quando a lista de publicados vem vazia", () => {
+  const originalCwd = process.cwd();
+  const originalOverride = process.env.ALLOW_EMPTY_PUBLICATION_SYNC;
+  const temp = mkdtempSync(join(tmpdir(), "seo-sync-"));
+  try {
+    process.chdir(temp);
+    mkdirSync("blog", { recursive: true });
+    writeFileSync("blog/artigo-existente.html", '<meta name="conteudo-id" content="BLOG-TESTE">');
+    delete process.env.ALLOW_EMPTY_PUBLICATION_SYNC;
+    assert.throws(
+      () => sincronizarPastas({ pastas: ["blog"], urlBase: "https://example.com/blog", itens: [], log: () => {} }),
+      /Sincronização abortada/
+    );
+  } finally {
+    process.chdir(originalCwd);
+    rmSync(temp, { recursive: true, force: true });
+    if (originalOverride === undefined) delete process.env.ALLOW_EMPTY_PUBLICATION_SYNC;
+    else process.env.ALLOW_EMPTY_PUBLICATION_SYNC = originalOverride;
+  }
 });
