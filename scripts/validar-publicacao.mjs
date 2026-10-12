@@ -107,11 +107,27 @@ async function main() {
   }
   for (const caminho of htmlFiles("blog")) if (!sitemapSet.has(`${SITE}/${caminho}`)) avisos.push(`Página de blog fora do sitemap: ${caminho}`);
   for (const caminho of htmlFiles("resultados")) if (!sitemapSet.has(`${SITE}/${caminho}`)) avisos.push(`Página de resultado fora do sitemap: ${caminho}`);
+  // Conferir todas as URLs internas do sitemap, não apenas páginas de conteúdo.
+  // URLs com barra final correspondem ao index.html do diretório no build estático.
   for (const url of sitemap) {
-    if (!url.startsWith(SITE + "/")) continue;
-    const path = url.slice(SITE.length + 1);
-    if (/^(blog|resultados|tratamentos)\/.+\.html$/.test(path) && !existsSync(path))
-      erros.push(`Sitemap aponta para arquivo inexistente: ${path}`);
+    let parsed;
+    try { parsed = new URL(url); } catch {
+      erros.push(`URL inválida no sitemap: ${url}`);
+      continue;
+    }
+    if (parsed.origin !== SITE) continue;
+    if (parsed.search || parsed.hash) {
+      erros.push(`URL do sitemap contém query string ou fragmento: ${url}`);
+      continue;
+    }
+    let caminho;
+    try { caminho = decodeURIComponent(parsed.pathname).replace(/^\/+/, ""); } catch {
+      erros.push(`URL do sitemap contém caminho inválido: ${url}`);
+      continue;
+    }
+    if (!caminho) caminho = "index.html";
+    else if (caminho.endsWith("/")) caminho += "index.html";
+    if (!existsSync(caminho)) erros.push(`Sitemap aponta para arquivo inexistente: ${caminho}`);
   }
 
   console.log(`Validação: ${sitemap.length} URLs no sitemap; ${ids.size} páginas com ID; ${erros.length} erro(s); ${avisos.length} aviso(s).`);
