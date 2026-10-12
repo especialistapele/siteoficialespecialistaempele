@@ -508,7 +508,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/acantose.html",
       "redirect_to": null,
-      "sha256": "393fa4fa18125f10aa041e443050db355c3e08c1506c4bfa82126bff315a58bc"
+      "sha256": "d2689a8862e41b41b6474667fd121ddec8c56a7d5282e768a573bb404cff2a0e"
     },
     {
       "path": "tratamentos/acne.html",
@@ -528,7 +528,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/celulite.html",
       "redirect_to": null,
-      "sha256": "6cb0f94389dbb34155f3879ffb727a3a7c2219fdc9e85b02da4f633ec8fb3901"
+      "sha256": "9ad87f6be124fb2f339ee7e4986a939f2234a90cb2f87e2a7875d152460a51b4"
     },
     {
       "path": "tratamentos/cicatriz.html",
@@ -568,7 +568,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/corporal.html",
       "redirect_to": null,
-      "sha256": "3bcfecc93d915f4463b3e9632b1aa54a2c9eb7b9038419e65aa9d43fd3e25d69"
+      "sha256": "b232774ad870a9d77705397db7d34360d6ed147ef2b63389311059e25fbf9236"
     },
     {
       "path": "tratamentos/definicao.html",
@@ -701,5 +701,5 @@
       "sha256": "7b76596169a4f5255d275919b6fc0c9faf05d9d471eebd3e54ffb788e0201e8a"
     }
   ],
-  "generated_at": "2026-10-12T21:47:07.053Z"
+  "generated_at": "2026-10-12T22:08:24.756Z"
 }

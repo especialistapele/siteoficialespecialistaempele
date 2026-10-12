@@ -108,7 +108,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "/tratamentos/sobrancelha.html": "sobrancelha"
 },
   greetings: {
-  "acantose": "Vi que você está conhecendo nosso conteúdo sobre Acantose. O que você gostaria de entender melhor?",
+  "acantose": "Vi que você está conhecendo nosso conteúdo sobre Acantose Nigricans: avaliação e cuidados. O que você gostaria de entender melhor?",
   "acne": "Vi que você está conhecendo nosso conteúdo sobre Acne. O que você gostaria de entender melhor?",
   "celulite": "Vi que você está conhecendo nosso conteúdo sobre Tratamento contra Celulite. O que você gostaria de entender melhor?",
   "cicatrizes": "Vi que você está conhecendo nosso conteúdo sobre Cicatrizes de Acne. O que você gostaria de entender melhor?",
@@ -130,7 +130,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "sobrancelha": "Vi que você está conhecendo nosso conteúdo sobre Despigmentação de Sobrancelhas. O que você gostaria de entender melhor?"
 },
   labels: {
-  "acantose": "Acantose",
+  "acantose": "Acantose Nigricans: avaliação e cuidados",
   "acne": "Acne",
   "celulite": "Tratamento contra Celulite",
   "cicatrizes": "Cicatrizes de Acne",
@@ -153,7 +153,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
 },
   aliases: {
   "acantose": [
-    "Acantose",
+    "Acantose Nigricans: avaliação e cuidados",
     "acantose"
   ],
   "acne": [
