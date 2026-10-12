@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - "scripts/gerar-paginas-tratamentos.mjs"
+      - "scripts/gerar-sitemap.mjs"
+      - "scripts/lib/sitemap.mjs"
+      - "scripts/testes/sitemap.test.mjs"
       - "scripts/validar-publicacao.mjs"
       - "scripts/gerar-paginas-artigos.mjs"
       - "scripts/gerar-paginas-resultados.mjs"
@@ -17,6 +20,10 @@ on:
     branches: [main]
     paths:
       - "scripts/gerar-paginas-tratamentos.mjs"
+      - "scripts/gerar-sitemap.mjs"
+      - "scripts/lib/sitemap.mjs"
+      - "scripts/testes/sitemap.test.mjs"
+      - "scripts/validar-publicacao.mjs"
       - "scripts/gerar-paginas-artigos.mjs"
       - "scripts/gerar-paginas-resultados.mjs"
       - "scripts/lib/conteudo.mjs"
@@ -37,4 +44,4 @@ jobs:
         with:
           node-version: "20"
       - name: Testar metadados gerados
-        run: node --test scripts/testes/seo-geradores.test.mjs scripts/testes/manifest-publicacao.test.mjs
+        run: node --test scripts/testes/seo-geradores.test.mjs scripts/testes/manifest-publicacao.test.mjs scripts/testes/sitemap.test.mjs
