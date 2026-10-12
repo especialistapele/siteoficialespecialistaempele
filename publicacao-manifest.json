@@ -8,7 +8,7 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 66,
+  "total": 67,
   "items": [
     {
       "path": "blog/acne-hormonal-feminina.html",
@@ -119,6 +119,16 @@
       "canonical": "https://www.especialistaempele.com.br/resultados/definicao-abdominal.html",
       "redirect_to": null,
       "sha256": "e66820a66a719e125cf7191727572b00ca55d8e61f0f87300783f97410760389"
+    },
+    {
+      "path": "resultados/limpeza-de-pele-em-idosa.html",
+      "url": "https://www.especialistaempele.com.br/resultados/limpeza-de-pele-em-idosa.html",
+      "id": "RESULTADO-000042",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/limpeza-de-pele-em-idosa.html",
+      "redirect_to": null,
+      "sha256": "90be0f6f36798dc3043306c62306c2171ed216dc79cee8c7066626a3fa6ef58c"
     },
     {
       "path": "resultados/mancha-solar.html",
@@ -238,7 +248,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-01.html",
       "redirect_to": null,
-      "sha256": "65cd4c2c4fe4e8223fb328084cf8b0ae7d076aff376653ce4e3ee25b378b32b3"
+      "sha256": "430f522d6b9b251d02bb2bb0a5f4643235315e3de507d2887b1b11cea08305c1"
     },
     {
       "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-02.html",
@@ -248,7 +258,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-02.html",
       "redirect_to": null,
-      "sha256": "ae49c2bb1917cf862302aa279e4c69be9280e0b785003348461e60976c3715ca"
+      "sha256": "e92ab8b4e39d27eb1600388448b96779f278b9f5cc3caaea51cfcaf08cfca6b2"
     },
     {
       "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-03.html",
@@ -258,7 +268,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-03.html",
       "redirect_to": null,
-      "sha256": "de99d088e5c52db211a398dde5af8b9859868eeaabbe9c4a1facb94c8070f2de"
+      "sha256": "ba24119ca34df87ffab75b75fa800c1e6de5194287c45115a299756d4e7d14a6"
     },
     {
       "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-04.html",
@@ -268,7 +278,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-04.html",
       "redirect_to": null,
-      "sha256": "cfe2563c6f287c97535b7c59c89a3fb77c5256d61fa3bbab22c2460ccf339476"
+      "sha256": "fcfdfea44bb21cc31401a33dbe4e89758c71843b26b6ba0bb205a6052684a6a1"
     },
     {
       "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-05.html",
@@ -278,7 +288,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-05.html",
       "redirect_to": null,
-      "sha256": "700a6987bd6ca2b9b9048a9e048b5d8e4c66655114aac4cadc0ff3c2997a39e1"
+      "sha256": "02b3d096a60203443e7c7a61338b1cf020fef97e0c5834ab3b9b593f9df89f7c"
     },
     {
       "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-06.html",
@@ -288,7 +298,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-06.html",
       "redirect_to": null,
-      "sha256": "032fd0662e6f383c8a61aac0fddf35ec441951f679f3983eeb08bdf9728cbca2"
+      "sha256": "84851faf650b8890c6456d1934774169d9bee07dc2bb07bc8165646505fba597"
     },
     {
       "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-07.html",
@@ -298,7 +308,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-07.html",
       "redirect_to": null,
-      "sha256": "89a2b02171214d96d31fa6ff71170a7e94df0e4554cd4983d68b2c6d31171fb9"
+      "sha256": "22cca33580e2ba6cd062300adbcc2ceafa7c3595e2dd6857a6bb868f466897ae"
     },
     {
       "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-08.html",
@@ -308,7 +318,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-08.html",
       "redirect_to": null,
-      "sha256": "695faa3d57933b771f6c3ab92e03fde94cd8e27ee2e5adcddf1fa6284f196e5f"
+      "sha256": "03d06e893538591ff78aad3c678bfb6e12b9128bbdeac827f3d79e4bd3c27e88"
     },
     {
       "path": "resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-09.html",
@@ -318,7 +328,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-limpeza-de-pele-nanotecnologica-caso-09.html",
       "redirect_to": null,
-      "sha256": "46ca9aa33d4dbf30392c60a6922b90799695b714e6c0795edb277528ec9c762d"
+      "sha256": "9d04a7c8d3dc06b20d6622b1ed59d4a3a0a2f5b4adc0eb7969dbfbdda03e4024"
     },
     {
       "path": "resultados/resultado-de-melasma-caso-01.html",
@@ -671,5 +681,5 @@
       "sha256": "d39bfaa70c55413c91e6dc3299c44f3e024cde39c6c33a03edae79bac9ba9693"
     }
   ],
-  "generated_at": "2026-10-12T11:48:15.899Z"
+  "generated_at": "2026-10-12T11:54:42.667Z"
 }
