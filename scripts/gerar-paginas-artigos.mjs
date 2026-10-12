@@ -35,6 +35,19 @@ const EDITORA = {
   logo: { "@type": "ImageObject", url: `${SITE}/assets/logo-especialista.webp` },
 };
 
+// Ajustes editoriais persistentes para artigos cuja descrição automática
+// ou relação de tratamento não está suficientemente específica no registro.
+const SEO_ARTIGOS = {
+  "acne-e-estresse": {
+    description: "Veja como estresse, sono e hábitos podem influenciar a acne e quais cuidados ajudam a proteger a barreira cutânea durante períodos difíceis.",
+    treatment: { name: "Acne", slug: "acne" },
+  },
+  "acne-hormonal-feminina": {
+    description: "Entenda sinais que podem acompanhar a acne hormonal feminina, fatores envolvidos e cuidados individualizados para pele acneica.",
+    treatment: { name: "Acne", slug: "acne" },
+  },
+};
+
 export async function buscarArtigosPublicados() {
   return buscar("articles?select=*,treatments(name,slug)&published=eq.true&order=published_at.desc");
 }
@@ -49,15 +62,19 @@ function cardArtigo(a) {
 export function paginaHtml(a, { relacionados = [], dimCapa = null } = {}) {
   const tituloCompleto = tituloSeo(a.title);
   const corpo = renderizarConteudo(a.content || "");
-  const descricaoMeta = resumir((a.excerpt || "").trim() || textoPuro(corpo) || "Conteúdo educativo sobre saúde da pele — Especialista em Pele.");
+  const seoArtigo = SEO_ARTIGOS[a.slug] || {};
+  const descricaoMeta = seoArtigo.description || resumir((a.excerpt || "").trim() || textoPuro(corpo) || "Conteúdo educativo sobre saúde da pele — Especialista em Pele.");
   const urlCanonica = urlDoArtigo(a);
   const capa = urlSegura(a.cover_image_url);
   const imagemMeta = capa || `${SITE}/assets/hero-fallback.webp`;
   const altCapa = `Imagem de capa do artigo: ${a.title}`;
   const publicado = dataISO(a.published_at);
   const modificado = dataISO(a.updated_at) || publicado;
-  const trat = a.treatments || null;
-  const ctaUrl = a.cta_url ? urlSegura(a.cta_url, { relativa: true }) : "";
+  const trat = a.treatments || seoArtigo.treatment || null;
+  // URLs podem vir com separadores HTML codificados mais de uma vez no registro.
+  // Normaliza-os antes de escapar o atributo HTML para evitar hrefs quebrados.
+  const ctaUrlRaw = String(a.cta_url ?? "").replace(/&(?:amp;)+/gi, "&");
+  const ctaUrl = a.cta_url ? urlSegura(ctaUrlRaw, { relativa: true }) : "";
   const faq = Array.isArray(a.faq) ? a.faq.map((item) => ({ pergunta: String(item?.pergunta ?? item?.question ?? "").trim(), resposta: String(item?.resposta ?? item?.answer ?? "").trim() })).filter((item) => item.pergunta && item.resposta) : [];
   const ctaHtml = a.cta_label && ctaUrl
     ? `<p class="texto-centro" style="margin-top:28px"><a class="btn btn-dourado" href="${escapeHtml(ctaUrl)}">${escapeHtml(a.cta_label)}</a></p>` : "";
