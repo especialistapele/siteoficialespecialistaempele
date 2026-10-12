@@ -10,19 +10,19 @@ const siteOrigin = new URL(manifest.site).origin;
 
 function caminhoDoUrl(urlString) {
   const url = new URL(urlString);
-  assert.equal(url.origin, siteOrigin, `URL fora do domínio principal no sitemap: ${urlString}`);
-  let caminho = decodeURIComponent(url.pathname).replace(/^\\/+/, "");
+  assert.equal(url.origin, siteOrigin, \`URL fora do domínio principal no sitemap: \${urlString}\`);
+  let caminho = decodeURIComponent(url.pathname).replace(/^\/+/, "");
   if (!caminho || caminho.endsWith("/")) caminho += "index.html";
   const absoluto = resolve(root, caminho);
   assert.ok(
     absoluto === root || absoluto.startsWith(root + sep),
-    `Caminho fora do repositório: ${urlString}`
+    \`Caminho fora do repositório: \${urlString}\`
   );
   return { caminho, absoluto };
 }
 
 function urlsDoSitemap() {
-  return [...sitemap.matchAll(/<loc>(.*?)<\\/loc>/g)].map((match) => match[1].trim());
+  return [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1].trim());
 }
 
 test("sitemap não tem URLs duplicadas e aponta apenas para páginas locais existentes", () => {
@@ -32,7 +32,7 @@ test("sitemap não tem URLs duplicadas e aponta apenas para páginas locais exis
 
   for (const url of urls) {
     const { absoluto } = caminhoDoUrl(url);
-    assert.ok(existsSync(absoluto), `URL do sitemap sem arquivo publicado: ${url}`);
+    assert.ok(existsSync(absoluto), \`URL do sitemap sem arquivo publicado: \${url}\`);
   }
 });
 
@@ -46,10 +46,10 @@ test("todas as páginas publicadas no manifesto e com HTTP 200 estão no sitemap
 
   for (const item of publicados) {
     const arquivo = resolve(root, item.path);
-    assert.ok(existsSync(arquivo), `Arquivo do manifesto não existe: ${item.path}`);
+    assert.ok(existsSync(arquivo), \`Arquivo do manifesto não existe: \${item.path}\`);
     assert.ok(
       caminhosNoSitemap.has(item.path),
-      `Página publicada ausente do sitemap: ${item.path}`
+      \`Página publicada ausente do sitemap: \${item.path}\`
     );
   }
 });
