@@ -22,3 +22,16 @@ test("ignora meta tags que não são diretivas robots", () => {
   assert.equal(temNoindex('<meta name="description" content="noindex">'), false);
   assert.equal(temNoindex(""), false);
 });
+
+test("extrai metadados mesmo quando os atributos estão em outra ordem", async () => {
+  const { obterMeta, obterCanonical } = await import("../lib/sitemap.mjs");
+  const html = '<META content="ID-123" name="conteudo-id"><link href="https://www.especialistaempele.com.br/pagina/" rel="alternate canonical">';
+  assert.equal(obterMeta(html, "conteudo-id").content, "ID-123");
+  assert.equal(obterCanonical(html), "https://www.especialistaempele.com.br/pagina/");
+});
+
+test("aceita aspas simples e diferenças entre maiúsculas e minúsculas", async () => {
+  const { obterMeta, obterCanonical } = await import("../lib/sitemap.mjs");
+  assert.equal(obterMeta("<META CONTENT='noindex' NAME='ROBOTS'>", "robots").content, "noindex");
+  assert.equal(obterCanonical("<LINK HREF='https://example.com/' REL='canonical'>"), "https://example.com/");
+});
