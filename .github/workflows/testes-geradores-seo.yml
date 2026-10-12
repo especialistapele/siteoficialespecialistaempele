@@ -1,0 +1,29 @@
+name: Testes dos geradores SEO
+
+on:
+  pull_request:
+    paths:
+      - "scripts/gerar-paginas-tratamentos.mjs"
+      - "scripts/lib/conteudo.mjs"
+      - "scripts/testes/seo-geradores.test.mjs"
+      - ".github/workflows/testes-geradores-seo.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/gerar-paginas-tratamentos.mjs"
+      - "scripts/lib/conteudo.mjs"
+      - "scripts/testes/seo-geradores.test.mjs"
+      - ".github/workflows/testes-geradores-seo.yml"
+
+jobs:
+  teste-meta-description:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Testar metadados gerados
+        run: node --test scripts/testes/seo-geradores.test.mjs
