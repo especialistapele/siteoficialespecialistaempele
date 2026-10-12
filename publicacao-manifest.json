@@ -538,7 +538,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/cicatriz.html",
       "redirect_to": null,
-      "sha256": "4913431547997e55af2b4e5f9f4b5303eae432cbe6cf0acf8765c11d18140116"
+      "sha256": "4a2734fa75d10a3ed44dedaec1005cbfb1d6eea8cab630f33fa87775275fb9e1"
     },
     {
       "path": "tratamentos/clareamento-facial.html",
@@ -548,7 +548,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/clareamento-facial.html",
       "redirect_to": null,
-      "sha256": "d896cb470475e65144f0d45d0fbd8d846e9207a0ed6f34f95298f56f295d6400"
+      "sha256": "c89e6472f31928a9037d09ae776a0b204dc2a0efefabf3edbad5a481af5ebd00"
     },
     {
       "path": "tratamentos/clareamento.html",
@@ -558,7 +558,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/clareamento.html",
       "redirect_to": null,
-      "sha256": "dd59901c58156de093c94679dbbb57458d887d8173035b0ea70e86b1d68af588"
+      "sha256": "3fa67d490b73f525cfb80446c3a41e6d22c1158547a82f020fad0eca7fea8b3a"
     },
     {
       "path": "tratamentos/corporal.html",
@@ -568,7 +568,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/corporal.html",
       "redirect_to": null,
-      "sha256": "0d4e3cfaa4b34ce47744bf59a487df525632c3cdc2b2ebfdac625f6f335280c6"
+      "sha256": "b2f80c17f733366aa47c4b04509e64a389d6ca06b918a42a52ff5ac481c065ba"
     },
     {
       "path": "tratamentos/definicao.html",
@@ -578,7 +578,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/definicao.html",
       "redirect_to": null,
-      "sha256": "43e17bc36c06fb0c5d1574642529cf6576037d5777b22571f8895a6db23cdc72"
+      "sha256": "911d6788a5f092715bf96f95586c21092d5e9ba306d945995447116945c36cd4"
     },
     {
       "path": "tratamentos/esporotricose.html",
@@ -588,7 +588,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/esporotricose.html",
       "redirect_to": null,
-      "sha256": "ad2dd03cb816837d52595b89feaebf5d049ff39521e5b3c0dfd3f567e0bcb82b"
+      "sha256": "22069f32517288286e4a4a9e67d29dad3f1aeaa615d222101765e3caa68bded4"
     },
     {
       "path": "tratamentos/estrias.html",
@@ -598,7 +598,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/estrias.html",
       "redirect_to": null,
-      "sha256": "631fabd4f0e97fa3bfcb2a90a979fe6bf5bd1cc94235c5f61f5d95c1f71451ba"
+      "sha256": "3962b4a0a90a1237d51d88b91c62ee6c0026d697468d1efa30e44251315dfd58"
     },
     {
       "path": "tratamentos/flacidez.html",
@@ -608,7 +608,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/flacidez.html",
       "redirect_to": null,
-      "sha256": "a1845a10df4bba92f5b33f212d2dd3898a04568b052f5b6989b1377211df7656"
+      "sha256": "43a6ff99e9ca04e0a2214b1dbd827455cb5585054ac8c907b8838107c4895edc"
     },
     {
       "path": "tratamentos/leucodermia.html",
@@ -618,7 +618,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/leucodermia.html",
       "redirect_to": null,
-      "sha256": "ef392ade431e35b9df332d6006057f7adf818452a030fce14adca8397ef51362"
+      "sha256": "953a4096b61ceb0f2cbfcac21b53918cecffbe9b649c3b5383ce202d9d813c46"
     },
     {
       "path": "tratamentos/limpeza-de-pele.html",
@@ -638,7 +638,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/melasma.html",
       "redirect_to": null,
-      "sha256": "f4dc2d19cde4e8e0db2f3d40c7744bc48627488267e0a5d8fb2ae01d73487a00"
+      "sha256": "f56148f38e796c77dfef30b7a497c47c426c309824514da1a16ee9e07f77f191"
     },
     {
       "path": "tratamentos/operatorio.html",
@@ -648,7 +648,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/operatorio.html",
       "redirect_to": null,
-      "sha256": "ab162f6858c877ddb67654afd7219d0e3af65c601ed2d0495cbb3c58b4da0e3c"
+      "sha256": "c1555f73e2f05cd60cb06d383e41c385c4ec1c95fdbd597d36c11513296a2a1f"
     },
     {
       "path": "tratamentos/poros-abertos.html",
@@ -658,7 +658,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/poros-abertos.html",
       "redirect_to": null,
-      "sha256": "af6bfc69dd5215b329547a63850a209cc07f879d80087102f730bfb4a8a04c39"
+      "sha256": "2eea33c259267a4f2add86be06f0ea6a970ab4af88560155e16dd74be808e491"
     },
     {
       "path": "tratamentos/rejuvenescimento.html",
@@ -668,7 +668,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/rejuvenescimento.html",
       "redirect_to": null,
-      "sha256": "744aa09f37291e8d8fab8ae85ac88d53afc3b2dff4c6e36e4aded87017e44ff1"
+      "sha256": "4c00bb139bb25a3d33e6b3d941a43873276c0f445426f4a7c1c06edfc417b573"
     },
     {
       "path": "tratamentos/remocoes.html",
@@ -688,7 +688,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/rosacea.html",
       "redirect_to": null,
-      "sha256": "3f928283afeb7d05bd30e175169622f991ef02daa80f137337777a1764e16783"
+      "sha256": "7a9aed37a666e630bd5bb528812a45473aa0648bcaeb274b0e1d28afb54ba99f"
     },
     {
       "path": "tratamentos/sobrancelha.html",
@@ -698,8 +698,8 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/sobrancelha.html",
       "redirect_to": null,
-      "sha256": "cc41956c64bd97ddf0ed29ddcdb9b60f5e82bafc8583b9a4b63210f031719357"
+      "sha256": "36b3f07aca4239c6c0b8d8ac186d916b94b1f73b2673bdb7ed7cdd74ec18cf16"
     }
   ],
-  "generated_at": "2026-10-12T19:46:43.917Z"
+  "generated_at": "2026-10-12T20:22:59.186Z"
 }
