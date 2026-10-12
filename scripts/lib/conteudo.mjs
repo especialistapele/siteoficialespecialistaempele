@@ -111,6 +111,16 @@ export function resumir(texto, max = 158) {
   return corte.replace(/\s+\S*$/, "").replace(/[,;:\-–—\s]+$/, "") + "…";
 }
 
+// Preserva o título editorial completo e evita acrescentar a marca quando
+// isso deixaria o <title> excessivamente longo. Não corta palavras nem altera
+// o título visível do conteúdo.
+export function tituloSeo(titulo, marca = "Especialista em Pele", max = 60) {
+  const base = String(titulo ?? "").replace(/\s+/g, " ").trim();
+  if (!base) return marca;
+  const completo = `${base} — ${marca}`;
+  return completo.length <= max ? completo : base;
+}
+
 // ------------------------------------------------------------
 // Acesso ao Supabase (REST). Mesma chave anon dos outros scripts.
 // ------------------------------------------------------------

@@ -21,7 +21,7 @@
 
 import {
   SITE, SUPABASE_ANON_KEY, slugifyUrl, escapeHtml, dataBR, dataISO, urlSegura, renderizarConteudo,
-  textoPuro, resumir, buscar, dimensoesImagem, attrDim, cabecalho, rodape, marcadorId,
+  textoPuro, resumir, tituloSeo, buscar, dimensoesImagem, attrDim, cabecalho, rodape, marcadorId,
   sincronizarPastas, injetarLista,
 } from "./lib/conteudo.mjs";
 
@@ -47,7 +47,7 @@ function cardArtigo(a) {
 }
 
 export function paginaHtml(a, { relacionados = [], dimCapa = null } = {}) {
-  const tituloCompleto = `${a.title} — Especialista em Pele`;
+  const tituloCompleto = tituloSeo(a.title);
   const corpo = renderizarConteudo(a.content || "");
   const descricaoMeta = resumir((a.excerpt || "").trim() || textoPuro(corpo) || "Conteúdo educativo sobre saúde da pele — Especialista em Pele.");
   const urlCanonica = urlDoArtigo(a);

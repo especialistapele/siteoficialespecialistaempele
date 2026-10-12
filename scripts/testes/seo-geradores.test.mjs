@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { paginaHtml } from "../gerar-paginas-tratamentos.mjs";
-import { resumir } from "../lib/conteudo.mjs";
+import { resumir, tituloSeo } from "../lib/conteudo.mjs";
+import { paginaHtml as paginaArtigoHtml } from "../gerar-paginas-artigos.mjs";
 
 test("meta description de tratamento termina em limite de palavra e sincroniza metadados", () => {
   const summary = "Cuidados individualizados para a saúde da pele, com avaliação das necessidades, orientações sobre ativos cosméticos, rotina domiciliar e acompanhamento responsável para diferentes condições cutâneas. A abordagem considera histórico, objetivos e tolerância da pele.";
@@ -20,4 +21,28 @@ test("meta description de tratamento termina em limite de palavra e sincroniza m
   assert.ok(html.includes('<meta property="og:description" content="' + expected + '">'));
   assert.ok(html.includes('<meta name="twitter:description" content="' + expected + '">'));
   assert.ok(html.includes('description":"' + expected + '"'), "Schema.org deve usar a mesma descrição");
+});
+
+test("título SEO não acrescenta marca quando ultrapassa o limite, sem truncar o título editorial", () => {
+  const longo = "Por que a acne persiste mesmo com cuidados adequados";
+  assert.equal(tituloSeo(longo), longo);
+  assert.equal(tituloSeo("Acne e saúde da pele"), "Acne e saúde da pele — Especialista em Pele");
+});
+
+test("gerador de artigos mantém title, Open Graph e Twitter alinhados", () => {
+  const titulo = "Por que a acne persiste mesmo com cuidados adequados";
+  const html = paginaArtigoHtml({
+    public_id: "TEST-SEO-000002",
+    slug: "artigo-teste-seo",
+    title: titulo,
+    excerpt: "Conteúdo educativo sobre acne.",
+    content: "Conteúdo de teste.",
+    published_at: null,
+    updated_at: null,
+    cover_image_url: "",
+    treatments: null,
+  });
+  assert.ok(html.includes("<title>" + titulo + "</title>"));
+  assert.ok(html.includes('<meta property="og:title" content="' + titulo + '">'));
+  assert.ok(html.includes('<meta name="twitter:title" content="' + titulo + '">'));
 });

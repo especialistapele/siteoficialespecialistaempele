@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "scripts/gerar-paginas-tratamentos.mjs"
+      - "scripts/gerar-paginas-artigos.mjs"
       - "scripts/lib/conteudo.mjs"
       - "scripts/testes/seo-geradores.test.mjs"
       - ".github/workflows/testes-geradores-seo.yml"
@@ -11,6 +12,7 @@ on:
     branches: [main]
     paths:
       - "scripts/gerar-paginas-tratamentos.mjs"
+      - "scripts/gerar-paginas-artigos.mjs"
       - "scripts/lib/conteudo.mjs"
       - "scripts/testes/seo-geradores.test.mjs"
       - ".github/workflows/testes-geradores-seo.yml"
