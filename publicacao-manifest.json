@@ -8,7 +8,7 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 64,
+  "total": 65,
   "items": [
     {
       "path": "blog/acne-hormonal-feminina.html",
@@ -109,6 +109,16 @@
       "canonical": "https://www.especialistaempele.com.br/resultados/clareamento-facial.html",
       "redirect_to": null,
       "sha256": "eb3cb165e77212cf0ef7a91672a4ddd68af66d50eac5cb14d80b8586ba75869a"
+    },
+    {
+      "path": "resultados/definicao-abdominal.html",
+      "url": "https://www.especialistaempele.com.br/resultados/definicao-abdominal.html",
+      "id": "RESULTADO-000040",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/definicao-abdominal.html",
+      "redirect_to": null,
+      "sha256": "e66820a66a719e125cf7191727572b00ca55d8e61f0f87300783f97410760389"
     },
     {
       "path": "resultados/mancha-solar.html",
@@ -651,5 +661,5 @@
       "sha256": "d39bfaa70c55413c91e6dc3299c44f3e024cde39c6c33a03edae79bac9ba9693"
     }
   ],
-  "generated_at": "2026-10-12T00:09:03.884Z"
+  "generated_at": "2026-10-12T11:45:02.860Z"
 }
