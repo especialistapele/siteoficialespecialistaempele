@@ -678,7 +678,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/remocoes.html",
       "redirect_to": null,
-      "sha256": "a4ac307b5097dafc61df936d1b171e1b2620dc5faf4f46544810d35bf75d2620"
+      "sha256": "8de2269f2df135888f1006fed14a71cad2867e6770d0971ab17be73844488813"
     },
     {
       "path": "tratamentos/rosacea.html",
@@ -701,5 +701,5 @@
       "sha256": "d39bfaa70c55413c91e6dc3299c44f3e024cde39c6c33a03edae79bac9ba9693"
     }
   ],
-  "generated_at": "2026-10-12T18:34:18.388Z"
+  "generated_at": "2026-10-12T18:44:51.919Z"
 }
