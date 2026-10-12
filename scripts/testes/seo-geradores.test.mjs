@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { paginaHtml } from "../gerar-paginas-tratamentos.mjs";
 import { resumir, tituloSeo } from "../lib/conteudo.mjs";
 import { paginaHtml as paginaArtigoHtml } from "../gerar-paginas-artigos.mjs";
+import { paginaHtml as paginaResultadoHtml } from "../gerar-paginas-resultados.mjs";
 
 test("meta description de tratamento termina em limite de palavra e sincroniza metadados", () => {
   const summary = "Cuidados individualizados para a saúde da pele, com avaliação das necessidades, orientações sobre ativos cosméticos, rotina domiciliar e acompanhamento responsável para diferentes condições cutâneas. A abordagem considera histórico, objetivos e tolerância da pele.";
@@ -45,4 +46,27 @@ test("gerador de artigos mantém title, Open Graph e Twitter alinhados", () => {
   assert.ok(html.includes("<title>" + titulo + "</title>"));
   assert.ok(html.includes('<meta property="og:title" content="' + titulo + '">'));
   assert.ok(html.includes('<meta name="twitter:title" content="' + titulo + '">'));
+});
+
+test("gerador de resultados mantém o título SEO conciso e os metadados alinhados", () => {
+  const titulo = "Evolução do aspecto da pele após acompanhamento individualizado";
+  const html = paginaResultadoHtml({
+    public_id: "TEST-SEO-000003",
+    slug: "resultado-teste-seo",
+    title: titulo,
+    description: "Registro de evolução individual; resultados variam entre pessoas.",
+    content: "Descrição de teste.",
+    published_at: null,
+    created_at: null,
+    updated_at: null,
+    treatments: null,
+    before_image_url: "",
+    after_image_url: "",
+    extras: [],
+  }, { fotos: [], dims: new Map(), outros: [] });
+  const titleSeo = titulo + " — Resultado real";
+  assert.ok(html.includes("<title>" + titleSeo + "</title>"));
+  assert.ok(html.includes('<meta property="og:title" content="' + titleSeo + '">'));
+  assert.ok(html.includes('<meta name="twitter:title" content="' + titleSeo + '">'));
+  assert.ok(!html.includes(titleSeo + " — Especialista em Pele"), "marca não deve alongar ainda mais o título");
 });

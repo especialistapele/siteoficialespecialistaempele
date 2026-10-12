@@ -19,7 +19,7 @@
 
 import {
   SITE, SUPABASE_ANON_KEY, slugifyUrl, escapeHtml, dataBR, dataISO, urlSegura, renderizarConteudo,
-  textoPuro, resumir, buscar, dimensoesImagem, attrDim, cabecalho, rodape, marcadorId,
+  textoPuro, resumir, tituloSeo, buscar, dimensoesImagem, attrDim, cabecalho, rodape, marcadorId,
   sincronizarPastas, injetarLista,
 } from "./lib/conteudo.mjs";
 
@@ -74,9 +74,10 @@ export function paginaHtml(r, { fotos, dims, outros = [] }) {
   const trat = r.treatments || null;
   const urlCanonica = urlDoResultado(r);
   // evita "Resultado … — Resultado real" quando o título já começa com "Resultado"
-  const tituloCompleto = /^resultado/i.test(r.title)
-    ? `${r.title} | Especialista em Pele`
-    : `${r.title} — Resultado real | Especialista em Pele`;
+  const tituloBase = /^resultado/i.test(r.title)
+    ? r.title
+    : `${r.title} — Resultado real`;
+  const tituloCompleto = tituloSeo(tituloBase);
   const corpoTexto = (r.content || "").trim();
   const descricaoMeta = resumir(
     [r.title, (r.description || "").trim() || textoPuro(corpoTexto)].filter(Boolean).join(". ").replace(/\.\.+/g, ".") +
