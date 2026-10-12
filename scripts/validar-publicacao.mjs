@@ -65,11 +65,18 @@ async function main() {
   ]);
   const arquivosTratamentos = htmlFiles("tratamentos");
   const nomesTratamentos = new Set(arquivosTratamentos.map((p) => p.split("/").pop()));
+  const slugsTratamentos = new Map();
   for (const t of tratamentos) {
     if (!t.slug) { erros.push(`Tratamento ${t.id}: publicado sem slug.`); continue; }
-    const arquivo = `tratamentos/${slugify(t.slug)}.html`;
+    const slug = slugify(t.slug);
+    if (!slug) { erros.push(`Tratamento ${t.id}: slug inválido após normalização.`); continue; }
+    if (slugsTratamentos.has(slug)) {
+      erros.push(`Tratamento: slug duplicado após normalização "${slug}" (IDs ${slugsTratamentos.get(slug)} e ${t.id}).`);
+    } else {
+      slugsTratamentos.set(slug, t.id);
+    }
+    const arquivo = `tratamentos/${slug}.html`;
     if (!nomesTratamentos.has(arquivo.split("/").pop())) erros.push(`Tratamento publicado sem página estática: ${arquivo}`);
-
   }
 
   // Conferir que cada registro publicável tem identidade estável, slug único

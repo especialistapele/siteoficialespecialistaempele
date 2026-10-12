@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "scripts/gerar-paginas-tratamentos.mjs"
+      - "scripts/validar-publicacao.mjs"
       - "scripts/gerar-paginas-artigos.mjs"
       - "scripts/gerar-paginas-resultados.mjs"
       - "scripts/lib/conteudo.mjs"

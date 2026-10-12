@@ -3,10 +3,24 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import assert from "node:assert/strict";
-import { paginaHtml } from "../gerar-paginas-tratamentos.mjs";
+import { paginaHtml, validarSlugsUnicos } from "../gerar-paginas-tratamentos.mjs";
 import { resumir, tituloSeo, sincronizarPastas } from "../lib/conteudo.mjs";
 import { paginaHtml as paginaArtigoHtml } from "../gerar-paginas-artigos.mjs";
 import { paginaHtml as paginaResultadoHtml } from "../gerar-paginas-resultados.mjs";
+
+test("gerador bloqueia slugs de tratamentos duplicados após normalização", () => {
+  assert.throws(
+    () => validarSlugsUnicos([
+      { id: 101, slug: "acne-hormonal" },
+      { id: 202, slug: "Acne hormonal" },
+    ]),
+    /Slug de tratamento duplicado após normalização "acne-hormonal".*101.*202/
+  );
+  assert.doesNotThrow(() => validarSlugsUnicos([
+    { id: 101, slug: "acne-hormonal" },
+    { id: 202, slug: "melasma" },
+  ]));
+});
 
 test("meta description de tratamento termina em limite de palavra e sincroniza metadados", () => {
   const summary = "Cuidados individualizados para a saúde da pele, com avaliação das necessidades, orientações sobre ativos cosméticos, rotina domiciliar e acompanhamento responsável para diferentes condições cutâneas. A abordagem considera histórico, objetivos e tolerância da pele.";
