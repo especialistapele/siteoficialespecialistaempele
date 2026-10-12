@@ -8,13 +8,13 @@ const whatsapp = readFileSync(join(root, "assets/js/whatsapp.js"), "utf8");
 
 const pages = [
   { path: "acne-araruama.html", key: "local-acne-araruama", treatment: "acne" },
-  { path: "acne-cabo-frio-riviera.html", key: "local-acne-cabofrio-riviera", treatment: "acne" },
+  { path: "acne-cabo-frio-riviera.html", key: "local-acne-cabo-frio-riviera", treatment: "acne" },
   { path: "acne-copacabana.html", key: "local-acne-copacabana", treatment: "acne" },
   { path: "melasma-araruama.html", key: "local-melasma-araruama", treatment: "melasma" },
-  { path: "melasma-cabo-frio-riviera.html", key: "local-melasma-cabofrio-riviera", treatment: "melasma" },
+  { path: "melasma-cabo-frio-riviera.html", key: "local-melasma-cabo-frio-riviera", treatment: "melasma" },
   { path: "melasma-copacabana.html", key: "local-melasma-copacabana", treatment: "melasma" },
   { path: "rosacea-araruama.html", key: "local-rosacea-araruama", treatment: "rosacea" },
-  { path: "rosacea-cabo-frio-riviera.html", key: "local-rosacea-cabofrio-riviera", treatment: "rosacea" },
+  { path: "rosacea-cabo-frio-riviera.html", key: "local-rosacea-cabo-frio-riviera", treatment: "rosacea" },
   { path: "rosacea-copacabana.html", key: "local-rosacea-copacabana", treatment: "rosacea" },
 ];
 
