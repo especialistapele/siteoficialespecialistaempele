@@ -31,10 +31,16 @@ function validarArquivo(caminho, exigirId = true) {
   const title = /<title>\s*([^<]+?)\s*<\/title>/i.exec(html)?.[1] || null;
   const description = /<meta name="description" content="([^"]*)">/i.exec(html)?.[1] ?? null;
   const robots = /<meta name="robots" content="([^"]+)">/i.exec(html)?.[1] || "";
+  const movedTo = /<meta name="conteudo-movido-para" content="([^"]+)">/i.exec(html)?.[1] || null;
   if (!id && exigirId) erros.push(`${caminho}: falta meta conteudo-id.`);
   if (!canon) erros.push(`${caminho}: falta canonical.`);
   if (canon && !canon.startsWith(SITE + "/")) erros.push(`${caminho}: canonical fora do domínio: ${canon}`);
   if (!title) erros.push(`${caminho}: falta title.`);
+  if (movedTo) {
+    if (canon !== movedTo) erros.push(`${caminho}: canonical do redirecionamento difere do destino.`);
+    if (!/noindex/i.test(robots)) erros.push(`${caminho}: redirecionamento deve usar noindex.`);
+    return id;
+  }
   if (description === null) erros.push(`${caminho}: falta meta description.`);
   if (!/index\s*,?\s*follow/i.test(robots)) erros.push(`${caminho}: robots não está index,follow.`);
   return id;
