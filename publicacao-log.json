@@ -183,8 +183,21 @@
       "workflow_run_id": "38293514115",
       "workflow_sha": "5b01644497ab2e110b660f548f3cb04b28fa1808",
       "ref": "main"
+    },
+    {
+      "request_id": "3aede161-8da7-4751-980b-e5ace11e97bc",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/acne-e-estresse.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-10-12T18:51:33.491Z",
+      "completed_at": "2026-10-12T18:52:06.279Z",
+      "workflow_run_id": "38293745035",
+      "workflow_sha": "a517f647a04105b371e110a228a2dbb12620c536",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-12T18:50:01.747Z",
-  "total": 14
+  "updated_at": "2026-10-12T18:52:06.279Z",
+  "total": 15
 }
