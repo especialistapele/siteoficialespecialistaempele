@@ -4,9 +4,17 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import assert from "node:assert/strict";
 import { paginaHtml, validarSlugsUnicos } from "../gerar-paginas-tratamentos.mjs";
-import { resumir, tituloSeo, sincronizarPastas } from "../lib/conteudo.mjs";
+import { resumir, tituloSeo, sincronizarPastas, paginaRedirecionamento } from "../lib/conteudo.mjs";
 import { paginaHtml as paginaArtigoHtml } from "../gerar-paginas-artigos.mjs";
 import { paginaHtml as paginaResultadoHtml } from "../gerar-paginas-resultados.mjs";
+
+test("página de redirecionamento antigo é noindex e aponta ao canonical de destino", () => {
+  const destino = "https://www.especialistaempele.com.br/blog/novo-slug.html";
+  const html = paginaRedirecionamento("BLOG-TESTE-000001", destino);
+  assert.ok(html.includes('<meta name="robots" content="noindex,follow">'));
+  assert.ok(html.includes('<meta name="conteudo-movido-para" content="' + destino + '">'));
+  assert.ok(html.includes('<link rel="canonical" href="' + destino + '">'));
+});
 
 test("gerador bloqueia slugs de tratamentos duplicados após normalização", () => {
   assert.throws(
