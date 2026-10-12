@@ -294,7 +294,14 @@ export function sincronizarPastas({ pastas, urlBase, itens, resolverLegado = nul
     }
   }
 
-  // 2) trava de segurança: nunca apagar em massa por engano
+  // 2) trava de segurança: uma consulta vazia não pode limpar o conteúdo
+  // gerado sem autorização explícita. Protege contra filtros/permissões/schema
+  // incorretos que retornem [] sem HTTP 4xx/5xx.
+  if (itens.length === 0 && existentes.length > 0 && process.env.ALLOW_EMPTY_PUBLICATION_SYNC !== "1") {
+    throw new Error(`Sincronização abortada: nenhum item publicado foi retornado, mas existem ${existentes.length} páginas identificadas. Verifique a consulta antes de remover; para uma limpeza intencional, defina ALLOW_EMPTY_PUBLICATION_SYNC=1.`);
+  }
+
+  // 3) trava de segurança: nunca apagar em massa por engano
   const aApagar = existentes.filter((e) => !porId.has(e.id));
   const paginasReais = existentes.filter((e) => e.pasta === principal).length;
   if (aApagar.length > 3 && aApagar.length > existentes.length / 2 && process.env.FORCAR_LIMPEZA !== "1") {
