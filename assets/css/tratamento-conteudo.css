@@ -1,0 +1,22 @@
+/* Conteúdo editorial das páginas de tratamento: leitura clara, escaneável e responsiva. */
+.tratamento-conteudo{--tc-ink:#24342b;--tc-muted:#5f6b63;--tc-line:#e5e8e1;--tc-soft:#f5f6f1;--tc-gold:#b89a5a;color:var(--tc-ink);max-width:100%;font-size:17px;line-height:1.78}
+.tratamento-conteudo .tc-intro{font-size:clamp(18px,2vw,21px);line-height:1.75;color:#33443a;margin:0 0 28px}
+.tratamento-conteudo .tc-kicker{margin:0 0 10px;color:#8b7545;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.tratamento-conteudo h2{margin:42px 0 16px;color:#24342b;font-size:clamp(24px,3vw,32px);font-weight:500;line-height:1.2;letter-spacing:-.02em}
+.tratamento-conteudo h3{margin:0 0 8px;color:#2d4034;font-size:18px;line-height:1.35;font-weight:650}
+.tratamento-conteudo p{margin:0 0 16px;color:#48564d}
+.tratamento-conteudo .tc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:20px 0 28px}
+.tratamento-conteudo .tc-card{min-width:0;padding:22px;border:1px solid var(--tc-line);border-radius:12px;background:#fff;box-shadow:0 7px 22px rgba(29,44,34,.045)}
+.tratamento-conteudo .tc-card p{margin:0;font-size:15px;line-height:1.7}
+.tratamento-conteudo .tc-card .tc-number{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;margin-bottom:14px;border-radius:50%;background:#e9e4d5;color:#63512e;font-size:13px;font-weight:700}
+.tratamento-conteudo .tc-callout{margin:24px 0;padding:22px 24px;border-left:3px solid var(--tc-gold);border-radius:0 10px 10px 0;background:var(--tc-soft)}
+.tratamento-conteudo .tc-callout p:last-child{margin-bottom:0}
+.tratamento-conteudo .tc-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 18px;margin:18px 0 28px;padding:0;list-style:none}
+.tratamento-conteudo .tc-list li{position:relative;padding:0 0 0 25px;color:#48564d;font-size:15px;line-height:1.65}
+.tratamento-conteudo .tc-list li:before{content:"";position:absolute;left:2px;top:.65em;width:8px;height:8px;border-radius:50%;background:var(--tc-gold)}
+.tratamento-conteudo .tc-note{font-size:14px;color:#657067}
+.tratamento-conteudo .tc-faq{margin-top:18px;border-top:1px solid var(--tc-line)}
+.tratamento-conteudo .tc-faq details{padding:16px 0;border-bottom:1px solid var(--tc-line)}
+.tratamento-conteudo .tc-faq summary{cursor:pointer;color:#2d4034;font-weight:650;line-height:1.5}
+.tratamento-conteudo .tc-faq details p{margin:12px 0 0;font-size:15px}
+@media(max-width:640px){.tratamento-conteudo{font-size:16px}.tratamento-conteudo .tc-grid,.tratamento-conteudo .tc-list{grid-template-columns:1fr}.tratamento-conteudo .tc-card{padding:19px}.tratamento-conteudo h2{margin-top:34px}.tratamento-conteudo .tc-callout{padding:18px}}
