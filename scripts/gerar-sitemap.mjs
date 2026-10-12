@@ -18,6 +18,7 @@
 // ============================================================
 
 import { writeFileSync, readdirSync, readFileSync } from "node:fs";
+import { temNoindex } from "./lib/sitemap.mjs";
 
 const SITE = "https://www.especialistaempele.com.br";
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://clwaotfbqwvxpykruwed.supabase.co";
@@ -100,7 +101,7 @@ function paginasTratamentosEstatisticas() {
     const caminho = `${dir}/${nome.name}`;
     let html = "";
     try { html = readFileSync(caminho, "utf-8"); } catch (_) { continue; }
-    if (/<meta[^>]+name=["']robots["'][^>]+content=["'][^"']*noindex/i.test(html)) continue;
+    if (temNoindex(html)) continue;
     paginas.push({ loc: `${SITE}/tratamentos/${nome.name}`, nome: nome.name });
   }
   return paginas;
@@ -124,7 +125,7 @@ function paginasRegionaisEstaticas() {
     if (!SUFIXOS_CIDADE.some((sufixo) => lower.endsWith(sufixo))) continue;
     let html = "";
     try { html = readFileSync(nome.name, "utf-8"); } catch (_) { continue; }
-    if (/<meta[^>]+name=["']robots["'][^>]+content=["'][^"']*noindex/i.test(html)) continue;
+    if (temNoindex(html)) continue;
     paginas.push({ loc: `${SITE}/${nome.name}`, nome: nome.name });
   }
   return paginas;
