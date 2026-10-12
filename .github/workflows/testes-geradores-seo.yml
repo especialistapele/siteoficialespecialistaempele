@@ -24,6 +24,7 @@ on:
       - "scripts/gerar-sitemap.mjs"
       - "scripts/lib/sitemap.mjs"
       - "scripts/testes/sitemap.test.mjs"
+      - "scripts/testes/manifest-sitemap-consistency.test.mjs"
       - "scripts/validar-publicacao.mjs"
       - "scripts/gerar-paginas-artigos.mjs"
       - "scripts/gerar-paginas-resultados.mjs"
