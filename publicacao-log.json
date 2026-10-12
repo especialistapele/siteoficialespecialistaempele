@@ -131,8 +131,21 @@
       "workflow_run_id": "38244606887",
       "workflow_sha": "f544dc07d07887b23081e7d4a7289340dec63b6b",
       "ref": "main"
+    },
+    {
+      "request_id": "0dd69c04-1f3a-474a-9791-d45ae88f0efa",
+      "status": "success",
+      "trigger": "panel",
+      "path": "resultados/reducao-corporal-com-apenas-tres-sessoes.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-10-12T11:47:47.631Z",
+      "completed_at": "2026-10-12T11:48:18.397Z",
+      "workflow_run_id": "38244961309",
+      "workflow_sha": "0a1e157ab2755bd68248690eae595b05032954c5",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-12T11:45:05.529Z",
-  "total": 10
+  "updated_at": "2026-10-12T11:48:18.397Z",
+  "total": 11
 }
