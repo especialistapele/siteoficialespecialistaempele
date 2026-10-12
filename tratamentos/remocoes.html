@@ -192,14 +192,39 @@
         <h2 id="resultados-titulo">Resultados de remoções</h2>
         <p>Imagens comparativas ajudam a contextualizar casos individuais, mas não permitem prever o resultado de outra pessoa.</p>
       </div>
-      <div class="rem-gallery-placeholder">
-        <div class="rem-gallery-icon" aria-hidden="true">◇</div>
-        <h3>Galeria em preparação</h3>
-        <p>Os registros de antes e depois serão apresentados aqui após a confirmação de autorização válida para divulgação nesta página. Não utilizamos imagens genéricas como se fossem resultados de clientes.</p>
-        <p class="rem-small">Quando os registros forem liberados, esta área poderá utilizar o componente de comparação deslizante já existente no site, preservando as imagens originais e identificando “Antes” e “Depois”.</p>
-        <a class="rem-btn" href="/resultados/">Ver a página de resultados</a>
+      <div class="rem-grid rem-gallery-grid">
+        <article class="rem-card">
+          <div class="antes-depois-slider" data-antes-depois tabindex="0" role="group" aria-label="Comparar fotos antes e depois do caso 1 de remoções">
+            <img class="ad-depois" src="https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/resultados/1789758288824-depois.webp" alt="Depois — caso 1 de remoções" loading="lazy">
+            <img class="ad-antes" src="https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/resultados/1789758288824-antes.webp" alt="Antes — caso 1 de remoções" loading="lazy">
+            <span class="ad-tag ad-tag-antes">Antes</span><span class="ad-tag ad-tag-depois">Depois</span>
+            <div class="ad-handle" aria-hidden="true"><span class="ad-handle-grip"></span></div>
+          </div>
+          <h3 style="margin-top:18px">Remoção de sinais e acrocórdons</h3>
+          <p>Registro de pós-imediato publicado na galeria de resultados.</p>
+        </article>
+        <article class="rem-card">
+          <div class="antes-depois-slider" data-antes-depois tabindex="0" role="group" aria-label="Comparar fotos antes e depois do caso 3 de remoções">
+            <img class="ad-depois" src="https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/resultados/1789758423372-depois.webp" alt="Depois — caso 3 de remoções" loading="lazy">
+            <img class="ad-antes" src="https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/resultados/1789758423372-antes.webp" alt="Antes — caso 3 de remoções" loading="lazy">
+            <span class="ad-tag ad-tag-antes">Antes</span><span class="ad-tag ad-tag-depois">Depois</span>
+            <div class="ad-handle" aria-hidden="true"><span class="ad-handle-grip"></span></div>
+          </div>
+          <h3 style="margin-top:18px">Caso de remoção — acompanhamento</h3>
+          <p>Registro identificado na galeria de resultados como aproximadamente três meses de acompanhamento.</p>
+        </article>
+        <article class="rem-card">
+          <div class="antes-depois-slider" data-antes-depois tabindex="0" role="group" aria-label="Comparar fotos antes e depois do caso 4 de remoções">
+            <img class="ad-depois" src="https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/resultados/1789758497695-depois.webp" alt="Depois — caso 4 de remoções" loading="lazy">
+            <img class="ad-antes" src="https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/resultados/1789758497695-antes.webp" alt="Antes — caso 4 de remoções" loading="lazy">
+            <span class="ad-tag ad-tag-antes">Antes</span><span class="ad-tag ad-tag-depois">Depois</span>
+            <div class="ad-handle" aria-hidden="true"><span class="ad-handle-grip"></span></div>
+          </div>
+          <h3 style="margin-top:18px">Caso de remoção — após cicatrização</h3>
+          <p>Registro identificado na galeria de resultados como 30 dias após a cicatrização.</p>
+        </article>
       </div>
-      <p class="rem-muted" style="text-align:center;margin-top:18px">Os resultados variam conforme a lesão, a técnica utilizada e a resposta individual da pele.</p>
+      <p class="rem-muted" style="text-align:center;margin-top:18px">As imagens correspondem a casos publicados na página de resultados, com consentimento informado conforme a declaração já existente no site. Cada caso é individual; as imagens não garantem resultado semelhante. <a href="/resultados/">Ver todos os resultados</a>.</p>
     </div>
   </section>
 
@@ -317,6 +342,7 @@
   <p>Usamos cookies para melhorar sua experiência. <a href="/cookies.html">Saiba mais</a>.</p>
   <div class="cookie-banner__acoes"><button class="btn btn-dourado" data-cookie-aceitar>Aceitar</button><button class="btn btn-fora" data-cookie-recusar>Recusar</button></div>
 </div>
+<script type="module" src="/assets/js/antes-depois-slider.js"></script>
 <script src="/assets/js/whatsapp.js" defer></script>
 <script type="module" src="/assets/js/cookies.js"></script>
 <script src="/assets/js/mobile-nav.js" defer></script>
