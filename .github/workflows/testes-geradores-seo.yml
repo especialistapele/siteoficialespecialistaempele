@@ -31,4 +31,4 @@ jobs:
         with:
           node-version: "20"
       - name: Testar metadados gerados
-        run: node --test scripts/testes/seo-geradores.test.mjs
+        run: node --test scripts/testes/seo-geradores.test.mjs scripts/testes/manifest-publicacao.test.mjs
