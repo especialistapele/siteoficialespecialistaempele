@@ -144,8 +144,21 @@
       "workflow_run_id": "38244961309",
       "workflow_sha": "0a1e157ab2755bd68248690eae595b05032954c5",
       "ref": "main"
+    },
+    {
+      "request_id": "2a7996b0-0b52-4dc0-afdc-d69e0d762bd0",
+      "status": "success",
+      "trigger": "panel",
+      "path": "resultados/limpeza-de-pele-em-idosa.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-10-12T11:54:14.613Z",
+      "completed_at": "2026-10-12T11:54:45.487Z",
+      "workflow_run_id": "38245648213",
+      "workflow_sha": "64d863446c3f407befdaaac6bc71faa9d3e8ec1b",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-12T11:48:18.397Z",
-  "total": 11
+  "updated_at": "2026-10-12T11:54:45.487Z",
+  "total": 12
 }
