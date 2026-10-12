@@ -1,0 +1,40 @@
+name: Testes SEO das páginas locais
+
+on:
+  pull_request:
+    paths:
+      - "acne-*.html"
+      - "melasma-*.html"
+      - "rosacea-*.html"
+      - "assets/js/whatsapp.js"
+      - "sitemap.xml"
+      - "scripts/test-seo-local.mjs"
+      - ".github/workflows/test-seo-local.yml"
+  push:
+    branches: [main]
+    paths:
+      - "acne-*.html"
+      - "melasma-*.html"
+      - "rosacea-*.html"
+      - "assets/js/whatsapp.js"
+      - "sitemap.xml"
+      - "scripts/test-seo-local.mjs"
+      - ".github/workflows/test-seo-local.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  seo-local:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Verificar sintaxe JavaScript
+        run: node --check assets/js/whatsapp.js
+      - name: Validar SEO local
+        run: node scripts/test-seo-local.mjs
