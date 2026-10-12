@@ -206,6 +206,21 @@ async function main() {
   const tratamentos = await buscarPublicados("treatments");
   mkdirSync(PASTA_SAIDA, { recursive: true });
 
+  // Falha fechada: uma resposta vazia do Supabase não deve apagar todas as
+  // páginas automáticas por acidente. Para despublicação total intencional,
+  // a operação precisa ser autorizada explicitamente no ambiente.
+  if (tratamentos.length === 0 && process.env.ALLOW_EMPTY_PUBLICATION_SYNC !== "1") {
+    const existemGeradas = readdirSync(PASTA_SAIDA).some((nome) => {
+      if (!nome.endsWith(".html")) return false;
+      try {
+        return readFileSync(`${PASTA_SAIDA}/${nome}`, "utf-8").includes("AUTO-GENERATED:TREATMENT-PAGE");
+      } catch (_) { return false; }
+    });
+    if (existemGeradas) {
+      throw new Error("Sincronização abortada: Supabase retornou zero tratamentos publicados, mas já existem páginas geradas. Confirme a consulta ou defina ALLOW_EMPTY_PUBLICATION_SYNC=1 para autorizar a limpeza intencional.");
+    }
+  }
+
   const vistos = new Set();
   const publicados = new Set();
   for (const t of tratamentos) {
