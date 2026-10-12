@@ -1,6 +1,6 @@
 // Valida a publicação estática antes do workflow terminar.
 import { readFileSync, readdirSync, existsSync } from "node:fs";
-import { temNoindex } from "./lib/sitemap.mjs";
+import { temNoindex, obterMeta, obterCanonical } from "./lib/sitemap.mjs";
 
 const SITE = "https://www.especialistaempele.com.br";
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://clwaotfbqwvxpykruwed.supabase.co";
@@ -27,12 +27,12 @@ function htmlFiles(dir) {
 }
 function validarArquivo(caminho, exigirId = true) {
   const html = readFileSync(caminho, "utf8");
-  const id = /<meta name="conteudo-id" content="([^"]+)">/i.exec(html)?.[1] || null;
-  const canon = /<link rel="canonical" href="([^"]+)">/i.exec(html)?.[1] || null;
+  const id = obterMeta(html, "conteudo-id")?.content || null;
+  const canon = obterCanonical(html);
   const title = /<title>\s*([^<]+?)\s*<\/title>/i.exec(html)?.[1] || null;
-  const description = /<meta name="description" content="([^"]*)">/i.exec(html)?.[1] ?? null;
-  const robots = /<meta name="robots" content="([^"]+)">/i.exec(html)?.[1] || "";
-  const movedTo = /<meta name="conteudo-movido-para" content="([^"]+)">/i.exec(html)?.[1] || null;
+  const description = obterMeta(html, "description")?.content ?? null;
+  const robots = obterMeta(html, "robots")?.content || "";
+  const movedTo = obterMeta(html, "conteudo-movido-para")?.content || null;
   if (!id && exigirId) erros.push(`${caminho}: falta meta conteudo-id.`);
   if (!canon) erros.push(`${caminho}: falta canonical.`);
   if (canon && !canon.startsWith(SITE + "/")) erros.push(`${caminho}: canonical fora do domínio: ${canon}`);
