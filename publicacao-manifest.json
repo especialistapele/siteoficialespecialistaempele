@@ -18,7 +18,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/acne-e-estresse.html",
       "redirect_to": null,
-      "sha256": "d95fd2532b5db241d244c2b62d73f95c10e07f5ad93bbb0e662c64459222ef00"
+      "sha256": "f08bb00e8591bee2850c09eecf0d245b8b4a8046e4407f6be9c9005bb46d034e"
     },
     {
       "path": "blog/acne-hormonal-feminina.html",
@@ -701,5 +701,5 @@
       "sha256": "d39bfaa70c55413c91e6dc3299c44f3e024cde39c6c33a03edae79bac9ba9693"
     }
   ],
-  "generated_at": "2026-10-12T18:49:59.212Z"
+  "generated_at": "2026-10-12T18:52:03.796Z"
 }
