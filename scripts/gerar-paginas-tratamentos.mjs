@@ -71,6 +71,22 @@ async function buscarPublicados(tabela) {
   return resp.json();
 }
 
+// Impede que dois tratamentos publicados disputem o mesmo arquivo estático.
+// A verificação é feita antes de qualquer página ser escrita ou removida.
+export function validarSlugsUnicos(tratamentos) {
+  const vistos = new Map();
+  for (const t of tratamentos) {
+    if (!t.slug) continue;
+    const slug = slugifyUrl(t.slug);
+    if (!slug) continue;
+    if (vistos.has(slug)) {
+      const anterior = vistos.get(slug);
+      throw new Error(`Slug de tratamento duplicado após normalização "${slug}" nos registros ${anterior.id ?? anterior.public_id ?? "sem ID"} ("${anterior.slug}") e ${t.id ?? t.public_id ?? "sem ID"} ("${t.slug}"). Corrija os slugs no cadastro antes de publicar.`);
+    }
+    vistos.set(slug, t);
+  }
+}
+
 export function paginaHtml(t) {
   const slugArquivo = slugifyUrl(t.slug);
   const tituloCompleto = tituloSeo(t.name);
@@ -204,6 +220,7 @@ async function main() {
     process.exit(1);
   }
   const tratamentos = await buscarPublicados("treatments");
+  validarSlugsUnicos(tratamentos);
   mkdirSync(PASTA_SAIDA, { recursive: true });
 
   // Falha fechada: uma resposta vazia do Supabase não deve apagar todas as
