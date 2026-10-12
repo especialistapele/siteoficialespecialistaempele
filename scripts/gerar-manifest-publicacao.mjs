@@ -15,6 +15,7 @@
 import { readFileSync, readdirSync, writeFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { paginaGerada } from "./lib/manifesto.mjs";
+import { obterMeta, obterCanonical } from "./lib/sitemap.mjs";
 
 const SITE = "https://www.especialistaempele.com.br";
 const dirs = ["blog", "resultados", "tratamentos"];
@@ -26,10 +27,10 @@ function files(dir) {
     .map(e => `${dir}/${e.name}`);
 }
 function meta(html, name) {
-  return new RegExp(`<meta name=["']${name}["'] content=["']([^"']*)["']`, "i").exec(html)?.[1] || null;
+  return obterMeta(html, name)?.content || null;
 }
 function canonical(html) {
-  return /<link rel=["']canonical["'] href=["']([^"']+)["']/i.exec(html)?.[1] || null;
+  return obterCanonical(html);
 }
 function sha256(text) {
   return createHash("sha256").update(text).digest("hex");
