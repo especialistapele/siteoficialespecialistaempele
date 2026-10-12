@@ -1,5 +1,6 @@
 // Valida a publicação estática antes do workflow terminar.
 import { readFileSync, readdirSync, existsSync } from "node:fs";
+import { temNoindex } from "./lib/sitemap.mjs";
 
 const SITE = "https://www.especialistaempele.com.br";
 const SUPABASE_URL = process.env.SUPABASE_URL || "https://clwaotfbqwvxpykruwed.supabase.co";
@@ -115,11 +116,17 @@ async function main() {
   if (!sitemapSet.has(skinMapUrl)) erros.push("Página inicial do SkinMap fora do sitemap: skinmap/skinmapinicio.html");
   for (const caminho of arquivosTratamentos) {
     const html = readFileSync(caminho, "utf8");
-    if (/<meta[^>]+name=["']robots["'][^>]+content=["'][^"']*noindex/i.test(html)) continue;
+    if (temNoindex(html)) continue;
     if (!sitemapSet.has(`${SITE}/${caminho}`)) erros.push(`Página de tratamento fora do sitemap: ${caminho}`);
   }
-  for (const caminho of htmlFiles("blog")) if (!sitemapSet.has(`${SITE}/${caminho}`)) avisos.push(`Página de blog fora do sitemap: ${caminho}`);
-  for (const caminho of htmlFiles("resultados")) if (!sitemapSet.has(`${SITE}/${caminho}`)) avisos.push(`Página de resultado fora do sitemap: ${caminho}`);
+  for (const caminho of htmlFiles("blog")) {
+    if (temNoindex(readFileSync(caminho, "utf8"))) continue;
+    if (!sitemapSet.has(`${SITE}/${caminho}`)) avisos.push(`Página de blog fora do sitemap: ${caminho}`);
+  }
+  for (const caminho of htmlFiles("resultados")) {
+    if (temNoindex(readFileSync(caminho, "utf8"))) continue;
+    if (!sitemapSet.has(`${SITE}/${caminho}`)) avisos.push(`Página de resultado fora do sitemap: ${caminho}`);
+  }
   // Conferir todas as URLs internas do sitemap, não apenas páginas de conteúdo.
   // URLs com barra final correspondem ao index.html do diretório no build estático.
   for (const url of sitemap) {
