@@ -23,13 +23,13 @@
     "local-cabofrio": "Olá! Vi a página de Cabo Frio/Riviera no site e gostaria de agendar uma consulta.",
     "local-copacabana": "Olá! Vi a página de Copacabana no site e gostaria de agendar uma consulta.",
     "local-acne-araruama": "Olá! Tenho interesse no acompanhamento para acne em Araruama.",
-    "local-acne-cabofrio-riviera": "Olá! Tenho interesse no acompanhamento para acne em Cabo Frio/Riviera.",
+    "local-acne-cabo-frio-riviera": "Olá! Tenho interesse no acompanhamento para acne em Cabo Frio/Riviera.",
     "local-acne-copacabana": "Olá! Tenho interesse no acompanhamento para acne em Copacabana.",
     "local-melasma-araruama": "Olá! Tenho interesse no acompanhamento para melasma em Araruama.",
-    "local-melasma-cabofrio-riviera": "Olá! Tenho interesse no acompanhamento para melasma em Cabo Frio/Riviera.",
+    "local-melasma-cabo-frio-riviera": "Olá! Tenho interesse no acompanhamento para melasma em Cabo Frio/Riviera.",
     "local-melasma-copacabana": "Olá! Tenho interesse no acompanhamento para melasma em Copacabana.",
     "local-rosacea-araruama": "Olá! Tenho interesse no acompanhamento para rosácea em Araruama.",
-    "local-rosacea-cabofrio-riviera": "Olá! Tenho interesse no acompanhamento para rosácea em Cabo Frio/Riviera.",
+    "local-rosacea-cabo-frio-riviera": "Olá! Tenho interesse no acompanhamento para rosácea em Cabo Frio/Riviera.",
     "local-rosacea-copacabana": "Olá! Tenho interesse no acompanhamento para rosácea em Copacabana.",
   };
 
