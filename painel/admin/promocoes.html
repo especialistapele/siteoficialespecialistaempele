@@ -1,5 +1,25 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Campanhas promocionais — Painel</title><link rel="stylesheet" href="/painel/assets/css/painel.css"><style>
-/* Campanhas promocionais — layout alinhado ao painel principal */
+/* Campanhas promocionais — identidade visual Especialista em Pele e sidebar estável */
+.painel-layout{align-items:stretch}
+@media (min-width:801px){
+  .painel-layout > aside.painel-sidebar[data-sidebar]{display:flex!important;flex:0 0 250px;width:250px;min-width:250px;min-height:100vh;align-self:stretch;visibility:visible;opacity:1}
+  .painel-layout > main.painel-main{min-width:0;flex:1}
+}
+.promo-section{color:var(--ink-2,#172b49)}
+.promo-card,.asset{border-color:var(--linha,#dce2ea)}
+.promo-form label{color:var(--ink-2,#172b49)}
+.promo-form input:not([type=checkbox]):not([type=file]),.promo-form select,.promo-form textarea,#campaign-form>label textarea{border-color:var(--linha,#dce2ea);color:var(--ink-2,#172b49)}
+.promo-form input:focus,.promo-form select:focus,.promo-form textarea:focus,#campaign-form>label textarea:focus{outline-color:var(--gold,#c9a45b)}
+.promo-form input[type=checkbox]{accent-color:var(--ink-2,#172b49)}
+.promo-preview{background:var(--cream,#f4eee3);border-color:var(--linha,#dce2ea)}
+.promo-preview__popup{border-color:rgba(23,43,73,.12)}
+.promo-preview__eyebrow{color:var(--ink-2,#172b49)}
+.promo-preview__title{color:var(--ink-2,#172b49)}
+.promo-preview__body{color:#53627a}
+.promo-preview__discount{background:var(--cream,#f4eee3);color:var(--ink-2,#172b49)}
+.promo-preview__cta{background:var(--ink-2,#172b49);color:var(--cream,#fff)}
+.promo-note,.promo-card p{color:#59677d}
+
 .promo-section{margin-bottom:22px}
 .promo-grid,.promo-form,.asset-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
 .promo-card,.asset{min-width:0;border:1px solid #e8e4dc;border-radius:12px;padding:16px;background:#fff}
