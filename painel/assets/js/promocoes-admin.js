@@ -1,7 +1,7 @@
 import {supabase,exigirAdmin,configurarBotaoSair} from "/painel/assets/js/painel-auth.js";
 import {renderSidebarAdmin,configurarMenuAdmin} from "/painel/assets/js/admin-sidebar.js";
 const $=id=>document.getElementById(id);let assets=[],campaigns=[];
-const flash=(m,bad=false)=>{const e=document.querySelector("[data-flash]");e.textContent=m;e.style.color=bad?"#a22":"#26734d";};
+const flash=(m,bad=false)=>{const e=document.querySelector("[data-flash]");e.textContent=m;e.className="aviso-flash visivel";e.setAttribute("role","status");e.setAttribute("aria-live","polite");e.style.display="block";e.style.padding="12px 16px";e.style.margin="0 0 18px";e.style.borderRadius="8px";e.style.border="1px solid "+(bad?"#e5a3a3":"#9ac9aa");e.style.background=bad?"#fff0f0":"#eaf7ee";e.style.color=bad?"#9b2222":"#216738";e.style.fontWeight="600";e.scrollIntoView({behavior:"smooth",block:"nearest"});};
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const pages=["/tratamentos/acne.html","/tratamentos/melasma.html","/tratamentos/rosacea.html","/tratamentos/cicatriz.html","/tratamentos/rejuvenescimento.html","/tratamentos/limpeza-de-pele.html","/tratamentos/clareamento.html","/tratamentos/clareamento-facial.html","/tratamentos/poros-abertos.html"];
 const publicUrl=p=>supabase.storage.from("site-media").getPublicUrl(p).data.publicUrl;
