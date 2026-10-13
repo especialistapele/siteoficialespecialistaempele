@@ -518,7 +518,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/acne.html",
       "redirect_to": null,
-      "sha256": "951e8f11eb5dcf83eb2e4f89454571711f3c219d09b7d3820bb3fca3263289e2"
+      "sha256": "e62036e6af93f0b71371542612a09ffa61c6bc0a364a5bc8d17d8b0540ea75bb"
     },
     {
       "path": "tratamentos/celulite.html",
@@ -701,5 +701,5 @@
       "sha256": "055a1219cc6c3be5ddf0dc9ead0037332b6d8993b952612ffe8f877f55bfd4a5"
     }
   ],
-  "generated_at": "2026-10-13T12:39:12.219Z"
+  "generated_at": "2026-10-13T13:06:35.523Z"
 }
