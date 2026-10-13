@@ -1,6 +1,6 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/+esm";
 (async()=>{try{
-const client=createClient("https://clwaotfbqwvxpykruwed.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhbGciOiJIUzI1NiIsInJlZiI6ImNsd2FvdGZicXd2eHB5a3J1d2VkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4MDc0OTMsImV4cCI6MjEwNDM4MzQ5M30.Cw9zJU8UIkxhzjI-adNHoRTyNuGingHpTHZ6pjJBgBc");
+const client=createClient("https://clwaotfbqwvxpykruwed.supabase.co","sb_publishable_tp8MCyuQDCwDcDdgIvm5AQ_cqLHcxei");
 const path=location.pathname.replace(/\/$/,"")||"/", key="promo-popup-dismissed:";
 const {data,error}=await client.from("promotional_campaigns").select("id,name,headline,body,cta_label,cta_url,position,frequency_days,starts_at,ends_at,discount_type,discount_value,max_spots,promotional_campaign_assets(asset_id,sort_order),promotional_campaign_pages(page_path)").eq("active",true);if(error){console.warn("[Popup promocional] Não foi possível carregar campanhas:",error.message);return;}
 const now=Date.now(),c=(data||[]).find(x=>(!x.starts_at||Date.parse(x.starts_at)<=now)&&(!x.ends_at||Date.parse(x.ends_at)>now)&&(x.promotional_campaign_pages||[]).some(p=>p.page_path===path));if(!c)return;
