@@ -668,7 +668,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/rejuvenescimento.html",
       "redirect_to": null,
-      "sha256": "c68b79feacd38d171594679bd70ecf909111fd78b63c8f681e1ae3432977d313"
+      "sha256": "9543a9c00a61d79d050949585683f6ba647b9d985c44504f98351a170b9970ed"
     },
     {
       "path": "tratamentos/remocoes.html",
@@ -701,5 +701,5 @@
       "sha256": "055a1219cc6c3be5ddf0dc9ead0037332b6d8993b952612ffe8f877f55bfd4a5"
     }
   ],
-  "generated_at": "2026-10-13T13:21:56.356Z"
+  "generated_at": "2026-10-13T14:07:34.180Z"
 }
