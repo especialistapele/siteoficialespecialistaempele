@@ -168,7 +168,7 @@ ${cabecalho("blog")}
     <p class="card__meta texto-centro">${dataTxt ? `Publicado em <time datetime="${publicado}">${escapeHtml(dataTxt)}</time>` : ""}${mostrarAtualizacao ? ` · Atualizado em <time datetime="${modificado}">${escapeHtml(atualizadoTxt)}</time>` : ""}${trat ? " · " + escapeHtml(trat.name) : ""}</p>
     <h1 class="texto-centro">${escapeHtml(a.title)}</h1>
     <p class="card__meta texto-centro">Por <a href="/quemsomos.html" rel="author">Danielle Brito</a> — Especialista em Pele</p>
-    ${capa ? `<img src="${escapeHtml(capa)}" alt="${escapeHtml(altCapa)}"${attrDim(dimCapa)} style="width:100%;height:auto;border-radius:10px;margin:24px 0" fetchpriority="high" decoding="async">` : ""}
+    <img src="${escapeHtml(capa || imagemMeta)}" alt="${escapeHtml(altCapa)}"${attrDim(dimCapa)} style="width:100%;height:auto;border-radius:10px;margin:24px 0" fetchpriority="high" decoding="async" onerror="this.onerror=null;this.src=&#39;${SITE}/assets/hero-fallback.webp&#39;;">
     <div class="artigo-corpo">${corpo}</div>
     ${ctaHtml}
     ${faq.length ? `<section class="artigo-faq" aria-labelledby="faq-titulo"><h2 id="faq-titulo">Perguntas frequentes</h2>${faq.map((item) => `<details><summary>${escapeHtml(item.pergunta)}</summary><div class="faq-resposta">${renderizarConteudo(item.resposta)}</div></details>`).join("")}</section>` : ""}

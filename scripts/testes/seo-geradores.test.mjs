@@ -116,3 +116,21 @@ test("sincronização não apaga páginas geradas quando a lista de publicados v
     else process.env.ALLOW_EMPTY_PUBLICATION_SYNC = originalOverride;
   }
 });
+
+
+test("artigo sem capa exibe imagem alternativa e recupera falha de carregamento", () => {
+  const html = paginaArtigoHtml({
+    public_id: "TEST-SEO-000004",
+    slug: "artigo-sem-capa",
+    title: "Artigo sem capa",
+    excerpt: "Conteúdo de teste.",
+    content: "Conteúdo de teste.",
+    published_at: null,
+    updated_at: null,
+    cover_image_url: "",
+    treatments: null,
+  });
+  const fallback = "https://www.especialistaempele.com.br/assets/hero-fallback.webp";
+  assert.ok(html.includes('<img src="' + fallback + '" alt="Imagem de capa do artigo: Artigo sem capa"'));
+  assert.ok(html.includes('onerror="this.onerror=null;this.src=&#39;' + fallback + '&#39;;"'));
+});
