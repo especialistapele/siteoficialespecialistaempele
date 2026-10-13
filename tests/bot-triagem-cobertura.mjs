@@ -10,8 +10,9 @@ const bot = readFileSync("assets/js/bot-triagem.js", "utf8");
 const whatsapp = readFileSync("assets/js/whatsapp.js", "utf8");
 const errors = [];
 
+// detalhe.html é apenas um redirecionador legado (noindex), não uma página de tratamento com bot.
 const actualTreatmentRoutes = readdirSync("tratamentos")
-  .filter((name) => name.endsWith(".html") && name !== "index.html")
+  .filter((name) => name.endsWith(".html") && !["index.html", "detalhe.html"].includes(name))
   .map((name) => "/tratamentos/" + name);
 const configuredTreatmentRoutes = Object.keys(config.pageContexts)
   .filter((route) => route.startsWith("/tratamentos/"));
