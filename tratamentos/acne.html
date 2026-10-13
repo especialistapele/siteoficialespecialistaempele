@@ -52,6 +52,18 @@
 .acne-fechamento{max-width:760px;margin:0 auto;text-align:center;padding:12px 0 0}
 .acne-fechamento .tratamento-hero__cta{margin-top:8px}
 .acne-frase{font-weight:750!important;letter-spacing:.04em;color:#26312d!important}
+.acne-resultados{margin:64px 0 58px;padding:clamp(26px,4vw,44px);background:#f4f2eb;border:1px solid #e7e1d2;border-radius:20px}
+.acne-resultados__cabecalho{max-width:760px;margin:0 auto 28px;text-align:center}
+.acne-resultados__grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.acne-resultado{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:22px;background:#fff;border:1px solid #e4e5df;border-radius:15px;min-width:0}
+.acne-resultado__numero{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:#e8e4d8;color:#26312d;font-weight:800}
+.acne-resultado h3{margin:0;font-size:19px}
+.acne-resultado p{font-size:15px;margin:0;line-height:1.65}
+.acne-resultado a{margin-top:auto;color:#35433d;font-weight:750;text-underline-offset:4px}
+.acne-resultados__todos{text-align:center;margin:24px 0 0!important}
+.acne-resultados__nota{font-size:13px!important;color:#656b66!important;margin:14px 0 0!important;text-align:center}
+@media(max-width:760px){.acne-resultados{margin:42px 0;padding:22px 16px}.acne-resultados__grid{grid-template-columns:1fr}.acne-resultado{padding:20px}}
+
 @media(max-width:760px){.acne-conteudo{padding-top:32px}.acne-conteudo p{font-size:16px}.acne-intro{margin-bottom:30px}.acne-observacao{grid-template-columns:1fr;gap:12px;margin-bottom:42px}.acne-etapas{grid-template-columns:1fr;gap:14px}.acne-etapa{padding:20px}.acne-painel{grid-template-columns:1fr;gap:18px;margin:42px 0}.acne-conteudo h3{font-size:19px}}
 @media(prefers-reduced-motion:reduce){.tratamento-hero *{scroll-behavior:auto}}</style>
 </head>
@@ -143,6 +155,36 @@
         <li>Registros da evolução do acompanhamento</li>
         <li>Conteúdos disponibilizados pela especialista</li>
       </ul>
+    </section>
+
+    <section class="acne-resultados" aria-labelledby="acne-resultados-titulo">
+      <header class="acne-resultados__cabecalho">
+        <p class="acne-kicker">Casos acompanhados</p>
+        <h2 id="acne-resultados-titulo">Resultados de tratamentos de acne</h2>
+        <p>Conheça alguns registros de evolução compartilhados na área de resultados. Cada pele responde de uma forma e os casos apresentados não garantem resultados iguais para outras pessoas.</p>
+      </header>
+      <div class="acne-resultados__grid">
+        <article class="acne-resultado">
+          <span class="acne-resultado__numero" aria-hidden="true">01</span>
+          <h3>Resultado de Acne — caso 01</h3>
+          <p>Registro de evolução após aproximadamente 2 meses de tratamento.</p>
+          <a href="/resultados/resultado-de-acne-caso-01.html">Ver caso completo →</a>
+        </article>
+        <article class="acne-resultado">
+          <span class="acne-resultado__numero" aria-hidden="true">02</span>
+          <h3>Resultado de Acne — caso 02</h3>
+          <p>Registro de evolução após aproximadamente 3 meses de tratamento.</p>
+          <a href="/resultados/resultado-de-acne-caso-02.html">Ver caso completo →</a>
+        </article>
+        <article class="acne-resultado">
+          <span class="acne-resultado__numero" aria-hidden="true">03</span>
+          <h3>Resultado de Acne — caso 03</h3>
+          <p>Registro de evolução após aproximadamente 2 meses de tratamento.</p>
+          <a href="/resultados/resultado-de-acne-caso-03.html">Ver caso completo →</a>
+        </article>
+      </div>
+      <p class="acne-resultados__todos"><a class="tratamento-hero__cta" href="/resultados/">Ver todos os resultados</a></p>
+      <p class="acne-resultados__nota">Imagens e relatos têm caráter informativo. A avaliação individual é importante para compreender as possibilidades de cuidado.</p>
     </section>
 
     <section class="acne-fechamento" aria-labelledby="acne-fechamento-titulo">
