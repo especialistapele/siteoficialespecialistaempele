@@ -34,7 +34,7 @@ const CANONICAL_CONTEXT_BY_SLUG = {
 };
 
 const files = fs.readdirSync(TREATMENT_DIR)
-  .filter((file) => file.endsWith(".html") && file !== "index.html")
+  .filter((file) => file.endsWith(".html") && !["index.html", "detalhe.html"].includes(file))
   .sort();
 
 const treatmentModes = {};
