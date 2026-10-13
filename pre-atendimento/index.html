@@ -48,14 +48,60 @@
     <p>Preencha com calma — este pré-atendimento ajuda a Danielle a conhecer sua história e organizar as informações antes do primeiro encontro.</p>
   </section>
 
-  <section class="consultoria-cta-inline wrap">
-  <div>
-    <div class="eyebrow">Antes de começar</div>
-    <h2>Conheça os Programas de Consultoria Online</h2>
-    <p>Se o que você procura é orientação personalizada de skincare e acompanhamento regenerativo à distância, conheça a consultoria para todo o Brasil.</p>
-  </div>
-  <a class="btn btn-dourado" href="../consultoriaonline.html">Conheça os Programas</a>
-</section>
+  <aside class="pre-atendimento-consultoria" aria-label="Conheça a consultoria online">
+  <div class="pre-atendimento-consultoria__rotulo">Outra opção</div>
+  <h2>Consultoria online</h2>
+  <p>Orientação personalizada de skincare para todo o Brasil.</p>
+  <a href="/consultoriaonline.html">Conheça os programas <span aria-hidden="true">→</span></a>
+</aside>
+<style>
+  .pre-atendimento-consultoria {
+    box-sizing: border-box;
+    width: min(100% - 40px, 320px);
+    margin: 0 max(20px, calc((100% - 640px) / 2)) 18px auto;
+    padding: 14px 16px;
+    border: 1px solid #e8e2d8;
+    border-radius: 10px;
+    background: #faf9f6;
+    color: #4b4945;
+  }
+  .pre-atendimento-consultoria__rotulo {
+    margin-bottom: 4px;
+    color: #827765;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .pre-atendimento-consultoria h2 {
+    margin: 0 0 5px;
+    color: #343330;
+    font-size: 16px;
+    line-height: 1.35;
+  }
+  .pre-atendimento-consultoria p {
+    margin: 0 0 8px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .pre-atendimento-consultoria a {
+    color: #725b35;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .pre-atendimento-consultoria a:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  @media (max-width: 680px) {
+    .pre-atendimento-consultoria {
+      margin-right: 20px;
+    }
+  }
+</style>
 
 <section class="secao wrap" style="max-width:640px">
     <div class="aviso-flash" data-flash></div>
