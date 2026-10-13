@@ -518,7 +518,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/acne.html",
       "redirect_to": null,
-      "sha256": "86b08e897e99fb2dcb9809301484fcce2b9e31134fae7a93474843d3f8b41ea0"
+      "sha256": "34aa9bfc972796685ed8adc884f949bb89588fa148d0e8cad9c505ca59f0990b"
     },
     {
       "path": "tratamentos/celulite.html",
@@ -538,7 +538,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/cicatriz.html",
       "redirect_to": null,
-      "sha256": "d7276dc2eb395a6c310633d601e50c550d2db80b3a802ba7807293d2be795614"
+      "sha256": "eb1131c7659841ae1fb0d5e12db81f67109f8cb0e23a208781b2861fc9104fa8"
     },
     {
       "path": "tratamentos/clareamento-facial.html",
@@ -548,7 +548,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/clareamento-facial.html",
       "redirect_to": null,
-      "sha256": "6f8a1f387ae0000d1d59e51f360800d72e88642c05e2f59cd0148a28d0a9d7ab"
+      "sha256": "b71cdaabc038b7e89e156a441c3e7054ebe71a33d2d71cb74605cc15acf90924"
     },
     {
       "path": "tratamentos/clareamento.html",
@@ -558,7 +558,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/clareamento.html",
       "redirect_to": null,
-      "sha256": "4576dda0c19424cbc11dbce9f6124fc2965d6f5dda97c38b78c6f5c68dbd74ba"
+      "sha256": "a6afa29167641d75fbf66b4d997ed0696d4f179d1aac9ea63a007a473bfe2b04"
     },
     {
       "path": "tratamentos/corporal.html",
@@ -628,7 +628,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/limpeza-de-pele.html",
       "redirect_to": null,
-      "sha256": "7ee21a44e00406318ff3f1f63adaa82e4705d3b4ef19322d512944ed9274e9f9"
+      "sha256": "c425240017d417e7077453053ee6249582704f4ac56ee1eb7cd56a013cb153f5"
     },
     {
       "path": "tratamentos/melasma.html",
@@ -638,7 +638,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/melasma.html",
       "redirect_to": null,
-      "sha256": "2cd6c192668ae395e347adcd30f9461b43ed2f29da6d3eb7b4d4917e7425e819"
+      "sha256": "62a064cef203b4b9d716218e7826c3cd8b12870ff5017f3c7ef2e9276c82a7f1"
     },
     {
       "path": "tratamentos/operatorio.html",
@@ -658,7 +658,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/poros-abertos.html",
       "redirect_to": null,
-      "sha256": "a6541be5e66eabf1079ea3edcf0198fbec94bc76a166330f97e395f56b8c62ee"
+      "sha256": "9ffced9050d3ef88f013e758221575461df8bb2be508b987f2409d912f317eaf"
     },
     {
       "path": "tratamentos/rejuvenescimento.html",
@@ -668,7 +668,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/rejuvenescimento.html",
       "redirect_to": null,
-      "sha256": "9543a9c00a61d79d050949585683f6ba647b9d985c44504f98351a170b9970ed"
+      "sha256": "6df05f87364bf433790a6e4dbf15b59f0c229ef5f8c6170d71da11889013f6b8"
     },
     {
       "path": "tratamentos/remocoes.html",
@@ -688,7 +688,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/rosacea.html",
       "redirect_to": null,
-      "sha256": "bba1a3fe7951c5fb551f5f6d85d14ffb5a0b5c9a586d098a08fa7dead35dca27"
+      "sha256": "1e12f92285e65965779bdde1f3551a4f3fbd87cadede6ba18c8efe9efa28ac6a"
     },
     {
       "path": "tratamentos/sobrancelha.html",
@@ -701,5 +701,5 @@
       "sha256": "055a1219cc6c3be5ddf0dc9ead0037332b6d8993b952612ffe8f877f55bfd4a5"
     }
   ],
-  "generated_at": "2026-10-13T14:26:13.755Z"
+  "generated_at": "2026-10-13T17:06:24.015Z"
 }
