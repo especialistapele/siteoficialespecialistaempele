@@ -125,7 +125,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "operatorio": "Vi que você está conhecendo nosso conteúdo sobre Pós Operatório. O que você gostaria de entender melhor?",
   "poros": "Vi que você está conhecendo nosso conteúdo sobre Tratamento para poros abertos. O que você gostaria de entender melhor?",
   "rejuvenescimento": "Vi que você está conhecendo nosso conteúdo sobre Rejuvenescimento Facial. O que você gostaria de entender melhor?",
-  "remocoes": "Vi que você está conhecendo nosso conteúdo sobre Remoção de sinais e verrugas com cuidado e atenção à sua pele. O que você gostaria de entender melhor?",
+  "remocoes": "Vi que você está conhecendo nosso conteúdo sobre Avaliação para remoção de sinais, verrugas e acrocórdons na Região dos Lagos. O que você gostaria de entender melhor?",
   "rosacea": "Vi que você está conhecendo nosso conteúdo sobre Rosácea. O que você gostaria de entender melhor?",
   "sobrancelha": "Vi que você está conhecendo nosso conteúdo sobre Despigmentação de Sobrancelhas. O que você gostaria de entender melhor?"
 },
@@ -147,7 +147,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "operatorio": "Pós Operatório",
   "poros": "Tratamento para poros abertos",
   "rejuvenescimento": "Rejuvenescimento Facial",
-  "remocoes": "Remoção de sinais e verrugas com cuidado e atenção à sua pele",
+  "remocoes": "Avaliação para remoção de sinais, verrugas e acrocórdons na Região dos Lagos",
   "rosacea": "Rosácea",
   "sobrancelha": "Despigmentação de Sobrancelhas"
 },
@@ -221,7 +221,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
     "rejuvenescimento"
   ],
   "remocoes": [
-    "Remoção de sinais e verrugas com cuidado e atenção à sua pele",
+    "Avaliação para remoção de sinais, verrugas e acrocórdons na Região dos Lagos",
     "remocoes"
   ],
   "rosacea": [
