@@ -82,7 +82,7 @@ const auto = autoSource ? parseGlobalConfig(autoSource.replace("window.ESPECIALI
 
 const treatmentDir = path.join(ROOT, "tratamentos");
 const treatmentFiles = fs.readdirSync(treatmentDir)
-  .filter((file) => file.endsWith(".html") && file !== "index.html")
+  .filter((file) => file.endsWith(".html") && !["index.html", "detalhe.html"].includes(file))
   .sort();
 
 const treatmentPaths = treatmentFiles.map((file) => "/tratamentos/" + file);
@@ -125,7 +125,7 @@ const effectiveAliases = { ...(auto.aliases || {}), ...aliases };
 const configuredTreatmentPaths = Object.entries(effectiveContexts)
   .filter(([, context]) => context)
   .map(([pagePath]) => pagePath)
-  .filter((pagePath) => pagePath.startsWith("/tratamentos/"))
+  .filter((pagePath) => pagePath.startsWith("/tratamentos/") && pagePath !== "/tratamentos/detalhe.html")
   .sort();
 console.log("Contextos de tratamento configurados:", configuredTreatmentPaths.length);
 const modes = effectiveModes;
