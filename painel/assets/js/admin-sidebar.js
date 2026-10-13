@@ -29,6 +29,7 @@ const ITENS = [
   { id: "blog", label: "Blog", href: "/painel/admin/blog.html" },
   { id: "depoimentos", label: "Depoimentos", href: "/painel/admin/depoimentos.html" },
   { id: "tratamentos", label: "Tratamentos", href: "/painel/admin/tratamentos.html" },
+  { id: "promocoes", label: "Campanhas promocionais", href: "/painel/admin/promocoes.html" },
   { id: "resultados", label: "Resultados", href: "/painel/admin/resultados.html" },
   { id: "documentos", label: "Documentos", href: "/painel/admin/documentos.html" },
   { id: "contratos", label: "Contratos", href: "/painel/admin/contratos.html" },
