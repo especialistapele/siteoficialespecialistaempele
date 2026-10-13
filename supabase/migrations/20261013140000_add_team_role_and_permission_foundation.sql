@@ -30,7 +30,7 @@ as $function$
     select p.role = 'admin'
       or (
         p.role = 'equipe'
-        and coalesce((p.permissions ->> permission_key)::boolean, false)
+        and (p.permissions -> permission_key) = 'true'::jsonb
       )
     from public.profiles p
     where p.id = (select auth.uid())
