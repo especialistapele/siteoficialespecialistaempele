@@ -518,7 +518,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/acne.html",
       "redirect_to": null,
-      "sha256": "34aa9bfc972796685ed8adc884f949bb89588fa148d0e8cad9c505ca59f0990b"
+      "sha256": "a3a827c06a5494262e53ff734bb15c24ed5821185d6ce38203767ffbddb07e4b"
     },
     {
       "path": "tratamentos/celulite.html",
@@ -528,7 +528,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/celulite.html",
       "redirect_to": null,
-      "sha256": "9ad87f6be124fb2f339ee7e4986a939f2234a90cb2f87e2a7875d152460a51b4"
+      "sha256": "341406403a315e8e56c1262a88d8da9ffc64d5c8ed0994978e6dc539be4a6ca2"
     },
     {
       "path": "tratamentos/cicatriz.html",
@@ -638,7 +638,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/melasma.html",
       "redirect_to": null,
-      "sha256": "62a064cef203b4b9d716218e7826c3cd8b12870ff5017f3c7ef2e9276c82a7f1"
+      "sha256": "15a42b669a085942835497d043bceca0bcfa17ab9720a41c4d8e88f7e4c80773"
     },
     {
       "path": "tratamentos/operatorio.html",
@@ -688,7 +688,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/rosacea.html",
       "redirect_to": null,
-      "sha256": "1e12f92285e65965779bdde1f3551a4f3fbd87cadede6ba18c8efe9efa28ac6a"
+      "sha256": "47fdda461b67caeb7e23d13a17704a7825e156bb9a67e96b0cb16ddf4b02a833"
     },
     {
       "path": "tratamentos/sobrancelha.html",
@@ -701,5 +701,5 @@
       "sha256": "055a1219cc6c3be5ddf0dc9ead0037332b6d8993b952612ffe8f877f55bfd4a5"
     }
   ],
-  "generated_at": "2026-10-13T17:06:24.015Z"
+  "generated_at": "2026-10-13T18:50:35.382Z"
 }
