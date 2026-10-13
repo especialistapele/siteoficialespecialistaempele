@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atualizando endereço de tratamento | Especialista em Pele</title>
+  <meta name="robots" content="noindex,follow">
+  <meta name="description" content="Este endereço de tratamento foi atualizado. Você será encaminhado para a página correspondente no site Especialista em Pele.">
+  <link rel="canonical" href="https://www.especialistaempele.com.br/tratamentos/">
+</head>
+<body>
+  <main>
+    <h1>Este endereço foi atualizado</h1>
+    <p>Estamos encaminhando você para a página atual do tratamento solicitado.</p>
+    <p id="fallback"><a href="/tratamentos/">Ver todos os tratamentos</a></p>
+  </main>
+  <script>
+    (function () {
+      "use strict";
+      var params = new URLSearchParams(window.location.search);
+      var rawSlug = params.get("slug") || "";
+      var slug = rawSlug.normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+
+      // Compatibilidade com links antigos que usavam detalhe.html?slug=...
+      // Os destinos são páginas atuais e existentes no site.
+      var destinations = {
+        "acne": "/tratamentos/acne.html",
+        "acne-adolescencia": "/tratamentos/acne.html",
+        "melasma": "/tratamentos/melasma.html",
+        "rosacea": "/tratamentos/rosacea.html",
+        "cicatriz": "/tratamentos/cicatriz.html",
+        "cicatrizes": "/tratamentos/cicatriz.html",
+        "celulite": "/tratamentos/celulite.html",
+        "corporal": "/tratamentos/corporal.html",
+        "remocoes": "/tratamentos/remocoes.html",
+        "remocao": "/tratamentos/remocoes.html",
+        "leucodermia": "/tratamentos/leucodermia.html",
+        "limpeza": "/tratamentos/limpeza-de-pele.html",
+        "limpeza-de-pele": "/tratamentos/limpeza-de-pele.html",
+        "sobrancelha": "/tratamentos/sobrancelha.html",
+        "sobrancelhas": "/tratamentos/sobrancelha.html",
+        "operatorio": "/tratamentos/operatorio.html",
+        "pos-operatorio": "/tratamentos/operatorio.html",
+        "estrias": "/tratamentos/estrias.html",
+        "flacidez": "/tratamentos/flacidez.html",
+        "definicao": "/tratamentos/definicao.html",
+        "rejuvenescimento": "/tratamentos/rejuvenescimento.html",
+        "clareamento": "/tratamentos/clareamento.html",
+        "clareamento-facial": "/tratamentos/clareamento-facial.html",
+        "acantose": "/tratamentos/acantose.html",
+        "esporotricose": "/tratamentos/esporotricose.html",
+        "poros-abertos": "/tratamentos/poros-abertos.html"
+      };
+
+      var target = destinations[slug];
+      if (target) {
+        var canonical = document.querySelector('link[rel="canonical"]');
+        if (canonical) canonical.href = new URL(target, window.location.origin).href;
+        window.location.replace(target);
+        return;
+      }
+
+      // Slugs desconhecidos não são enviados à página inicial: oferecemos
+      // a lista de tratamentos para que a pessoa escolha o destino correto.
+      var fallback = document.getElementById("fallback");
+      if (fallback) {
+        fallback.innerHTML = '<a href="/tratamentos/">Ver todos os tratamentos</a>';
+      }
+    }());
+  </script>
+  <noscript>
+    <p>Para continuar, acesse <a href="/tratamentos/">a lista de tratamentos</a>.</p>
+  </noscript>
+</body>
+</html>
