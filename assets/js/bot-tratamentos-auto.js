@@ -36,6 +36,10 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
     "presential": true,
     "online": false
   },
+  "detalhe": {
+    "presential": true,
+    "online": false
+  },
   "esporotricose": {
     "presential": true,
     "online": false
@@ -94,6 +98,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "/tratamentos/clareamento.html": "clareamento-corporal",
   "/tratamentos/corporal.html": "gordura-localizada",
   "/tratamentos/definicao.html": "definicao-corporal",
+  "/tratamentos/detalhe.html": "detalhe",
   "/tratamentos/esporotricose.html": "esporotricose",
   "/tratamentos/estrias.html": "estrias",
   "/tratamentos/flacidez.html": "flacidez",
@@ -116,6 +121,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "clareamento-corporal": "Vi que você está conhecendo nosso conteúdo sobre Clareamento Corporal. O que você gostaria de entender melhor?",
   "gordura-localizada": "Vi que você está conhecendo nosso conteúdo sobre Redução de gordura localizada. O que você gostaria de entender melhor?",
   "definicao-corporal": "Vi que você está conhecendo nosso conteúdo sobre Definição Corporal. O que você gostaria de entender melhor?",
+  "detalhe": "Vi que você está conhecendo nosso conteúdo sobre Este endereço foi atualizado. O que você gostaria de entender melhor?",
   "esporotricose": "Vi que você está conhecendo nosso conteúdo sobre Tratamento de cicatrizes por esporotricose. O que você gostaria de entender melhor?",
   "estrias": "Vi que você está conhecendo nosso conteúdo sobre Estrias. O que você gostaria de entender melhor?",
   "flacidez": "Vi que você está conhecendo nosso conteúdo sobre Flacidez. O que você gostaria de entender melhor?",
@@ -138,6 +144,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "clareamento-corporal": "Clareamento Corporal",
   "gordura-localizada": "Redução de gordura localizada",
   "definicao-corporal": "Definição Corporal",
+  "detalhe": "Este endereço foi atualizado",
   "esporotricose": "Tratamento de cicatrizes por esporotricose",
   "estrias": "Estrias",
   "flacidez": "Flacidez",
@@ -183,6 +190,10 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "definicao-corporal": [
     "Definição Corporal",
     "definicao"
+  ],
+  "detalhe": [
+    "Este endereço foi atualizado",
+    "detalhe"
   ],
   "esporotricose": [
     "Tratamento de cicatrizes por esporotricose",
