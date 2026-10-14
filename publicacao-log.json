@@ -300,8 +300,21 @@
       "workflow_run_id": "38581547646",
       "workflow_sha": "b3ae87ed285defea76683687a60b1585388de029",
       "ref": "main"
+    },
+    {
+      "request_id": "9f5c09a8-2b82-4752-8836-1880154ca58e",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/manchas-faciais.html",
+      "content_id": null,
+      "publicado": false,
+      "requested_at": "2026-10-14T14:33:50.617Z",
+      "completed_at": "2026-10-14T14:34:17.689Z",
+      "workflow_run_id": "38581630405",
+      "workflow_sha": "f968a6254840cd1c4275859c7f2878e9b789fb24",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-14T14:33:47.642Z",
-  "total": 23
+  "updated_at": "2026-10-14T14:34:17.689Z",
+  "total": 24
 }
