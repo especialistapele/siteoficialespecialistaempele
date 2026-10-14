@@ -209,8 +209,21 @@
       "workflow_run_id": "38577289435",
       "workflow_sha": "546b364df387696f21ad31153d2e203019b50e18",
       "ref": "main"
+    },
+    {
+      "request_id": "5ea26c20-7561-4da9-8107-67f33c7faf48",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/controle-da-oleosidade.html",
+      "content_id": null,
+      "publicado": false,
+      "requested_at": "2026-10-14T14:26:48.367Z",
+      "completed_at": "2026-10-14T14:27:23.824Z",
+      "workflow_run_id": "38580581328",
+      "workflow_sha": "6402b115f70d3c028f46de6bdee08e3c4a6ce3d5",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-14T14:05:08.705Z",
-  "total": 16
+  "updated_at": "2026-10-14T14:27:23.824Z",
+  "total": 17
 }
