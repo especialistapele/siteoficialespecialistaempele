@@ -418,3 +418,56 @@ h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:400;margin:0}
 .painel-layout:has(> [data-sidebar]) > .painel-sidebar .painel-sidebar__inner nav{min-height:0;overflow-y:auto;overflow-x:hidden;padding-right:2px;scrollbar-width:thin}
 .painel-layout:has(> [data-sidebar]) > .painel-sidebar .painel-sidebar__inner nav::-webkit-scrollbar{width:6px}
 .painel-layout:has(> [data-sidebar]) > .painel-sidebar .painel-sidebar__inner nav::-webkit-scrollbar-thumb{background:rgba(244,238,227,.22);border-radius:999px}
+
+
+/* Detalhes do paciente: manter histórico e estatísticas legíveis em desktop e mobile. */
+.paciente-detalhe-layout{
+  grid-template-columns:minmax(0,2.35fr) minmax(270px,.95fr);
+  align-items:start;
+}
+.paciente-detalhe-layout>.painel-card{min-width:0}
+.paciente-detalhe-layout>.painel-card:first-child{overflow:hidden}
+.paciente-detalhe-layout>.painel-card:last-child{min-width:0}
+.paciente-historico-wrap{
+  width:100%;
+  max-width:100%;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.paciente-historico-wrap .tabela-p{
+  width:100%;
+  min-width:720px;
+  table-layout:auto;
+}
+.paciente-detalhe-layout .estatisticas-paciente-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:18px 14px;
+}
+.paciente-detalhe-layout .estatisticas-paciente-grid>div{min-width:0}
+.paciente-detalhe-layout .estatisticas-paciente-grid .stat-card__valor{
+  font-size:clamp(16px,1.35vw,21px)!important;
+  line-height:1.2;
+  overflow-wrap:normal;
+  word-break:normal;
+  font-variant-numeric:tabular-nums;
+}
+.paciente-detalhe-layout .estatisticas-paciente-grid .texto-suave{
+  line-height:1.35;
+  overflow-wrap:break-word;
+}
+.paciente-detalhe-layout [data-proximo-atendimento]{
+  overflow-wrap:anywhere;
+  line-height:1.35;
+}
+@media (max-width:1100px){
+  .paciente-detalhe-layout{grid-template-columns:minmax(0,1fr) minmax(250px,.8fr)}
+}
+@media (max-width:800px){
+  .paciente-detalhe-layout{grid-template-columns:minmax(0,1fr)}
+  .paciente-detalhe-layout>.painel-card:first-child{overflow:visible}
+  .paciente-historico-wrap .tabela-p{min-width:640px}
+  .paciente-detalhe-layout .estatisticas-paciente-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:380px){
+  .paciente-detalhe-layout .estatisticas-paciente-grid{grid-template-columns:minmax(0,1fr)}
+}
