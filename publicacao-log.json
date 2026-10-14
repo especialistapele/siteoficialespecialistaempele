@@ -274,8 +274,21 @@
       "workflow_run_id": "38581179743",
       "workflow_sha": "93f7c5619b955767ea27c605f00d9eee605bfddc",
       "ref": "main"
+    },
+    {
+      "request_id": "d50d7538-3efc-44a7-854c-6339321ca690",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/hiperpigmentacao.html",
+      "content_id": null,
+      "publicado": false,
+      "requested_at": "2026-10-14T14:32:01.458Z",
+      "completed_at": "2026-10-14T14:32:34.504Z",
+      "workflow_run_id": "38581362938",
+      "workflow_sha": "c04f17dc94ae0ccd692e1a60dccff418f5447f4b",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-14T14:31:16.919Z",
-  "total": 21
+  "updated_at": "2026-10-14T14:32:34.504Z",
+  "total": 22
 }
