@@ -222,8 +222,21 @@
       "workflow_run_id": "38580581328",
       "workflow_sha": "6402b115f70d3c028f46de6bdee08e3c4a6ce3d5",
       "ref": "main"
+    },
+    {
+      "request_id": "84ea2724-73ac-46fe-8f16-0b0fb3242a1e",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/melasma-resistente.html",
+      "content_id": null,
+      "publicado": false,
+      "requested_at": "2026-10-14T14:28:10.086Z",
+      "completed_at": "2026-10-14T14:28:40.945Z",
+      "workflow_run_id": "38580783116",
+      "workflow_sha": "1cb71dfdb4d296a475a28563415036d3b92ca124",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-14T14:27:23.824Z",
-  "total": 17
+  "updated_at": "2026-10-14T14:28:40.945Z",
+  "total": 18
 }
