@@ -326,8 +326,21 @@
       "workflow_run_id": "38581795979",
       "workflow_sha": "d5acbd7169f4ac88f6a6545a842daa478f87eb97",
       "ref": "main"
+    },
+    {
+      "request_id": "0b422b7c-57e7-44a4-bc2b-68ac43c4a0f1",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/linhas-de-expressao.html",
+      "content_id": null,
+      "publicado": false,
+      "requested_at": "2026-10-14T14:36:45.582Z",
+      "completed_at": "2026-10-14T14:37:17.728Z",
+      "workflow_run_id": "38582072058",
+      "workflow_sha": "e0b0abf312c9f6a746689f67b6d6e51185ee84b4",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-14T14:35:29.016Z",
-  "total": 25
+  "updated_at": "2026-10-14T14:37:17.728Z",
+  "total": 26
 }
