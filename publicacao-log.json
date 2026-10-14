@@ -313,8 +313,21 @@
       "workflow_run_id": "38581630405",
       "workflow_sha": "f968a6254840cd1c4275859c7f2878e9b789fb24",
       "ref": "main"
+    },
+    {
+      "request_id": "36a4a6f8-1c5c-4eda-b477-db7a25629718",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/flacidez-facial.html",
+      "content_id": null,
+      "publicado": false,
+      "requested_at": "2026-10-14T14:34:57.384Z",
+      "completed_at": "2026-10-14T14:35:29.016Z",
+      "workflow_run_id": "38581795979",
+      "workflow_sha": "d5acbd7169f4ac88f6a6545a842daa478f87eb97",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-14T14:34:17.689Z",
-  "total": 24
+  "updated_at": "2026-10-14T14:35:29.016Z",
+  "total": 25
 }
