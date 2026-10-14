@@ -287,8 +287,21 @@
       "workflow_run_id": "38581362938",
       "workflow_sha": "c04f17dc94ae0ccd692e1a60dccff418f5447f4b",
       "ref": "main"
+    },
+    {
+      "request_id": "12dbe6cc-902b-4f95-814c-b9d9524a40a1",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/melasma-na-gravidez.html",
+      "content_id": null,
+      "publicado": false,
+      "requested_at": "2026-10-14T14:33:16.069Z",
+      "completed_at": "2026-10-14T14:33:47.642Z",
+      "workflow_run_id": "38581547646",
+      "workflow_sha": "b3ae87ed285defea76683687a60b1585388de029",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-14T14:32:34.504Z",
-  "total": 22
+  "updated_at": "2026-10-14T14:33:47.642Z",
+  "total": 23
 }
