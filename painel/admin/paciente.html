@@ -57,7 +57,7 @@
       </div>
     </div>
 
-    <div class="grid-dashboard" style="grid-template-columns:2fr 1fr">
+    <div class="grid-dashboard paciente-detalhe-layout">
       <div class="painel-card">
         <div class="abas-p">
           <button class="ativa" data-aba="historico">Histórico</button>
@@ -71,10 +71,12 @@
 
         <!-- HISTÓRICO -->
         <div class="aba-conteudo visivel" data-conteudo="historico">
-          <table class="tabela-p">
-            <thead><tr><th>Data</th><th>Atendimento</th><th>Total</th><th>Taxa</th><th>Restante</th><th>Status</th><th></th></tr></thead>
-            <tbody data-lista-atendimentos><tr><td colspan="5" class="painel-vazio">Carregando…</td></tr></tbody>
-          </table>
+          <div class="paciente-historico-wrap">
+            <table class="tabela-p">
+              <thead><tr><th>Data</th><th>Atendimento</th><th>Total</th><th>Taxa</th><th>Restante</th><th>Status</th><th></th></tr></thead>
+              <tbody data-lista-atendimentos><tr><td colspan="5" class="painel-vazio">Carregando…</td></tr></tbody>
+            </table>
+          </div>
           <h3 style="margin-top:24px">Histórico de consumo</h3>
           <canvas id="grafico-paciente" height="140"></canvas>
         </div>
