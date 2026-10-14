@@ -235,8 +235,21 @@
       "workflow_run_id": "38580783116",
       "workflow_sha": "1cb71dfdb4d296a475a28563415036d3b92ca124",
       "ref": "main"
+    },
+    {
+      "request_id": "e2c28922-fd4d-4a5d-aa7a-919f37cb91a9",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/manchas-solares.html",
+      "content_id": null,
+      "publicado": false,
+      "requested_at": "2026-10-14T14:28:48.868Z",
+      "completed_at": "2026-10-14T14:29:14.025Z",
+      "workflow_run_id": "38580876939",
+      "workflow_sha": "8dd21a14bc57b2c67d0030a2cbbabe4f8002ee41",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-14T14:28:40.945Z",
-  "total": 18
+  "updated_at": "2026-10-14T14:29:14.025Z",
+  "total": 19
 }
