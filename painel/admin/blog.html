@@ -75,7 +75,16 @@
             <button type="button" class="btn-p btn-p-fora" id="faq-adicionar" style="margin-top:8px">+ Adicionar pergunta</button>
             <small class="texto-suave" style="font-size:11px">As perguntas e respostas serão exibidas no final do artigo e incluídas automaticamente na estrutura SEO da página.</small>
           </div>
-          <div class="form-campo"><label for="imagem">Imagem de capa</label><input type="file" id="imagem" accept="image/*"></div>
+          <div class="form-campo">
+            <label for="imagem">Imagem de capa</label>
+            <input type="file" id="imagem" accept="image/*">
+            <div id="imagem-preview-salva" class="texto-suave" style="display:none;margin-top:10px;padding:10px;border:1px solid #e2dccf;border-radius:8px">
+              <img id="imagem-preview-img" alt="Prévia da imagem de capa salva" style="display:block;width:100%;max-width:240px;max-height:150px;object-fit:cover;border-radius:6px;margin-bottom:8px">
+              <span id="imagem-preview-status" style="font-size:12px;overflow-wrap:anywhere"></span>
+              <button type="button" id="imagem-remover" class="btn-p btn-p-fora" style="margin-top:8px">Remover capa atual</button>
+            </div>
+            <small class="texto-suave" style="font-size:11px">Ao reabrir um artigo, a capa salva aparece abaixo. Se não escolher outra imagem, a capa atual será mantida.</small>
+          </div>
           <div class="form-linha">
             <div class="form-campo"><label for="scheduled_at">Agendar publicação</label><input type="datetime-local" id="scheduled_at"><small class="texto-suave" style="font-size:11px">Escolha a data e o horário. O artigo será publicado automaticamente quando chegar o momento.</small></div>
             <div class="form-campo" style="display:flex;align-items:flex-end"><div class="form-checkbox"><input type="checkbox" id="published"><label for="published">Publicar agora</label></div></div>
@@ -257,6 +266,41 @@
     atualizarPrevia();
   });
 
+  const campoImagem = document.getElementById("imagem");
+  const previewImagem = document.getElementById("imagem-preview-salva");
+  const previewImagemTag = document.getElementById("imagem-preview-img");
+  const previewImagemStatus = document.getElementById("imagem-preview-status");
+
+  function atualizarPreviewImagem(url, nomeArquivo = "") {
+    const temImagem = typeof url === "string" && url.trim() !== "";
+    previewImagem.style.display = temImagem ? "block" : "none";
+    previewImagemTag.src = temImagem ? url : "";
+    previewImagemStatus.textContent = temImagem
+      ? (nomeArquivo ? `Nova imagem selecionada: ${nomeArquivo}. Será salva ao clicar em Salvar.` : "Capa salva neste artigo. Se você não selecionar outra imagem, ela será mantida.")
+      : "Nenhuma capa salva para este artigo.";
+    previewImagemStatus.style.display = temImagem ? "block" : "none";
+  }
+
+  campoImagem.addEventListener("change", () => {
+    const arquivo = campoImagem.files?.[0];
+    if (!arquivo) {
+      atualizarPreviewImagem(imagemAtualUrl);
+      return;
+    }
+    const temporaria = URL.createObjectURL(arquivo);
+    previewImagem.style.display = "block";
+    previewImagemTag.src = temporaria;
+    previewImagemStatus.textContent = `Nova imagem selecionada: ${arquivo.name}. Será salva ao clicar em Salvar.`;
+    previewImagemStatus.style.display = "block";
+    previewImagemTag.onload = () => URL.revokeObjectURL(temporaria);
+  });
+
+  document.getElementById("imagem-remover").addEventListener("click", () => {
+    imagemAtualUrl = null;
+    campoImagem.value = "";
+    atualizarPreviewImagem(null);
+  });
+
   function abrirNovo() {
     slugManual = false;
     document.getElementById("form-item").reset();
@@ -267,6 +311,8 @@
     document.getElementById("cta_url").value = "";
     renderizarFaq();
     imagemAtualUrl = null;
+    atualizarPreviewImagem(null);
+    document.getElementById("imagem").value = "";
     document.querySelector("[data-modal-titulo]").textContent = "Novo artigo";
     atualizarPrevia();
     modal.style.display = "flex";
@@ -300,7 +346,9 @@
     document.getElementById("scheduled_at").value = formatarDataParaInputLocal(item.scheduled_at);
     document.getElementById("published").checked = !!item.published;
     selectTratamento.value = item.treatment_id || "";
-    imagemAtualUrl = item.cover_image_url;
+    imagemAtualUrl = item.cover_image_url || null;
+    document.getElementById("imagem").value = "";
+    atualizarPreviewImagem(imagemAtualUrl);
     document.querySelector("[data-modal-titulo]").textContent = "Editar artigo";
     slugManual = true;
     atualizarPrevia();
@@ -361,8 +409,14 @@
       // published_at (data da PRIMEIRA publicação) e o slug final (único) são
       // definidos pelo banco; aqui só lemos de volta o que ficou salvo.
       const consulta = id ? supabase.from("articles").update(payload).eq("id", id) : supabase.from("articles").insert(payload);
-      const { data: salvo, error } = await consulta.select("public_id, slug, published, scheduled_at").single();
+      const { data: salvo, error } = await consulta.select("id, public_id, slug, published, scheduled_at, cover_image_url").single();
       if (error) throw error;
+
+      // Confirma que a capa realmente ficou persistida; não confia apenas no estado local do formulário.
+      const capaEsperada = cover_image_url || null;
+      if ((salvo.cover_image_url || null) !== capaEsperada) {
+        throw new Error("O artigo foi salvo, mas a URL da imagem de capa não foi confirmada no banco. Abra novamente o artigo e confira antes de publicar.");
+      }
 
       // Confirma primeiro que o artigo e o FAQ foram persistidos no banco.
       // Só depois disso a publicação é disparada para o GitHub.
@@ -371,6 +425,7 @@
       mostrarFlash(flash, faqQuantidade ? `FAQ salvo: ${faqQuantidade} pergunta(s). Artigo salvo com sucesso. Preparando publicação…` : "Artigo salvo com sucesso. Preparando publicação…", "sucesso");
 
       modal.style.display = "none";
+      imagemAtualUrl = salvo.cover_image_url || null;
       const resultadoPublicacao = await dispararPublicacao({ path: `blog/${salvo.slug}.html`, publicado: salvo.published });
       mostrarFlash(flash, `Artigo salvo (${salvo.public_id}). ` + (salvo.published ? `Endereço: /blog/${salvo.slug}.html. ` : (salvo.scheduled_at ? `Agendado para ${new Date(salvo.scheduled_at).toLocaleString("pt-BR")}. ` : "Rascunho: não aparece no site. ")) + (resultadoPublicacao.confirmado ? MSG_CONFIRMADO : (resultadoPublicacao.ok ? MSG_ATUALIZANDO : MSG_AGENDADO)), "sucesso");
       carregar();
