@@ -261,8 +261,21 @@
       "workflow_run_id": "38581009377",
       "workflow_sha": "b4d55381a1a053031161e0ddb79056850ba5bfb9",
       "ref": "main"
+    },
+    {
+      "request_id": "d36fbfc2-9521-477b-ba93-537beb21cbd5",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/melasma-hormonal.html",
+      "content_id": null,
+      "publicado": false,
+      "requested_at": "2026-10-14T14:30:48.345Z",
+      "completed_at": "2026-10-14T14:31:16.919Z",
+      "workflow_run_id": "38581179743",
+      "workflow_sha": "93f7c5619b955767ea27c605f00d9eee605bfddc",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-14T14:30:25.614Z",
-  "total": 20
+  "updated_at": "2026-10-14T14:31:16.919Z",
+  "total": 21
 }
