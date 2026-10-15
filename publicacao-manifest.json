@@ -628,7 +628,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/limpeza-de-pele.html",
       "redirect_to": null,
-      "sha256": "c425240017d417e7077453053ee6249582704f4ac56ee1eb7cd56a013cb153f5"
+      "sha256": "6f23374b5d58253f7c633bffc9df7a53840f1d36627c30d5659c640087985f86"
     },
     {
       "path": "tratamentos/melasma.html",
@@ -701,5 +701,5 @@
       "sha256": "055a1219cc6c3be5ddf0dc9ead0037332b6d8993b952612ffe8f877f55bfd4a5"
     }
   ],
-  "generated_at": "2026-10-13T18:50:35.382Z"
+  "generated_at": "2026-10-15T20:46:41.490Z"
 }
