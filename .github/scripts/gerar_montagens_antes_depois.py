@@ -14,6 +14,7 @@ CASES = [
     ("cicatrizes-acne", "1790174135376"),
     ("remocoes-caso-01", "1789758288824"),
     ("limpeza-de-pele-caso-01", "1789758941736"),
+    ("acne-caso-01", "1789756117073"),
 ]
 
 WIDTH, HEIGHT = 1600, 1000
