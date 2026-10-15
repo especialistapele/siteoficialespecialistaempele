@@ -628,7 +628,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/limpeza-de-pele.html",
       "redirect_to": null,
-      "sha256": "917831c2ee9000d58637c0d71f7aa6f10082c89d9be31305db7adab86a54b854"
+      "sha256": "8548d32e4664a17fb151643e05e1a4b452f8bd95f5c4a53395668ea463f9f32e"
     },
     {
       "path": "tratamentos/melasma.html",
@@ -638,7 +638,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/melasma.html",
       "redirect_to": null,
-      "sha256": "8853bec8ce8c744e6739a3cc400d772e8603698a76625cd553cad824585e0732"
+      "sha256": "08fa8a42766ff8c3f386de2daa0d3c8fe08884d2e51dd3b34d703602d6532f48"
     },
     {
       "path": "tratamentos/operatorio.html",
@@ -701,5 +701,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-15T21:21:02.889Z"
+  "generated_at": "2026-10-15T21:32:07.226Z"
 }
