@@ -6,6 +6,7 @@ on:
     branches:
       - seo/montagens-antes-depois-ci
       - seo/limpeza-pele-antes-depois
+      - seo/melasma-antes-depois
     paths:
       - .github/workflows/gerar-montagens-antes-depois.yml
       - .github/scripts/gerar_montagens_antes_depois.py
