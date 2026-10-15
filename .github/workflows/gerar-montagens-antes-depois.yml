@@ -37,7 +37,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add images/antes-depois-melasma.webp images/antes-depois-estrias.webp images/antes-depois-celulite.webp images/antes-depois-cicatrizes-acne.webp images/antes-depois-remocoes-caso-01.webp images/antes-depois-limpeza-de-pele-caso-01.webp
+          git add images/antes-depois-melasma.webp images/antes-depois-estrias.webp images/antes-depois-celulite.webp images/antes-depois-cicatrizes-acne.webp images/antes-depois-remocoes-caso-01.webp images/antes-depois-limpeza-de-pele-caso-01.webp images/antes-depois-melasma.webp
           if git diff --cached --quiet; then
             echo "Nenhuma montagem nova ou alterada."
             exit 0
