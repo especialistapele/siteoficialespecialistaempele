@@ -1,0 +1,45 @@
+name: Gerar montagens estáticas de antes e depois
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - seo/montagens-antes-depois-ci
+    paths:
+      - .github/workflows/gerar-montagens-antes-depois.yml
+      - .github/scripts/gerar_montagens_antes_depois.py
+
+permissions:
+  contents: write
+
+jobs:
+  gerar-montagens:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+        with:
+          ref: seo/montagens-antes-depois-ci
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: python -m pip install --upgrade pillow requests
+
+      - name: Baixar pares originais e montar imagens
+        run: python .github/scripts/gerar_montagens_antes_depois.py
+
+      - name: Salvar imagens geradas no branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add images/antes-depois-melasma.webp images/antes-depois-estrias.webp images/antes-depois-celulite.webp images/antes-depois-cicatrizes-acne.webp images/antes-depois-remocoes-caso-01.webp
+          if git diff --cached --quiet; then
+            echo "Nenhuma montagem nova ou alterada."
+            exit 0
+          fi
+          git commit -m "SEO: gerar montagens estáticas de antes e depois"
+          git push origin HEAD:seo/montagens-antes-depois-ci
