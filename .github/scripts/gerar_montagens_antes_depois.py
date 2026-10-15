@@ -9,7 +9,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 CASES = [
     ("melasma", "1789756541860"),
-    ("estrias", "1790174394975"),
+    ("estrias", "1790174394971"),
     ("celulite", "1790174216895"),
     ("cicatrizes-acne", "1790174135376"),
     ("remocoes-caso-01", "1789758288824"),
