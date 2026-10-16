@@ -96,6 +96,28 @@ test("gerador de resultados mantém o título SEO conciso e os metadados alinhad
   assert.ok(!html.includes(titleSeo + " — Especialista em Pele"), "marca não deve alongar ainda mais o título");
 });
 
+test("gerador otimiza title, descrição e conteúdo dos resultados de limpeza de pele", () => {
+  const titulo = "Resultado de Limpeza de Pele nanotecnologica — caso 01";
+  const tratamento = { name: "Limpeza de Pele nanotecnologica", slug: "limpeza-de-pele-nanotecnologica" };
+  const html = paginaResultadoHtml({
+    public_id: "TEST-SEO-LIMPEZA-000001",
+    slug: "resultado-limpeza-teste",
+    title: titulo,
+    description: "Pós imediato após procedimento.",
+    content: "Registro de caso de teste.",
+    published_at: null,
+    created_at: null,
+    updated_at: null,
+    treatments: tratamento,
+    before_image_url: "",
+    after_image_url: "",
+    extras: [],
+  }, { fotos: [], dims: new Map(), outros: [] });
+  assert.ok(html.includes("Limpeza de Pele Profissional"));
+  assert.ok(html.includes("Estética facial e limpeza de pele profunda"));
+  assert.ok(html.includes("resultados variam de pessoa para pessoa"));
+});
+
 test("sincronização não apaga páginas geradas quando a lista de publicados vem vazia", () => {
   const originalCwd = process.cwd();
   const originalOverride = process.env.ALLOW_EMPTY_PUBLICATION_SYNC;
