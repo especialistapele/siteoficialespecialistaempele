@@ -115,7 +115,7 @@ test("gerador otimiza title, descrição e conteúdo dos resultados de limpeza d
   }, { fotos: [], dims: new Map(), outros: [] });
   assert.ok(html.includes("Limpeza de Pele Profissional"));
   assert.ok(html.includes("Estética facial e limpeza de pele profunda"));
-  assert.ok(html.includes("resultados variam de pessoa para pessoa"));
+  assert.ok(html.includes("Fotografias documentam um caso específico"));
 });
 
 test("sincronização não apaga páginas geradas quando a lista de publicados vem vazia", () => {
