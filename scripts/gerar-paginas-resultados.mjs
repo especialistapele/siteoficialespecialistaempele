@@ -73,15 +73,21 @@ function cardResultado(r) {
 export function paginaHtml(r, { fotos, dims, outros = [] }) {
   const trat = r.treatments || null;
   const urlCanonica = urlDoResultado(r);
+  // SEO editorial específico para páginas de limpeza de pele; os HTML publicados
+  // continuam sendo gerados por este script, sem edição manual de arquivos gerados.
+  const ehLimpeza = /limpeza[\s-]+de[\s-]+pele|limpeza[\s-]+nanotecnol[oó]gica/i
+    .test(`${r.title || ""} ${trat?.name || ""} ${trat?.slug || ""}`);
   // evita "Resultado … — Resultado real" quando o título já começa com "Resultado"
-  const tituloBase = /^resultado/i.test(r.title)
-    ? r.title
-    : `${r.title} — Resultado real`;
+  const tituloBase = ehLimpeza
+    ? `Limpeza de Pele Profissional | ${r.title}`
+    : (/^resultado/i.test(r.title) ? r.title : `${r.title} — Resultado real`);
   const tituloCompleto = tituloSeo(tituloBase);
   const corpoTexto = (r.content || "").trim();
-  const descricaoMeta = resumir(
-    [r.title, (r.description || "").trim() || textoPuro(corpoTexto)].filter(Boolean).join(". ").replace(/\.\.+/g, ".") +
-    ". Resultado real, com consentimento da paciente."
+  const descricaoBase = [r.title, (r.description || "").trim() || textoPuro(corpoTexto)]
+    .filter(Boolean).join(". ").replace(/\.\.+/g, ".");
+  const descricaoMeta = resumir(ehLimpeza
+    ? `Estética facial e limpeza de pele profunda: ${descricaoBase}. Caso real publicado com consentimento; resultados variam de pessoa para pessoa.`
+    : `${descricaoBase}. Resultado real, com consentimento da paciente.`
   );
   const publicado = dataISO(r.published_at || r.created_at);
   const modificado = dataISO(r.updated_at) || publicado;
@@ -192,6 +198,7 @@ ${cabecalho("resultados")}
     <h1 class="texto-centro">${escapeHtml(r.title)}</h1>
     ${slider}
     ${r.description ? `<p class="texto-centro" style="font-size:18px;line-height:1.6">${escapeHtml(r.description)}</p>` : ""}
+    ${ehLimpeza ? `<p class="texto-centro" style="font-size:16px;line-height:1.7">Este registro integra os casos de limpeza de pele profissional da Especialista em Pele. A limpeza de pele profunda faz parte dos cuidados de estética facial quando indicada após avaliação individual. Fotografias documentam um caso específico e não garantem resultados iguais para outras pessoas.</p>` : ""}
     <h2 style="margin-top:36px">Sobre este resultado</h2>
     <div class="resultado-corpo">${corpo || `<p>Registro fotográfico de um caso${trat ? ` de ${escapeHtml(trat.name)}` : ""} atendido na Especialista em Pele${r.description ? `: ${escapeHtml(r.description.replace(/[.\s]+$/, ""))}` : ""}.</p>`}<p class="texto-suave" style="font-size:14px">${AVISO}</p></div>
     <h2 style="margin-top:36px">Fotos do caso</h2>
