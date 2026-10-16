@@ -120,7 +120,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "estrias": "Vi que você está conhecendo nosso conteúdo sobre Estrias. O que você gostaria de entender melhor?",
   "flacidez": "Vi que você está conhecendo nosso conteúdo sobre Flacidez. O que você gostaria de entender melhor?",
   "leucodermia": "Vi que você está conhecendo nosso conteúdo sobre Leucodermia Solar. O que você gostaria de entender melhor?",
-  "limpeza-de-pele": "Vi que você está conhecendo nosso conteúdo sobre Limpeza de Pele em Araruama com Nanotecnologia. O que você gostaria de entender melhor?",
+  "limpeza-de-pele": "Vi que você está conhecendo nosso conteúdo sobre Limpeza de Pele Profissional e Profunda com Nanotecnologia. O que você gostaria de entender melhor?",
   "manchas": "Vi que você está conhecendo nosso conteúdo sobre Melasma. O que você gostaria de entender melhor?",
   "operatorio": "Vi que você está conhecendo nosso conteúdo sobre Pós Operatório. O que você gostaria de entender melhor?",
   "poros": "Vi que você está conhecendo nosso conteúdo sobre Tratamento para poros abertos. O que você gostaria de entender melhor?",
@@ -142,7 +142,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "estrias": "Estrias",
   "flacidez": "Flacidez",
   "leucodermia": "Leucodermia Solar",
-  "limpeza-de-pele": "Limpeza de Pele em Araruama com Nanotecnologia",
+  "limpeza-de-pele": "Limpeza de Pele Profissional e Profunda com Nanotecnologia",
   "manchas": "Melasma",
   "operatorio": "Pós Operatório",
   "poros": "Tratamento para poros abertos",
@@ -201,7 +201,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
     "leucodermia"
   ],
   "limpeza-de-pele": [
-    "Limpeza de Pele em Araruama com Nanotecnologia",
+    "Limpeza de Pele Profissional e Profunda com Nanotecnologia",
     "limpeza de pele"
   ],
   "manchas": [
