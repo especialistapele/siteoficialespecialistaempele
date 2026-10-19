@@ -23,6 +23,6 @@ for (const slug of capas) {
   assert.match(svg, /<svg[^>]+viewBox="0 0 1200 675"/);
   assert.match(svg, /<title id="title">[^<]+<\/title>/);
   assert.match(svg, /<desc id="desc">[^<]+<\/desc>/);
-  assert.doesNotMatch(svg, /https?:\/\//, `Capa deve ser independente: ${slug}`);
+  assert.doesNotMatch(svg, /<(?:image|script)\b|(?:href|src)=["']https?:|url\(https?:/i, `Capa deve ser independente: ${slug}\`);
 }
 console.log(`Capas editoriais: ${capas.length} SVGs próprios passaram nas verificações estruturais.`);
