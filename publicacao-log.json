@@ -365,8 +365,21 @@
       "workflow_run_id": "39259977412",
       "workflow_sha": "8c19921ac00332465d224a5cb4205573bf97aeab",
       "ref": "main"
+    },
+    {
+      "request_id": "96859247-c59a-45bb-a3d5-7b1242be3544",
+      "status": "success",
+      "trigger": "panel",
+      "path": "resultados/gordura-localizada-em-abdomen.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-10-19T14:02:30.213Z",
+      "completed_at": "2026-10-19T14:03:04.253Z",
+      "workflow_run_id": "39265374016",
+      "workflow_sha": "682e9e4179b8f08b4bbfb27da1c8f760760bf2c5",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-19T13:25:37.976Z",
-  "total": 28
+  "updated_at": "2026-10-19T14:03:04.253Z",
+  "total": 29
 }
