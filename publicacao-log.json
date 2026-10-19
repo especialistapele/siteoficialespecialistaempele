@@ -339,8 +339,21 @@
       "workflow_run_id": "38582072058",
       "workflow_sha": "e0b0abf312c9f6a746689f67b6d6e51185ee84b4",
       "ref": "main"
+    },
+    {
+      "request_id": "8c57f720-49fb-4b5b-b3e4-86b7e60b6769",
+      "status": "success",
+      "trigger": "panel",
+      "path": "tratamentos/manchas-solares-em-maos.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-10-19T12:44:19.140Z",
+      "completed_at": "2026-10-19T12:45:11.340Z",
+      "workflow_run_id": "39254395614",
+      "workflow_sha": "69615342cd3d7393d9eefc6fe27c14701fb1bb68",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-14T14:37:17.728Z",
-  "total": 26
+  "updated_at": "2026-10-19T12:45:11.340Z",
+  "total": 27
 }
