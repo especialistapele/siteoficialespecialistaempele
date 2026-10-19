@@ -10,7 +10,6 @@ const auto = autoSandbox.window.ESPECIALISTA_PELE_BOT_AUTO || {};
 for (const section of ["treatmentModes", "pageContexts", "greetings", "labels"]) {
   config[section] = { ...(auto[section] || {}), ...(config[section] || {}) };
 }
-
 const bot = readFileSync("assets/js/bot-triagem.js", "utf8");
 const whatsapp = readFileSync("assets/js/whatsapp.js", "utf8");
 const errors = [];
@@ -19,7 +18,6 @@ const actualTreatmentRoutes = readdirSync("tratamentos")
   .map((name) => "/tratamentos/" + name);
 const configuredTreatmentRoutes = Object.keys(config.pageContexts)
   .filter((route) => route.startsWith("/tratamentos/"));
-
 for (const route of actualTreatmentRoutes) {
   if (!configuredTreatmentRoutes.includes(route)) errors.push(`${route}: arquivo de tratamento existe, mas não possui contexto no bot.`);
 }
@@ -29,7 +27,6 @@ for (const route of configuredTreatmentRoutes) {
 if (actualTreatmentRoutes.length !== configuredTreatmentRoutes.length) {
   errors.push(`Quantidade de páginas (${actualTreatmentRoutes.length}) difere dos contextos configurados (${configuredTreatmentRoutes.length}).`);
 }
-
 for (const [route, context] of Object.entries(config.pageContexts)) {
   if (!route.startsWith("/tratamentos/")) continue;
   const file = route.slice(1);
@@ -42,10 +39,8 @@ for (const [route, context] of Object.entries(config.pageContexts)) {
   if (!(context in config.greetings)) errors.push(`${file}: greeting ausente para contexto "${context}".`);
   if (!(context in config.labels)) errors.push(`${file}: label ausente para contexto "${context}".`);
 }
-
-if (!/function detectTopic\\(text\\)/.test(bot)) errors.push("bot-triagem.js: detectTopic não encontrado.");
-if (!/bestLength/.test(bot)) errors.push("bot-triagem.js: seleção do tópico específico mais longo não encontrada.");
-
+if (!bot.includes("function detectTopic(text)")) errors.push("bot-triagem.js: detectTopic não encontrado.");
+if (!bot.includes("bestLength")) errors.push("bot-triagem.js: seleção do tópico específico mais longo não encontrada.");
 const requiredPhrases = [
   "acantose nigricans", "gordura localizada", "clarear a virilha",
   "despigmentacao de sobrancelha", "leucodermia solar", "esporotricose",
