@@ -18,7 +18,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/acne-e-estresse.html",
       "redirect_to": null,
-      "sha256": "ac526eb883a247684669a90c87fa8be95b4127b806777097a03c32ffe8c8d3ec"
+      "sha256": "74ea2ceea80994d750156246bf67c7a816bf59254a1d2bafddbc060e92070bf7"
     },
     {
       "path": "blog/acne-hormonal-feminina.html",
@@ -28,7 +28,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/acne-hormonal-feminina.html",
       "redirect_to": null,
-      "sha256": "d2ed698cafbb88de479932b326a6cf2d400ec4897ccefd0e609760ef48f82a40"
+      "sha256": "1b0c4acc349e749431c272c1b5fc65e5db14494bd5883e772619ac5ab2d6af54"
     },
     {
       "path": "blog/como-escolher-um-tratamento-para-melasma.html",
@@ -791,5 +791,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-19T16:26:56.966Z"
+  "generated_at": "2026-10-19T18:24:30.097Z"
 }
