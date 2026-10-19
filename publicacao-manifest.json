@@ -8,7 +8,7 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 75,
+  "total": 76,
   "items": [
     {
       "path": "blog/acne-e-estresse.html",
@@ -158,7 +158,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/dez-sessoes-de-reducao-corporal.html",
       "redirect_to": null,
-      "sha256": "35312dc073253c97dbe9cf2fc1cea2acf70261522e100da4375d748b2de63ed1"
+      "sha256": "cb2e1fb504bc01346216528a043345c991e5e79622a01253d548f027bf1b4f5a"
     },
     {
       "path": "resultados/duas-sessoes-de-reducao-corporal.html",
@@ -168,7 +168,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/duas-sessoes-de-reducao-corporal.html",
       "redirect_to": null,
-      "sha256": "5c48ec681160d07bb975a9204ae459e4fd882d4e5a30c541dc760be81535e1a4"
+      "sha256": "83610661f97ae1ed90af2c142687d2aae50402690aa0decf32e768cf6706d2e2"
     },
     {
       "path": "resultados/gordura-localizada-em-abdomen.html",
@@ -178,7 +178,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/gordura-localizada-em-abdomen.html",
       "redirect_to": null,
-      "sha256": "407c400c3ea13928d8ef57cbedde28a9ba27d1ab68670fe37f778f800bc3b4d4"
+      "sha256": "8a4f612aebb0220e7925af73ff7bb5d3665a3fd460e851bf42e3a2bd466cee7d"
     },
     {
       "path": "resultados/limpeza-de-pele-em-idosa.html",
@@ -218,7 +218,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/reducao-corporal-com-apenas-tres-sessoes.html",
       "redirect_to": null,
-      "sha256": "4c53eaf89bfb0e9a0f8d0650bb2c8529420e588de69be5af032c33798f07a3f8"
+      "sha256": "0974e912f2d87bb4e9c926dfc4c173085d04d72a811375c981e209b865ca6e27"
     },
     {
       "path": "resultados/rejuvenescimento-de-colo.html",
@@ -249,6 +249,16 @@
       "canonical": "https://www.especialistaempele.com.br/resultados/resultado-com-mais-de-2-meses-de-tratamento.html",
       "redirect_to": null,
       "sha256": "9395d6420bfe09fdef763475104857f5a65cde42066cce10fd9a2d9fc761a983"
+    },
+    {
+      "path": "resultados/resultado-da-tecnica-de-bioredutora.html",
+      "url": "https://www.especialistaempele.com.br/resultados/resultado-da-tecnica-de-bioredutora.html",
+      "id": "RESULTADO-000048",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/resultado-da-tecnica-de-bioredutora.html",
+      "redirect_to": null,
+      "sha256": "fb3709e7cd867bb8f0bcf1f7841aeab60cd8d032f1b96743482014511fcf2619"
     },
     {
       "path": "resultados/resultado-de-acne-caso-01.html",
@@ -761,5 +771,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-19T14:43:31.721Z"
+  "generated_at": "2026-10-19T14:50:45.231Z"
 }
