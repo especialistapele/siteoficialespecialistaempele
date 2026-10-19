@@ -78,9 +78,45 @@ function cardResultado(r) {
   return `<article class="card">${slider}<div class="card__corpo">${r.treatments ? `<span class="selo">${escapeHtml(r.treatments.name)}</span>` : ""}<h3>${escapeHtml(r.title)}</h3><p>${escapeHtml(r.description)}</p><a class="card__link" href="/resultados/${escapeHtml(r.slug)}.html">Ver caso completo →</a></div></article>`;
 }
 
+const SEO_RESULTADOS = {
+  "resultado-da-tecnica-de-bioredutora": {
+    title: "BioRedutora: resultado corporal | Especialista em Pele",
+    headline: "Resultado de tratamento corporal com BioRedutora",
+    description: "Veja um caso acompanhado com protocolo BioRedutora em cinco sessões. Conheça a abordagem individualizada; os resultados variam de pessoa para pessoa.",
+    intro: "Este caso documenta a evolução observada após um plano de cinco sessões de BioRedutora, com acompanhamento individualizado. O registro é informativo: a indicação, o número de sessões e a resposta ao tratamento dependem de avaliação profissional e das características de cada pessoa."
+  },
+  "com-25-dias-de-tratamento-para-definicao-corporal": {
+    title: "Definição corporal em 25 dias | Especialista em Pele",
+    headline: "Registro de definição corporal após 25 dias",
+    description: "Conheça o registro de definição corporal após 25 dias com técnica Biohipertrofia e acompanhamento individualizado. Resultados variam.",
+    intro: "Este caso registra a evolução observada ao longo de 25 dias em um protocolo de Biohipertrofia, com atendimentos semanais conforme o plano descrito. O período e a resposta são específicos deste caso e não representam prazo ou resultado garantido."
+  },
+  "dez-sessoes-de-reducao-corporal": {
+    title: "Redução corporal após 10 sessões | Especialista em Pele",
+    headline: "Resultado de redução corporal após 10 sessões",
+    description: "Veja um caso de redução corporal acompanhado ao longo de 10 sessões, com planejamento individualizado e intervalos definidos para a paciente.",
+    intro: "Este registro apresenta um protocolo de redução corporal realizado ao longo de dez sessões, com intervalo de cinco dias entre elas conforme a descrição do caso. A evolução é individual e não representa uma previsão de resultado para outras pessoas."
+  },
+  "duas-sessoes-de-reducao-corporal": {
+    title: "Redução corporal após 2 sessões | Especialista em Pele",
+    headline: "Registro de redução corporal após duas sessões",
+    description: "Registro de evolução em protocolo de redução corporal após duas sessões ao longo de duas semanas. Cada resposta depende da avaliação individual.",
+    intro: "Este caso documenta uma etapa inicial de acompanhamento corporal após duas sessões realizadas ao longo de duas semanas, conforme o registro publicado. Uma observação inicial não permite prever o resultado final; indicação, intervalos e resposta são individuais."
+  },
+  "gordura-localizada-em-abdomen": {
+    title: "Gordura localizada no abdômen | Especialista em Pele",
+    headline: "Acompanhamento corporal para gordura localizada no abdômen",
+    description: "Conheça um registro de acompanhamento para gordura localizada no abdômen após cinco sessões. Medidas e evolução variam conforme a resposta individual.",
+    intro: "Este registro apresenta um acompanhamento corporal direcionado à região abdominal. O caso descreve cinco sessões e a evolução de medidas específicas; esses dados não substituem uma avaliação individual e não garantem resultados semelhantes para outras pessoas."
+  }
+};
+
 export function paginaHtml(r, { fotos, dims, outros = [] }) {
   const trat = r.treatments || null;
   const urlCanonica = urlDoResultado(r);
+  const seoCaso = SEO_RESULTADOS[r.slug] || null;
+  const tituloPagina = seoCaso?.headline || r.title;
+  const introSeo = seoCaso?.intro || "";
   // SEO editorial específico para páginas de limpeza de pele; os HTML publicados
   // continuam sendo gerados por este script, sem edição manual de arquivos gerados.
   const ehLimpeza = /limpeza[\s-]+de[\s-]+pele|limpeza[\s-]+nanotecnol[oó]gica/i
@@ -89,14 +125,14 @@ export function paginaHtml(r, { fotos, dims, outros = [] }) {
   const tituloBase = ehLimpeza
     ? `Limpeza de Pele Profissional | ${r.title}`
     : (/^resultado/i.test(r.title) ? r.title : `${r.title} — Resultado real`);
-  const tituloCompleto = tituloSeo(tituloBase);
+  const tituloCompleto = tituloSeo(seoCaso?.title || tituloBase);
   const corpoTexto = (r.content || "").trim();
   const descricaoBase = [r.title, (r.description || "").trim() || textoPuro(corpoTexto)]
     .filter(Boolean).join(". ").replace(/\.\.+/g, ".");
-  const descricaoMeta = resumir(ehLimpeza
+  const descricaoMeta = resumir(seoCaso?.description || (ehLimpeza
     ? `Estética facial e limpeza de pele profunda: ${descricaoBase}. Caso real publicado com consentimento; resultados variam de pessoa para pessoa.`
     : `${descricaoBase}. Resultado real, com consentimento da paciente.`
-  );
+  ));
   const publicado = dataISO(r.published_at || r.created_at);
   const modificado = dataISO(r.updated_at) || publicado;
   const principal = fotos.find((f) => f.chave === "depois") || fotos[0];
@@ -121,8 +157,8 @@ export function paginaHtml(r, { fotos, dims, outros = [] }) {
         "@type": ["WebPage", "ImageGallery"],
         "@id": `${urlCanonica}#resultado`,
         identifier: r.public_id,
-        name: r.title,
-        headline: r.title,
+        name: tituloPagina,
+        headline: tituloPagina,
         description: descricaoMeta,
         url: urlCanonica,
         inLanguage: "pt-BR",
@@ -203,7 +239,8 @@ ${cabecalho("resultados")}
   <nav class="wrap breadcrumb" aria-label="Você está em"><a href="/">Início</a> &gt; <a href="/resultados/">Resultados</a> &gt; <span>${escapeHtml(r.title)}</span></nav>
   <article class="secao wrap" style="max-width:76ch">
     <p class="card__meta texto-centro">${trat ? `<span class="selo">${escapeHtml(trat.name)}</span> ` : ""}${publicado ? `<time datetime="${publicado}">${escapeHtml(dataBR(r.published_at || r.created_at))}</time>` : ""}</p>
-    <h1 class="texto-centro">${escapeHtml(r.title)}</h1>
+    <h1 class="texto-centro">${escapeHtml(tituloPagina)}</h1>
+    ${introSeo ? `<p class="texto-centro" style="font-size:16px;line-height:1.7;max-width:850px;margin:16px auto 24px">${escapeHtml(introSeo)}</p>` : ""}
     ${slider}
     ${r.description ? `<p class="texto-centro" style="font-size:18px;line-height:1.6">${escapeHtml(r.description)}</p>` : ""}
     ${ehLimpeza ? `<p class="texto-centro" style="font-size:16px;line-height:1.7">Este registro integra os casos de limpeza de pele profissional da Especialista em Pele. A limpeza de pele profunda faz parte dos cuidados de estética facial quando indicada após avaliação individual. Fotografias documentam um caso específico e não garantem resultados iguais para outras pessoas.</p>` : ""}
