@@ -4,12 +4,20 @@ import { initAntesDepoisSlider } from "./antes-depois-slider.js";
 
 const TAMANHO_PAGINA = 20;
 
+function posicaoImagem(x, y) {
+  const px = Math.max(0, Math.min(100, Number(x ?? 50)));
+  const py = Math.max(0, Math.min(100, Number(y ?? 50)));
+  return `${px}% ${py}%`;
+}
+
 function cardResultado(r) {
   const before = safeUrl(r.before_image_url), after = safeUrl(r.after_image_url);
+  const posAntes = posicaoImagem(r.before_image_position_x, r.before_image_position_y);
+  const posDepois = posicaoImagem(r.after_image_position_x, r.after_image_position_y);
   const slider = (before && after)
     ? `<div class="antes-depois-slider" data-antes-depois>
-         <img class="ad-depois" src="${escapeHtml(after)}" alt="Depois — ${escapeHtml(r.title || '')}">
-         <img class="ad-antes" src="${escapeHtml(before)}" alt="Antes — ${escapeHtml(r.title || '')}">
+         <img class="ad-depois" src="${escapeHtml(after)}" alt="Depois — ${escapeHtml(r.title || '')}" style="object-position:${posDepois}">
+         <img class="ad-antes" src="${escapeHtml(before)}" alt="Antes — ${escapeHtml(r.title || '')}" style="object-position:${posAntes}">
          <span class="ad-tag ad-tag-antes">Antes</span>
          <span class="ad-tag ad-tag-depois">Depois</span>
          <div class="ad-handle"><span class="ad-handle-grip"></span></div>

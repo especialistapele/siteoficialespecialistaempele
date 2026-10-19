@@ -63,10 +63,18 @@ export function fotosDoResultado(r) {
   return fotos;
 }
 
+function posicaoImagem(r, lado) {
+  const eixo = lado === "antes" ? "before_image_position_" : "after_image_position_";
+  const x = Math.max(0, Math.min(100, Number(r[eixo + "x"] ?? 50)));
+  const y = Math.max(0, Math.min(100, Number(r[eixo + "y"] ?? 50)));
+  return `${x}% ${y}%`;
+}
+
 function cardResultado(r) {
   const antes = urlSegura(r.before_image_url), depois = urlSegura(r.after_image_url);
+  const posAntes = posicaoImagem(r, "antes"), posDepois = posicaoImagem(r, "depois");
   const slider = antes && depois
-    ? `<div class="antes-depois-slider" data-antes-depois><img class="ad-depois" src="${escapeHtml(depois)}" alt="Depois — ${escapeHtml(r.title)}"><img class="ad-antes" src="${escapeHtml(antes)}" alt="Antes — ${escapeHtml(r.title)}"><span class="ad-tag ad-tag-antes">Antes</span><span class="ad-tag ad-tag-depois">Depois</span><div class="ad-handle"><span class="ad-handle-grip"></span></div></div>` : "";
+    ? `<div class="antes-depois-slider" data-antes-depois><img class="ad-depois" src="${escapeHtml(depois)}" alt="Depois — ${escapeHtml(r.title)}" style="object-position:${posDepois}"><img class="ad-antes" src="${escapeHtml(antes)}" alt="Antes — ${escapeHtml(r.title)}" style="object-position:${posAntes}"><span class="ad-tag ad-tag-antes">Antes</span><span class="ad-tag ad-tag-depois">Depois</span><div class="ad-handle"><span class="ad-handle-grip"></span></div></div>` : "";
   return `<article class="card">${slider}<div class="card__corpo">${r.treatments ? `<span class="selo">${escapeHtml(r.treatments.name)}</span>` : ""}<h3>${escapeHtml(r.title)}</h3><p>${escapeHtml(r.description)}</p><a class="card__link" href="/resultados/${escapeHtml(r.slug)}.html">Ver caso completo →</a></div></article>`;
 }
 
@@ -141,8 +149,8 @@ export function paginaHtml(r, { fotos, dims, outros = [] }) {
 
   const slider = antes && depois
     ? `<div class="antes-depois-slider" data-antes-depois role="img" aria-label="Comparação antes e depois: ${escapeHtml(r.title)}. Arraste para os lados." style="max-width:520px;margin:24px auto">
-        <img class="ad-depois" src="${escapeHtml(depois.url)}" alt=""${attrDim(dims.get(depois.url))} decoding="async" fetchpriority="high">
-        <img class="ad-antes" src="${escapeHtml(antes.url)}" alt=""${attrDim(dims.get(antes.url))} decoding="async">
+        <img class="ad-depois" src="${escapeHtml(depois.url)}" alt=""${attrDim(dims.get(depois.url))} decoding="async" fetchpriority="high" style="object-position:${posicaoImagem(r, "depois")}">
+        <img class="ad-antes" src="${escapeHtml(antes.url)}" alt=""${attrDim(dims.get(antes.url))} decoding="async" style="object-position:${posicaoImagem(r, "antes")}">
         <span class="ad-tag ad-tag-antes">Antes</span><span class="ad-tag ad-tag-depois">Depois</span>
         <div class="ad-handle"><span class="ad-handle-grip"></span></div>
       </div>

@@ -7,6 +7,18 @@
 <title>Resultados — Painel</title>
 <link rel="stylesheet" href="/painel/assets/css/painel.css">
 <link rel="stylesheet" href="/assets/css/antes-depois-slider.css">
+<style>
+.crop-editors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
+.crop-editor{min-width:0;padding:12px;border:1px solid #e7e3d9;border-radius:12px;background:#fbfaf7}
+.crop-editor h4{margin:0 0 10px;font-size:13px;color:#26312d}
+.crop-frame{height:220px;overflow:hidden;border-radius:8px;background:#e9e7e0;cursor:grab;touch-action:none;user-select:none}
+.crop-frame:active{cursor:grabbing}
+.crop-frame img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 50%;pointer-events:none}
+.crop-help{margin:7px 0 10px;font-size:11px;color:#777}
+.crop-editor label{display:flex;justify-content:space-between;gap:8px;font-size:11px;margin-top:8px}
+.crop-editor input[type=range]{width:100%;accent-color:#b99a58}
+@media(max-width:620px){.crop-editors{grid-template-columns:1fr}.crop-frame{height:230px}}
+</style>
 <link rel="icon" href="/assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -45,7 +57,23 @@
               <span class="ad-tag ad-tag-depois">Depois</span>
               <div class="ad-handle"><span class="ad-handle-grip"></span></div>
             </div>
-            <p class="texto-suave" style="font-size:12px;margin:6px 0 0">Arraste a foto para os lados para conferir o efeito.</p>
+            <p class="texto-suave" style="font-size:12px;margin:6px 0 0">Use os editores abaixo para ajustar cada foto separadamente. O enquadramento será salvo e publicado.</p>
+            <div class="crop-editors">
+              <section class="crop-editor" aria-labelledby="crop-label-antes">
+                <h4 id="crop-label-antes">Enquadramento — Antes</h4>
+                <div class="crop-frame" id="crop-frame-antes"><img id="crop-img-antes" alt="Prévia da foto antes"></div>
+                <p class="crop-help">Clique e arraste para reposicionar a imagem.</p>
+                <label for="crop-x-antes">Horizontal <output id="crop-x-antes-value">50%</output></label><input id="crop-x-antes" type="range" min="0" max="100" value="50">
+                <label for="crop-y-antes">Vertical <output id="crop-y-antes-value">50%</output></label><input id="crop-y-antes" type="range" min="0" max="100" value="50">
+              </section>
+              <section class="crop-editor" aria-labelledby="crop-label-depois">
+                <h4 id="crop-label-depois">Enquadramento — Depois</h4>
+                <div class="crop-frame" id="crop-frame-depois"><img id="crop-img-depois" alt="Prévia da foto depois"></div>
+                <p class="crop-help">Clique e arraste para reposicionar a imagem.</p>
+                <label for="crop-x-depois">Horizontal <output id="crop-x-depois-value">50%</output></label><input id="crop-x-depois" type="range" min="0" max="100" value="50">
+                <label for="crop-y-depois">Vertical <output id="crop-y-depois-value">50%</output></label><input id="crop-y-depois" type="range" min="0" max="100" value="50">
+              </section>
+            </div>
           </div>
           <div class="form-linha">
             <div class="form-campo"><label for="treatment_id">Tratamento</label><select id="treatment_id"><option value="">— nenhum —</option></select></div>
@@ -111,8 +139,8 @@
         <td style="font-size:12px"><strong>${escapeHtml(r.public_id || "—")}</strong><br>${(r.published && r.consent_confirmed) ? `<a href="/resultados/${escapeHtml(r.slug)}.html" target="_blank" rel="noopener">/resultados/${escapeHtml(r.slug)}.html</a>` : `<span class="texto-suave">/resultados/${escapeHtml(r.slug)}.html (fora do ar)</span>`}</td>
         <td>
           <div class="antes-depois-slider antes-depois-slider--mini" data-antes-depois style="width:64px" title="Arraste para ver o efeito antes/depois">
-            <img class="ad-depois" src="${safeUrl(r.after_image_url)}" alt="Depois">
-            <img class="ad-antes" src="${safeUrl(r.before_image_url)}" alt="Antes">
+            <img class="ad-depois" src="${safeUrl(r.after_image_url)}" alt="Depois" style="object-position:${Number(r.after_image_position_x ?? 50)}% ${Number(r.after_image_position_y ?? 50)}%">
+            <img class="ad-antes" src="${safeUrl(r.before_image_url)}" alt="Antes" style="object-position:${Number(r.before_image_position_x ?? 50)}% ${Number(r.before_image_position_y ?? 50)}%">
             <div class="ad-handle"><span class="ad-handle-grip"></span></div>
           </div>
         </td>
@@ -226,9 +254,11 @@
     document.getElementById("published").checked = !!r.published;
 
     limparPreview();
+    definirCrop("antes", r.before_image_position_x ?? 50, r.before_image_position_y ?? 50);
+    definirCrop("depois", r.after_image_position_x ?? 50, r.after_image_position_y ?? 50);
     if (r.before_image_url && r.after_image_url) {
-      previewAntes.src = r.before_image_url;
-      previewDepois.src = r.after_image_url;
+      previewAntes.src = r.before_image_url; previewDepois.src = r.after_image_url;
+      cropImgs.antes.src = r.before_image_url; cropImgs.depois.src = r.after_image_url;
       previewWrap.style.display = "block";
       initAntesDepoisSlider(document.getElementById("preview-slider"));
     }
@@ -245,27 +275,78 @@
   const previewDepois = document.getElementById("preview-depois");
   const inputAntes = document.getElementById("foto_antes");
   const inputDepois = document.getElementById("foto_depois");
+  const cropState = { antesX: 50, antesY: 50, depoisX: 50, depoisY: 50 };
+  const cropImgs = { antes: document.getElementById("crop-img-antes"), depois: document.getElementById("crop-img-depois") };
+  const cropFrames = { antes: document.getElementById("crop-frame-antes"), depois: document.getElementById("crop-frame-depois") };
   let urlAntesAtual = null, urlDepoisAtual = null;
+
+  function definirCrop(lado, x, y) {
+    const px = Math.max(0, Math.min(100, Number(x) || 0));
+    const py = Math.max(0, Math.min(100, Number(y) || 0));
+    cropState[lado + "X"] = px; cropState[lado + "Y"] = py;
+    if (cropImgs[lado]) cropImgs[lado].style.objectPosition = px + "% " + py + "%";
+    ["x", "y"].forEach((eixo) => {
+      const valor = eixo === "x" ? px : py;
+      const input = document.getElementById("crop-" + eixo + "-" + lado);
+      const output = document.getElementById("crop-" + eixo + "-" + lado + "-value");
+      if (input) input.value = String(valor);
+      if (output) output.textContent = Math.round(valor) + "%";
+    });
+    const imgComparacao = lado === "antes" ? previewAntes : previewDepois;
+    if (imgComparacao) imgComparacao.style.objectPosition = px + "% " + py + "%";
+  }
+
+  function conectarEditorCrop(lado) {
+    ["x", "y"].forEach((eixo) => {
+      document.getElementById("crop-" + eixo + "-" + lado).addEventListener("input", (e) => {
+        definirCrop(lado, eixo === "x" ? e.target.value : cropState[lado + "X"], eixo === "y" ? e.target.value : cropState[lado + "Y"]);
+      });
+    });
+    let inicio = null;
+    cropFrames[lado].addEventListener("pointerdown", (e) => {
+      if (!cropImgs[lado].getAttribute("src")) return;
+      inicio = { x: e.clientX, y: e.clientY, cropX: cropState[lado + "X"], cropY: cropState[lado + "Y"] };
+      cropFrames[lado].setPointerCapture(e.pointerId); e.preventDefault();
+    });
+    cropFrames[lado].addEventListener("pointermove", (e) => {
+      if (!inicio) return;
+      const rect = cropFrames[lado].getBoundingClientRect();
+      definirCrop(lado, inicio.cropX - (e.clientX - inicio.x) / Math.max(1, rect.width) * 100,
+        inicio.cropY - (e.clientY - inicio.y) / Math.max(1, rect.height) * 100);
+    });
+    const encerrar = () => { inicio = null; };
+    cropFrames[lado].addEventListener("pointerup", encerrar);
+    cropFrames[lado].addEventListener("pointercancel", encerrar);
+  }
+  conectarEditorCrop("antes"); conectarEditorCrop("depois");
 
   function limparPreview() {
     previewWrap.style.display = "none";
     if (urlAntesAtual) URL.revokeObjectURL(urlAntesAtual);
     if (urlDepoisAtual) URL.revokeObjectURL(urlDepoisAtual);
     urlAntesAtual = urlDepoisAtual = null;
+    cropImgs.antes.removeAttribute("src"); cropImgs.depois.removeAttribute("src");
+    definirCrop("antes", 50, 50); definirCrop("depois", 50, 50);
   }
 
   function atualizarPreview() {
-    const arquivoAntes = inputAntes.files[0];
-    const arquivoDepois = inputDepois.files[0];
-    if (!arquivoAntes || !arquivoDepois) return;
-    if (urlAntesAtual) URL.revokeObjectURL(urlAntesAtual);
-    if (urlDepoisAtual) URL.revokeObjectURL(urlDepoisAtual);
-    urlAntesAtual = URL.createObjectURL(arquivoAntes);
-    urlDepoisAtual = URL.createObjectURL(arquivoDepois);
-    previewAntes.src = urlAntesAtual;
-    previewDepois.src = urlDepoisAtual;
-    previewWrap.style.display = "block";
-    initAntesDepoisSlider(document.getElementById("preview-slider"));
+    const arquivoAntes = inputAntes.files[0], arquivoDepois = inputDepois.files[0];
+    if (arquivoAntes) {
+      if (urlAntesAtual) URL.revokeObjectURL(urlAntesAtual);
+      urlAntesAtual = URL.createObjectURL(arquivoAntes);
+      previewAntes.src = urlAntesAtual; cropImgs.antes.src = urlAntesAtual;
+    }
+    if (arquivoDepois) {
+      if (urlDepoisAtual) URL.revokeObjectURL(urlDepoisAtual);
+      urlDepoisAtual = URL.createObjectURL(arquivoDepois);
+      previewDepois.src = urlDepoisAtual; cropImgs.depois.src = urlDepoisAtual;
+    }
+    if (cropImgs.antes.getAttribute("src") && cropImgs.depois.getAttribute("src")) {
+      previewWrap.style.display = "block";
+      definirCrop("antes", cropState.antesX, cropState.antesY);
+      definirCrop("depois", cropState.depoisX, cropState.depoisY);
+      initAntesDepoisSlider(document.getElementById("preview-slider"));
+    }
   }
 
   inputAntes.addEventListener("change", atualizarPreview);
@@ -295,6 +376,10 @@
         botao.disabled = false; botao.textContent = "Salvar resultado"; return;
       }
       const dadosResultado = {
+        before_image_position_x: Math.round(cropState.antesX),
+        before_image_position_y: Math.round(cropState.antesY),
+        after_image_position_x: Math.round(cropState.depoisX),
+        after_image_position_y: Math.round(cropState.depoisY),
         treatment_id: selectTratamento.value || null,
         title: campoTitulo.value.trim(),
         slug: slugNovo,
