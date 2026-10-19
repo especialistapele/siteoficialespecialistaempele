@@ -8,7 +8,7 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 77,
+  "total": 78,
   "items": [
     {
       "path": "blog/acne-e-estresse.html",
@@ -561,6 +561,16 @@
       "sha256": "38fd22e8117189aa68f5cb3c746278d004c032db8f1318f66587969b9df9e15f"
     },
     {
+      "path": "resultados/rosacea-com-15-dias-de-tratamento.html",
+      "url": "https://www.especialistaempele.com.br/resultados/rosacea-com-15-dias-de-tratamento.html",
+      "id": "RESULTADO-000050",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/rosacea-com-15-dias-de-tratamento.html",
+      "redirect_to": null,
+      "sha256": "41adccca8730ce9e9608e8be86fa02b9a057965cd833a1e45947687c3c474005"
+    },
+    {
       "path": "resultados/tratamento-de-rejuvenescimento-facial.html",
       "url": "https://www.especialistaempele.com.br/resultados/tratamento-de-rejuvenescimento-facial.html",
       "id": "RESULTADO-000035",
@@ -781,5 +791,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-19T16:00:59.589Z"
+  "generated_at": "2026-10-19T16:19:53.436Z"
 }
