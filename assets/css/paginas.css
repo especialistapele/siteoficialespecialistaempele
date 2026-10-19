@@ -401,3 +401,149 @@ body[data-pagina="tratamentos"] .card:hover .card__img img{transform:scale(1.015
 .tc-faq summary:focus-visible{outline:3px solid #b89b5e;outline-offset:-4px;border-radius:10px}
 .tc-faq details>p{margin:0!important;padding:0 20px 20px!important;color:#515a54!important;font-size:16px!important;line-height:1.75!important}
 @media(max-width:600px){.tc-faq{gap:10px}.tc-faq summary{min-height:58px;padding:15px 14px;font-size:15px;gap:12px}.tc-faq summary::after{flex-basis:28px;width:28px;height:28px;font-size:22px}.tc-faq details>p{padding:0 14px 17px!important;font-size:15px!important}}
+
+
+/* --- Resultados: cards no mesmo sistema visual da grade de tratamentos --- */
+body[data-pagina="resultados"] .grade[data-grade-resultados]{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  align-items:stretch;
+  gap:20px;
+  margin-top:28px;
+}
+@media (min-width:560px){
+  body[data-pagina="resultados"] .grade[data-grade-resultados]{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:22px;
+  }
+}
+@media (min-width:980px){
+  body[data-pagina="resultados"] .grade[data-grade-resultados]{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:24px;
+  }
+}
+@media (min-width:1360px){
+  body[data-pagina="resultados"] .grade[data-grade-resultados]{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:22px;
+  }
+}
+body[data-pagina="resultados"] .grade[data-grade-resultados] > .card{
+  min-width:0;
+  min-height:100%;
+  margin:0;
+  padding:0;
+  background:#fff;
+  border:1px solid var(--linha);
+  border-radius:12px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  align-self:stretch;
+  box-shadow:none;
+  transition:box-shadow .2s ease,border-color .2s ease;
+}
+body[data-pagina="resultados"] .grade[data-grade-resultados] > .card:hover{
+  border-color:rgba(201,164,91,.65);
+  box-shadow:0 10px 28px rgba(38,49,45,.09);
+}
+body[data-pagina="resultados"] .grade[data-grade-resultados] .antes-depois-slider{
+  flex:0 0 auto;
+  width:100%;
+  margin:0;
+  border-radius:0;
+  aspect-ratio:4/3;
+}
+body[data-pagina="resultados"] .grade[data-grade-resultados] .card__corpo{
+  min-width:0;
+  flex:1;
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:10px;
+}
+body[data-pagina="resultados"] .grade[data-grade-resultados] .card__corpo h3{
+  width:100%;
+  margin:0;
+  font-size:clamp(17px,1.4vw,19px);
+  line-height:1.3;
+  min-height:2.6em;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+body[data-pagina="resultados"] .grade[data-grade-resultados] .card__corpo p{
+  width:100%;
+  margin:0;
+  min-height:4.65em;
+  color:var(--ink-soft);
+  font-size:14px;
+  line-height:1.55;
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+body[data-pagina="resultados"] .grade[data-grade-resultados] .card__corpo .selo{
+  max-width:100%;
+  white-space:normal;
+  line-height:1.5;
+}
+body[data-pagina="resultados"] .grade[data-grade-resultados] .card__link{
+  margin-top:auto;
+  padding-top:12px;
+  font-size:11px;
+  line-height:1.4;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:#715722;
+  font-weight:700;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+body[data-pagina="resultados"] .grade[data-grade-resultados] .card__link:focus-visible{
+  outline:2px solid var(--gold);
+  outline-offset:3px;
+  border-radius:3px;
+}
+body[data-pagina="resultados"] .filtro-tratamentos{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+  margin:0 0 8px;
+}
+body[data-pagina="resultados"] .filtro-tratamentos button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:38px;
+  padding:9px 16px;
+  border:1px solid rgba(38,49,45,.22);
+  border-radius:999px;
+  background:rgba(255,255,255,.7);
+  color:var(--ink);
+  font:600 11px/1.3 Arial,Helvetica,sans-serif;
+  letter-spacing:.045em;
+  cursor:pointer;
+  transition:background .2s ease,color .2s ease,border-color .2s ease;
+}
+body[data-pagina="resultados"] .filtro-tratamentos button:hover,
+body[data-pagina="resultados"] .filtro-tratamentos button[aria-pressed="true"],
+body[data-pagina="resultados"] .filtro-tratamentos button.ativo{
+  background:var(--ink);
+  color:#fff;
+  border-color:var(--ink);
+}
+body[data-pagina="resultados"] .filtro-tratamentos button:focus-visible{
+  outline:2px solid var(--gold);
+  outline-offset:3px;
+}
+@media(prefers-reduced-motion:reduce){
+  body[data-pagina="resultados"] .grade[data-grade-resultados] > .card,
+  body[data-pagina="resultados"] .filtro-tratamentos button{transition:none}
+}
