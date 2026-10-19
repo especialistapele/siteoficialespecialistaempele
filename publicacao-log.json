@@ -586,8 +586,21 @@
       "workflow_run_id": "39300656953",
       "workflow_sha": "31a86b9192cbada19eb57a80d6bf4079d318a7fc",
       "ref": "main"
+    },
+    {
+      "request_id": "09151542-2a93-43f5-a900-549f74c4d154",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/pele-seca-ou-desidratada.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-10-19T19:26:37.484Z",
+      "completed_at": "2026-10-19T19:27:17.744Z",
+      "workflow_run_id": "39311028769",
+      "workflow_sha": "152cfc80238b29e895fa411d9f339b02a75ed136",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-19T18:13:56.451Z",
-  "total": 45
+  "updated_at": "2026-10-19T19:27:17.744Z",
+  "total": 46
 }
