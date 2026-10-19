@@ -522,12 +522,12 @@ body[data-pagina="resultados"] .filtro-tratamentos button{
   align-items:center;
   justify-content:center;
   min-height:38px;
-  padding:9px 16px;
+  padding:9px 16px !important;
   border:1px solid rgba(38,49,45,.22);
   border-radius:999px;
   background:rgba(255,255,255,.7);
   color:var(--ink);
-  font:600 11px/1.3 Arial,Helvetica,sans-serif;
+  font:600 11px/1.3 Arial,Helvetica,sans-serif !important;
   letter-spacing:.045em;
   cursor:pointer;
   transition:background .2s ease,color .2s ease,border-color .2s ease;
