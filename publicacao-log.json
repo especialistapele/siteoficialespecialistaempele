@@ -456,8 +456,21 @@
       "workflow_run_id": "39273075517",
       "workflow_sha": "98a32570ce9e112f4f13fbae926b7d5d4ce6fe88",
       "ref": "main"
+    },
+    {
+      "request_id": "2e7c1a44-5dc4-4dbe-bb19-665c128938de",
+      "status": "error",
+      "trigger": "panel",
+      "path": "resultados/resultado-da-tecnica-de-bioredutora.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-10-19T15:08:22.149Z",
+      "completed_at": "2026-10-19T15:08:56.414Z",
+      "workflow_run_id": "39275295977",
+      "workflow_sha": "5141d7f48e4098860a5b6972ec78d2da99588504",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-19T14:54:16.978Z",
-  "total": 35
+  "updated_at": "2026-10-19T15:08:56.414Z",
+  "total": 36
 }
