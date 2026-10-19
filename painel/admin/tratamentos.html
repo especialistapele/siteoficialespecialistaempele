@@ -183,7 +183,7 @@
   slugInput.addEventListener("input", () => { slugEditadoManualmente = true; });
   document.getElementById("gerar-slug").addEventListener("click", () => {
     slugInput.value = slugificar(nomeInput.value);
-    slugEditadoManualmente = true;
+    slugEditadoManualmente = false;
     slugInput.dispatchEvent(new Event("change", { bubbles: true }));
   });
   posXInput.addEventListener("input", atualizarPreviewCapa);
