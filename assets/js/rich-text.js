@@ -4,8 +4,21 @@
 // que apenas a formatação permitida pelo pequeno editor (negrito, itálico,
 // tamanho de fonte e alinhamento) sobreviva — nunca HTML/JS arbitrário.
 
-const ALLOWED_TAGS = new Set(["B", "STRONG", "I", "EM", "U", "SPAN", "P", "BR", "DIV", "H2", "H3", "UL", "OL", "LI"]);
+const ALLOWED_TAGS = new Set(["A", "B", "STRONG", "I", "EM", "U", "SPAN", "P", "BR", "DIV", "H2", "H3", "UL", "OL", "LI"]);
 const ALLOWED_STYLE_PROPS = new Set(["font-size", "text-align", "font-weight", "font-style"]);
+
+function hrefSeguro(valor) {
+  const raw = String(valor ?? "").trim();
+  if (!raw || /[\u0000-\u001f\u007f\\]/.test(raw)) return "";
+  if (raw.startsWith("/") && !raw.startsWith("//")) return raw;
+  if (/^#[A-Za-z][\w:.-]*$/.test(raw)) return raw;
+  try {
+    const url = new URL(raw, window.location.origin);
+    return ["https:", "http:"].includes(url.protocol) ? url.href : "";
+  } catch {
+    return "";
+  }
+}
 
 function limparEstilo(el) {
   const permitido = {};
@@ -31,6 +44,12 @@ function limparNo(pai) {
         return;
       }
       [...filho.attributes].forEach((attr) => {
+        if (filho.tagName === "A" && attr.name === "href") {
+          const seguro = hrefSeguro(attr.value);
+          if (seguro) filho.setAttribute("href", seguro);
+          else filho.removeAttribute("href");
+          return;
+        }
         if (!["style","class","role","aria-checked","data-contract-choice","data-contract-group","data-contract-value","data-contract-selected","data-contract-mark","data-contract-other"].includes(attr.name)) filho.removeAttribute(attr.name);
       });
       limparEstilo(filho);

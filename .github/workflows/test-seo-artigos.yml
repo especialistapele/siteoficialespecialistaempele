@@ -1,0 +1,39 @@
+name: Testes SEO dos artigos
+
+on:
+  pull_request:
+    paths:
+      - "scripts/lib/conteudo.mjs"
+      - "scripts/gerar-paginas-artigos.mjs"
+      - "scripts/test-seo-artigos.mjs"
+      - "assets/js/rich-text.js"
+      - ".github/workflows/test-seo-artigos.yml"
+  push:
+    branches: [main, "seo/blog-link-sanitization-tests"]
+    paths:
+      - "scripts/lib/conteudo.mjs"
+      - "scripts/gerar-paginas-artigos.mjs"
+      - "scripts/test-seo-artigos.mjs"
+      - "assets/js/rich-text.js"
+      - ".github/workflows/test-seo-artigos.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test-seo-artigos:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Testar sanitização e HTML SEO dos artigos
+        run: node scripts/test-seo-artigos.mjs
+      - name: Verificar sintaxe dos módulos alterados
+        run: |
+          node --check scripts/lib/conteudo.mjs
+          node --check scripts/gerar-paginas-artigos.mjs
+          node --check scripts/test-seo-artigos.mjs
