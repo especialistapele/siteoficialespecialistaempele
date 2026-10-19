@@ -258,7 +258,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/resultado-da-tecnica-de-bioredutora.html",
       "redirect_to": null,
-      "sha256": "fb3709e7cd867bb8f0bcf1f7841aeab60cd8d032f1b96743482014511fcf2619"
+      "sha256": "59bfaf6a1d76c58c9bb41500b6d67df4704f2c276571a1e8a73de9d41184873f"
     },
     {
       "path": "resultados/resultado-de-acne-caso-01.html",
@@ -771,5 +771,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-19T14:50:45.231Z"
+  "generated_at": "2026-10-19T14:54:14.264Z"
 }
