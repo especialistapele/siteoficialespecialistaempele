@@ -391,8 +391,21 @@
       "workflow_run_id": "39266011169",
       "workflow_sha": "1a4c045f9c91b8870c44f51b203b1c0d633052f4",
       "ref": "main"
+    },
+    {
+      "request_id": "dd9d9f76-2328-451c-a803-a7ba21f6a282",
+      "status": "success",
+      "trigger": "panel",
+      "path": "resultados/dez-sessoes-de-reducao-corporal.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-10-19T14:12:20.457Z",
+      "completed_at": "2026-10-19T14:12:54.941Z",
+      "workflow_run_id": "39266845832",
+      "workflow_sha": "a218e945f2de526384b61548992244242e4a9846",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-19T14:07:25.228Z",
-  "total": 30
+  "updated_at": "2026-10-19T14:12:54.941Z",
+  "total": 31
 }
