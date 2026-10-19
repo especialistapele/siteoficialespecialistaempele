@@ -38,6 +38,23 @@ const EDITORA = {
 // Ajustes editoriais persistentes para artigos cuja descrição automática
 // ou relação de tratamento não está suficientemente específica no registro.
 const SEO_ARTIGOS = {
+  "controle-da-oleosidade": {
+    description: "Saiba como controlar a oleosidade da pele sem ressecar, preservar a barreira cutânea e montar uma rotina de cuidados equilibrada.",
+  },
+  "como-escolher-um-tratamento-para-melasma": {
+    description: "Descubra o que considerar ao escolher um tratamento para melasma, por que a avaliação individual importa e quais cuidados ajudam no acompanhamento.",
+    treatment: { name: "Melasma", slug: "melasma" },
+  },
+  "rejuvenescimento-facial-ou-harmonizacao": {
+    description: "Entenda a diferença entre rejuvenescimento facial e harmonização e conheça uma abordagem focada na saúde, função e qualidade da pele.",
+  },
+  "o-que-e-regeneracao-cutanea": {
+    description: "Entenda o que é regeneração cutânea, como a barreira da pele participa desse processo e quais hábitos apoiam uma rotina de cuidados consciente.",
+  },
+  "por-que-a-acne-persiste": {
+    description: "Descubra por que a acne pode persistir após diferentes tratamentos e quais fatores merecem avaliação para orientar os cuidados da pele.",
+    treatment: { name: "Acne", slug: "acne" },
+  },
   "acne-e-estresse": {
     description: "Veja como estresse, sono e hábitos podem influenciar a acne e quais cuidados ajudam a proteger a barreira cutânea durante períodos difíceis.",
     treatment: { name: "Acne", slug: "acne" },
