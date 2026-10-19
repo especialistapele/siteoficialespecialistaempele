@@ -126,7 +126,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "flacidez": "Vi que você está conhecendo nosso conteúdo sobre Flacidez. O que você gostaria de entender melhor?",
   "leucodermia": "Vi que você está conhecendo nosso conteúdo sobre Leucodermia Solar. O que você gostaria de entender melhor?",
   "limpeza-de-pele": "Vi que você está conhecendo nosso conteúdo sobre Limpeza de Pele Profissional e Profunda com Nanotecnologia. O que você gostaria de entender melhor?",
-  "manchas-solares-em-maos": "Vi que você está conhecendo nosso conteúdo sobre Remoção de manchas em mãos. O que você gostaria de entender melhor?",
+  "manchas-solares-em-maos": "Vi que você está conhecendo nosso conteúdo sobre Manchas solares nas mãos: cuidado com a pele e sua uniformidade. O que você gostaria de entender melhor?",
   "manchas": "Vi que você está conhecendo nosso conteúdo sobre Melasma. O que você gostaria de entender melhor?",
   "operatorio": "Vi que você está conhecendo nosso conteúdo sobre Pós Operatório. O que você gostaria de entender melhor?",
   "poros": "Vi que você está conhecendo nosso conteúdo sobre Tratamento para poros abertos. O que você gostaria de entender melhor?",
@@ -149,7 +149,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "flacidez": "Flacidez",
   "leucodermia": "Leucodermia Solar",
   "limpeza-de-pele": "Limpeza de Pele Profissional e Profunda com Nanotecnologia",
-  "manchas-solares-em-maos": "Remoção de manchas em mãos",
+  "manchas-solares-em-maos": "Manchas solares nas mãos: cuidado com a pele e sua uniformidade",
   "manchas": "Melasma",
   "operatorio": "Pós Operatório",
   "poros": "Tratamento para poros abertos",
@@ -212,7 +212,7 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
     "limpeza de pele"
   ],
   "manchas-solares-em-maos": [
-    "Remoção de manchas em mãos",
+    "Manchas solares nas mãos: cuidado com a pele e sua uniformidade",
     "manchas solares em maos"
   ],
   "manchas": [

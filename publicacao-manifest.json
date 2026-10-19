@@ -644,11 +644,11 @@
       "path": "tratamentos/manchas-solares-em-maos.html",
       "url": "https://www.especialistaempele.com.br/tratamentos/manchas-solares-em-maos.html",
       "id": null,
-      "status": "published",
+      "status": "manual",
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/manchas-solares-em-maos.html",
       "redirect_to": null,
-      "sha256": "8f825573598be7ea82ff6fd97292192937075803ea4078fb4af43187d4ac19ca"
+      "sha256": "2bc148c3c7750fb6710e3dfafbe3bc8e1b977585de6ab773eed1774e3f4a35df"
     },
     {
       "path": "tratamentos/melasma.html",
@@ -721,5 +721,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-19T13:17:29.907Z"
+  "generated_at": "2026-10-19T13:32:23.171Z"
 }
