@@ -8,7 +8,7 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 70,
+  "total": 71,
   "items": [
     {
       "path": "blog/acne-e-estresse.html",
@@ -641,6 +641,16 @@
       "sha256": "beed303bf9c07cf52f6d14e7dc40a15d55f27eaa26e17ccf3de9d425b9de8fd2"
     },
     {
+      "path": "tratamentos/manchas-solares-em-maos.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/manchas-solares-em-maos.html",
+      "id": null,
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/manchas-solares-em-maos.html",
+      "redirect_to": null,
+      "sha256": "f86ff467874542b525513fc3e3772bc52863468dff3699ab7884c0a1915d68c3"
+    },
+    {
       "path": "tratamentos/melasma.html",
       "url": "https://www.especialistaempele.com.br/tratamentos/melasma.html",
       "id": null,
@@ -711,5 +721,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-17T13:13:49.482Z"
+  "generated_at": "2026-10-19T12:45:08.252Z"
 }
