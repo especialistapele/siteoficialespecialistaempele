@@ -378,8 +378,21 @@
       "workflow_run_id": "39265374016",
       "workflow_sha": "682e9e4179b8f08b4bbfb27da1c8f760760bf2c5",
       "ref": "main"
+    },
+    {
+      "request_id": "5c447030-2821-46ac-b920-6c407855cce6",
+      "status": "success",
+      "trigger": "panel",
+      "path": "resultados/duas-sessoes-de-reducao-corporal.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-10-19T14:06:47.497Z",
+      "completed_at": "2026-10-19T14:07:25.228Z",
+      "workflow_run_id": "39266011169",
+      "workflow_sha": "1a4c045f9c91b8870c44f51b203b1c0d633052f4",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-19T14:03:04.253Z",
-  "total": 29
+  "updated_at": "2026-10-19T14:07:25.228Z",
+  "total": 30
 }
