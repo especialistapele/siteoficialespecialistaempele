@@ -3,7 +3,7 @@ import { escapeHtml, safeUrl } from "./sanitize.js";
 
 // A regra precisa corresponder ao gerador de páginas estáticas e ao sitemap.
 function slugifyUrl(valor) {
-  return String(valor ?? "").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
+  return String(valor ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 function posicao(valor, padrao = 50) {
