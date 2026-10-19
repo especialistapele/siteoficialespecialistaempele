@@ -46,6 +46,23 @@ const SEO_ARTIGOS = {
     description: "Entenda sinais que podem acompanhar a acne hormonal feminina, fatores envolvidos e cuidados individualizados para pele acneica.",
     treatment: { name: "Acne", slug: "acne" },
   },
+  "controle-da-oleosidade": {
+    description: "Saiba como controlar a oleosidade da pele sem ressecar, preservar a barreira cutânea e montar uma rotina de cuidados equilibrada.",
+  },
+  "como-escolher-um-tratamento-para-melasma": {
+    description: "Descubra o que considerar ao escolher um tratamento para melasma, por que a avaliação individual importa e quais cuidados ajudam no acompanhamento.",
+    treatment: { name: "Melasma", slug: "melasma" },
+  },
+  "rejuvenescimento-facial-ou-harmonizacao": {
+    description: "Entenda a diferença entre rejuvenescimento facial e harmonização e conheça uma abordagem focada na saúde, função e qualidade da pele.",
+  },
+  "o-que-e-regeneracao-cutanea": {
+    description: "Entenda o que é regeneração cutânea, como a barreira da pele participa desse processo e quais hábitos apoiam uma rotina de cuidados consciente.",
+  },
+  "por-que-a-acne-persiste": {
+    description: "Descubra por que a acne pode persistir após diferentes tratamentos e quais fatores merecem avaliação para orientar os cuidados da pele.",
+    treatment: { name: "Acne", slug: "acne" },
+  },
 };
 
 export async function buscarArtigosPublicados() {
