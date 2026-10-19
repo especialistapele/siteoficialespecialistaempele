@@ -46,30 +46,24 @@ function cardResultado(r) {
   // --------------------------------------------------------
   async function montarFiltro() {
     if (!filtroWrap) return;
-    const { data: tratamentos } = await supabase
+    const { data: tratamentos, error } = await supabase
       .from("treatments")
       .select("id, name")
       .eq("published", true)
       .order("sort_order");
 
-    const botoes = [{ id: "", name: "Todos os resultados" }, ...(tratamentos || [])];
-    filtroWrap.innerHTML = botoes.map((t) => `
-      <button type="button" class="btn ${t.id === "" ? "btn-dourado" : "btn-fora"}" data-filtro-id="${t.id}" style="padding:9px 18px;font-size:12.5px">
-        ${escapeHtml(t.name)}
-      </button>`).join("");
-
-    filtroWrap.querySelectorAll("[data-filtro-id]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        if (btn.dataset.filtroId === tratamentoAtual) return;
-        tratamentoAtual = btn.dataset.filtroId;
-        filtroWrap.querySelectorAll("[data-filtro-id]").forEach((b) => {
-          const ativo = b.dataset.filtroId === tratamentoAtual;
-          b.classList.toggle("btn-dourado", ativo);
-          b.classList.toggle("btn-fora", !ativo);
-        });
-        reiniciarEcarregar();
-      });
+    filtroWrap.innerHTML = `
+      <label class="resultados-filtro__label" for="filtro-tratamento">Filtrar por tratamento</label>
+      <select id="filtro-tratamento" class="resultados-filtro__select" aria-label="Filtrar resultados por tratamento">
+        <option value="">Todos os resultados</option>
+        ${(tratamentos || []).map((t) => `<option value="${escapeHtml(t.id)}">${escapeHtml(t.name)}</option>`).join("")}
+      </select>`;
+    const select = filtroWrap.querySelector("#filtro-tratamento");
+    select?.addEventListener("change", () => {
+      tratamentoAtual = select.value;
+      reiniciarEcarregar();
     });
+    if (error && select) select.disabled = true;
   }
 
   function reiniciarEcarregar() {
