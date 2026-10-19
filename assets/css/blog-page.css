@@ -100,3 +100,73 @@ body[data-pagina="blog"] .grade[data-grade-artigos] .card__link:focus-visible{
   body[data-pagina="blog"] .grade[data-grade-artigos] > .card:hover,
   body[data-pagina="blog"] .grade[data-grade-artigos] > .card:hover .card__img img{transform:none}
 }
+
+
+/* Busca e filtro inteligente da listagem de artigos */
+body[data-pagina="blog"] .blog-filtros{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:14px;
+  align-items:end;
+  padding:20px;
+  margin:8px 0 14px;
+  background:#f8f7f3;
+  border:1px solid rgba(38,49,45,.12);
+  border-radius:12px;
+}
+body[data-pagina="blog"] .blog-filtros label{
+  display:block;
+  margin:0 0 7px;
+  color:#26312d;
+  font-size:13px;
+  font-weight:600;
+}
+body[data-pagina="blog"] .blog-filtros input,
+body[data-pagina="blog"] .blog-filtros select{
+  display:block;
+  width:100%;
+  min-height:46px;
+  padding:11px 13px;
+  color:#26312d;
+  background:#fff;
+  border:1px solid rgba(38,49,45,.25);
+  border-radius:8px;
+  font:inherit;
+}
+body[data-pagina="blog"] .blog-filtros input:focus-visible,
+body[data-pagina="blog"] .blog-filtros select:focus-visible,
+body[data-pagina="blog"] .blog-limpar-filtros:focus-visible{
+  outline:2px solid #9a7837;
+  outline-offset:3px;
+}
+body[data-pagina="blog"] .blog-limpar-filtros{
+  min-height:44px;
+  padding:10px 14px;
+  color:#5f4b25;
+  background:transparent;
+  border:1px solid rgba(113,87,34,.45);
+  border-radius:8px;
+  font:inherit;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+}
+body[data-pagina="blog"] .blog-limpar-filtros:hover{background:#eee7d9}
+body[data-pagina="blog"] .blog-contagem{
+  margin:0 0 12px;
+  color:#68716b;
+  font-size:13px;
+}
+body[data-pagina="blog"] .blog-sem-resultados{
+  padding:24px 18px;
+  margin:18px 0;
+  color:#536057;
+  background:#f8f7f3;
+  border-radius:10px;
+  text-align:center;
+}
+body[data-pagina="blog"] [data-grade-artigos] > [hidden],
+body[data-pagina="blog"] [data-blog-vazio][hidden]{display:none!important}
+@media(min-width:700px){
+  body[data-pagina="blog"] .blog-filtros{grid-template-columns:minmax(0,2fr) minmax(220px,1fr) auto;gap:18px;padding:22px}
+}
