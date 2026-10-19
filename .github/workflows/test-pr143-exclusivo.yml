@@ -1,0 +1,38 @@
+name: Testes das melhorias exclusivas do PR 143
+
+on:
+  pull_request:
+    paths:
+      - "scripts/gerar-paginas-artigos.mjs"
+      - "scripts/gerar-paginas-resultados.mjs"
+      - "scripts/lib/conteudo.mjs"
+      - "scripts/test-pr143-exclusivo.mjs"
+      - ".github/workflows/test-pr143-exclusivo.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/gerar-paginas-artigos.mjs"
+      - "scripts/gerar-paginas-resultados.mjs"
+      - "scripts/lib/conteudo.mjs"
+      - "scripts/test-pr143-exclusivo.mjs"
+      - ".github/workflows/test-pr143-exclusivo.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test-pr143-exclusivo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Validar sintaxe dos geradores e da biblioteca
+        run: |
+          node --check scripts/lib/conteudo.mjs
+          node --check scripts/gerar-paginas-artigos.mjs
+          node --check scripts/gerar-paginas-resultados.mjs
+          node --check scripts/test-pr143-exclusivo.mjs
+      - name: Testar metadados exclusivos e formatação Markdown
+        run: node scripts/test-pr143-exclusivo.mjs
