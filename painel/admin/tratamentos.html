@@ -19,6 +19,21 @@
   .editor-p-area{min-height:160px;max-height:340px;overflow-y:auto;border:1px solid var(--linha,#ddd7c9);border-radius:0 0 6px 6px;padding:12px;font-size:14px;line-height:1.6;background:#fff}
   .editor-p-area:empty::before{content:attr(data-placeholder);color:#9a978c}
   .editor-p-area:focus{outline:none;border-color:var(--gold,#c9a45b)}
+  .slug-acoes{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .slug-acoes input{flex:1;min-width:180px}
+  .btn-auxiliar{border:1px solid var(--gold,#c9a45b);background:#fffaf0;color:#26312d;border-radius:6px;padding:9px 12px;cursor:pointer;font-size:12px}
+  .slug-ajuda{font-size:12px;color:#686b63;margin:-8px 0 12px}
+  .capa-editor{margin:10px 0 18px;padding:14px;border:1px solid var(--linha,#ddd7c9);border-radius:10px;background:#faf8f3}
+  .capa-preview{width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:7px;background:#e9e3d7;display:flex;align-items:center;justify-content:center}
+  .capa-preview img{width:100%;height:100%;object-fit:cover;display:block}
+  .capa-preview-vazia{font-size:13px;color:#6e7069;text-align:center;padding:20px}
+  .capa-controles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  .capa-controles label{font-size:12px;font-weight:600;display:flex;justify-content:space-between;gap:8px}
+  .capa-controles input{width:100%;margin-top:6px;accent-color:var(--gold,#c9a45b)}
+  .capa-presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+  .capa-presets button{border:1px solid var(--linha,#ddd7c9);background:#fff;border-radius:6px;padding:7px 9px;cursor:pointer;font-size:11px}
+  .capa-presets button:hover,.capa-presets button:focus-visible{border-color:var(--gold,#c9a45b);outline:2px solid rgba(201,164,91,.25)}
+  @media(max-width:620px){.capa-controles{grid-template-columns:1fr}.painel-card{max-height:calc(100dvh - 24px);overflow-y:auto}}
 </style>
 <link rel="icon" href="/assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
@@ -47,9 +62,10 @@
           <input type="hidden" id="item_id">
           <div class="form-linha">
             <div class="form-campo"><label for="name">Nome</label><input type="text" id="name" required></div>
-            <div class="form-campo"><label for="slug">Slug</label><input type="text" id="slug" required pattern="[a-z0-9-]+"></div>
+            <div class="form-campo"><label for="slug">Slug (URL)</label><div class="slug-acoes"><input type="text" id="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" maxlength="70" autocomplete="off" aria-describedby="slug-ajuda"><button type="button" class="btn-auxiliar" id="gerar-slug">Gerar do título</button></div></div>
             <div class="form-campo" style="max-width:110px"><label for="sort_order">Ordem</label><input type="number" id="sort_order" value="1" min="1"></div>
           </div>
+          <p class="slug-ajuda" id="slug-ajuda">Use letras minúsculas, números e hífens. O slug é sugerido pelo título e pode ser editado.</p>
           <div class="form-campo"><label for="summary">Resumo curto</label><input type="text" id="summary" maxlength="160"></div>
           <div class="form-campo">
             <label for="description-editor">Descrição completa (orientação)</label>
@@ -72,6 +88,18 @@
           </div>
           <p class="texto-suave" style="font-size:12px;margin:-6px 0 10px">O botão aparece sempre ao final da orientação, centralizado. Deixe os dois campos em branco para não exibir nenhum botão.</p>
           <div class="form-campo"><label for="imagem">Imagem de capa</label><input type="file" id="imagem" accept="image/*"></div>
+          <section class="capa-editor" aria-labelledby="capa-editor-titulo">
+            <h4 id="capa-editor-titulo" style="margin:0 0 8px;font-size:14px">Enquadramento da capa</h4>
+            <p class="texto-suave" style="font-size:12px;margin-bottom:10px">A prévia usa o mesmo corte dos cards públicos. Ajuste a posição sem reenviar a imagem.</p>
+            <div class="capa-preview" id="capa-preview"><span class="capa-preview-vazia">Selecione uma imagem para visualizar o enquadramento.</span></div>
+            <div class="capa-controles">
+              <div><label for="cover-position-x">Horizontal <output id="cover-position-x-value">50%</output></label><input type="range" id="cover-position-x" min="0" max="100" step="1" value="50"></div>
+              <div><label for="cover-position-y">Vertical <output id="cover-position-y-value">50%</output></label><input type="range" id="cover-position-y" min="0" max="100" step="1" value="50"></div>
+            </div>
+            <div class="capa-presets" aria-label="Posições predefinidas">
+              <button type="button" data-capa-pos="50,50">Centro</button><button type="button" data-capa-pos="50,0">Superior</button><button type="button" data-capa-pos="50,100">Inferior</button><button type="button" data-capa-pos="0,50">Esquerda</button><button type="button" data-capa-pos="100,50">Direita</button><button type="button" data-capa-pos="reset">Restaurar padrão</button>
+            </div>
+          </section>
           <div class="form-checkbox"><input type="checkbox" id="published"><label for="published">Publicado</label></div>
           <div class="form-acoes">
             <button type="submit" class="btn-p btn-p-dourado" id="botao-salvar">Salvar</button>
@@ -103,6 +131,82 @@
   const modal = document.getElementById("modal");
   let todos = [];
   let imagemAtualUrl = null;
+  let slugEditadoManualmente = false;
+  let coverPositionX = 50;
+  let coverPositionY = 50;
+  const nomeInput = document.getElementById("name");
+  const slugInput = document.getElementById("slug");
+  const imagemInput = document.getElementById("imagem");
+  const previewCapa = document.getElementById("capa-preview");
+  const posXInput = document.getElementById("cover-position-x");
+  const posYInput = document.getElementById("cover-position-y");
+
+  function slugificar(valor) {
+    return String(valor || "").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
+      .toLowerCase().trim().replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "").slice(0, 70).replace(/-+$/g, "");
+  }
+
+  function atualizarPreviewCapa() {
+    const x = Number(posXInput.value);
+    const y = Number(posYInput.value);
+    coverPositionX = x;
+    coverPositionY = y;
+    document.getElementById("cover-position-x-value").value = x + "%";
+    document.getElementById("cover-position-y-value").value = y + "%";
+    const img = previewCapa.querySelector("img");
+    if (img) img.style.objectPosition = x + "% " + y + "%";
+  }
+
+  function mostrarPreviewCapa(src) {
+    if (!src) {
+      previewCapa.innerHTML = '<span class="capa-preview-vazia">Selecione uma imagem para visualizar o enquadramento.</span>';
+      return;
+    }
+    previewCapa.innerHTML = "";
+    const img = document.createElement("img");
+    img.alt = "Prévia do enquadramento da capa do tratamento";
+    img.src = src;
+    img.style.objectPosition = coverPositionX + "% " + coverPositionY + "%";
+    previewCapa.appendChild(img);
+  }
+
+  function definirPosicaoCapa(x, y) {
+    posXInput.value = String(x);
+    posYInput.value = String(y);
+    atualizarPreviewCapa();
+  }
+
+  nomeInput.addEventListener("input", () => {
+    if (!slugEditadoManualmente) slugInput.value = slugificar(nomeInput.value);
+  });
+  slugInput.addEventListener("input", () => { slugEditadoManualmente = true; });
+  document.getElementById("gerar-slug").addEventListener("click", () => {
+    slugInput.value = slugificar(nomeInput.value);
+    slugEditadoManualmente = true;
+    slugInput.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+  posXInput.addEventListener("input", atualizarPreviewCapa);
+  posYInput.addEventListener("input", atualizarPreviewCapa);
+  document.querySelectorAll("[data-capa-pos]").forEach((btn) => btn.addEventListener("click", () => {
+    if (btn.dataset.capaPos === "reset") definirPosicaoCapa(50, 50);
+    else {
+      const [x, y] = btn.dataset.capaPos.split(",").map(Number);
+      definirPosicaoCapa(x, y);
+    }
+  }));
+  imagemInput.addEventListener("change", () => {
+    const file = imagemInput.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      mostrarFlash(flash, "Selecione um arquivo de imagem válido.", "erro");
+      imagemInput.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => mostrarPreviewCapa(String(reader.result || ""));
+    reader.readAsDataURL(file);
+  });
 
   // ------------------------------------------------------------------
   // Pequeno editor de texto para a orientação do tratamento (negrito,
@@ -258,6 +362,10 @@
     document.getElementById("cta_label").value = "";
     document.getElementById("cta_url").value = "";
     imagemAtualUrl = null;
+    slugEditadoManualmente = false;
+    definirPosicaoCapa(50, 50);
+    mostrarPreviewCapa(null);
+    imagemInput.value = "";
     document.querySelector("[data-modal-titulo]").textContent = "Novo tratamento";
     modal.style.display = "flex";
   }
@@ -266,7 +374,8 @@
     if (!item) return;
     document.getElementById("item_id").value = item.id;
     document.getElementById("name").value = item.name || "";
-    document.getElementById("slug").value = item.slug || "";
+    slugInput.value = item.slug || "";
+    slugEditadoManualmente = true;
     document.getElementById("sort_order").value = item.sort_order || 1;
     document.getElementById("summary").value = item.summary || "";
     const descricao = item.description || "";
@@ -280,6 +389,11 @@
     document.getElementById("cta_url").value = item.cta_url || "";
     document.getElementById("published").checked = !!item.published;
     imagemAtualUrl = item.cover_image_url;
+    coverPositionX = Number(item.cover_position_x ?? 50);
+    coverPositionY = Number(item.cover_position_y ?? 50);
+    definirPosicaoCapa(coverPositionX, coverPositionY);
+    mostrarPreviewCapa(imagemAtualUrl || null);
+    imagemInput.value = "";
     document.querySelector("[data-modal-titulo]").textContent = "Editar tratamento";
     modal.style.display = "flex";
   }
@@ -293,7 +407,21 @@
     botao.disabled = true; botao.textContent = "Salvando…";
     try {
       const id = document.getElementById("item_id").value;
-      const arquivo = document.getElementById("imagem").files[0];
+      const nome = nomeInput.value.trim();
+      const slug = slugInput.value.trim();
+      if (!nome) throw new Error("Informe o nome do tratamento.");
+      if (!slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+        throw new Error("Slug inválido. Use letras minúsculas e números separados por hífens, sem espaços ou caracteres especiais.");
+      }
+      const { data: slugExistente, error: erroSlug } = await supabase.from("treatments")
+        .select("id,name").eq("slug", slug).maybeSingle();
+      if (erroSlug) throw new Error("Não foi possível validar o slug. Tente novamente.");
+      if (slugExistente && slugExistente.id !== id) {
+        throw new Error(`O slug "${slug}" já está sendo utilizado por "${slugExistente.name}". Escolha outro slug.`);
+      }
+      const tratamentoAtual = id ? todos.find((item) => item.id === id) : null;
+      const slugAntigo = tratamentoAtual?.slug || null;
+      const arquivo = imagemInput.files[0];
       let cover_image_url = imagemAtualUrl;
       if (arquivo) {
         const imagemOtimizada = await otimizarImagemParaWebP(arquivo, 1800, 0.82);
@@ -308,8 +436,10 @@
       const ctaUrl = ctaUrlBruta ? safeUrl(ctaUrlBruta) : "";
       if (ctaUrlBruta && !ctaUrl) throw new Error("URL do botão inválida. Use um endereço http(s) ou um caminho interno como /contato.html.");
       const payload = {
-        name: document.getElementById("name").value.trim(),
-        slug: document.getElementById("slug").value.trim().toLowerCase(),
+        name: nome,
+        slug,
+        cover_position_x: coverPositionX,
+        cover_position_y: coverPositionY,
         sort_order: parseInt(document.getElementById("sort_order").value, 10) || 1,
         summary: document.getElementById("summary").value.trim(),
         description: document.getElementById("description").value.trim(),
@@ -319,11 +449,28 @@
         cover_image_url,
       };
       const { error } = id ? await supabase.from("treatments").update(payload).eq("id", id) : await supabase.from("treatments").insert(payload);
-      if (error) throw error;
+      if (error) {
+        if (error.code === "23505" || /duplicate key|unique constraint/i.test(error.message || "")) {
+          throw new Error(`O slug "${payload.slug}" já está sendo utilizado por outro tratamento. Escolha outro.`);
+        }
+        throw error;
+      }
       modal.style.display = "none";
-      const resultadoPublicacao = await dispararPublicacao({ path: `tratamentos/${payload.slug}.html`, publicado: payload.published });
-      mostrarFlash(flash, resultadoPublicacao.confirmado ? MSG_CONFIRMADO : (resultadoPublicacao.ok ? MSG_ATUALIZANDO : MSG_AGENDADO), "sucesso");
-      carregar();
+      await carregar();
+      mostrarFlash(flash, "Tratamento salvo. A publicação do site está sendo atualizada em segundo plano.", "sucesso");
+      const publicar = async () => {
+        const resultadoPublicacao = await dispararPublicacao({ path: `tratamentos/${payload.slug}.html`, publicado: payload.published });
+        if (slugAntigo && slugAntigo !== payload.slug && tratamentoAtual?.published) {
+          // A hospedagem estática atual não permite emitir HTTP 301 pelo painel.
+          // A URL antiga não é despublicada silenciosamente; a limitação é registrada
+          // para que o slug só seja alterado de forma consciente pelo administrador.
+          console.warn("Slug publicado alterado; revisar redirecionamento permanente:", slugAntigo, "→", payload.slug);
+        }
+        mostrarFlash(flash, resultadoPublicacao.confirmado ? MSG_CONFIRMADO : (resultadoPublicacao.ok ? MSG_ATUALIZANDO : MSG_AGENDADO), resultadoPublicacao.ok ? "sucesso" : "erro");
+      };
+      void publicar().catch((erroPublicacao) => {
+        mostrarFlash(flash, "Tratamento salvo, mas não foi possível acompanhar a publicação: " + (erroPublicacao?.message || "erro desconhecido"), "erro");
+      });
     } catch (erro) {
       mostrarFlash(flash, "Erro: " + erro.message, "erro");
     } finally {
