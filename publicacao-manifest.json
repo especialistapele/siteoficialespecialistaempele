@@ -8,7 +8,7 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 74,
+  "total": 75,
   "items": [
     {
       "path": "blog/acne-e-estresse.html",
@@ -131,6 +131,16 @@
       "sha256": "47b1375c63d6af829abf5998c4726f24cd991830ffc9003c7e3f51e036d837de"
     },
     {
+      "path": "resultados/com-25-dias-de-tratamento-para-definicao-corporal.html",
+      "url": "https://www.especialistaempele.com.br/resultados/com-25-dias-de-tratamento-para-definicao-corporal.html",
+      "id": "RESULTADO-000047",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/com-25-dias-de-tratamento-para-definicao-corporal.html",
+      "redirect_to": null,
+      "sha256": "89e95b35739242de881563a1f57793378a2a1c2d3b52be15cd2dc3d38ec3beec"
+    },
+    {
       "path": "resultados/definicao-abdominal.html",
       "url": "https://www.especialistaempele.com.br/resultados/definicao-abdominal.html",
       "id": "RESULTADO-000040",
@@ -138,7 +148,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/definicao-abdominal.html",
       "redirect_to": null,
-      "sha256": "a08c7a98c604605e2ebdad5986545db478162364afb735077f3a96bb5c3c5686"
+      "sha256": "16520c7683215b2004ad5966e6757455d4c99e5717e151ad6d66d859b2737e19"
     },
     {
       "path": "resultados/dez-sessoes-de-reducao-corporal.html",
@@ -751,5 +761,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-19T14:38:33.284Z"
+  "generated_at": "2026-10-19T14:42:45.068Z"
 }
