@@ -8,7 +8,7 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 76,
+  "total": 77,
   "items": [
     {
       "path": "blog/acne-e-estresse.html",
@@ -138,7 +138,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/com-25-dias-de-tratamento-para-definicao-corporal.html",
       "redirect_to": null,
-      "sha256": "8bfc4c90e846e449cb7ca90d68f6a3d855086e86090c26c7fd52f26213839f67"
+      "sha256": "7c37e090bdeb3219756bcbf0b5175c7f86a5b1a030ada30a42407966a2595ef3"
     },
     {
       "path": "resultados/definicao-abdominal.html",
@@ -148,7 +148,17 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/definicao-abdominal.html",
       "redirect_to": null,
-      "sha256": "dee50eca809ed5d5204a32edbdd8c97dbcda9c39027a15169d8353b297ff2b49"
+      "sha256": "ccf90a26680ff39db27e4c2543054f585b831081d8b4ad446325eef1fb66de92"
+    },
+    {
+      "path": "resultados/definicao-muscular-abdomen.html",
+      "url": "https://www.especialistaempele.com.br/resultados/definicao-muscular-abdomen.html",
+      "id": "RESULTADO-000049",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/definicao-muscular-abdomen.html",
+      "redirect_to": null,
+      "sha256": "5333fb56432cd7ab62bc64570b5eb3e2a369b8748e6e6044e76be1ffb4e58942"
     },
     {
       "path": "resultados/dez-sessoes-de-reducao-corporal.html",
@@ -548,7 +558,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/resultado-imediato-com-a-limpeza-de-pele-nanotecnologica.html",
       "redirect_to": null,
-      "sha256": "ee6c32c7a125ed999b9c39dd898d7000af4edb245fdc4dfd5e46c357f5b88e52"
+      "sha256": "38fd22e8117189aa68f5cb3c746278d004c032db8f1318f66587969b9df9e15f"
     },
     {
       "path": "resultados/tratamento-de-rejuvenescimento-facial.html",
@@ -771,5 +781,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-19T15:08:53.821Z"
+  "generated_at": "2026-10-19T16:00:59.589Z"
 }
