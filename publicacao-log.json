@@ -573,8 +573,21 @@
       "workflow_run_id": "39300556609",
       "workflow_sha": "1ebb1e4169ea45924b935fc20a0e7f132086bf30",
       "ref": "main"
+    },
+    {
+      "request_id": "12cd4e8d-737a-4b1f-a75d-1116b985251b",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/rotina-skincare-pele-adulta.html",
+      "content_id": null,
+      "publicado": false,
+      "requested_at": "2026-10-19T18:13:00.089Z",
+      "completed_at": "2026-10-19T18:13:56.451Z",
+      "workflow_run_id": "39300656953",
+      "workflow_sha": "31a86b9192cbada19eb57a80d6bf4079d318a7fc",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-19T18:12:49.024Z",
-  "total": 44
+  "updated_at": "2026-10-19T18:13:56.451Z",
+  "total": 45
 }
