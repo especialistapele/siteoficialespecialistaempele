@@ -32,7 +32,8 @@ create table if not exists public.finance_expenses (
   percentage numeric(5,2) check (percentage is null or (percentage >= 0 and percentage <= 100)),
   hours numeric(8,2) check (hours is null or hours >= 0),
   hourly_rate numeric(12,2) check (hourly_rate is null or hourly_rate >= 0),
-  appointment_id uuid references public.appointments(id) on delete set null,\n  partner_rule_id uuid references public.finance_partner_rules(id) on delete set null,
+  appointment_id uuid references public.appointments(id) on delete set null,
+  partner_rule_id uuid references public.finance_partner_rules(id) on delete set null,
   created_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
