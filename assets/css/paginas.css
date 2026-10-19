@@ -98,6 +98,7 @@ main>.breadcrumb:first-child{padding-top:96px}
 .btn svg{width:16px;height:16px}
 
 /* --- Grades de card --- */
+body[data-pagina="tratamentos"] .grade__titulo{grid-column:1/-1;margin:18px 0 0;color:var(--cor-texto,#2f3b32);font-size:clamp(1.35rem,2.2vw,1.8rem);line-height:1.25;font-weight:650}body[data-pagina="tratamentos"] .grade__titulo:not(:first-child){margin-top:32px}
 body[data-pagina="tratamentos"] .grade{display:grid;gap:20px;grid-template-columns:minmax(0,1fr);align-items:stretch;margin-top:32px}
 @media (min-width:560px){body[data-pagina="tratamentos"] .grade{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}}
 @media (min-width:980px){body[data-pagina="tratamentos"] .grade{grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}}
