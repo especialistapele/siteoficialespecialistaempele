@@ -80,13 +80,13 @@ function cardResultado(r) {
 
 const SEO_RESULTADOS = {
   "resultado-da-tecnica-de-bioredutora": {
-    title: "BioRedutora: resultado de tratamento corporal | Especialista em Pele",
+    title: "BioRedutora: resultado corporal | Especialista em Pele",
     headline: "Resultado de tratamento corporal com BioRedutora",
     description: "Veja um caso acompanhado com protocolo BioRedutora em cinco sessões. Conheça a abordagem individualizada; os resultados variam de pessoa para pessoa.",
     intro: "Este caso documenta a evolução observada após um plano de cinco sessões de BioRedutora, com acompanhamento individualizado. O registro é informativo: a indicação, o número de sessões e a resposta ao tratamento dependem de avaliação profissional e das características de cada pessoa."
   },
   "com-25-dias-de-tratamento-para-definicao-corporal": {
-    title: "Definição corporal em 25 dias: caso real | Especialista em Pele",
+    title: "Definição corporal em 25 dias | Especialista em Pele",
     headline: "Registro de definição corporal após 25 dias",
     description: "Conheça o registro de definição corporal após 25 dias com técnica Biohipertrofia e acompanhamento individualizado. Resultados variam.",
     intro: "Este caso registra a evolução observada ao longo de 25 dias em um protocolo de Biohipertrofia, com atendimentos semanais conforme o plano descrito. O período e a resposta são específicos deste caso e não representam prazo ou resultado garantido."
@@ -104,7 +104,7 @@ const SEO_RESULTADOS = {
     intro: "Este caso documenta uma etapa inicial de acompanhamento corporal após duas sessões realizadas ao longo de duas semanas, conforme o registro publicado. Uma observação inicial não permite prever o resultado final; indicação, intervalos e resposta são individuais."
   },
   "gordura-localizada-em-abdomen": {
-    title: "Gordura localizada no abdômen: caso real | Especialista em Pele",
+    title: "Gordura localizada no abdômen | Especialista em Pele",
     headline: "Acompanhamento corporal para gordura localizada no abdômen",
     description: "Conheça um registro de acompanhamento para gordura localizada no abdômen após cinco sessões. Medidas e evolução variam conforme a resposta individual.",
     intro: "Este registro apresenta um acompanhamento corporal direcionado à região abdominal. O caso descreve cinco sessões e a evolução de medidas específicas; esses dados não substituem uma avaliação individual e não garantem resultados semelhantes para outras pessoas."
