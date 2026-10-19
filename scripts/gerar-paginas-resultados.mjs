@@ -79,6 +79,13 @@ function cardResultado(r) {
 }
 
 const SEO_RESULTADOS = {
+  "resultado-imediato-com-a-limpeza-de-pele-nanotecnologica": {
+    title: "Limpeza nanotecnológica: resultado | Especialista em Pele",
+    headline: "Resultado da limpeza de pele nanotecnológica",
+    description: "Antes e depois de uma limpeza de pele nanotecnológica. Entenda a técnica e por que a indicação depende de avaliação individual.",
+    intro: "Este caso apresenta um registro fotográfico após uma limpeza de pele nanotecnológica. A aparência imediata pode variar conforme as condições da pele, a técnica e os cuidados realizados; uma fotografia isolada não permite prever a resposta de outras pessoas."
+  },
+
   "resultado-da-tecnica-de-bioredutora": {
     title: "BioRedutora: resultado corporal | Especialista em Pele",
     headline: "Resultado de tratamento corporal com BioRedutora",
@@ -194,7 +201,14 @@ export function paginaHtml(r, { fotos, dims, outros = [] }) {
 
   const galeria = fotos.map((f, i) => `<figure style="margin:0"><img src="${escapeHtml(f.url)}" alt="${escapeHtml(f.alt)}"${attrDim(dims.get(f.url))} loading="${i < 2 ? "eager" : "lazy"}" decoding="async" style="width:100%;height:auto;border-radius:10px"><figcaption class="card__meta" style="margin-top:8px">${escapeHtml(f.legenda)}</figcaption></figure>`).join("\n      ");
 
-  const corpo = corpoTexto ? renderizarConteudo(corpoTexto) : "";
+  const corpo = r.slug === "resultado-imediato-com-a-limpeza-de-pele-nanotecnologica"
+    ? `<h3>Limpeza de pele convencional x nanotecnológica</h3>
+      <p>A limpeza de pele é um cuidado que ajuda a remover impurezas e, quando indicado, desobstruir os poros. A técnica escolhida deve considerar as características e a sensibilidade de cada pele.</p>
+      <p><strong>Limpeza de pele convencional:</strong> prioriza a higienização, a remoção de impurezas e a extração de comedões quando apropriada. A experiência e a resposta dependem da técnica e das condições individuais.</p>
+      <p><strong>Limpeza de pele nanotecnológica:</strong> combina a higienização com produtos cosméticos que utilizam sistemas de dimensões nanométricas. Conforme a formulação, esses sistemas podem influenciar a estabilidade, a liberação e a interação dos ativos com a pele. Os efeitos dependem do produto utilizado e não devem ser generalizados para todas as formulações.</p>
+      <p>A quantidade de comedões removidos e a aparência da pele logo após a sessão variam de acordo com a condição cutânea, a presença de comedões e a técnica empregada. Não é possível garantir um percentual de remoção nem um resultado idêntico para todas as pessoas.</p>
+      <p>Os cuidados posteriores devem respeitar a integridade da barreira cutânea e as orientações profissionais. A indicação em peles maduras, sensíveis ou com alterações cutâneas exige avaliação individual e escolha cuidadosa dos produtos.</p>`
+    : corpoTexto ? renderizarConteudo(corpoTexto) : "";
   const linkTrat = trat?.slug ? `${SITE}/tratamentos/${slugifyUrl(trat.slug)}.html` : "";
   const outrosHtml = outros.length
     ? `<h2 style="font-size:1.25rem;margin-top:44px">Outros resultados${trat ? ` de ${escapeHtml(trat.name)}` : ""}</h2><ul style="margin:12px 0 0 20px;line-height:1.9">${outros.map((o) => `<li><a href="/resultados/${escapeHtml(o.slug)}.html">${escapeHtml(o.title)}</a></li>`).join("")}</ul>` : "";
@@ -243,7 +257,7 @@ ${cabecalho("resultados")}
     ${introSeo ? `<p class="texto-centro" style="font-size:16px;line-height:1.7;max-width:850px;margin:16px auto 24px">${escapeHtml(introSeo)}</p>` : ""}
     ${slider}
     ${r.description ? `<p class="texto-centro" style="font-size:18px;line-height:1.6">${escapeHtml(r.description)}</p>` : ""}
-    ${ehLimpeza ? `<p class="texto-centro" style="font-size:16px;line-height:1.7">Este registro integra os casos de limpeza de pele profissional da Especialista em Pele. A limpeza de pele profunda faz parte dos cuidados de estética facial quando indicada após avaliação individual. Fotografias documentam um caso específico e não garantem resultados iguais para outras pessoas.</p>` : ""}
+    ${ehLimpeza && r.slug !== "resultado-imediato-com-a-limpeza-de-pele-nanotecnologica" ? `<p class="texto-centro" style="font-size:16px;line-height:1.7">Este registro integra os casos de limpeza de pele profissional da Especialista em Pele. A limpeza de pele profunda faz parte dos cuidados de estética facial quando indicada após avaliação individual. Fotografias documentam um caso específico e não garantem resultados iguais para outras pessoas.</p>` : ""}
     <h2 style="margin-top:36px">Sobre este resultado</h2>
     <div class="resultado-corpo">${corpo || `<p>Registro fotográfico de um caso${trat ? ` de ${escapeHtml(trat.name)}` : ""} atendido na Especialista em Pele${r.description ? `: ${escapeHtml(r.description.replace(/[.\s]+$/, ""))}` : ""}.</p>`}<p class="texto-suave" style="font-size:14px">${AVISO}</p></div>
     <h2 style="margin-top:36px">Fotos do caso</h2>
