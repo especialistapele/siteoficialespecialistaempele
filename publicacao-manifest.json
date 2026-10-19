@@ -148,7 +148,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/dez-sessoes-de-reducao-corporal.html",
       "redirect_to": null,
-      "sha256": "afd5b85fec93ec3826cfc5e12b168f49182834d6964013a24d6c80217cd79365"
+      "sha256": "36658c6006255ab4ec30ea092e5e4cd5d8b0be8928be6e4c7b4fc79d1f7ca91e"
     },
     {
       "path": "resultados/duas-sessoes-de-reducao-corporal.html",
@@ -751,5 +751,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-19T14:12:52.318Z"
+  "generated_at": "2026-10-19T14:38:33.284Z"
 }
