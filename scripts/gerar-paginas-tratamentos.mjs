@@ -74,17 +74,53 @@ async function buscarPublicados(tabela) {
 // Impede que dois tratamentos publicados disputem o mesmo arquivo estático.
 // A verificação é feita antes de qualquer página ser escrita ou removida.
 export function validarSlugsUnicos(tratamentos) {
-  const vistos = new Map();
+  const atuais = new Map();
+  const aliases = new Map();
   for (const t of tratamentos) {
     if (!t.slug) continue;
     const slug = slugifyUrl(t.slug);
     if (!slug) continue;
-    if (vistos.has(slug)) {
-      const anterior = vistos.get(slug);
+    if (atuais.has(slug)) {
+      const anterior = atuais.get(slug);
       throw new Error(`Slug de tratamento duplicado após normalização "${slug}" nos registros ${anterior.id ?? anterior.public_id ?? "sem ID"} ("${anterior.slug}") e ${t.id ?? t.public_id ?? "sem ID"} ("${t.slug}"). Corrija os slugs no cadastro antes de publicar.`);
     }
-    vistos.set(slug, t);
+    atuais.set(slug, t);
   }
+  for (const t of tratamentos) {
+    const slugAtual = slugifyUrl(t.slug);
+    for (const bruto of Array.isArray(t.previous_slugs) ? t.previous_slugs : []) {
+      const alias = slugifyUrl(bruto);
+      if (!alias || alias === slugAtual) continue;
+      const conflitoAtual = atuais.get(alias);
+      if (conflitoAtual && conflitoAtual.id !== t.id) {
+        throw new Error(`Slug anterior "${alias}" do tratamento ${t.id ?? t.name} conflita com o slug atual do tratamento ${conflitoAtual.id ?? conflitoAtual.name}.`);
+      }
+      if (aliases.has(alias) && aliases.get(alias).id !== t.id) {
+        throw new Error(`Slug anterior "${alias}" está associado a mais de um tratamento.`);
+      }
+      aliases.set(alias, t);
+    }
+  }
+}
+export function paginaRedirecionamentoTratamento(slugAntigo, slugAtual, nome) {
+  const destino = `${SITE}/tratamentos/${slugifyUrl(slugAtual)}.html`;
+  const slug = slugifyUrl(slugAntigo);
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<!-- AUTO-GENERATED:TREATMENT-REDIRECT old-slug=${slug} -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Endereço atualizado — ${escapeHtml(nome)}</title>
+<meta name="robots" content="noindex,follow">
+<meta name="conteudo-movido-para" content="${escapeHtml(destino)}">
+<link rel="canonical" href="${escapeHtml(destino)}">
+<meta http-equiv="refresh" content="0; url=${escapeHtml(destino)}">
+<script>location.replace(${JSON.stringify(destino)});</script>
+</head>
+<body><p>Este tratamento mudou de endereço. <a href="${escapeHtml(destino)}">Acesse a página atual de ${escapeHtml(nome)}</a>.</p></body>
+</html>
+`;
 }
 
 export function paginaHtml(t) {
@@ -94,6 +130,8 @@ export function paginaHtml(t) {
   const descricaoMeta = (resumir(resumoBruto, 155) || "Tratamento regenerativo — Especialista em Pele.");
   const urlCanonica = `${SITE}/tratamentos/${slugArquivo}.html`;
   const imagemMeta = t.cover_image_url || `${SITE}/assets/hero-fallback.webp`;
+  const posX = Number.isFinite(Number(t.cover_position_x)) ? Math.max(0, Math.min(100, Number(t.cover_position_x))) : 50;
+  const posY = Number.isFinite(Number(t.cover_position_y)) ? Math.max(0, Math.min(100, Number(t.cover_position_y))) : 50;
   const ctaHtml = t.cta_label && t.cta_url
     ? `<p class="texto-centro" style="margin-top:28px"><a class="btn btn-dourado" href="${escapeHtml(t.cta_url)}">${escapeHtml(t.cta_label)}</a></p>`
     : "";
@@ -171,7 +209,7 @@ export function paginaHtml(t) {
   <article class="secao wrap" style="max-width:70ch">
     <p class="card__meta texto-centro">Tratamento regenerativo</p>
     <h1 class="texto-centro">${escapeHtml(t.name)}</h1>
-    ${t.cover_image_url ? `<img src="${escapeHtml(t.cover_image_url)}" alt="${escapeHtml(t.name)}" style="width:100%;border-radius:10px;margin:24px 0" loading="lazy">` : ""}
+    ${t.cover_image_url ? `<img src="${escapeHtml(t.cover_image_url)}" alt="${escapeHtml(t.name)}" width="1200" height="900" style="display:block;width:100%;aspect-ratio:4/3;object-fit:cover;object-position:${posX}% ${posY}%;border-radius:12px;margin:24px 0" loading="lazy" decoding="async">` : ""}
     <div class="artigo-corpo">${renderizarOrientacao(t.description || t.summary || "")}</div>
     ${ctaHtml}
   </article>
@@ -261,6 +299,42 @@ async function main() {
     writeFileSync(caminho, paginaHtml(t), "utf-8");
     console.log(`Gerado: ${caminho}`);
   }
+  // Gera páginas de transição para slugs anteriores de tratamentos publicados.
+  // Em hospedagem estática, meta refresh/location.replace não equivale a HTTP 301,
+  // mas mantém links antigos navegáveis e aponta canonical/noindex para o destino.
+  const redirectsAtivos = new Set();
+  const slugsAtuais = new Set(tratamentos.filter((t) => t.published && t.slug).map((t) => slugifyUrl(t.slug)));
+  for (const t of tratamentos) {
+    if (!t.published || !t.slug) continue;
+    for (const slugAnteriorBruto of (Array.isArray(t.previous_slugs) ? t.previous_slugs : [])) {
+      const slugAnterior = slugifyUrl(slugAnteriorBruto);
+      if (!slugAnterior || slugAnterior === slugifyUrl(t.slug)) continue;
+      if (slugsAtuais.has(slugAnterior)) throw new Error(`Slug anterior "${slugAnterior}" conflita com uma URL de tratamento atual.`);
+      const caminhoAntigo = `${PASTA_SAIDA}/${slugAnterior}.html`;
+      if (existsSync(caminhoAntigo)) {
+        const existente = readFileSync(caminhoAntigo, "utf-8");
+        if (!existente.includes("AUTO-GENERATED:TREATMENT-PAGE") && !existente.includes("AUTO-GENERATED:TREATMENT-REDIRECT")) {
+          console.warn(`Preservado (página manual/SEO): ${caminhoAntigo}; redirecionamento não sobrescreveu o arquivo.`);
+          continue;
+        }
+      }
+      writeFileSync(caminhoAntigo, paginaRedirecionamentoTratamento(slugAnterior, t.slug, t.name), "utf-8");
+      redirectsAtivos.add(slugAnterior);
+      console.log(`Redirecionamento de compatibilidade: ${caminhoAntigo} → ${t.slug}.html`);
+    }
+  }
+  for (const nome of readdirSync(PASTA_SAIDA)) {
+    if (!nome.endsWith(".html")) continue;
+    const slugExistente = nome.slice(0, -5);
+    const caminho = `${PASTA_SAIDA}/${nome}`;
+    let html = "";
+    try { html = readFileSync(caminho, "utf-8"); } catch (_) { continue; }
+    if (html.includes("AUTO-GENERATED:TREATMENT-REDIRECT") && !redirectsAtivos.has(slugExistente)) {
+      unlinkSync(caminho);
+      console.log(`Redirecionamento obsoleto removido: ${caminho}`);
+    }
+  }
+
   // Remove somente páginas que foram geradas automaticamente por este script.
   // Páginas manuais/SEO por cidade não possuem o marcador e são preservadas.
   for (const nome of readdirSync(PASTA_SAIDA)) {

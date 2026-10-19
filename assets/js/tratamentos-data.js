@@ -1,8 +1,55 @@
 import { supabase } from "./supabase-client.js";
 import { escapeHtml, safeUrl } from "./sanitize.js";
-// Mesma regra de slug usada em scripts/gerar-paginas-tratamentos.mjs e
-// em scripts/gerar-sitemap.mjs — precisa ficar idêntica nos três lugares,
-// senão os links quebram.
-function slugifyUrl(valor){return String(valor??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
-function cardTratamento(t){const image=safeUrl(t.cover_image_url);return `<article class="card"><div class="card__img">${image?`<img src="${escapeHtml(image)}" alt="${escapeHtml(t.name)}" style="width:100%;height:100%;object-fit:cover" loading="lazy">`:''}</div><div class="card__corpo"><span class="selo">Regenerativo</span><h3>${escapeHtml(t.name)}</h3><p>${escapeHtml(t.summary)}</p><a class="card__link" href="/tratamentos/${slugifyUrl(t.slug||'')}.html">Saiba mais →</a></div></article>`;}
-async function carregar(){const container=document.querySelector("[data-grade-tratamentos]");if(!container)return;const{data,error}=await supabase.from("treatments").select("*").eq("published",true).order("sort_order",{ascending:true});if(error||!data?.length){return;}container.innerHTML=data.map(cardTratamento).join("");}carregar();
+
+// A regra precisa corresponder ao gerador de páginas estáticas e ao sitemap.
+function slugifyUrl(valor) {
+  return String(valor ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+function posicao(valor, padrao = 50) {
+  const n = Number(valor);
+  return Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : padrao;
+}
+// A tabela atual não possui campo de categoria; a classificação usa slugs conhecidos.
+const SLUGS_CORPORAIS = new Set([
+  "corporal", "definicao", "clareamento", "leucodermia", "acantose",
+  "estrias", "flacidez", "celulite", "operatorio", "manchas-solares-em-maos",
+]);
+function categoriaTratamento(t) {
+  const slug = slugifyUrl(t.slug || t.name || "");
+  return SLUGS_CORPORAIS.has(slug) ? "corporal" : "facial";
+}
+function cardTratamento(t) {
+  const image = safeUrl(t.cover_image_url) || "/assets/tratamentos.webp";
+  const alt = t.cover_image_url ? t.name : "Tratamentos de pele — Especialista em Pele";
+  const x = posicao(t.cover_position_x);
+  const y = posicao(t.cover_position_y);
+  const resumo = String(t.summary || t.description || "").replace(/<[^>]*>/g, " ").replace(/\\s+/g, " ").trim();
+  return `<article class="card">
+    <div class="card__img">
+      <img src="${escapeHtml(image)}" alt="${escapeHtml(alt)}" width="800" height="600"
+        style="object-position:${x}% ${y}%" loading="lazy" decoding="async">
+    </div>
+    <div class="card__corpo">
+      <span class="selo">Regenerativo</span>
+      <h3>${escapeHtml(t.name)}</h3>
+      <p>${escapeHtml(resumo)}</p>
+      <a class="card__link" href="/tratamentos/${slugifyUrl(t.slug || "")}.html" aria-label="Conhecer ${escapeHtml(t.name)}">Conhecer tratamento <span aria-hidden="true">→</span></a>
+    </div>
+  </article>`;
+}
+async function carregar() {
+  const container = document.querySelector("[data-grade-tratamentos]");
+  if (!container) return;
+  const { data, error } = await supabase.from("treatments").select("*").eq("published", true).order("sort_order", { ascending: true });
+  // O HTML original permanece visível e rastreável se a API estiver indisponível.
+  if (error || !data?.length) return;
+  const faciais = data.filter((t) => categoriaTratamento(t) === "facial");
+  const corporais = data.filter((t) => categoriaTratamento(t) === "corporal");
+  const grupo = (titulo, itens, id) => itens.length
+    ? '<h2 class="grade__titulo" id="' + id + '">' + titulo + '</h2>' + itens.map(cardTratamento).join("")
+    : "";
+  container.innerHTML = grupo("Tratamentos faciais", faciais, "tratamentos-faciais")
+    + grupo("Tratamentos corporais", corporais, "tratamentos-corporais");
+}
+carregar();

@@ -3,7 +3,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import assert from "node:assert/strict";
-import { paginaHtml, validarSlugsUnicos } from "../gerar-paginas-tratamentos.mjs";
+import { paginaHtml, validarSlugsUnicos, paginaRedirecionamentoTratamento } from "../gerar-paginas-tratamentos.mjs";
 import { resumir, tituloSeo, sincronizarPastas, paginaRedirecionamento } from "../lib/conteudo.mjs";
 import { paginaHtml as paginaArtigoHtml } from "../gerar-paginas-artigos.mjs";
 import { paginaHtml as paginaResultadoHtml } from "../gerar-paginas-resultados.mjs";
@@ -155,4 +155,38 @@ test("artigo sem capa exibe imagem alternativa e recupera falha de carregamento"
   const fallback = "https://www.especialistaempele.com.br/assets/hero-fallback.webp";
   assert.ok(html.includes('<img src="' + fallback + '" alt="Imagem de capa do artigo: Artigo sem capa"'));
   assert.ok(html.includes('onerror="this.onerror=null;this.src=&#39;' + fallback + '&#39;;"'));
+});
+
+test("página estática de tratamento aplica o enquadramento personalizado sem deformar a capa", () => {
+  const html = paginaHtml({
+    public_id: "TEST-CAPA-000001",
+    slug: "tratamento-capa-teste",
+    name: "Tratamento capa teste",
+    summary: "Resumo de teste.",
+    description: "Descrição de teste.",
+    cover_image_url: "https://example.com/capa.webp",
+    cover_position_x: 18,
+    cover_position_y: 82,
+  });
+  assert.ok(html.includes("object-fit:cover;object-position:18% 82%"));
+  assert.ok(html.includes('alt="Tratamento capa teste"'));
+  assert.ok(html.includes('width="1200" height="900"'));
+});
+
+test("slug anterior de tratamento gera redirecionamento de compatibilidade com canonical e noindex", () => {
+  const html = paginaRedirecionamentoTratamento("acne-antiga", "acne-atual", "Tratamento para acne");
+  assert.ok(html.includes("AUTO-GENERATED:TREATMENT-REDIRECT old-slug=acne-antiga"));
+  assert.ok(html.includes('<meta name="robots" content="noindex,follow">'));
+  assert.ok(html.includes('<link rel="canonical" href="https://www.especialistaempele.com.br/tratamentos/acne-atual.html">'));
+  assert.ok(html.includes('location.replace("https://www.especialistaempele.com.br/tratamentos/acne-atual.html")'));
+});
+
+test("gerador impede slug anterior que conflita com o slug atual de outro tratamento", () => {
+  assert.throws(
+    () => validarSlugsUnicos([
+      { id: "a", slug: "acne-atual", previous_slugs: ["melasma"] },
+      { id: "b", slug: "melasma", previous_slugs: [] },
+    ]),
+    /Slug anterior "melasma".*conflita/
+  );
 });

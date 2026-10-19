@@ -18,3 +18,7 @@ jobs:
           node-version: 22
       - name: Validar JavaScript inline dos HTML
         run: node scripts/check-inline-js.mjs
+      - name: Validar módulos JavaScript de tratamentos
+        run: |
+          node --input-type=module --check < assets/js/tratamentos-data.js
+          node --input-type=module --check < tratamentos/tratamento-data.js
