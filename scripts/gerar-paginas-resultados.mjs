@@ -80,7 +80,7 @@ function cardResultado(r) {
 
 const SEO_RESULTADOS = {
   "resultado-imediato-com-a-limpeza-de-pele-nanotecnologica": {
-    title: "Limpeza de pele nanotecnológica: resultado | Especialista em Pele",
+    title: "Limpeza nanotecnológica: resultado | Especialista em Pele",
     headline: "Resultado da limpeza de pele nanotecnológica",
     description: "Veja o registro de antes e depois de uma limpeza de pele nanotecnológica. Entenda as diferenças da técnica e por que a indicação depende de avaliação individual.",
     intro: "Este caso apresenta um registro fotográfico após uma limpeza de pele nanotecnológica. A aparência imediata pode variar conforme as condições da pele, a técnica e os cuidados realizados; uma fotografia isolada não permite prever a resposta de outras pessoas."
