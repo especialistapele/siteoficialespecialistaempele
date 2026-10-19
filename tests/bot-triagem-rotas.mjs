@@ -8,7 +8,7 @@ if (!config) throw new Error("bot-config.js não expôs ESPECIALISTA_PELE_BOT_CO
 const autoSandbox = { window: {} };
 vm.runInNewContext(readFileSync("assets/js/bot-tratamentos-auto.js", "utf8"), autoSandbox);
 const auto = autoSandbox.window.ESPECIALISTA_PELE_BOT_AUTO || {};
-for (const section of ["treatmentModes", "pageContexts", "greetings", "labels"]) {
+for (const section of ["treatmentModes", "pageContexts", "greetings", "labels", "aliases"]) {
   config[section] = { ...(auto[section] || {}), ...(config[section] || {}) };
 }
 const tratamentoEntries = Object.entries(config.pageContexts)
