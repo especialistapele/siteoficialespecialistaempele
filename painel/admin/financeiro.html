@@ -21,7 +21,7 @@
       <label>Data da despesa<input type="date" name="expense_date" required></label>
       <label>Forma de cálculo<select name="calculation_type" data-tipo-calculo><option value="manual">Valor manual</option><option value="percentual">Percentual de atendimento recebido</option><option value="hora">Aluguel por hora</option></select></label>
       <label data-campo-atendimento class="is-hidden">Atendimento<select name="appointment_id" data-atendimento><option value="">Selecione um atendimento</option></select></label>
-      <label data-campo-percentual class="is-hidden>Percentual (%)<input name="percentage" type="number" min="0" max="100" step="0.01" placeholder="Ex.: 30"></label>
+      <label data-campo-percentual class="is-hidden">Percentual (%)<input name="percentage" type="number" min="0" max="100" step="0.01" placeholder="Ex.: 30"></label>
       <label data-campo-horas class="is-hidden">Horas utilizadas<input name="hours" type="number" min="0" step="0.25" placeholder="Ex.: 2"></label>
       <label data-campo-valor-hora class="is-hidden">Valor por hora (R$)<input name="hourly_rate" type="number" min="0" step="0.01" placeholder="Ex.: 50"></label>
       <label>Valor da despesa (R$)<input name="amount" type="number" min="0" step="0.01" required placeholder="0,00" data-valor-despesa></label>
@@ -150,9 +150,11 @@ async function carregarDespesas(){
   despesas=data||[];
   const pagas=despesas.filter(x=>x.status==='pago').reduce((s,x)=>s+Number(x.amount||0),0);
   const pendentes=despesas.filter(x=>x.status==='pendente').reduce((s,x)=>s+Number(x.amount||0),0);
-  const receitaAtend=appointments.filter(a=>a.status!=='cancelado'&&String(a.appointment_date||'').startsWith(mesInput.value)).reduce((s,a)=>s+totalRecebidoAtendimento(a,recebidosPorAtendimento),0);
-  const receitaFin=lancamentos.filter(x=>x.status==='pago'&&String(x.paid_at||x.due_date||'').startsWith(mesInput.value)).reduce((s,x)=>s+Number(x.amount||0),0);
-  const receita=receitaAtend+receitaFin;
+  // Apuração por caixa: taxas recebidas na data do atendimento, parcelas na data efetiva do pagamento.
+  const receitaTaxas=appointments.filter(a=>a.status!=='cancelado'&&a.taxa_status==='pago'&&String(a.appointment_date||'').startsWith(mesInput.value)).reduce((s,a)=>s+Math.min(Number(a.valor||0),Number(a.taxa_agendamento||0)),0);
+  const receitaParcelas=historico.filter(p=>String(p.payment_date||'').startsWith(mesInput.value)).reduce((s,p)=>s+Number(p.amount||0),0);
+  const receitaFin=lancamentos.filter(x=>x.status==='pago'&&String((x.paid_at||x.due_date||'')).startsWith(mesInput.value)).reduce((s,x)=>s+Number(x.amount||0),0);
+  const receita=receitaTaxas+receitaParcelas+receitaFin;
   document.querySelector('[data-receita-mes]').textContent=moeda(receita);
   document.querySelector('[data-despesas-pagas]').textContent=moeda(pagas);
   document.querySelector('[data-lucro]').textContent=moeda(receita-pagas);
