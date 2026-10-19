@@ -8,7 +8,7 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 78,
+  "total": 79,
   "items": [
     {
       "path": "blog/acne-e-estresse.html",
@@ -38,7 +38,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/como-escolher-um-tratamento-para-melasma.html",
       "redirect_to": null,
-      "sha256": "b48eef504b0e596b21e0908b39e5647e4dc1f2c549f24d529084cc0c4b9bf12e"
+      "sha256": "036a1654074fe6965f01c9909e490745768f808a4083692dd5b0e98be5251506"
     },
     {
       "path": "blog/controle-da-oleosidade.html",
@@ -48,7 +48,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/controle-da-oleosidade.html",
       "redirect_to": null,
-      "sha256": "83a044c324bdc84f601041785451060a588b8eed082d84f369c3948a386369d2"
+      "sha256": "865fc63d4467389800c254b98ab3e8020389c4ee0163d2dc4638ef0cfe3625b6"
     },
     {
       "path": "blog/o-que-e-regeneracao-cutanea.html",
@@ -58,7 +58,17 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/o-que-e-regeneracao-cutanea.html",
       "redirect_to": null,
-      "sha256": "e3daceaf69cc7ac26acb8ca617a30cfaebf5844ab537c53901edfc05c5a9c864"
+      "sha256": "72b9370058b068d7b706261ca98b1669419bf163fae6c267d6b8068b09e75fbc"
+    },
+    {
+      "path": "blog/pele-seca-ou-desidratada.html",
+      "url": "https://www.especialistaempele.com.br/blog/pele-seca-ou-desidratada.html",
+      "id": "BLOG-000028",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/blog/pele-seca-ou-desidratada.html",
+      "redirect_to": null,
+      "sha256": "7d7f8a1dfc5c35372a2e9a2d1a3c13642295c03c27c38c3c3cbd717bb457e6d5"
     },
     {
       "path": "blog/por-que-a-acne-persiste.html",
@@ -68,7 +78,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/por-que-a-acne-persiste.html",
       "redirect_to": null,
-      "sha256": "2d2a8cc88458a235cfaa29f5f542cec9cbf95b495bad19741c62839ff3622141"
+      "sha256": "49cd33fc212244379e5389cccf2a5b361d684d57d0280046086c4c54987f9a7f"
     },
     {
       "path": "blog/rejuvenescimento-facial-ou-harmonizacao.html",
@@ -78,7 +88,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/rejuvenescimento-facial-ou-harmonizacao.html",
       "redirect_to": null,
-      "sha256": "d8d9f305e51322bccb0840dee90fa999c3da379fa1941447c5cc3209665ef52e"
+      "sha256": "025c3966442baab9b76e2a739e256a1010fae231db45e632c7351e74a85ee92d"
     },
     {
       "path": "resultados/clareamento-de-axila-02.html",
@@ -791,5 +801,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-19T18:24:30.097Z"
+  "generated_at": "2026-10-19T19:27:14.710Z"
 }
