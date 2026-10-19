@@ -508,8 +508,21 @@
       "workflow_run_id": "39299665533",
       "workflow_sha": "66e29a9e2a4e8f903b739836629bafbbe0c37d68",
       "ref": "main"
+    },
+    {
+      "request_id": "9ebc84d4-1998-450b-b749-472f7301b723",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/resveratrol-na-pele.html",
+      "content_id": null,
+      "publicado": false,
+      "requested_at": "2026-10-19T18:06:29.342Z",
+      "completed_at": "2026-10-19T18:06:59.309Z",
+      "workflow_run_id": "39299776268",
+      "workflow_sha": "9631ce150213edc94df83e0a7c2c4c2515aafeb1",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-19T18:06:18.545Z",
-  "total": 39
+  "updated_at": "2026-10-19T18:06:59.309Z",
+  "total": 40
 }
