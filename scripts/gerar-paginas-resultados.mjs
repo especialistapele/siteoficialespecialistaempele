@@ -341,7 +341,7 @@ ${cabecalho("resultados")}
     ${introSeo ? `<p class="texto-centro" style="font-size:16px;line-height:1.7;max-width:850px;margin:16px auto 24px">${escapeHtml(introSeo)}</p>` : ""}
     ${slider}
     ${r.description ? `<p class="texto-centro" style="font-size:18px;line-height:1.6">${escapeHtml(r.description)}</p>` : ""}
-    ${ehLimpeza && r.slug !== "resultado-imediato-com-a-limpeza-de-pele-nanotecnologica" ? `<p class="texto-centro" style="font-size:16px;line-height:1.7">Este registro integra os casos de limpeza de pele profissional da Especialista em Pele. A limpeza de pele profunda faz parte dos cuidados de estética facial quando indicada após avaliação individual. Fotografias documentam um caso específico e não garantem resultados iguais para outras pessoas.</p>` : ""}
+    ${ehLimpeza && !seoCaso && r.slug !== "resultado-imediato-com-a-limpeza-de-pele-nanotecnologica" ? `<p class="texto-centro" style="font-size:16px;line-height:1.7">Este registro integra os casos de limpeza de pele profissional da Especialista em Pele. A limpeza de pele profunda faz parte dos cuidados de estética facial quando indicada após avaliação individual. Fotografias documentam um caso específico e não garantem resultados iguais para outras pessoas.</p>` : ""}
     <h2 style="margin-top:36px">Sobre este resultado</h2>
     <div class="resultado-corpo">${corpo || `<p>Registro fotográfico de um caso${trat ? ` de ${escapeHtml(trat.name)}` : ""} atendido na Especialista em Pele${r.description ? `: ${escapeHtml(r.description.replace(/[.\s]+$/, ""))}` : ""}.</p>`}<p class="texto-suave" style="font-size:14px">${AVISO}</p></div>
     <h2 style="margin-top:36px">Fotos do caso</h2>
