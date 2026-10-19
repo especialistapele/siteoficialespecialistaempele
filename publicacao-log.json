@@ -482,8 +482,21 @@
       "workflow_run_id": "39282132669",
       "workflow_sha": "7212ad38bb3ddf14c6b1d99ef37ea2201b28f47e",
       "ref": "main"
+    },
+    {
+      "request_id": "0841cd11-11d4-413b-8005-7813e4d5d7d2",
+      "status": "success",
+      "trigger": "panel",
+      "path": "resultados/rosacea-com-15-dias-de-tratamento.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-10-19T16:19:15.302Z",
+      "completed_at": "2026-10-19T16:19:56.346Z",
+      "workflow_run_id": "39284514834",
+      "workflow_sha": "da0ca13e71e31f3e99a25d722e02d18ef13036d0",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-19T16:01:02.522Z",
-  "total": 37
+  "updated_at": "2026-10-19T16:19:56.346Z",
+  "total": 38
 }
