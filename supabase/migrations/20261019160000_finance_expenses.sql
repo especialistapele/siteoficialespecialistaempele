@@ -53,12 +53,12 @@ create policy finance_expenses_admin_manage
 grant select, insert, update, delete on public.finance_expenses to authenticated;
 
 create or replace function public.finance_partner_rules_set_updated_at()
-returns trigger language plpgsql set search_path = public as $
+returns trigger language plpgsql set search_path = public as $$
 begin
   new.updated_at = now();
   return new;
 end;
-$;
+$$;
 
 drop trigger if exists finance_partner_rules_updated_at on public.finance_partner_rules;
 create trigger finance_partner_rules_updated_at
