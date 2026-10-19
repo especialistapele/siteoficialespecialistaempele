@@ -1,7 +1,55 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="robots" content="noindex,nofollow"><title>Financeiro — Painel</title><link rel="stylesheet" href="/painel/assets/css/painel.css"><link rel="icon" href="/assets/favicon.ico" sizes="any">
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="robots" content="noindex,nofollow"><title>Financeiro — Painel</title><link rel="stylesheet" href="/painel/assets/css/painel.css"><link rel="stylesheet" href="/painel/assets/css/financeiro-despesas.css"><link rel="icon" href="/assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-</head><body><div class="painel-layout"><aside class="painel-sidebar" data-sidebar></aside><main class="painel-main"><div class="painel-topo"><div><h1>Financeiro</h1><p class="texto-suave">Visão geral dos lançamentos financeiros dos pacientes.</p></div></div><div class="stats-grid"><div class="stat-card"><span class="stat-card__legenda">Total lançado</span><div class="stat-card__valor" data-total>—</div></div><div class="stat-card"><span class="stat-card__legenda">Pago</span><div class="stat-card__valor" data-pago>—</div></div><div class="stat-card"><span class="stat-card__legenda">Pendente</span><div class="stat-card__valor" data-pendente>—</div></div></div><div class="aviso-flash" data-flash></div><div class="painel-card"><div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Paciente</th><th>Descrição</th><th>Vencimento</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody data-lista><tr><td colspan="6" class="painel-vazio">Carregando…</td></tr></tbody></table></div></div></main></div><script type="module">
+</head><body><div class="painel-layout"><aside class="painel-sidebar" data-sidebar></aside><main class="painel-main"><div class="painel-topo"><div><h1>Financeiro</h1><p class="texto-suave">Visão geral dos lançamentos financeiros dos pacientes.</p></div></div><div class="stats-grid"><div class="stat-card"><span class="stat-card__legenda">Total lançado</span><div class="stat-card__valor" data-total>—</div></div><div class="stat-card"><span class="stat-card__legenda">Pago</span><div class="stat-card__valor" data-pago>—</div></div><div class="stat-card"><span class="stat-card__legenda">Pendente</span><div class="stat-card__valor" data-pendente>—</div></div></div><div class="aviso-flash" data-flash></div><div class="painel-card"><div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Paciente</th><th>Descrição</th><th>Vencimento</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody data-lista><tr><td colspan="6" class="painel-vazio">Carregando…</td></tr></tbody></table></div></div>
+
+<section class="finance-expenses" aria-labelledby="despesas-title">
+  <div class="painel-topo finance-expenses__heading"><div><h2 id="despesas-title">Despesas e Lucro Real</h2><p class="texto-suave">Apuração por caixa: receita só entra quando recebida; despesas só reduzem o lucro quando marcadas como pagas.</p></div><label class="finance-expenses__month">Mês de referência <input type="month" data-mes></label></div>
+  <div class="stats-grid finance-expenses__stats">
+    <div class="stat-card"><span class="stat-card__legenda">Receita recebida</span><div class="stat-card__valor" data-receita-mes>R$ 0,00</div></div>
+    <div class="stat-card"><span class="stat-card__legenda">Despesas pagas</span><div class="stat-card__valor" data-despesas-pagas>R$ 0,00</div></div>
+    <div class="stat-card"><span class="stat-card__legenda">Lucro operacional</span><div class="stat-card__valor" data-lucro>R$ 0,00</div></div>
+    <div class="stat-card"><span class="stat-card__legenda">Despesas pendentes</span><div class="stat-card__valor" data-despesas-pendentes>R$ 0,00</div></div>
+  </div>
+  <div class="painel-card finance-expenses__form-card">
+    <h3>Regras salvas dos parceiros</h3>
+    <p class="texto-suave">Cadastre uma vez o percentual ou o valor por hora de cada consultório. O valor calculado nos lançamentos continuará editável.</p>
+    <form data-rule-form class="finance-expenses__form">
+      <label>Nome da regra / parceiro<input name="name" maxlength="120" required placeholder="Ex.: Consultório Centro"></label>
+      <label>Local<input name="location" maxlength="160" placeholder="Endereço ou unidade"></label>
+      <label>Tipo de cobrança<select name="calculation_type" data-rule-type><option value="percentual">Percentual do atendimento</option><option value="hora">Aluguel por hora</option></select></label>
+      <label data-rule-percent>Percentual (%)<input name="percentage" type="number" min="0" max="100" step="0.01" placeholder="Ex.: 30"></label>
+      <label data-rule-rate class="is-hidden">Valor por hora (R$)<input name="hourly_rate" type="number" min="0" step="0.01" placeholder="Ex.: 50"></label>
+      <div class="finance-expenses__actions"><button type="submit" class="botao-principal">Salvar regra</button></div>
+    </form>
+    <div class="finance-expenses__rules" data-lista-regras><p class="painel-vazio">Carregando regras…</p></div>
+  </div>
+  <div class="painel-card finance-expenses__form-card">
+    <h3 data-form-title>Registrar despesa</h3>
+    <form data-form-despesa class="finance-expenses__form">
+      <input type="hidden" name="id">
+      <label>Descrição<input name="description" maxlength="180" required placeholder="Ex.: repasse consultório"></label>
+      <label>Categoria<select name="category"><option value="parceiro">Repasse a parceiro</option><option value="aluguel">Aluguel de consultório</option><option value="materiais">Materiais e produtos</option><option value="taxas">Taxas de pagamento</option><option value="transporte">Transporte</option><option value="marketing">Marketing</option><option value="equipamentos">Equipamentos</option><option value="impostos">Impostos</option><option value="outros" selected>Outros</option></select></label>
+      <label>Consultório / local<input name="location" maxlength="160" placeholder="Nome do parceiro ou local"></label>
+      <label>Data da despesa<input type="date" name="expense_date" required></label>
+      <label>Regra do parceiro (opcional)<select name="partner_rule_id" data-regra-parceiro><option value="">Sem regra salva</option></select></label>
+      <label>Forma de cálculo<select name="calculation_type" data-tipo-calculo><option value="manual">Valor manual</option><option value="percentual">Percentual de atendimento recebido</option><option value="hora">Aluguel por hora</option></select></label>
+      <label data-campo-atendimento class="is-hidden">Atendimento<select name="appointment_id" data-atendimento><option value="">Selecione um atendimento</option></select></label>
+      <label data-campo-percentual class="is-hidden">Percentual (%)<input name="percentage" type="number" min="0" max="100" step="0.01" placeholder="Ex.: 30"></label>
+      <label data-campo-horas class="is-hidden">Horas utilizadas<input name="hours" type="number" min="0" step="0.25" placeholder="Ex.: 2"></label>
+      <label data-campo-valor-hora class="is-hidden">Valor por hora (R$)<input name="hourly_rate" type="number" min="0" step="0.01" placeholder="Ex.: 50"></label>
+      <label>Valor da despesa (R$)<input name="amount" type="number" min="0" step="0.01" required placeholder="0,00" data-valor-despesa></label>
+      <label>Status<select name="status"><option value="pago">Pago</option><option value="pendente">Pendente</option></select></label>
+      <p class="finance-expenses__hint" data-calculo-hint>Informe o valor da despesa. Você poderá corrigir o cálculo automático antes de salvar.</p>
+      <div class="finance-expenses__actions"><button type="submit" class="botao-principal" data-salvar-despesa>Salvar despesa</button><button type="button" class="botao-secundario is-hidden" data-cancelar-edicao>Cancelar edição</button></div>
+    </form>
+  </div>
+  <div class="painel-card">
+    <div class="finance-expenses__table-head"><h3>Despesas do mês</h3><span class="texto-suave" data-qtd-despesas>0 lançamentos</span></div>
+    <div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Data</th><th>Descrição</th><th>Local</th><th>Cálculo</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody data-lista-despesas><tr><td colspan="7" class="painel-vazio">Carregando…</td></tr></tbody></table></div>
+  </div>
+</section>
+</main></div><script type="module">
 import {supabase,exigirAdmin,configurarBotaoSair,mostrarFlash} from '/painel/assets/js/painel-auth.js';
 import {renderSidebarAdmin} from '/painel/assets/js/admin-sidebar.js';
 const ctx=await exigirAdmin();
@@ -9,61 +57,196 @@ if(!ctx) throw Error('sem acesso');
 document.querySelector('[data-sidebar]').innerHTML=renderSidebarAdmin('financeiro',ctx.perfil.full_name);
 configurarBotaoSair();
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const moeda=v=>'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
+const moeda=v=>'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const hoje=new Date();
+const localISO=d=>new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+const mesAtual=localISO(hoje).slice(0,7);
+const mesInput=document.querySelector('[data-mes]');
+mesInput.value=mesAtual;
+const form=document.querySelector('[data-form-despesa]');
+const flash=document.querySelector('[data-flash]');
+let appointments=[], historico=[], lancamentos=[], despesas=[], regrasParceiros=[], recebidosPorAtendimento=new Map();
 
+function totalRecebidoAtendimento(a,mapa){
+  const total=Math.max(0,Number(a.valor||0));
+  const taxa=Math.min(total,a.taxa_status==='pago'?Number(a.taxa_agendamento||0):0);
+  const base=Math.max(0,total-Number(a.taxa_agendamento||0));
+  const pagoRestante=Math.min(base,Number(mapa.get(a.id)||0));
+  return Math.min(total,taxa+pagoRestante);
+}
 async function carregar(){
-  const flash=document.querySelector('[data-flash]');
   const tb=document.querySelector('[data-lista]');
-
-  const [{data:atendimentos,error:erroAt},{data:historico,error:erroHist},{data:lancamentos,error:erroFin}]=await Promise.all([
+  const [{data:at,error:erroAt},{data:hist,error:erroHist},{data:fin,error:erroFin}]=await Promise.all([
     supabase.from('appointments').select('id,patient_id,appointment_date,appointment_time,tipo,description,valor,status,taxa_agendamento,taxa_status,taxa_forma_pagamento,patients(full_name)').order('appointment_date',{ascending:false}),
     supabase.from('appointment_payment_history').select('appointment_id,amount,payment_date,payment_method,payment_type').eq('payment_type','restante').order('payment_date',{ascending:true}),
-    supabase.from('financial_transactions').select('id,patient_id,description,amount,due_date,status,patients(full_name)').order('due_date',{ascending:false})
+    supabase.from('financial_transactions').select('id,patient_id,description,amount,due_date,status,paid_at,appointment_id,patients(full_name)').order('due_date',{ascending:false})
   ]);
-
-  if(erroAt){tb.innerHTML=`<tr><td colspan="6" class="painel-vazio">${esc(erroAt.message)}</td></tr>`;return;}
-  if(erroHist){mostrarFlash(flash,'Não foi possível carregar o histórico de pagamentos: '+erroHist.message,'erro');}
-  if(erroFin){mostrarFlash(flash,'Não foi possível carregar os lançamentos financeiros: '+erroFin.message,'erro');}
-
+  if(erroAt){tb.innerHTML='<tr><td colspan="6" class="painel-vazio">'+esc(erroAt.message)+'</td></tr>';return;}
+  appointments=at||[]; historico=hist||[]; lancamentos=fin||[];
+  if(erroHist) mostrarFlash(flash,'Não foi possível carregar o histórico de pagamentos: '+erroHist.message,'erro');
+  if(erroFin) mostrarFlash(flash,'Não foi possível carregar os lançamentos financeiros: '+erroFin.message,'erro');
   const mapa=new Map();
-  (historico||[]).forEach(p=>mapa.set(p.appointment_id,(mapa.get(p.appointment_id)||0)+Number(p.amount||0)));
+  historico.forEach(p=>mapa.set(p.appointment_id,(mapa.get(p.appointment_id)||0)+Number(p.amount||0)));
+  recebidosPorAtendimento=mapa;
   const registros=[];
-
-  (atendimentos||[]).filter(a=>a.status!=='cancelado').forEach(a=>{
-    const total=Math.max(0,Number(a.valor||0));
-    const taxa=Math.max(0,Number(a.taxa_agendamento||0));
-    const taxaPaga=a.taxa_status==='pago'?Math.min(taxa,total):0;
-    const baseRestante=Math.max(0,total-taxa);
-    const historicoPago=Math.min(baseRestante,mapa.get(a.id)||0);
-    const restante=Math.max(0,baseRestante-historicoPago);
-    const totalPago=Math.min(total,taxaPaga+historicoPago);
-    if(restante>0){
-      registros.push({tipo:'atendimento',id:a.id,patient_id:a.patient_id,nome:a.patients?.full_name||'—',descricao:a.tipo||a.description||'Atendimento',data:a.appointment_date,valor:restante,status:restante>0&&historicoPago>0?'parcial':'pendente'});
-    }
-    if(taxa>0 && a.taxa_status!=='pago'){
-      registros.push({tipo:'taxa',id:a.id,patient_id:a.patient_id,nome:a.patients?.full_name||'—',descricao:'Taxa de agendamento',data:a.appointment_date,valor:Math.max(0,taxa-taxaPaga),status:'pendente'});
-    }
+  appointments.filter(a=>a.status!=='cancelado').forEach(a=>{
+    const total=Math.max(0,Number(a.valor||0)), taxa=Math.max(0,Number(a.taxa_agendamento||0));
+    const taxaPaga=a.taxa_status==='pago'?Math.min(taxa,total):0, baseRestante=Math.max(0,total-taxa);
+    const historicoPago=Math.min(baseRestante,mapa.get(a.id)||0), restante=Math.max(0,baseRestante-historicoPago);
+    if(restante>0) registros.push({tipo:'atendimento',id:a.id,nome:a.patients?.full_name||'—',descricao:a.tipo||a.description||'Atendimento',data:a.appointment_date,valor:restante,status:historicoPago>0?'parcial':'pendente'});
+    if(taxa>0&&a.taxa_status!=='pago') registros.push({tipo:'taxa',id:a.id,nome:a.patients?.full_name||'—',descricao:'Taxa de agendamento',data:a.appointment_date,valor:Math.max(0,taxa-taxaPaga),status:'pendente'});
   });
-
-  (lancamentos||[]).forEach(x=>{
-    if(x.status==='pendente') registros.push({tipo:'lancamento',id:x.id,patient_id:x.patient_id,nome:x.patients?.full_name||'—',descricao:x.description||'Lançamento financeiro',data:x.due_date,valor:Number(x.amount||0),status:'pendente'});
-  });
-
+  lancamentos.forEach(x=>{if(x.status==='pendente')registros.push({tipo:'lancamento',id:x.id,nome:x.patients?.full_name||'—',descricao:x.description||'Lançamento financeiro',data:x.due_date,valor:Number(x.amount||0),status:'pendente'});});
   registros.sort((a,b)=>String(b.data||'').localeCompare(String(a.data||'')));
-
   const totalPendente=registros.reduce((s,x)=>s+Number(x.valor||0),0);
-  const totalComprometido=(atendimentos||[]).filter(a=>a.status!=='cancelado').reduce((s,a)=>s+Number(a.valor||0),0)+(lancamentos||[]).filter(x=>x.status!=='cancelado').reduce((s,x)=>s+Number(x.amount||0),0);
-  const pagoAtendimentos=(atendimentos||[]).filter(a=>a.status!=='cancelado').reduce((s,a)=>{
-    const total=Math.max(0,Number(a.valor||0)); const taxa=Math.min(total,a.taxa_status==='pago'?Number(a.taxa_agendamento||0):0); const base=Math.max(0,total-Number(a.taxa_agendamento||0)); const pagoRestante=Math.min(base,mapa.get(a.id)||0); return s+Math.min(total,taxa+pagoRestante);
-  },0);
-  const pagoLancamentos=(lancamentos||[]).filter(x=>x.status==='pago').reduce((s,x)=>s+Number(x.amount||0),0);
-  const totalPago=pagoAtendimentos+pagoLancamentos;
-
+  const totalComprometido=appointments.filter(a=>a.status!=='cancelado').reduce((s,a)=>s+Number(a.valor||0),0)+lancamentos.filter(x=>x.status!=='cancelado').reduce((s,x)=>s+Number(x.amount||0),0);
+  const pagoAtendimentos=appointments.filter(a=>a.status!=='cancelado').reduce((s,a)=>s+totalRecebidoAtendimento(a,mapa),0);
+  const pagoLancamentos=lancamentos.filter(x=>x.status==='pago').reduce((s,x)=>s+Number(x.amount||0),0);
   document.querySelector('[data-total]').textContent=moeda(totalComprometido);
-  document.querySelector('[data-pago]').textContent=moeda(totalPago);
+  document.querySelector('[data-pago]').textContent=moeda(pagoAtendimentos+pagoLancamentos);
   document.querySelector('[data-pendente]').textContent=moeda(totalPendente);
-
-  tb.innerHTML=registros.length?registros.map(x=>`<tr><td>${esc(x.nome)}</td><td>${esc(x.descricao)}</td><td>${x.data?new Date(x.data+'T00:00:00').toLocaleDateString('pt-BR'):'—'}</td><td>${moeda(x.valor)}</td><td><span class="selo-p ${x.status==='parcial'?'agendado':''}">${x.status==='parcial'?'Parcial':'Pendente'}</span></td><td>${x.tipo==='lancamento'?'<span class="texto-suave">Lançamento</span>':'<span class="texto-suave">Atendimento</span>'}</td></tr>`).join(''):`<tr><td colspan="6" class="painel-vazio">Nenhum valor pendente no momento.</td></tr>`;
+  tb.innerHTML=registros.length?registros.map(x=>'<tr><td>'+esc(x.nome)+'</td><td>'+esc(x.descricao)+'</td><td>'+(x.data?new Date(x.data+'T00:00:00').toLocaleDateString('pt-BR'):'—')+'</td><td>'+moeda(x.valor)+'</td><td><span class="selo-p '+(x.status==='parcial'?'agendado':'')+'">'+(x.status==='parcial'?'Parcial':'Pendente')+'</span></td><td>'+(x.tipo==='lancamento'?'<span class="texto-suave">Lançamento</span>':'<span class="texto-suave">Atendimento</span>')+'</td></tr>').join(''):'<tr><td colspan="6" class="painel-vazio">Nenhum valor pendente no momento.</td></tr>';
+  preencherAtendimentos();
+  await carregarDespesas();
 }
+function preencherAtendimentos(){
+  const select=form.elements.appointment_id;
+  const current=select.value;
+  select.innerHTML='<option value="">Selecione um atendimento</option>'+appointments.filter(a=>a.status!=='cancelado').map(a=>{
+    const pago=totalRecebidoAtendimento(a,recebidosPorAtendimento);
+    return '<option value="'+esc(a.id)+'">'+esc((a.appointment_date?new Date(a.appointment_date+'T00:00:00').toLocaleDateString('pt-BR')+' — ':'')+(a.patients?.full_name||'Paciente')+' — '+(a.tipo||a.description||'Atendimento')+' — recebido '+moeda(pago))+'</option>';
+  }).join('');
+  if(current) select.value=current;
+}
+function calcularValor(){
+  const tipo=form.elements.calculation_type.value;
+  const hint=document.querySelector('[data-calculo-hint]');
+  if(tipo==='percentual'){
+    const a=appointments.find(x=>x.id===form.elements.appointment_id.value);
+    const recebido=a?totalRecebidoAtendimento(a,recebidosPorAtendimento):0;
+    const percentual=Math.max(0,Number(form.elements.percentage.value||0));
+    const valor=Math.round(recebido*percentual)/100;
+    if(a&&form.elements.percentage.value!=='') form.elements.amount.value=valor.toFixed(2);
+    hint.textContent='Base recebida: '+moeda(recebido)+'. Cálculo sugerido: '+moeda(valor)+'. Você pode ajustar o valor antes de salvar.';
+  }else if(tipo==='hora'){
+    const horas=Math.max(0,Number(form.elements.hours.value||0)), taxa=Math.max(0,Number(form.elements.hourly_rate.value||0));
+    const valor=Math.round(horas*taxa*100)/100;
+    if(form.elements.hours.value!==''&&form.elements.hourly_rate.value!=='')form.elements.amount.value=valor.toFixed(2);
+    hint.textContent='Cálculo sugerido: '+horas+' hora(s) × '+moeda(taxa)+' = '+moeda(valor)+'. Você pode ajustar o valor antes de salvar.';
+  }else hint.textContent='Informe o valor da despesa. Você poderá corrigir o cálculo automático antes de salvar.';
+}
+function atualizarCampos(){
+  const tipo=form.elements.calculation_type.value;
+  document.querySelector('[data-campo-atendimento]').classList.toggle('is-hidden',tipo!=='percentual');
+  document.querySelector('[data-campo-percentual]').classList.toggle('is-hidden',tipo!=='percentual');
+  document.querySelector('[data-campo-horas]').classList.toggle('is-hidden',tipo!=='hora');
+  document.querySelector('[data-campo-valor-hora]').classList.toggle('is-hidden',tipo!=='hora');
+  calcularValor();
+}
+form.elements.calculation_type.addEventListener('change',atualizarCampos);
+form.elements.partner_rule_id.addEventListener('change',()=>{
+  const rule=regrasParceiros.find(r=>r.id===form.elements.partner_rule_id.value);if(!rule)return;
+  form.elements.location.value=rule.location||'';
+  form.elements.calculation_type.value=rule.calculation_type;
+  if(rule.calculation_type==='percentual'){form.elements.percentage.value=rule.percentage??'';form.elements.category.value='parceiro';}
+  else{form.elements.hourly_rate.value=rule.hourly_rate??'';form.elements.category.value='aluguel';}
+  atualizarCampos();
+});
+['appointment_id','percentage','hours','hourly_rate'].forEach(k=>form.elements[k].addEventListener('input',calcularValor));
+form.elements.appointment_id.addEventListener('change',calcularValor);
+document.querySelector('[data-cancelar-edicao]').addEventListener('click',limparFormulario);
+function limparFormulario(){
+  form.reset();form.elements.id.value='';form.elements.expense_date.value=localISO(new Date());
+  document.querySelector('[data-form-title]').textContent='Registrar despesa';
+  document.querySelector('[data-salvar-despesa]').textContent='Salvar despesa';
+  document.querySelector('[data-cancelar-edicao]').classList.add('is-hidden');
+  atualizarCampos();
+}
+async function carregarDespesas(){
+  const inicio=mesInput.value+'-01';
+  const fimDate=new Date(Number(mesInput.value.slice(0,4)),Number(mesInput.value.slice(5,7)),1);
+  const fim=localISO(new Date(fimDate.getTime()-86400000));
+  const [{data,error},{data:rules,error:rulesError}]=await Promise.all([supabase.from('finance_expenses').select('*').gte('expense_date',inicio).lte('expense_date',fim).order('expense_date',{ascending:false}),supabase.from('finance_partner_rules').select('*').order('name',{ascending:true})]);
+  const tb=document.querySelector('[data-lista-despesas]');
+  if(error){tb.innerHTML='<tr><td colspan="7" class="painel-vazio">Não foi possível carregar as despesas: '+esc(error.message)+'</td></tr>';mostrarFlash(flash,'A seção de despesas depende da migration finance_expenses estar aplicada no Supabase.','erro');return;}
+  if(rulesError)mostrarFlash(flash,'Não foi possível carregar regras dos parceiros: '+rulesError.message,'erro');
+  regrasParceiros=rules||[];preencherRegras();
+  despesas=data||[];
+  const pagas=despesas.filter(x=>x.status==='pago').reduce((s,x)=>s+Number(x.amount||0),0);
+  const pendentes=despesas.filter(x=>x.status==='pendente').reduce((s,x)=>s+Number(x.amount||0),0);
+  // Apuração por caixa: taxas recebidas na data do atendimento, parcelas na data efetiva do pagamento.
+  const receitaTaxas=appointments.filter(a=>a.status!=='cancelado'&&a.taxa_status==='pago'&&String(a.appointment_date||'').startsWith(mesInput.value)).reduce((s,a)=>s+Math.min(Number(a.valor||0),Number(a.taxa_agendamento||0)),0);
+  const receitaParcelas=historico.filter(p=>String(p.payment_date||'').startsWith(mesInput.value)).reduce((s,p)=>s+Number(p.amount||0),0);
+  const receitaFin=lancamentos.filter(x=>x.status==='pago'&&String((x.paid_at||x.due_date||'')).startsWith(mesInput.value)).reduce((s,x)=>s+Number(x.amount||0),0);
+  const receita=receitaTaxas+receitaParcelas+receitaFin;
+  document.querySelector('[data-receita-mes]').textContent=moeda(receita);
+  document.querySelector('[data-despesas-pagas]').textContent=moeda(pagas);
+  document.querySelector('[data-lucro]').textContent=moeda(receita-pagas);
+  document.querySelector('[data-despesas-pendentes]').textContent=moeda(pendentes);
+  document.querySelector('[data-qtd-despesas]').textContent=despesas.length+' lançamento(s)';
+  const tipoLabel={manual:'Manual',percentual:'% recebido',hora:'Por hora'};
+  tb.innerHTML=despesas.length?despesas.map(x=>'<tr><td>'+new Date(x.expense_date+'T00:00:00').toLocaleDateString('pt-BR')+'</td><td>'+esc(x.description)+'<small class="finance-expenses__sub">'+esc(x.category||'outros')+'</small></td><td>'+esc(x.location||'—')+'</td><td>'+esc(tipoLabel[x.calculation_type]||'Manual')+'</td><td>'+moeda(x.amount)+'</td><td><span class="selo-p '+(x.status==='pago'?'finance-expenses__paid':'agendado')+'">'+(x.status==='pago'?'Pago':'Pendente')+'</span></td><td><div class="finance-expenses__row-actions"><button type="button" data-editar="'+esc(x.id)+'" class="botao-secundario">Editar</button><button type="button" data-excluir="'+esc(x.id)+'" class="botao-secundario">Excluir</button></div></td></tr>').join(''):'<tr><td colspan="7" class="painel-vazio">Nenhuma despesa neste mês.</td></tr>';
+  tb.querySelectorAll('[data-editar]').forEach(b=>b.addEventListener('click',()=>editarDespesa(b.dataset.editar)));
+  tb.querySelectorAll('[data-excluir]').forEach(b=>b.addEventListener('click',()=>excluirDespesa(b.dataset.excluir)));
+}
+function preencherRegras(){
+  const select=form.elements.partner_rule_id,current=select.value;
+  select.innerHTML='<option value="">Sem regra salva</option>'+regrasParceiros.filter(r=>r.active).map(r=>'<option value="'+esc(r.id)+'">'+esc(r.name)+' — '+(r.calculation_type==='percentual'?Number(r.percentage||0)+'%':moeda(r.hourly_rate)+'/hora')+'</option>').join('');
+  if(current)select.value=current;
+  const list=document.querySelector('[data-lista-regras]');
+  list.innerHTML=regrasParceiros.length?regrasParceiros.map(r=>'<div class="finance-expenses__rule-item"><span><strong>'+esc(r.name)+'</strong><small>'+esc(r.location||'Sem local informado')+' · '+(r.calculation_type==='percentual'?Number(r.percentage||0)+'% do valor recebido':moeda(r.hourly_rate)+' por hora')+'</small></span><button type="button" class="botao-secundario" data-desativar-regra="'+esc(r.id)+'" '+(!r.active?'disabled':'')+'>'+(r.active?'Desativar':'Inativa')+'</button></div>').join(''):'<p class="painel-vazio">Nenhuma regra cadastrada.</p>';
+  list.querySelectorAll('[data-desativar-regra]').forEach(b=>b.addEventListener('click',async()=>{
+    const {error}=await supabase.from('finance_partner_rules').update({active:false}).eq('id',b.dataset.desativarRegra);
+    if(error){mostrarFlash(flash,'Não foi possível desativar a regra: '+error.message,'erro');return;}
+    mostrarFlash(flash,'Regra desativada. Os lançamentos antigos foram preservados.','sucesso');await carregarDespesas();
+  }));
+}
+function editarDespesa(id){
+  const x=despesas.find(d=>d.id===id);if(!x)return;
+  Object.keys(x).forEach(k=>{if(form.elements[k])form.elements[k].value=x[k]??'';});
+  document.querySelector('[data-form-title]').textContent='Editar despesa';
+  document.querySelector('[data-salvar-despesa]').textContent='Salvar alterações';
+  document.querySelector('[data-cancelar-edicao]').classList.remove('is-hidden');
+  atualizarCampos();form.scrollIntoView({behavior:'smooth',block:'start'});
+}
+async function excluirDespesa(id){
+  const x=despesas.find(d=>d.id===id);if(!x||!confirm('Excluir a despesa "'+x.description+'"?'))return;
+  const {error}=await supabase.from('finance_expenses').delete().eq('id',id);
+  if(error){mostrarFlash(flash,'Não foi possível excluir: '+error.message,'erro');return;}
+  mostrarFlash(flash,'Despesa excluída.','sucesso');await carregarDespesas();
+}
+const ruleForm=document.querySelector('[data-rule-form]');
+const ruleType=ruleForm.elements.calculation_type;
+function atualizarCamposRegra(){
+  const percent=ruleType.value==='percentual';
+  document.querySelector('[data-rule-percent]').classList.toggle('is-hidden',!percent);
+  document.querySelector('[data-rule-rate]').classList.toggle('is-hidden',percent);
+}
+ruleType.addEventListener('change',atualizarCamposRegra);
+ruleForm.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const f=new FormData(ruleForm),type=f.get('calculation_type');
+  const payload={name:String(f.get('name')||'').trim(),location:String(f.get('location')||'').trim()||null,calculation_type:type,percentage:type==='percentual'&&f.get('percentage')!==''?Number(f.get('percentage')):null,hourly_rate:type==='hora'&&f.get('hourly_rate')!==''?Number(f.get('hourly_rate')):null,created_by:ctx.session.user.id};
+  if(type==='percentual'&&(payload.percentage===null||payload.percentage<0||payload.percentage>100)){mostrarFlash(flash,'Informe um percentual entre 0 e 100.','erro');return;}
+  if(type==='hora'&&(payload.hourly_rate===null||payload.hourly_rate<0)){mostrarFlash(flash,'Informe um valor por hora válido.','erro');return;}
+  const {error}=await supabase.from('finance_partner_rules').insert(payload);
+  if(error){mostrarFlash(flash,'Não foi possível salvar a regra: '+error.message,'erro');return;}
+  ruleForm.reset();atualizarCamposRegra();mostrarFlash(flash,'Regra do parceiro salva.','sucesso');await carregarDespesas();
+});
+atualizarCamposRegra();
+form.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const f=new FormData(form);
+  const amount=Number(f.get('amount'));
+  if(!Number.isFinite(amount)||amount<0){mostrarFlash(flash,'Informe um valor válido para a despesa.','erro');return;}
+  const payload={description:String(f.get('description')||'').trim(),category:f.get('category'),partner_rule_id:f.get('partner_rule_id')||null,location:String(f.get('location')||'').trim()||null,expense_date:f.get('expense_date'),amount,status:f.get('status'),calculation_type:f.get('calculation_type'),percentage:f.get('calculation_type')==='percentual'&&f.get('percentage')!==''?Number(f.get('percentage')):null,hours:f.get('calculation_type')==='hora'&&f.get('hours')!==''?Number(f.get('hours')):null,hourly_rate:f.get('calculation_type')==='hora'&&f.get('hourly_rate')!==''?Number(f.get('hourly_rate')):null,appointment_id:f.get('calculation_type')==='percentual'&&f.get('appointment_id')?f.get('appointment_id'):null,created_by:ctx.session.user.id};
+  const id=f.get('id');let result;
+  if(id) result=await supabase.from('finance_expenses').update(payload).eq('id',id);
+  else result=await supabase.from('finance_expenses').insert(payload);
+  if(result.error){mostrarFlash(flash,'Não foi possível salvar a despesa: '+result.error.message,'erro');return;}
+  mostrarFlash(flash,id?'Despesa atualizada.':'Despesa registrada.','sucesso');limparFormulario();await carregarDespesas();
+});
+mesInput.addEventListener('change',carregarDespesas);
+limparFormulario();
 carregar();
 </script></body></html>
