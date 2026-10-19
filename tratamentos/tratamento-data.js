@@ -48,6 +48,8 @@ async function carregar() {
   const slugArquivo = slug.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   const urlCanonica = `https://www.especialistaempele.com.br/tratamentos/${slugArquivo}.html`;
   const imagemMeta = data.cover_image_url || "https://www.especialistaempele.com.br/assets/hero-fallback.webp";
+  const posX = Number.isFinite(Number(data.cover_position_x)) ? Math.max(0, Math.min(100, Number(data.cover_position_x))) : 50;
+  const posY = Number.isFinite(Number(data.cover_position_y)) ? Math.max(0, Math.min(100, Number(data.cover_position_y))) : 50;
 
   document.getElementById("meta-description")?.setAttribute("content", descricaoMeta);
   document.getElementById("og-title")?.setAttribute("content", tituloCompleto);
@@ -89,7 +91,7 @@ async function carregar() {
   container.innerHTML = `
     <p class="card__meta texto-centro">Tratamento regenerativo</p>
     <h1 class="texto-centro">${escapeHtml(data.name)}</h1>
-    ${data.cover_image_url ? `<img src="${data.cover_image_url}" alt="${escapeHtml(data.name)}" style="width:100%;border-radius:10px;margin:24px 0" loading="lazy">` : ""}
+    ${data.cover_image_url ? `<img src="${data.cover_image_url}" alt="${escapeHtml(data.name)}" width="1200" height="900" style="display:block;width:100%;aspect-ratio:4/3;object-fit:cover;object-position:${posX}% ${posY}%;border-radius:12px;margin:24px 0" loading="lazy" decoding="async">` : ""}
     <div class="artigo-corpo">${renderizarOrientacao(data.description || data.summary || "")}</div>
     ${ctaHtml}
   `;
