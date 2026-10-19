@@ -130,8 +130,22 @@ export function paragrafar(texto) {
   fecharParagrafo(); fecharLista();
   return blocos.join("");
 }
+function formatarMarcadoresMarkdownEmHtml(html) {
+  // O editor pode salvar conteúdo híbrido: HTML permitido misturado a Markdown.
+  // Só transforma nós de texto; tags e atributos já foram sanitizados.
+  return html.replace(/>([^<>]+)</g, (m, texto) => {
+    let t = texto
+      .replace(/^\s*#{1,3}\s+(.+)$/gm, "$1")
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/__(.+?)__/g, "<strong>$1</strong>")
+      .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, "$1<em>$2</em>")
+      .replace(/(^|[^_])_([^_\n]+)_(?!_)/g, "$1<em>$2</em>");
+    return `>${t}<`;
+  });
+}
 export function renderizarConteudo(texto) {
-  return pareceHtml(texto) ? sanitizarHtmlRico(texto) : paragrafar(texto);
+  if (!pareceHtml(texto)) return paragrafar(texto);
+  return formatarMarcadoresMarkdownEmHtml(sanitizarHtmlRico(texto));
 }
 export function textoPuro(html) {
   return String(html ?? "").replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&")
