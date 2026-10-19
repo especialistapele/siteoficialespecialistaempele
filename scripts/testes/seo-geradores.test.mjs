@@ -156,3 +156,19 @@ test("artigo sem capa exibe imagem alternativa e recupera falha de carregamento"
   assert.ok(html.includes('<img src="' + fallback + '" alt="Imagem de capa do artigo: Artigo sem capa"'));
   assert.ok(html.includes('onerror="this.onerror=null;this.src=&#39;' + fallback + '&#39;;"'));
 });
+
+test("página estática de tratamento aplica o enquadramento personalizado sem deformar a capa", () => {
+  const html = paginaHtml({
+    public_id: "TEST-CAPA-000001",
+    slug: "tratamento-capa-teste",
+    name: "Tratamento capa teste",
+    summary: "Resumo de teste.",
+    description: "Descrição de teste.",
+    cover_image_url: "https://example.com/capa.webp",
+    cover_position_x: 18,
+    cover_position_y: 82,
+  });
+  assert.ok(html.includes("object-fit:cover;object-position:18% 82%"));
+  assert.ok(html.includes('alt="Tratamento capa teste"'));
+  assert.ok(html.includes('width="1200" height="900"'));
+});
