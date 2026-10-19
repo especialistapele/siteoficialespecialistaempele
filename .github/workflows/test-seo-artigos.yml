@@ -9,7 +9,7 @@ on:
       - "assets/js/rich-text.js"
       - ".github/workflows/test-seo-artigos.yml"
   push:
-    branches: [main]
+    branches: [main, "seo/blog-link-sanitization-tests"]
     paths:
       - "scripts/lib/conteudo.mjs"
       - "scripts/gerar-paginas-artigos.mjs"
