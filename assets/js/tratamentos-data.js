@@ -10,6 +10,15 @@ function posicao(valor, padrao = 50) {
   const n = Number(valor);
   return Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : padrao;
 }
+// A tabela atual não possui campo de categoria; a classificação usa slugs conhecidos.
+const SLUGS_CORPORAIS = new Set([
+  "corporal", "definicao", "clareamento", "leucodermia", "acantose",
+  "estrias", "flacidez", "celulite", "operatorio", "manchas-solares-em-maos",
+]);
+function categoriaTratamento(t) {
+  const slug = slugifyUrl(t.slug || t.name || "");
+  return SLUGS_CORPORAIS.has(slug) ? "corporal" : "facial";
+}
 function cardTratamento(t) {
   const image = safeUrl(t.cover_image_url) || "/assets/tratamentos.webp";
   const alt = t.cover_image_url ? t.name : "Tratamentos de pele — Especialista em Pele";
@@ -35,6 +44,12 @@ async function carregar() {
   const { data, error } = await supabase.from("treatments").select("*").eq("published", true).order("sort_order", { ascending: true });
   // O HTML original permanece visível e rastreável se a API estiver indisponível.
   if (error || !data?.length) return;
-  container.innerHTML = data.map(cardTratamento).join("");
+  const faciais = data.filter((t) => categoriaTratamento(t) === "facial");
+  const corporais = data.filter((t) => categoriaTratamento(t) === "corporal");
+  const grupo = (titulo, itens, id) => itens.length
+    ? '<h2 class="grade__titulo" id="' + id + '">' + titulo + '</h2>' + itens.map(cardTratamento).join("")
+    : "";
+  container.innerHTML = grupo("Tratamentos faciais", faciais, "tratamentos-faciais")
+    + grupo("Tratamentos corporais", corporais, "tratamentos-corporais");
 }
 carregar();
