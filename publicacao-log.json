@@ -560,8 +560,21 @@
       "workflow_run_id": "39300328235",
       "workflow_sha": "cbe39805a1225ae5cc75a24728862d171ca401d2",
       "ref": "main"
+    },
+    {
+      "request_id": "c0549e08-d766-4950-a94c-180773e1c2a6",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/limpeza-de-pele-profunda-quando-fazer.html",
+      "content_id": null,
+      "publicado": false,
+      "requested_at": "2026-10-19T18:12:15.166Z",
+      "completed_at": "2026-10-19T18:12:49.024Z",
+      "workflow_run_id": "39300556609",
+      "workflow_sha": "1ebb1e4169ea45924b935fc20a0e7f132086bf30",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-19T18:10:56.560Z",
-  "total": 43
+  "updated_at": "2026-10-19T18:12:49.024Z",
+  "total": 44
 }
