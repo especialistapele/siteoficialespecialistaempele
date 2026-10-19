@@ -94,6 +94,8 @@ export function paginaHtml(t) {
   const descricaoMeta = (resumir(resumoBruto, 155) || "Tratamento regenerativo — Especialista em Pele.");
   const urlCanonica = `${SITE}/tratamentos/${slugArquivo}.html`;
   const imagemMeta = t.cover_image_url || `${SITE}/assets/hero-fallback.webp`;
+  const posX = Number.isFinite(Number(t.cover_position_x)) ? Math.max(0, Math.min(100, Number(t.cover_position_x))) : 50;
+  const posY = Number.isFinite(Number(t.cover_position_y)) ? Math.max(0, Math.min(100, Number(t.cover_position_y))) : 50;
   const ctaHtml = t.cta_label && t.cta_url
     ? `<p class="texto-centro" style="margin-top:28px"><a class="btn btn-dourado" href="${escapeHtml(t.cta_url)}">${escapeHtml(t.cta_label)}</a></p>`
     : "";
@@ -171,7 +173,7 @@ export function paginaHtml(t) {
   <article class="secao wrap" style="max-width:70ch">
     <p class="card__meta texto-centro">Tratamento regenerativo</p>
     <h1 class="texto-centro">${escapeHtml(t.name)}</h1>
-    ${t.cover_image_url ? `<img src="${escapeHtml(t.cover_image_url)}" alt="${escapeHtml(t.name)}" style="width:100%;border-radius:10px;margin:24px 0" loading="lazy">` : ""}
+    ${t.cover_image_url ? `<img src="${escapeHtml(t.cover_image_url)}" alt="${escapeHtml(t.name)}" width="1200" height="900" style="display:block;width:100%;aspect-ratio:4/3;object-fit:cover;object-position:${posX}% ${posY}%;border-radius:12px;margin:24px 0" loading="lazy" decoding="async">` : ""}
     <div class="artigo-corpo">${renderizarOrientacao(t.description || t.summary || "")}</div>
     ${ctaHtml}
   </article>
