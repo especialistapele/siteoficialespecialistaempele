@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+<title id="title">Ativos de skincare</title><desc id="desc">Entenda as funções de cada um. Ilustração editorial da Especialista em Pele.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FBF7EF"/><stop offset="1" stop-color="#EFE5D5"/></linearGradient><linearGradient id="circle" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E6EBDD"/><stop offset="1" stop-color="#D5DFD2"/></linearGradient></defs>
+<rect width="1200" height="675" rx="24" fill="url(#bg)"/><circle cx="925" cy="320" r="250" fill="url(#circle)"/><circle cx="1075" cy="120" r="74" fill="#F0D7A6" opacity=".75"/><path d="M0 560Q220 500 410 570T760 560" fill="none" stroke="#D7C9B6" stroke-width="3"/><path d="M55 70h70" stroke="#B88B4A" stroke-width="6" stroke-linecap="round"/>
+<text x="55" y="115" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700" letter-spacing="3" fill="#6D7C69">INGREDIENTES COSMÉTICOS</text>
+<text x="55" y="205" font-family="Georgia,'Times New Roman',serif" font-size="50" font-weight="700" fill="#1F3C35">Ativos de skincare</text>
+<text x="55" y="260" font-family="Arial,Helvetica,sans-serif" font-size="24" fill="#53645B">Entenda as funções de cada um</text>
+<path d="M55 305h330" stroke="#B88B4A" stroke-width="3"/><text x="55" y="595" font-family="Arial,Helvetica,sans-serif" font-size="18" fill="#53645B">ESPECIALISTA EM PELE</text>
+<g stroke="#1F3C35" stroke-width="4" fill="none"><path d="M825 270l80-70 90 65-45 110-105-5z"/><path d="M825 270l20 100M905 200l45 175M995 265l-110 0"/></g><g stroke="#1F3C35" stroke-width="4"><circle cx="825" cy="270" r="32" fill="#D9E4D7"/><circle cx="905" cy="200" r="32" fill="#E8C8B8"/><circle cx="995" cy="265" r="32" fill="#F0D7A6"/><circle cx="950" cy="375" r="32" fill="#D9E4D7"/><circle cx="845" cy="370" r="32" fill="#F6F0E5"/></g><g fill="#1F3C35" font-size="22" font-weight="700" text-anchor="middle"><text x="825" y="278">B3</text><text x="905" y="208">C</text><text x="995" y="273">HA</text></g>
+</svg>

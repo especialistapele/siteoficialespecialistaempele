@@ -1,0 +1,28 @@
+name: Testes das capas editoriais do blog
+
+on:
+  pull_request:
+    paths:
+      - "assets/blog-covers/**"
+      - "scripts/test-seo-capas.mjs"
+      - ".github/workflows/test-seo-capas.yml"
+  push:
+    branches: [main, "seo/capas-editoriais-proprias"]
+    paths:
+      - "assets/blog-covers/**"
+      - "scripts/test-seo-capas.mjs"
+      - ".github/workflows/test-seo-capas.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validar-capas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Validar as 11 capas SVG locais
+        run: node scripts/test-seo-capas.mjs
