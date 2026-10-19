@@ -31,7 +31,7 @@ const pagina = paginaHtml({
   updated_at: "2026-12-08T12:00:00.000Z",
   faq: [{ pergunta: "Quando procurar avaliação?", resposta: "Quando os sintomas persistirem." }],
 });
-assert.match(pagina, /<title>Barreira cutânea: sinais e cuidados<\/title>/);
+assert.match(pagina, /<title>Barreira cutânea: sinais e cuidados — Especialista em Pele<\/title>/);
 assert.match(pagina, /<meta name="description" content="Entenda os sinais/);
 assert.match(pagina, /<link rel="canonical" href="https:\/\/www\.especialistaempele\.com\.br\/blog\/teste-seo-artigo\.html">/);
 assert.match(pagina, /"@type":"Article"/);
