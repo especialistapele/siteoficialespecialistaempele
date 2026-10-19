@@ -98,26 +98,26 @@ main>.breadcrumb:first-child{padding-top:96px}
 .btn svg{width:16px;height:16px}
 
 /* --- Grades de card --- */
-.grade{display:grid;gap:20px;grid-template-columns:minmax(0,1fr);align-items:stretch;margin-top:32px}
-@media (min-width:560px){.grade{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}}
-@media (min-width:980px){.grade{grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}}
-@media (min-width:1360px){.grade{grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}}
+body[data-pagina="tratamentos"] .grade{display:grid;gap:20px;grid-template-columns:minmax(0,1fr);align-items:stretch;margin-top:32px}
+@media (min-width:560px){body[data-pagina="tratamentos"] .grade{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}}
+@media (min-width:980px){body[data-pagina="tratamentos"] .grade{grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}}
+@media (min-width:1360px){body[data-pagina="tratamentos"] .grade{grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}}
 
-.card{
+body[data-pagina="tratamentos"] .card{
   min-width:0;min-height:100%;background:#fff;border:1px solid var(--linha);border-radius:12px;overflow:hidden;
   display:flex;flex-direction:column;transition:box-shadow .2s ease,border-color .2s ease;
 }
-.card:hover{border-color:rgba(201,164,91,.65);box-shadow:0 10px 28px rgba(38,49,45,.09)}
-.card__img{position:relative;display:block;aspect-ratio:4/3;width:100%;overflow:hidden;background:#eee8dc;flex:0 0 auto}
-.card__img img{display:block;width:100%;height:100%;object-fit:cover;object-position:center center}
-.card__corpo{padding:18px;display:flex;flex-direction:column;gap:10px;flex:1;min-width:0}
-.card__corpo h3{font-size:clamp(17px,1.4vw,19px);line-height:1.3;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6em}
-.card__corpo p{font-size:14px;color:var(--ink-soft);line-height:1.55;margin:0;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;min-height:6.2em}
-.card__link{margin-top:auto;padding-top:12px;font-size:11px;line-height:1.4;letter-spacing:.06em;text-transform:uppercase;color:#715722;font-weight:700;display:inline-flex;align-items:center;gap:6px}
-.card__link:focus-visible,.card a:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:3px}
-.card__img img{transition:transform .25s ease}
-.card:hover .card__img img{transform:scale(1.015)}
-@media(prefers-reduced-motion:reduce){.card,.card__img img{transition:none}.card:hover .card__img img{transform:none}}
+body[data-pagina="tratamentos"] .card:hover{border-color:rgba(201,164,91,.65);box-shadow:0 10px 28px rgba(38,49,45,.09)}
+body[data-pagina="tratamentos"] .card__img{position:relative;display:block;aspect-ratio:4/3;width:100%;overflow:hidden;background:#eee8dc;flex:0 0 auto}
+body[data-pagina="tratamentos"] .card__img img{display:block;width:100%;height:100%;object-fit:cover;object-position:center center}
+body[data-pagina="tratamentos"] .card__corpo{padding:18px;display:flex;flex-direction:column;gap:10px;flex:1;min-width:0}
+body[data-pagina="tratamentos"] .card__corpo h3{font-size:clamp(17px,1.4vw,19px);line-height:1.3;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6em}
+body[data-pagina="tratamentos"] .card__corpo p{font-size:14px;color:var(--ink-soft);line-height:1.55;margin:0;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;min-height:6.2em}
+body[data-pagina="tratamentos"] .card__link{margin-top:auto;padding-top:12px;font-size:11px;line-height:1.4;letter-spacing:.06em;text-transform:uppercase;color:#715722;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+body[data-pagina="tratamentos"] .card__link:focus-visible,.card a:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:3px}
+body[data-pagina="tratamentos"] .card__img img{transition:transform .25s ease}
+.card:hover body[data-pagina="tratamentos"] .card__img img{transform:scale(1.015)}
+body[data-pagina="tratamentos"] @media(prefers-reduced-motion:reduce){.card,body[data-pagina="tratamentos"] .card__img img{transition:none}.card:hover body[data-pagina="tratamentos"] .card__img img{transform:none}}
 .card__meta{font-size:12px;color:var(--ink-soft);letter-spacing:.03em}
 .selo{display:inline-block;padding:3px 12px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);background:rgba(201,164,91,.18);border-radius:999px}
 
