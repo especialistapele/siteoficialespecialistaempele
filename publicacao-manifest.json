@@ -648,7 +648,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/manchas-solares-em-maos.html",
       "redirect_to": null,
-      "sha256": "2bc148c3c7750fb6710e3dfafbe3bc8e1b977585de6ab773eed1774e3f4a35df"
+      "sha256": "ce1cd9dc5b9db8ee9438cfaf4616a242497ac06b1321bbeb8e7d051d7b963ccb"
     },
     {
       "path": "tratamentos/melasma.html",
@@ -698,7 +698,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/remocoes.html",
       "redirect_to": null,
-      "sha256": "930b8a30e33fb8cbdd72383cc3a906d2ba2b7d7da037d53822e397c5b65ca08d"
+      "sha256": "8b431a510ecd32c689914572cb3957dd6b211a7ea2118c64a82d95204537e844"
     },
     {
       "path": "tratamentos/rosacea.html",
@@ -721,5 +721,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-19T13:32:23.171Z"
+  "generated_at": "2026-10-19T13:48:25.592Z"
 }
