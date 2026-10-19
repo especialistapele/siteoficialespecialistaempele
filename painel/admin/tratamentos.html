@@ -142,7 +142,7 @@
   const posYInput = document.getElementById("cover-position-y");
 
   function slugificar(valor) {
-    return String(valor || "").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "")
+    return String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
       .toLowerCase().trim().replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "").slice(0, 70).replace(/-+$/g, "");
   }
