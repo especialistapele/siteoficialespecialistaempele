@@ -8,7 +8,7 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 73,
+  "total": 74,
   "items": [
     {
       "path": "blog/acne-e-estresse.html",
@@ -141,6 +141,16 @@
       "sha256": "a08c7a98c604605e2ebdad5986545db478162364afb735077f3a96bb5c3c5686"
     },
     {
+      "path": "resultados/dez-sessoes-de-reducao-corporal.html",
+      "url": "https://www.especialistaempele.com.br/resultados/dez-sessoes-de-reducao-corporal.html",
+      "id": "RESULTADO-000046",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/resultados/dez-sessoes-de-reducao-corporal.html",
+      "redirect_to": null,
+      "sha256": "afd5b85fec93ec3826cfc5e12b168f49182834d6964013a24d6c80217cd79365"
+    },
+    {
       "path": "resultados/duas-sessoes-de-reducao-corporal.html",
       "url": "https://www.especialistaempele.com.br/resultados/duas-sessoes-de-reducao-corporal.html",
       "id": "RESULTADO-000045",
@@ -148,7 +158,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/duas-sessoes-de-reducao-corporal.html",
       "redirect_to": null,
-      "sha256": "4cc29a375c4026b3f5a42cc968e0cacc6ddc1e8641d7081d4befc0a8503cd5a6"
+      "sha256": "66f2046efc904c9110cf8ef292e066642f83b65e04014080f0b422def4f16221"
     },
     {
       "path": "resultados/gordura-localizada-em-abdomen.html",
@@ -158,7 +168,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/gordura-localizada-em-abdomen.html",
       "redirect_to": null,
-      "sha256": "4d6bb3832592f48269643ad0c22b419e871c989e4209c93e7d81c3f8aaab3352"
+      "sha256": "f4eeb71651315808d785d534fdc8d3cf0546bd5f7c9396f85a84ac70fe4fcb6f"
     },
     {
       "path": "resultados/limpeza-de-pele-em-idosa.html",
@@ -198,7 +208,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/reducao-corporal-com-apenas-tres-sessoes.html",
       "redirect_to": null,
-      "sha256": "9c315e18e50685f9c68b709d4076bcf005b0a73ca0bed937ba626660a5944f6e"
+      "sha256": "83be404a18b9ac8afd0c40048f45e5b7c3b7e1ec6e572f06b3c9f94f89300cf1"
     },
     {
       "path": "resultados/rejuvenescimento-de-colo.html",
@@ -741,5 +751,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-19T14:07:22.269Z"
+  "generated_at": "2026-10-19T14:12:52.318Z"
 }
