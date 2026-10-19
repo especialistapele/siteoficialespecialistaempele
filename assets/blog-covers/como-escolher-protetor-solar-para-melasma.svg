@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-labelledby="title desc">
+<title id="title">Protetor solar e melasma</title><desc id="desc">Fotoproteção no dia a dia. Ilustração editorial da Especialista em Pele.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FBF7EF"/><stop offset="1" stop-color="#EFE5D5"/></linearGradient><linearGradient id="circle" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E6EBDD"/><stop offset="1" stop-color="#D5DFD2"/></linearGradient></defs>
+<rect width="1200" height="675" rx="24" fill="url(#bg)"/><circle cx="925" cy="320" r="250" fill="url(#circle)"/><circle cx="1075" cy="120" r="74" fill="#F0D7A6" opacity=".75"/><path d="M0 560Q220 500 410 570T760 560" fill="none" stroke="#D7C9B6" stroke-width="3"/><path d="M55 70h70" stroke="#B88B4A" stroke-width="6" stroke-linecap="round"/>
+<text x="55" y="115" font-family="Arial,Helvetica,sans-serif" font-size="17" font-weight="700" letter-spacing="3" fill="#6D7C69">FOTOPROTEÇÃO</text>
+<text x="55" y="205" font-family="Georgia,'Times New Roman',serif" font-size="50" font-weight="700" fill="#1F3C35">Protetor solar e melasma</text>
+<text x="55" y="260" font-family="Arial,Helvetica,sans-serif" font-size="24" fill="#53645B">Fotoproteção no dia a dia</text>
+<path d="M55 305h330" stroke="#B88B4A" stroke-width="3"/><text x="55" y="595" font-family="Arial,Helvetica,sans-serif" font-size="18" fill="#53645B">ESPECIALISTA EM PELE</text>
+<circle cx="900" cy="290" r="90" fill="#F0D7A6" stroke="#B88B4A" stroke-width="4"/><g stroke="#B88B4A" stroke-width="7" stroke-linecap="round"><path d="M900 165v-28M900 415v-28M775 290h-28M1053 290h-28M812 202l-20-20M1008 378l-20-20M988 202l20-20M792 378l20-20"/></g><rect x="820" y="270" width="160" height="205" rx="22" fill="#F6F0E5" stroke="#1F3C35" stroke-width="4"/><rect x="850" y="242" width="100" height="35" rx="8" fill="#1F3C35"/><rect x="844" y="320" width="112" height="72" rx="8" fill="#D9E4D7"/><text x="900" y="349" text-anchor="middle" font-size="21" font-weight="700" fill="#1F3C35">FPS</text><text x="900" y="376" text-anchor="middle" font-size="18" fill="#1F3C35">UVA + UVB</text>
+</svg>
