@@ -521,8 +521,21 @@
       "workflow_run_id": "39299776268",
       "workflow_sha": "9631ce150213edc94df83e0a7c2c4c2515aafeb1",
       "ref": "main"
+    },
+    {
+      "request_id": "3e3c3c52-ed5a-469b-9976-2fac89611a3d",
+      "status": "success",
+      "trigger": "panel",
+      "path": "blog/pele-apos-35-anos.html",
+      "content_id": null,
+      "publicado": false,
+      "requested_at": "2026-10-19T18:07:17.624Z",
+      "completed_at": "2026-10-19T18:07:53.626Z",
+      "workflow_run_id": "39299887436",
+      "workflow_sha": "fd003eb745fb0c6f63b9f1ee0d82a3af6a03afb9",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-19T18:06:59.309Z",
-  "total": 40
+  "updated_at": "2026-10-19T18:07:53.626Z",
+  "total": 41
 }
