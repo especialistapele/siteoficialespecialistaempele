@@ -417,8 +417,21 @@
       "workflow_run_id": "39270699627",
       "workflow_sha": "27c53049003d3f3443fc73c21b633680b6329c72",
       "ref": "main"
+    },
+    {
+      "request_id": "a888bca5-fd10-48d7-a879-bd3e9d8cfabf",
+      "status": "success",
+      "trigger": "panel",
+      "path": "resultados/com-25-dias-de-tratamento-para-definicao-corporal.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-10-19T14:42:10.946Z",
+      "completed_at": "2026-10-19T14:42:48.732Z",
+      "workflow_run_id": "39271343389",
+      "workflow_sha": "51af38ea4258a08485315811168b9cf2c75ca3db",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-19T14:38:36.666Z",
-  "total": 32
+  "updated_at": "2026-10-19T14:42:48.732Z",
+  "total": 33
 }
