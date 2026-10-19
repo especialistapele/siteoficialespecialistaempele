@@ -65,8 +65,24 @@ export function urlSegura(valor, { relativa = false } = {}) {
 // que o editor do painel produz. Defesa em profundidade (o painel
 // já sanitiza antes de salvar).
 // ------------------------------------------------------------
-const TAGS_OK = new Set(["b", "strong", "i", "em", "u", "span", "p", "br", "div", "h2", "h3", "ul", "ol", "li"]);
+const TAGS_OK = new Set(["a", "b", "strong", "i", "em", "u", "span", "p", "br", "div", "h2", "h3", "ul", "ol", "li"]);
 const ESTILOS_OK = new Set(["font-size", "text-align", "font-weight", "font-style"]);
+
+// Links do conteúdo rico: aceita apenas HTTP(S), caminhos internos da mesma
+// origem e âncoras. Bloqueia javascript:, data:, URLs protocol-relative e controles.
+export function hrefSeguroHtml(valor) {
+  const raw = String(valor ?? "").replace(/&amp;/gi, "&").trim();
+  if (!raw || /[\u0000-\u001f\u007f\\]/.test(raw)) return "";
+  if (raw.startsWith("/") && !raw.startsWith("//")) return raw;
+  if (/^#[A-Za-z][\w:.-]*$/.test(raw)) return raw;
+  try {
+    const u = new URL(raw);
+    return ["https:", "http:"].includes(u.protocol) ? u.href : "";
+  } catch {
+    return "";
+  }
+}
+
 
 export function sanitizarHtmlRico(html) {
   return String(html ?? "")
@@ -82,10 +98,16 @@ export function sanitizarHtmlRico(html) {
         const decls = (achado[2] ?? achado[3] ?? "").split(";")
           .map((d) => d.split(":").map((x) => x.trim()))
           .filter(([p, v]) => p && v && ESTILOS_OK.has(p.toLowerCase()) && /^[\w\s.%#-]+$/.test(v))
-          .map(([p, v]) => `${p.toLowerCase()}:${v}`);
-        if (decls.length) estilo = ` style="${decls.join(";")}"`;
+          .map(([p, v]) => \`\${p.toLowerCase()}:\${v}\`);
+        if (decls.length) estilo = \` style="\${decls.join(";")}"\`;
       }
-      return `<${tag}${estilo}${tag === "br" ? " /" : ""}>`;
+      let href = "";
+      if (tag === "a") {
+        const achadoHref = /href\s*=\s*("([^"]*)"|'([^']*)'|([^\s>]+))/i.exec(attrs);
+        const hrefSeguro = hrefSeguroHtml(achadoHref?.[2] ?? achadoHref?.[3] ?? achadoHref?.[4] ?? "");
+        if (hrefSeguro) href = \` href="\${escapeHtml(hrefSeguro)}"\`;
+      }
+      return \`<\${tag}\${href}\${estilo}\${tag === "br" ? " /" : ""}>\`;
     });
 }
 export function pareceHtml(valor) {
