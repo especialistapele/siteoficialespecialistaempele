@@ -41,10 +41,67 @@ const SEO_ARTIGOS = {
   "acne-e-estresse": {
     description: "Veja como estresse, sono e hábitos podem influenciar a acne e quais cuidados ajudam a proteger a barreira cutânea durante períodos difíceis.",
     treatment: { name: "Acne", slug: "acne" },
+    relatedSlugs: ["acne-hormonal-feminina", "por-que-a-acne-persiste", "controle-da-oleosidade"],
   },
   "acne-hormonal-feminina": {
     description: "Entenda sinais que podem acompanhar a acne hormonal feminina, fatores envolvidos e cuidados individualizados para pele acneica.",
     treatment: { name: "Acne", slug: "acne" },
+    relatedSlugs: ["acne-e-estresse", "por-que-a-acne-persiste", "controle-da-oleosidade"],
+  },
+  "barreira-cutanea-danificada": {
+    description: "Conheça sinais de uma barreira cutânea danificada, fatores que aumentam a sensibilidade e cuidados para apoiar a recuperação da pele.",
+    relatedSlugs: ["o-que-e-regeneracao-cutanea", "pele-seca-ou-desidratada", "pele-sensivel-ou-rosacea"],
+  },
+  "como-escolher-protetor-solar-para-melasma": {
+    description: "Saiba como escolher e aplicar protetor solar no melasma, incluindo proteção UVA/UVB, cor, reaplicação e cuidados complementares.",
+    treatment: { name: "Melasma", slug: "melasma" },
+    relatedSlugs: ["como-escolher-um-tratamento-para-melasma", "melasma-hormonal", "hiperpigmentacao"],
+  },
+  "rotina-skincare-pele-adulta": {
+    description: "Monte uma rotina de skincare para pele adulta com etapas essenciais de manhã e à noite, sem excesso de produtos ou ativos.",
+    relatedSlugs: ["controle-da-oleosidade", "erros-na-rotina-de-skincare", "acne-hormonal-feminina"],
+  },
+  "pele-apos-35-anos": {
+    description: "Entenda as mudanças da pele após os 35 anos e como adaptar hidratação, fotoproteção e cuidados de rejuvenescimento com realismo.",
+    treatment: { name: "Rejuvenescimento facial", slug: "rejuvenescimento" },
+    relatedSlugs: ["rejuvenescimento-facial-ou-harmonizacao", "o-que-e-regeneracao-cutanea", "linhas-de-expressao"],
+  },
+  "niacinamida-vitamina-c-acido-hialuronico": {
+    description: "Compare niacinamida, vitamina C e ácido hialurônico: para que servem, como escolher formulações e evitar combinações irritantes.",
+    relatedSlugs: ["controle-da-oleosidade", "erros-na-rotina-de-skincare", "o-que-e-regeneracao-cutanea"],
+  },
+  "bakuchiol-beneficios-evidencias": {
+    description: "Veja o que estudos indicam sobre bakuchiol, seus possíveis benefícios, limites da evidência e cuidados ao incluir o ativo na rotina.",
+    treatment: { name: "Rejuvenescimento facial", slug: "rejuvenescimento" },
+    relatedSlugs: ["rejuvenescimento-facial-ou-harmonizacao", "o-que-e-regeneracao-cutanea", "pele-apos-35-anos"],
+  },
+  "pele-sensivel-ou-rosacea": {
+    description: "Aprenda a diferenciar pele sensível de sinais compatíveis com rosácea e conheça cuidados suaves e situações que pedem avaliação.",
+    treatment: { name: "Rosácea", slug: "rosacea" },
+    relatedSlugs: ["barreira-cutanea-danificada", "erros-na-rotina-de-skincare", "o-que-e-regeneracao-cutanea"],
+  },
+  "cicatrizes-de-acne-manchas-marcas": {
+    description: "Entenda a diferença entre manchas, marcas e cicatrizes de acne e por que cada alteração pode exigir uma estratégia diferente.",
+    treatment: { name: "Cicatrizes de acne", slug: "cicatriz" },
+    relatedSlugs: ["por-que-a-acne-persiste", "acne-hormonal-feminina", "como-escolher-um-tratamento-para-melasma"],
+  },
+  "limpeza-de-pele-profunda-quando-fazer": {
+    description: "Saiba quando a limpeza de pele profunda pode ser indicada, quais são seus limites e como cuidar da pele após o procedimento.",
+    treatment: { name: "Limpeza de pele", slug: "limpeza de pele" },
+    relatedSlugs: ["controle-da-oleosidade", "por-que-a-acne-persiste", "acne-hormonal-feminina"],
+  },
+  "resveratrol-na-pele": {
+    description: "Conheça as evidências sobre resveratrol na pele, seus potenciais efeitos antioxidantes e os limites dos estudos sobre cosméticos.",
+    treatment: { name: "Rejuvenescimento facial", slug: "rejuvenescimento" },
+    relatedSlugs: ["o-que-e-regeneracao-cutanea", "rejuvenescimento-facial-ou-harmonizacao", "pele-apos-35-anos"],
+  },
+  "erros-na-rotina-de-skincare": {
+    description: "Descubra erros comuns na rotina de skincare, sinais de excesso de ativos e como simplificar os cuidados para reduzir irritações.",
+    relatedSlugs: ["rotina-skincare-pele-adulta", "controle-da-oleosidade", "pele-sensivel-ou-rosacea"],
+  },
+  "pele-seca-ou-desidratada": {
+    description: "Aprenda a diferenciar pele seca de desidratação, reconhecer sinais comuns e escolher cuidados que respeitem a barreira cutânea.",
+    relatedSlugs: ["barreira-cutanea-danificada", "o-que-e-regeneracao-cutanea", "erros-na-rotina-de-skincare"],
   },
 };
 
@@ -192,9 +249,14 @@ export async function gerar({ log = console.log } = {}) {
 
   const itens = [];
   for (const a of artigos) {
-    const relacionados = artigos
-      .filter((o) => o.id !== a.id)
-      .sort((x, y) => (Number(y.treatment_id === a.treatment_id && !!a.treatment_id) - Number(x.treatment_id === a.treatment_id && !!a.treatment_id)))
+    const slugsPreferidos = SEO_ARTIGOS[a.slug]?.relatedSlugs || [];
+    const preferidos = slugsPreferidos
+      .map((slug) => artigos.find((o) => o.slug === slug && o.id !== a.id))
+      .filter(Boolean);
+    const mesmoTratamento = artigos.filter((o) => o.id !== a.id && a.treatment_id && o.treatment_id === a.treatment_id);
+    const restantes = artigos.filter((o) => o.id !== a.id);
+    const relacionados = [...preferidos, ...mesmoTratamento, ...restantes]
+      .filter((item, index, todos) => todos.findIndex((outro) => outro.id === item.id) === index)
       .slice(0, 3);
     const dimCapa = await dimensoesImagem(urlSegura(a.cover_image_url));
     itens.push({ id: a.public_id, slug: a.slug, html: paginaHtml(a, { relacionados, dimCapa }) });
