@@ -79,6 +79,90 @@ function cardResultado(r) {
 }
 
 const SEO_RESULTADOS = {
+  "resultado-de-limpeza-de-pele-nanotecnologica-caso-01": {
+    title: "Limpeza nanotecnológica: caso 01 | Especialista em Pele",
+    headline: "Limpeza de pele nanotecnológica — caso 01",
+    description: "Registro fotográfico do caso 01 de limpeza de pele nanotecnológica. A indicação e a resposta variam conforme a avaliação individual.",
+    intro: "Este registro documenta um caso específico de limpeza de pele nanotecnológica. A fotografia permite observar apenas as condições registradas neste atendimento; não prevê a resposta de outras pessoas."
+  },
+  "resultado-de-limpeza-de-pele-nanotecnologica-caso-02": {
+    title: "Limpeza nanotecnológica: caso 02 | Especialista em Pele",
+    headline: "Limpeza de pele nanotecnológica — caso 02",
+    description: "Veja o registro fotográfico do caso 02 de limpeza de pele nanotecnológica e conheça a importância da indicação individualizada.",
+    intro: "Este caso faz parte dos registros de limpeza de pele nanotecnológica. A técnica e os cuidados devem ser definidos conforme as características e a sensibilidade de cada pele."
+  },
+  "resultado-de-limpeza-de-pele-nanotecnologica-caso-03": {
+    title: "Limpeza nanotecnológica: caso 03 | Especialista em Pele",
+    headline: "Limpeza de pele nanotecnológica — caso 03",
+    description: "Registro do caso 03 de limpeza de pele nanotecnológica. A avaliação profissional orienta a escolha da técnica e dos cuidados.",
+    intro: "O registro apresenta um caso individual de limpeza de pele nanotecnológica. Imagens de antes e depois devem ser interpretadas considerando as condições da pele e o contexto do atendimento."
+  },
+  "resultado-de-limpeza-de-pele-nanotecnologica-caso-04": {
+    title: "Limpeza nanotecnológica: caso 04 | Especialista em Pele",
+    headline: "Limpeza de pele nanotecnológica — caso 04",
+    description: "Conheça o registro fotográfico do caso 04 de limpeza de pele nanotecnológica. A resposta ao cuidado não é igual para todas as pessoas.",
+    intro: "Este registro fotográfico corresponde a um atendimento específico. A limpeza de pele é indicada após considerar as características cutâneas, a sensibilidade e os objetivos de cuidado."
+  },
+  "resultado-de-limpeza-de-pele-nanotecnologica-caso-05": {
+    title: "Limpeza nanotecnológica: caso 05 | Especialista em Pele",
+    headline: "Limpeza de pele nanotecnológica — caso 05",
+    description: "Caso 05 de limpeza de pele nanotecnológica: veja o registro publicado e entenda por que os cuidados devem ser individualizados.",
+    intro: "As imagens deste caso documentam uma situação individual e não constituem promessa de resultado. A técnica e os produtos precisam ser escolhidos de acordo com a avaliação da pele."
+  },
+  "resultado-de-limpeza-de-pele-nanotecnologica-caso-06": {
+    title: "Limpeza nanotecnológica: caso 06 | Especialista em Pele",
+    headline: "Limpeza de pele nanotecnológica — caso 06",
+    description: "Registro fotográfico do caso 06 de limpeza de pele nanotecnológica, com indicação definida conforme as necessidades individuais.",
+    intro: "Este caso integra os registros de limpeza de pele profissional. A aparência após o atendimento pode variar segundo a condição cutânea, a técnica utilizada e os cuidados posteriores."
+  },
+  "resultado-de-limpeza-de-pele-nanotecnologica-caso-07": {
+    title: "Limpeza nanotecnológica: caso 07 | Especialista em Pele",
+    headline: "Limpeza de pele nanotecnológica — caso 07",
+    description: "Veja o caso 07 de limpeza de pele nanotecnológica. O registro é informativo e não garante uma resposta semelhante em outras peles.",
+    intro: "Este registro apresenta um caso individual de limpeza de pele nanotecnológica. A escolha do procedimento depende de avaliação e não deve ser generalizada a partir de uma única fotografia."
+  },
+  "resultado-de-limpeza-de-pele-nanotecnologica-caso-08": {
+    title: "Limpeza nanotecnológica: caso 08 | Especialista em Pele",
+    headline: "Limpeza de pele nanotecnológica — caso 08",
+    description: "Registro do caso 08 de limpeza de pele nanotecnológica. Conheça a abordagem de cuidado com avaliação individual da pele.",
+    intro: "A página documenta um atendimento específico de limpeza de pele nanotecnológica. A resposta e a necessidade de cuidados complementares variam conforme cada pessoa."
+  },
+  "resultado-de-limpeza-de-pele-nanotecnologica-caso-09": {
+    title: "Limpeza nanotecnológica: caso 09 | Especialista em Pele",
+    headline: "Limpeza de pele nanotecnológica — caso 09",
+    description: "Caso 09 de limpeza de pele nanotecnológica: registro visual de um atendimento, sem promessa de resultado ou prazo universal.",
+    intro: "Este registro visual corresponde a um caso individual. A indicação da limpeza de pele e as orientações posteriores devem considerar a condição cutânea e a avaliação profissional."
+  },
+  "mancha-solar": {
+    title: "Mancha solar: registro de tratamento | Especialista em Pele",
+    headline: "Registro de cuidado para mancha solar",
+    description: "Veja o registro de uma mancha solar após mais de quatro meses de acompanhamento. A evolução é individual e exige cuidados contínuos.",
+    intro: "Este caso registra a evolução descrita ao longo de mais de quatro meses. A aparência de manchas pode variar com fototipo, exposição solar, rotina de fotoproteção e cuidados indicados; uma imagem isolada não permite prever a resposta de outras pessoas."
+  },
+  "poros-dilatados": {
+    title: "Poros dilatados: cuidado da pele | Especialista em Pele",
+    headline: "Registro de cuidados para poros dilatados",
+    description: "Registro fotográfico de cuidados voltados à aparência dos poros. A textura da pele varia e depende de características individuais.",
+    intro: "Os poros fazem parte da estrutura normal da pele e sua aparência depende de fatores como oleosidade, genética e textura cutânea. Este registro documenta um caso individual, sem prometer que os poros possam ser eliminados."
+  },
+  "rejuvenescimento-de-colo": {
+    title: "Rejuvenescimento do colo: registro | Especialista em Pele",
+    headline: "Registro de cuidados para rejuvenescimento do colo",
+    description: "Conheça um registro de cuidados para a pele do colo ao longo de três meses. A resposta depende da condição cutânea e da rotina de cuidados.",
+    intro: "Este caso apresenta um registro após três meses de acompanhamento, conforme a informação publicada. A pele do colo tem características próprias e a evolução depende dos cuidados, da exposição solar e das condições individuais."
+  },
+  "remocao-de-nigras01": {
+    title: "Remoção de comedões: registro do caso | Especialista em Pele",
+    headline: "Registro de remoção de comedões",
+    description: "Registro de remoção de comedões no pós-imediato. A técnica deve ser indicada conforme a condição da pele e realizada com cuidado.",
+    intro: "Este registro mostra o pós-imediato de um procedimento de remoção de comedões. A indicação e a técnica dependem da avaliação da pele; vermelhidão ou sensibilidade temporária podem variar de pessoa para pessoa."
+  },
+  "resultado-com-mais-de-2-meses-de-tratamento": {
+    title: "Rejuvenescimento facial: acompanhamento | Especialista em Pele",
+    headline: "Acompanhamento de rejuvenescimento facial após dois meses",
+    description: "Registro de acompanhamento facial após mais de dois meses, com cuidados para a pele e orientações domiciliares. A evolução é individual.",
+    intro: "Este caso descreve acompanhamento por mais de dois meses e inclui orientações de cuidados domiciliares. O registro é específico desta pessoa; não comprova que exercícios, massagens ou procedimentos produzam o mesmo efeito em todos os casos."
+  },
   "resultado-imediato-com-a-limpeza-de-pele-nanotecnologica": {
     title: "Limpeza nanotecnológica: resultado | Especialista em Pele",
     headline: "Resultado da limpeza de pele nanotecnológica",
@@ -257,7 +341,7 @@ ${cabecalho("resultados")}
     ${introSeo ? `<p class="texto-centro" style="font-size:16px;line-height:1.7;max-width:850px;margin:16px auto 24px">${escapeHtml(introSeo)}</p>` : ""}
     ${slider}
     ${r.description ? `<p class="texto-centro" style="font-size:18px;line-height:1.6">${escapeHtml(r.description)}</p>` : ""}
-    ${ehLimpeza && r.slug !== "resultado-imediato-com-a-limpeza-de-pele-nanotecnologica" ? `<p class="texto-centro" style="font-size:16px;line-height:1.7">Este registro integra os casos de limpeza de pele profissional da Especialista em Pele. A limpeza de pele profunda faz parte dos cuidados de estética facial quando indicada após avaliação individual. Fotografias documentam um caso específico e não garantem resultados iguais para outras pessoas.</p>` : ""}
+    ${ehLimpeza && !seoCaso && r.slug !== "resultado-imediato-com-a-limpeza-de-pele-nanotecnologica" ? `<p class="texto-centro" style="font-size:16px;line-height:1.7">Este registro integra os casos de limpeza de pele profissional da Especialista em Pele. A limpeza de pele profunda faz parte dos cuidados de estética facial quando indicada após avaliação individual. Fotografias documentam um caso específico e não garantem resultados iguais para outras pessoas.</p>` : ""}
     <h2 style="margin-top:36px">Sobre este resultado</h2>
     <div class="resultado-corpo">${corpo || `<p>Registro fotográfico de um caso${trat ? ` de ${escapeHtml(trat.name)}` : ""} atendido na Especialista em Pele${r.description ? `: ${escapeHtml(r.description.replace(/[.\s]+$/, ""))}` : ""}.</p>`}<p class="texto-suave" style="font-size:14px">${AVISO}</p></div>
     <h2 style="margin-top:36px">Fotos do caso</h2>
