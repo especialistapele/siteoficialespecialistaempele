@@ -440,6 +440,9 @@
         slug,
         cover_position_x: coverPositionX,
         cover_position_y: coverPositionY,
+        previous_slugs: slugAntigo && slugAntigo !== slug && tratamentoAtual?.published
+          ? [...new Set([...(tratamentoAtual.previous_slugs || []), slugAntigo])]
+          : (tratamentoAtual?.previous_slugs || []),
         sort_order: parseInt(document.getElementById("sort_order").value, 10) || 1,
         summary: document.getElementById("summary").value.trim(),
         description: document.getElementById("description").value.trim(),
@@ -461,10 +464,7 @@
       const publicar = async () => {
         const resultadoPublicacao = await dispararPublicacao({ path: `tratamentos/${payload.slug}.html`, publicado: payload.published });
         if (slugAntigo && slugAntigo !== payload.slug && tratamentoAtual?.published) {
-          // A hospedagem estática atual não permite emitir HTTP 301 pelo painel.
-          // A URL antiga não é despublicada silenciosamente; a limitação é registrada
-          // para que o slug só seja alterado de forma consciente pelo administrador.
-          console.warn("Slug publicado alterado; revisar redirecionamento permanente:", slugAntigo, "→", payload.slug);
+          mostrarFlash(flash, "Slug atualizado. A URL antiga terá redirecionamento de compatibilidade; a hospedagem estática atual não permite garantir HTTP 301.", "sucesso");
         }
         mostrarFlash(flash, resultadoPublicacao.confirmado ? MSG_CONFIRMADO : (resultadoPublicacao.ok ? MSG_ATUALIZANDO : MSG_AGENDADO), resultadoPublicacao.ok ? "sucesso" : "erro");
       };
