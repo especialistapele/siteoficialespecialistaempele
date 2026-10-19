@@ -98,16 +98,16 @@ export function sanitizarHtmlRico(html) {
         const decls = (achado[2] ?? achado[3] ?? "").split(";")
           .map((d) => d.split(":").map((x) => x.trim()))
           .filter(([p, v]) => p && v && ESTILOS_OK.has(p.toLowerCase()) && /^[\w\s.%#-]+$/.test(v))
-          .map(([p, v]) => \`\${p.toLowerCase()}:\${v}\`);
-        if (decls.length) estilo = \` style="\${decls.join(";")}"\`;
+          .map(([p, v]) => `${p.toLowerCase()}:${v}`);
+        if (decls.length) estilo = ` style="${decls.join(";")}"`;
       }
       let href = "";
       if (tag === "a") {
         const achadoHref = /href\s*=\s*("([^"]*)"|'([^']*)'|([^\s>]+))/i.exec(attrs);
         const hrefSeguro = hrefSeguroHtml(achadoHref?.[2] ?? achadoHref?.[3] ?? achadoHref?.[4] ?? "");
-        if (hrefSeguro) href = \` href="\${escapeHtml(hrefSeguro)}"\`;
+        if (hrefSeguro) href = ` href="${escapeHtml(hrefSeguro)}"`;
       }
-      return \`<\${tag}\${href}\${estilo}\${tag === "br" ? " /" : ""}>\`;
+      return `<${tag}${href}${estilo}${tag === "br" ? " /" : ""}>`;
     });
 }
 export function pareceHtml(valor) {
