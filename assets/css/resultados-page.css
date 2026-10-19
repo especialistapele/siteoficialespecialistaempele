@@ -1,0 +1,18 @@
+/* Página de resultados: filtro compacto e galeria clínica responsiva. */
+.resultados-toolbar{display:flex;align-items:end;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:20px 22px;margin:0 0 26px;border:1px solid #e5dfd2;border-radius:14px;background:linear-gradient(135deg,#fbfaf7 0%,#f3efe6 100%)}
+.resultados-filtro{display:flex;flex-direction:column;gap:8px;min-width:min(100%,300px);margin:0!important}
+.resultados-filtro__label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#58635b}
+.resultados-filtro__select{width:100%;min-height:46px;padding:10px 42px 10px 14px;border:1px solid #d8d0c0;border-radius:8px;background:#fff;color:#26312d;font:inherit;cursor:pointer}
+.resultados-filtro__select:focus-visible{outline:3px solid rgba(177,143,76,.35);outline-offset:2px;border-color:#b18f4c}
+.resultados-nota{max-width:360px;margin:0;color:#667067;font-size:13px;line-height:1.55}
+[data-grade-resultados]{align-items:stretch;gap:26px}
+[data-grade-resultados]>.card{overflow:hidden;border:1px solid #e8e2d8;border-radius:14px;background:#fff;box-shadow:0 5px 22px rgba(38,49,45,.055);transition:transform .2s ease,box-shadow .2s ease}
+[data-grade-resultados]>.card:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(38,49,45,.10)}
+[data-grade-resultados]>.card .antes-depois-slider{border-radius:0;aspect-ratio:4/4.2}
+[data-grade-resultados]>.card .card__corpo{padding:22px}
+[data-grade-resultados]>.card .selo{display:inline-flex;margin-bottom:9px}
+[data-grade-resultados]>.card h3{font-size:18px;line-height:1.4;margin:0 0 10px;color:#26312d}
+[data-grade-resultados]>.card p{font-size:14px;line-height:1.65;color:#69736c}
+[data-grade-resultados]>.card .card__link{display:inline-flex;margin-top:7px;font-weight:700}
+@media(max-width:640px){.resultados-toolbar{align-items:stretch;padding:16px;gap:12px}.resultados-filtro{min-width:100%}.resultados-nota{max-width:none}[data-grade-resultados]{gap:18px}[data-grade-resultados]>.card .card__corpo{padding:17px}}
+@media(prefers-reduced-motion:reduce){[data-grade-resultados]>.card{transition:none}}

@@ -91,12 +91,61 @@ export function sanitizarHtmlRico(html) {
 export function pareceHtml(valor) {
   return /<\/?[a-z][\s\S]*>/i.test(String(valor ?? ""));
 }
+function markdownInline(texto) {
+  // Escapa o texto antes de aplicar apenas os marcadores Markdown permitidos.
+  return escapeHtml(texto)
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/__(.+?)__/g, "<strong>$1</strong>")
+    .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, "$1<em>$2</em>")
+    .replace(/(^|[^_])_([^_\n]+)_(?!_)/g, "$1<em>$2</em>");
+}
 export function paragrafar(texto) {
-  return String(texto ?? "").split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean)
-    .map((p) => `<p>${escapeHtml(p).replace(/\n/g, "<br>")}</p>`).join("");
+  const linhas = String(texto ?? "").replace(/\r\n?/g, "\n").split("\n");
+  const blocos = [];
+  let paragrafo = [];
+  let lista = [];
+  const fecharParagrafo = () => {
+    if (paragrafo.length) blocos.push(`<p>${paragrafo.map(markdownInline).join("<br>")}</p>`);
+    paragrafo = [];
+  };
+  const fecharLista = () => {
+    if (lista.length) blocos.push(`<ul>${lista.map((item) => `<li>${markdownInline(item)}</li>`).join("")}</ul>`);
+    lista = [];
+  };
+  for (const linhaRaw of linhas) {
+    const linha = linhaRaw.trim();
+    if (!linha) { fecharParagrafo(); fecharLista(); continue; }
+    const titulo = /^(#{1,3})\s+(.+)$/.exec(linha);
+    if (titulo) {
+      fecharParagrafo(); fecharLista();
+      const nivel = titulo[1].length === 1 ? "h2" : "h3";
+      blocos.push(`<${nivel}>${markdownInline(titulo[2])}</${nivel}>`);
+      continue;
+    }
+    const item = /^(?:[-*•])\s+(.+)$/.exec(linha);
+    if (item) { fecharParagrafo(); lista.push(item[1]); continue; }
+    fecharLista();
+    paragrafo.push(linha);
+  }
+  fecharParagrafo(); fecharLista();
+  return blocos.join("");
+}
+function formatarMarcadoresMarkdownEmHtml(html) {
+  // O editor pode salvar conteúdo híbrido: HTML permitido misturado a Markdown.
+  // Só transforma nós de texto; tags e atributos já foram sanitizados.
+  return html.replace(/>([^<>]+)</g, (m, texto) => {
+    let t = texto
+      .replace(/^\s*#{1,3}\s+(.+)$/gm, "$1")
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/__(.+?)__/g, "<strong>$1</strong>")
+      .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, "$1<em>$2</em>")
+      .replace(/(^|[^_])_([^_\n]+)_(?!_)/g, "$1<em>$2</em>");
+    return `>${t}<`;
+  });
 }
 export function renderizarConteudo(texto) {
-  return pareceHtml(texto) ? sanitizarHtmlRico(texto) : paragrafar(texto);
+  if (!pareceHtml(texto)) return paragrafar(texto);
+  return formatarMarcadoresMarkdownEmHtml(sanitizarHtmlRico(texto));
 }
 export function textoPuro(html) {
   return String(html ?? "").replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&")
