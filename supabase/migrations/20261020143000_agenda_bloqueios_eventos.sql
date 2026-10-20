@@ -48,6 +48,39 @@ grant select, insert, update, delete on public.calendar_events to authenticated;
 drop policy if exists calendar_events_admin_all on public.calendar_events;
 create policy calendar_events_admin_all on public.calendar_events for all to authenticated using (public.is_admin()) with check (public.is_admin());
 
+-- Impede criar um bloqueio que conflite silenciosamente com atendimentos já existentes.
+-- Usa o mesmo advisory lock da validação de agendamentos para reduzir condições de corrida.
+create or replace function public.validate_appointment_date_block()
+returns trigger language plpgsql security invoker set search_path = public as $
+begin
+ if not new.active then return new; end if;
+ perform pg_advisory_xact_lock(hashtext(new.block_date::text));
+ if exists (
+  select 1 from public.appointments a
+  where a.appointment_date = new.block_date
+   and a.status <> 'cancelado'
+   and (
+    (new.start_time is null and new.end_time is null)
+    or (
+     new.start_time is not null and
+     (a.appointment_time < new.end_time) and
+     (a.appointment_end_time is null or a.appointment_end_time > new.start_time)
+    )
+   )
+ ) then
+  raise exception using errcode = '23P01',
+   message = 'Não é possível bloquear este período porque já existe atendimento agendado nele. Reagende ou cancele o atendimento primeiro.';
+ end if;
+ return new;
+end;
+$;
+
+drop trigger if exists appointment_date_blocks_validate on public.appointment_date_blocks;
+create trigger appointment_date_blocks_validate
+before insert or update of block_date, start_time, end_time, active
+on public.appointment_date_blocks
+for each row execute function public.validate_appointment_date_block();
+
 create or replace function public.validate_appointment_schedule()
 returns trigger language plpgsql security invoker set search_path = public as $$
 declare schedule_changed boolean := tg_op = 'INSERT';
