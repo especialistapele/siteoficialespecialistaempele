@@ -177,18 +177,29 @@
     document.getElementById("cfg-notif-resultados").checked = config.notificacoes_resultados;
   }
 
-  async function salvar(campo, valor) {
-    const { error } = await supabase.from("configuracoes").update({ [campo]: valor, updated_at: new Date().toISOString() }).eq("id", 1);
-    mostrarFlash(flash, error ? "Erro ao salvar: " + error.message : "Configuração atualizada.", error ? "erro" : "sucesso");
+  async function salvar(campo, valor, controle) {
+    controle.disabled = true;
+    const { error } = await supabase.from("configuracoes")
+      .update({ [campo]: valor, updated_at: new Date().toISOString() })
+      .eq("id", 1);
+    controle.disabled = false;
+    if (error) {
+      // Mantém a interface alinhada ao último estado confirmado no banco.
+      controle.checked = !valor;
+      mostrarFlash(flash, "Não foi possível salvar esta configuração. A opção foi restaurada. " + error.message, "erro");
+      return false;
+    }
+    mostrarFlash(flash, "Configuração atualizada.", "sucesso");
+    return true;
   }
 
-  document.getElementById("cfg-upload").addEventListener("change", (e) => salvar("permitir_upload_documentos", e.target.checked));
-  document.getElementById("cfg-email").addEventListener("change", (e) => salvar("notificacoes_email", e.target.checked));
-  document.getElementById("cfg-backup").addEventListener("change", (e) => salvar("backup_automatico", e.target.checked));
-  document.getElementById("cfg-notif-leads").addEventListener("change", (e) => salvar("notificacoes_leads", e.target.checked));
-  document.getElementById("cfg-notif-agenda").addEventListener("change", (e) => salvar("notificacoes_agenda", e.target.checked));
-  document.getElementById("cfg-notif-artigos").addEventListener("change", (e) => salvar("notificacoes_artigos", e.target.checked));
-  document.getElementById("cfg-notif-resultados").addEventListener("change", (e) => salvar("notificacoes_resultados", e.target.checked));
+  document.getElementById("cfg-upload").addEventListener("change", (e) => salvar("permitir_upload_documentos", e.currentTarget.checked, e.currentTarget));
+  document.getElementById("cfg-email").addEventListener("change", (e) => salvar("notificacoes_email", e.currentTarget.checked, e.currentTarget));
+  document.getElementById("cfg-backup").addEventListener("change", (e) => salvar("backup_automatico", e.currentTarget.checked, e.currentTarget));
+  document.getElementById("cfg-notif-leads").addEventListener("change", (e) => salvar("notificacoes_leads", e.currentTarget.checked, e.currentTarget));
+  document.getElementById("cfg-notif-agenda").addEventListener("change", (e) => salvar("notificacoes_agenda", e.currentTarget.checked, e.currentTarget));
+  document.getElementById("cfg-notif-artigos").addEventListener("change", (e) => salvar("notificacoes_artigos", e.currentTarget.checked, e.currentTarget));
+  document.getElementById("cfg-notif-resultados").addEventListener("change", (e) => salvar("notificacoes_resultados", e.currentTarget.checked, e.currentTarget));
 </script>
 </body>
 </html>
