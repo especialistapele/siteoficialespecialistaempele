@@ -91,7 +91,8 @@
           <form id="form-atendimento">
             <div class="form-linha">
               <div class="form-campo"><label for="appointment_date">Data</label><input type="date" id="appointment_date" required></div>
-              <div class="form-campo"><label for="appointment_time">Hora</label><input type="time" id="appointment_time" required></div>
+              <div class="form-campo"><label for="appointment_time">Horário inicial</label><input type="time" id="appointment_time" min="08:00" max="18:59" required></div>
+              <div class="form-campo"><label for="appointment_end_time">Horário final</label><input type="time" id="appointment_end_time" min="08:01" max="19:00" required></div>
               <div class="form-campo"><label for="valor">Valor total (R$)</label><input type="number" id="valor" min="0" step="0.01" value="0"></div>
             </div>
             <div class="form-linha">
@@ -662,6 +663,7 @@
     atendimentoEditando = a.id;
     document.getElementById("appointment_date").value = a.appointment_date || "";
     document.getElementById("appointment_time").value = a.appointment_time ? String(a.appointment_time).slice(0,5) : "";
+    document.getElementById("appointment_end_time").value = a.appointment_end_time ? String(a.appointment_end_time).slice(0,5) : "";
     document.getElementById("valor").value = Number(a.valor || 0);
     document.getElementById("taxa_agendamento").value = Number(a.taxa_agendamento || 0);
     document.getElementById("taxa_status").value = a.taxa_status || "pendente";
@@ -762,8 +764,19 @@
     const restanteBase = Math.max(0, total - taxa);
     const restantePago = Math.min(restanteBase, historicoPagamentos.reduce((s, p) => s + Number(p.amount || 0), 0));
     const restanteStatus = restanteBase === 0 || restantePago >= restanteBase ? "pago" : restantePago > 0 ? "parcial" : "pendente";
+    const dataAtendimento = document.getElementById("appointment_date").value;
+    const horarioInicial = document.getElementById("appointment_time").value;
+    const horarioFinal = document.getElementById("appointment_end_time").value;
+    if (!dataAtendimento || !horarioInicial || !horarioFinal) {
+      mostrarFlash(flash, "Informe a data, o horário inicial e o horário final do atendimento.", "erro");
+      return;
+    }
+    if (horarioInicial < "08:00" || horarioInicial >= "19:00" || horarioFinal <= horarioInicial || horarioFinal > "19:00") {
+      mostrarFlash(flash, "Confira os horários: o atendimento deve ocorrer entre 08h e 19h, e o horário final precisa ser posterior ao inicial.", "erro");
+      return;
+    }
     const dados = {
-      patient_id: patientId, appointment_date: document.getElementById("appointment_date").value, appointment_time: document.getElementById("appointment_time").value,
+      patient_id: patientId, appointment_date: dataAtendimento, appointment_time: horarioInicial, appointment_end_time: horarioFinal,
       valor: total, taxa_agendamento: taxa, taxa_status: document.getElementById("taxa_status").value, taxa_forma_pagamento: document.getElementById("taxa_forma_pagamento").value.trim() || null,
       restante_pago: historicoPagamentos.reduce((s, p) => s + Number(p.amount || 0), 0),
       restante_status: (() => { const base = Math.max(0, total - taxa); const pago = historicoPagamentos.reduce((s,p)=>s+Number(p.amount||0),0); return base <= 0 || pago >= base ? "pago" : pago > 0 ? "parcial" : "pendente"; })(),
