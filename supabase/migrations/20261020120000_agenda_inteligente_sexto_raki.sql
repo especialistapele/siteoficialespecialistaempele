@@ -167,10 +167,10 @@ begin
       raise exception using errcode = '22023', message = 'Paciente selecionado não encontrado.';
     end if;
   else
-    v_phone_digits := regexp_replace(p_patient_phone, '\\D', '', 'g');
+    v_phone_digits := regexp_replace(p_patient_phone, '[^0-9]', '', 'g');
     select count(*) into v_matches
     from public.patients p
-    where regexp_replace(coalesce(p.phone, ''), '\\D', '', 'g') = v_phone_digits
+    where regexp_replace(coalesce(p.phone, ''), '[^0-9]', '', 'g') = v_phone_digits
       and v_phone_digits <> '';
 
     if v_matches > 1 then
@@ -179,7 +179,7 @@ begin
     elsif v_matches = 1 then
       select p.id into v_patient_id
       from public.patients p
-      where regexp_replace(coalesce(p.phone, ''), '\\D', '', 'g') = v_phone_digits
+      where regexp_replace(coalesce(p.phone, ''), '[^0-9]', '', 'g') = v_phone_digits
         and v_phone_digits <> ''
       limit 1;
     else
