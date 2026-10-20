@@ -131,7 +131,7 @@ returns table(id uuid, full_name text, phone text)
 language plpgsql
 security definer
 set search_path = public
-as $
+as $$
 declare
   v_phone_digits text := regexp_replace(coalesce(p_phone, ''), '[^0-9]', '', 'g');
 begin
@@ -148,7 +148,7 @@ begin
     order by p.full_name
     limit 25;
 end;
-$;
+$$;
 
 revoke all on function public.admin_find_patients_by_phone(text) from public, anon;
 grant execute on function public.admin_find_patients_by_phone(text) to authenticated;
