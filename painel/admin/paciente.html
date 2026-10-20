@@ -118,6 +118,19 @@
               <div class="pagamentos-restante-lista" data-pagamentos-restante><div class="painel-vazio">Nenhum pagamento do restante registrado.</div></div>
               <div class="pagamento-restante-total"><span>Total já pago do restante</span><strong data-total-pago-restante>R$ 0,00</strong><span>Falta quitar</span><strong data-total-falta-restante>R$ 0,00</strong></div>
             </div>
+            <section class="painel-card" style="margin:18px 0;padding:16px;border:1px solid var(--linha)">
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer">
+                <input type="checkbox" id="payment-plan-enabled" style="width:17px;height:17px">
+                <strong>Habilitar parcelamento mensal via Pix</strong>
+              </label>
+              <p class="texto-suave" style="margin:8px 0 12px">Defina manualmente o valor e o vencimento de cada parcela. O plano também aparecerá no Financeiro geral.</p>
+              <div data-installment-editor hidden>
+                <div data-installment-rows style="display:grid;gap:10px"></div>
+                <button type="button" class="btn-p btn-p-mini" id="adicionar-parcela" style="margin-top:10px">+ Adicionar parcela</button>
+                <p class="texto-suave" data-installment-hint style="margin:10px 0 0"></p>
+              </div>
+              <div data-installment-history style="margin-top:14px"></div>
+            </section>
             <div class="form-linha">
               <div class="form-campo"><label for="tipo">Tipo de atendimento</label>
                 <select id="tipo">
@@ -593,6 +606,80 @@
 
   const moeda = (valor) => Number(valor || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
   let historicoPagamentos = [];
+  let parcelasAtendimento = [];
+
+  const toggleParcelamento = document.getElementById("payment-plan-enabled");
+  const editorParcelas = document.querySelector("[data-installment-editor]");
+  const linhasParcelas = document.querySelector("[data-installment-rows]");
+  const historicoParcelas = document.querySelector("[data-installment-history]");
+  const dataHojeLocal = () => {
+    const d = new Date();
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  };
+  const totalParcelasDigitadas = () => [...linhasParcelas.querySelectorAll("[data-parcela-valor]")].reduce((s, el) => s + Math.round(Math.max(0, Number(el.value || 0)) * 100), 0) / 100;
+
+  function renderizarCamposParcelas(parcelas = []) {
+    const bloqueado = parcelasAtendimento.some(x => x.status === "pago");
+    linhasParcelas.innerHTML = parcelas.map((parcela, i) => `
+      <div data-parcela-linha style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end;padding:12px;border:1px solid var(--linha);border-radius:8px">
+        <div class="form-campo"><label>Parcela ${i + 1} — Valor (R$)</label><input data-parcela-valor type="number" min="0.01" step="0.01" required value="${Number(parcela.amount || 0).toFixed(2)}" ${bloqueado ? "disabled" : ""}></div>
+        <div class="form-campo"><label>Vencimento</label><input data-parcela-vencimento type="date" required value="${escapeHtml(parcela.due_date || "")}" ${bloqueado ? "disabled" : ""}></div>
+        ${bloqueado ? "" : '<button type="button" class="btn-p btn-p-mini btn-p-perigo" data-remover-parcela>Remover</button>'}
+      </div>`).join("");
+    document.querySelector("[data-installment-hint]").textContent = bloqueado
+      ? "Este plano já tem parcela paga. O cronograma foi bloqueado para preservar o histórico; você ainda pode registrar os próximos Pix abaixo."
+      : "A soma das parcelas precisa corresponder ao valor total menos a taxa de agendamento.";
+  }
+
+  function renderizarHistoricoParcelas() {
+    if (!parcelasAtendimento.length) { historicoParcelas.innerHTML = ""; return; }
+    historicoParcelas.innerHTML = '<h4 style="margin:0 0 10px">Parcelas registradas</h4><div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Parcela</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Pagamento</th><th></th></tr></thead><tbody>' +
+      parcelasAtendimento.map(x => `<tr><td>${x.installment_number}/${x.installment_count}</td><td>${x.due_date ? new Date(x.due_date + "T00:00:00").toLocaleDateString("pt-BR") : "—"}</td><td>R$ ${moeda(x.amount)}</td><td><span class="selo-p ${x.status === "pago" ? "pago" : "pendente"}">${x.status === "pago" ? "Pago" : x.due_date < dataHojeLocal() ? "Vencido" : "Pendente"}</span></td><td>${x.paid_at ? new Date(x.paid_at + "T00:00:00").toLocaleDateString("pt-BR") + " · " + escapeHtml(x.payment_method || "Pix") : "—"}</td><td>${x.status === "pago" ? "—" : '<button type="button" class="btn-p btn-p-mini btn-p-dourado" data-marcar-parcela-paga="' + x.id + '">Registrar Pix recebido</button>'}</td></tr>`).join("") +
+      '</tbody></table></div>';
+    historicoParcelas.querySelectorAll("[data-marcar-parcela-paga]").forEach(btn => btn.addEventListener("click", async () => {
+      const dataPagamento = prompt("Data em que o Pix foi recebido (AAAA-MM-DD):", dataHojeLocal());
+      if (dataPagamento === null) return;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dataPagamento) || Number.isNaN(Date.parse(dataPagamento + "T00:00:00"))) {
+        mostrarFlash(flash, "Informe uma data válida no formato AAAA-MM-DD.", "erro"); return;
+      }
+      const { error } = await supabase.from("appointment_installments").update({ status: "pago", paid_at: dataPagamento, payment_method: "Pix" }).eq("id", btn.dataset.marcarParcelaPaga);
+      if (error) { mostrarFlash(flash, "Erro ao registrar Pix: " + error.message, "erro"); return; }
+      await carregarParcelasAtendimento(atendimentoEditando);
+      await carregarAtendimentos();
+      mostrarFlash(flash, "Pix registrado e Financeiro atualizado.", "sucesso");
+    }));
+  }
+
+  async function carregarParcelasAtendimento(appointmentId) {
+    parcelasAtendimento = [];
+    if (appointmentId) {
+      const { data, error } = await supabase.from("appointment_installments").select("*").eq("appointment_id", appointmentId).order("installment_number", { ascending: true });
+      if (error) { mostrarFlash(flash, "Erro ao carregar parcelas: " + error.message, "erro"); }
+      parcelasAtendimento = data || [];
+    }
+    toggleParcelamento.checked = parcelasAtendimento.length > 0;
+    editorParcelas.hidden = !toggleParcelamento.checked;
+    renderizarCamposParcelas(parcelasAtendimento.length ? parcelasAtendimento : [{ amount: Math.max(0, Number(document.getElementById("valor").value || 0) - Number(document.getElementById("taxa_agendamento").value || 0)), due_date: "" }]);
+    renderizarHistoricoParcelas();
+  }
+
+  toggleParcelamento.addEventListener("change", () => {
+    editorParcelas.hidden = !toggleParcelamento.checked;
+    if (toggleParcelamento.checked && !linhasParcelas.children.length) renderizarCamposParcelas([{ amount: Math.max(0, Number(document.getElementById("valor").value || 0) - Number(document.getElementById("taxa_agendamento").value || 0)), due_date: "" }]);
+  });
+  document.getElementById("adicionar-parcela").addEventListener("click", () => {
+    if (parcelasAtendimento.some(x => x.status === "pago")) return;
+    const valores = [...linhasParcelas.querySelectorAll("[data-parcela-valor]")].map(el => Number(el.value || 0));
+    const vencimentos = [...linhasParcelas.querySelectorAll("[data-parcela-vencimento]")].map(el => el.value);
+    renderizarCamposParcelas([...valores.map((amount, i) => ({ amount, due_date: vencimentos[i] })), { amount: 0, due_date: "" }]);
+  });
+  linhasParcelas.addEventListener("click", e => {
+    const btn = e.target.closest("[data-remover-parcela]");
+    if (!btn || parcelasAtendimento.some(x => x.status === "pago")) return;
+    const row = btn.closest("[data-parcela-linha]");
+    row.remove();
+    [...linhasParcelas.querySelectorAll("[data-parcela-linha]")].forEach((row, i) => { const label = row.querySelector("label"); if (label) label.textContent = `Parcela ${i + 1} — Valor (R$)`; });
+  });
 
   const atualizarResumoAtendimento = () => {
     const total = Math.max(0, parseFloat(document.getElementById("valor").value) || 0);
@@ -670,6 +757,7 @@
     document.getElementById("taxa_forma_pagamento").value = a.taxa_forma_pagamento || "";
     document.getElementById("novo_pagamento_data").value = new Date().toISOString().slice(0,10);
     carregarHistoricoPagamentos(a.id);
+    carregarParcelasAtendimento(a.id);
     document.getElementById("tipo").value = a.tipo || "Consulta de Avaliação";
     document.getElementById("status").value = a.status || "agendado";
     document.getElementById("descricao").value = a.description || "";
@@ -683,6 +771,11 @@
     document.getElementById("form-atendimento").reset();
     document.getElementById("taxa_status").value = "pendente";
     historicoPagamentos = [];
+    parcelasAtendimento = [];
+    toggleParcelamento.checked = false;
+    editorParcelas.hidden = true;
+    linhasParcelas.innerHTML = "";
+    historicoParcelas.innerHTML = "";
     document.getElementById("novo_pagamento_valor").value = 0;
     document.getElementById("novo_pagamento_data").value = new Date().toISOString().slice(0,10);
     document.getElementById("novo_pagamento_forma").value = "";
@@ -697,7 +790,12 @@
     const tbody = document.querySelector("[data-lista-atendimentos]");
     if (error) { tbody.innerHTML = `<tr><td colspan="7" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
     const ids = lista.map(a => a.id);
-    const { data: pagamentosData } = ids.length ? await supabase.from("appointment_payment_history").select("id,appointment_id,amount,payment_date,payment_method,payment_type").in("appointment_id", ids).eq("payment_type","restante").order("payment_date", { ascending: true }) : { data: [] };
+    const [{ data: pagamentosData }, { data: parcelasData }] = await Promise.all([
+      ids.length ? supabase.from("appointment_payment_history").select("id,appointment_id,amount,payment_date,payment_method,payment_type").in("appointment_id", ids).eq("payment_type","restante").order("payment_date", { ascending: true }) : Promise.resolve({ data: [] }),
+      ids.length ? supabase.from("appointment_installments").select("id,appointment_id,amount,due_date,status,paid_at,payment_method,installment_number,installment_count").in("appointment_id", ids).order("installment_number", { ascending: true }) : Promise.resolve({ data: [] })
+    ]);
+    const parcelasPorAtendimento = {};
+    (parcelasData || []).forEach(x => { (parcelasPorAtendimento[x.appointment_id] ||= []).push(x); });
     const pagamentosPorAtendimento = {};
     (pagamentosData || []).forEach(p => { (pagamentosPorAtendimento[p.appointment_id] ||= []).push(p); });
     tbody.innerHTML = lista.length ? lista.map((a) => {
@@ -705,15 +803,20 @@
       const taxa = Number(a.taxa_agendamento || 0);
       const restante = Math.max(0, total - taxa);
       const historico = pagamentosPorAtendimento[a.id] || [];
+      const parcelas = parcelasPorAtendimento[a.id] || [];
       const pagoHistorico = historico.reduce((s,p) => s + Number(p.amount || 0), 0);
-      const pagoRestante = Math.min(restante, pagoHistorico || Number(a.restante_pago || 0));
-      const falta = Math.max(0, restante - pagoRestante);
+      const pagoRestante = a.payment_plan_enabled
+        ? Math.min(restante, parcelas.filter(x => x.status === "pago").reduce((s,x) => s + Number(x.amount || 0), 0))
+        : Math.min(restante, pagoHistorico || Number(a.restante_pago || 0));
+      const falta = a.payment_plan_enabled
+        ? parcelas.filter(x => x.status !== "pago").reduce((s,x) => s + Number(x.amount || 0), 0)
+        : Math.max(0, restante - pagoRestante);
       return `<tr>
         <td>${new Date(a.appointment_date + "T00:00:00").toLocaleDateString("pt-BR")}${a.appointment_time ? `<div class="pessoa__sub">${escapeHtml(String(a.appointment_time).slice(0,5))}</div>` : ""}</td>
         <td>${escapeHtml(a.tipo || a.description || "—")}</td>
         <td>R$ ${moeda(total)}</td>
         <td>R$ ${moeda(taxa)}<div class="pessoa__sub">${escapeHtml(a.taxa_status || "pendente")}</div></td>
-        <td>R$ ${moeda(falta)}<div class="pessoa__sub">${escapeHtml(a.restante_status || "pendente")}${a.restante_data_pagamento ? " · " + new Date(a.restante_data_pagamento + "T00:00:00").toLocaleDateString("pt-BR") : ""}</div></td>
+        <td>R$ ${moeda(falta)}<div class="pessoa__sub">${a.payment_plan_enabled ? "Parcelado" : escapeHtml(a.restante_status || "pendente")}${a.restante_data_pagamento ? " · " + new Date(a.restante_data_pagamento + "T00:00:00").toLocaleDateString("pt-BR") : ""}</div></td>
         <td><span class="selo-p ${escapeHtml(a.status)}">${escapeHtml(a.status)}</span></td>
         <td><div style="display:flex;gap:6px"><button class="btn-p btn-p-mini" data-editar="${a.id}">Editar</button><button class="btn-p btn-p-mini btn-p-perigo" data-excluir="${a.id}">Excluir</button></div></td>
       </tr>`;
@@ -738,7 +841,10 @@
       const taxa = a.taxa_status === "pago" ? Number(a.taxa_agendamento || 0) : 0;
       const restanteBase = Math.max(0, Number(a.valor || 0) - Number(a.taxa_agendamento || 0));
       const historico = pagamentosPorAtendimento[a.id] || [];
-      const pagoRestante = Math.min(restanteBase, historico.reduce((x,p) => x + Number(p.amount || 0), 0) || Number(a.restante_pago || 0));
+      const parcelas = parcelasPorAtendimento[a.id] || [];
+      const pagoRestante = a.payment_plan_enabled
+        ? Math.min(restanteBase, parcelas.filter(x => x.status === "pago").reduce((x,p) => x + Number(p.amount || 0), 0))
+        : Math.min(restanteBase, historico.reduce((x,p) => x + Number(p.amount || 0), 0) || Number(a.restante_pago || 0));
       return s + taxa + pagoRestante;
     }, 0);
     const totalPendente = Math.max(0, totalValor - totalPago);
@@ -775,8 +881,26 @@
       mostrarFlash(flash, "Confira os horários: o atendimento deve ocorrer entre 08h e 19h, e o horário final precisa ser posterior ao inicial.", "erro");
       return;
     }
+    const planoAtivo = toggleParcelamento.checked;
+    const parcelasDigitadas = [...linhasParcelas.querySelectorAll("[data-parcela-linha]")].map(row => ({
+      amount: Math.round(Math.max(0, Number(row.querySelector("[data-parcela-valor]").value || 0)) * 100) / 100,
+      due_date: row.querySelector("[data-parcela-vencimento]").value
+    }));
+    if (planoAtivo) {
+      if (!parcelasDigitadas.length || parcelasDigitadas.some(x => x.amount <= 0 || !x.due_date)) {
+        mostrarFlash(flash, "Informe valor e vencimento para todas as parcelas.", "erro"); return;
+      }
+      const somaParcelas = Math.round(parcelasDigitadas.reduce((s,x) => s + x.amount, 0) * 100) / 100;
+      if (somaParcelas !== Math.round(restanteBase * 100) / 100) {
+        mostrarFlash(flash, `A soma das parcelas (R$ ${moeda(somaParcelas)}) deve ser igual ao restante após a taxa (R$ ${moeda(restanteBase)}).`, "erro"); return;
+      }
+    }
+    if (parcelasAtendimento.some(x => x.status === "pago") && !planoAtivo) {
+      mostrarFlash(flash, "Este parcelamento já tem pagamentos registrados. Mantenha-o ativo para preservar o histórico.", "erro"); return;
+    }
     const dados = {
       patient_id: patientId, appointment_date: dataAtendimento, appointment_time: horarioInicial, appointment_end_time: horarioFinal,
+      payment_plan_enabled: planoAtivo,
       valor: total, taxa_agendamento: taxa, taxa_status: document.getElementById("taxa_status").value, taxa_forma_pagamento: document.getElementById("taxa_forma_pagamento").value.trim() || null,
       restante_pago: historicoPagamentos.reduce((s, p) => s + Number(p.amount || 0), 0),
       restante_status: (() => { const base = Math.max(0, total - taxa); const pago = historicoPagamentos.reduce((s,p)=>s+Number(p.amount||0),0); return base <= 0 || pago >= base ? "pago" : pago > 0 ? "parcial" : "pendente"; })(),
@@ -784,12 +908,27 @@
       restante_forma_pagamento: historicoPagamentos.length ? historicoPagamentos[historicoPagamentos.length - 1].payment_method : null,
       tipo: document.getElementById("tipo").value, status: document.getElementById("status").value, description: document.getElementById("descricao").value.trim()
     };
-    const query = atendimentoEditando ? supabase.from("appointments").update(dados).eq("id", atendimentoEditando) : supabase.from("appointments").insert(dados);
-    const { error } = await query;
+    const query = atendimentoEditando
+      ? supabase.from("appointments").update(dados).eq("id", atendimentoEditando).select("id").single()
+      : supabase.from("appointments").insert(dados).select("id").single();
+    const { data: atendimentoSalvo, error } = await query;
     if (error) { mostrarFlash(flash, "Erro: " + error.message, "erro"); return; }
+    const appointmentIdSalvo = atendimentoSalvo.id;
+    const { data: parcelasExistentes, error: erroParcelasExistentes } = await supabase.from("appointment_installments").select("id,status").eq("appointment_id", appointmentIdSalvo);
+    if (erroParcelasExistentes) { mostrarFlash(flash, "Atendimento salvo, mas não foi possível conferir as parcelas: " + erroParcelasExistentes.message, "erro"); return; }
+    if (!(parcelasExistentes || []).some(x => x.status === "pago")) {
+      const { error: erroExcluirParcelas } = await supabase.from("appointment_installments").delete().eq("appointment_id", appointmentIdSalvo);
+      if (erroExcluirParcelas) { mostrarFlash(flash, "Atendimento salvo, mas não foi possível atualizar o cronograma: " + erroExcluirParcelas.message, "erro"); return; }
+      if (planoAtivo) {
+        const payloadParcelas = parcelasDigitadas.map((x, i) => ({ patient_id: patientId, appointment_id: appointmentIdSalvo, installment_number: i + 1, installment_count: parcelasDigitadas.length, amount: x.amount, due_date: x.due_date, status: "pendente" }));
+        const { error: erroInserirParcelas } = await supabase.from("appointment_installments").insert(payloadParcelas);
+        if (erroInserirParcelas) { mostrarFlash(flash, "Atendimento salvo, mas houve erro ao gravar parcelas: " + erroInserirParcelas.message, "erro"); return; }
+      }
+    }
     mostrarFlash(flash, atendimentoEditando ? "Atendimento atualizado." : "Atendimento adicionado.", "sucesso");
     limparFormularioAtendimento();
     document.querySelector('[data-aba="historico"]').click();
+    carregarParcelasAtendimento(appointmentIdSalvo);
     carregarAtendimentos();
   });
 
@@ -836,14 +975,23 @@
   carregarFinanceiro();
   // Financeiro
   async function carregarFinanceiro() {
-    const { data, error } = await supabase.from("financial_transactions").select("*").eq("patient_id", patientId).order("due_date", { ascending: false });
+    const [{ data, error }, { data: parcelasData, error: erroParcelas }] = await Promise.all([
+      supabase.from("financial_transactions").select("*").eq("patient_id", patientId).order("due_date", { ascending: false }),
+      supabase.from("appointment_installments").select("*").eq("patient_id", patientId).order("due_date", { ascending: false })
+    ]);
     const lista = data || [];
+    const parcelas = parcelasData || [];
     const corpoFin = document.querySelector("[data-lista-financeiro]");
     if (error) { corpoFin.innerHTML = `<tr><td colspan="5" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
-    corpoFin.innerHTML = lista.length ? lista.map((f) => `
-      <tr><td>${escapeHtml(f.description)}</td><td>${f.due_date ? new Date(f.due_date + "T00:00:00").toLocaleDateString("pt-BR") : "—"}</td><td>R$ ${Number(f.amount).toLocaleString("pt-BR", {minimumFractionDigits:2})}</td><td><span class="selo-p ${escapeHtml(f.status)}">${escapeHtml(f.status)}</span></td><td><button class="btn-p btn-p-mini btn-p-perigo" data-excluir-fin="${f.id}">Excluir</button></td></tr>`).join("") : `<tr><td colspan="5" class="painel-vazio">Nenhum lançamento financeiro.</td></tr>`;
-    const pendente = lista.filter(f=>f.status==='pendente').reduce((s,f)=>s+Number(f.amount),0);
-    const pago = lista.filter(f=>f.status==='pago').reduce((s,f)=>s+Number(f.amount),0);
+    const linhasFin = [
+      ...lista.map(f => ({ id: f.id, description: f.description, due_date: f.due_date, amount: f.amount, status: f.status, origem: "lancamento" })),
+      ...parcelas.map(x => ({ id: x.id, description: `Parcela ${x.installment_number}/${x.installment_count} — atendimento`, due_date: x.due_date, amount: x.amount, status: x.status, origem: "parcela" }))
+    ].sort((a,b) => String(b.due_date || "").localeCompare(String(a.due_date || "")));
+    if (erroParcelas) mostrarFlash(flash, "Erro ao carregar parcelas no financeiro do paciente: " + erroParcelas.message, "erro");
+    corpoFin.innerHTML = linhasFin.length ? linhasFin.map((f) => `
+      <tr><td>${escapeHtml(f.description)}</td><td>${f.due_date ? new Date(f.due_date + "T00:00:00").toLocaleDateString("pt-BR") : "—"}</td><td>R$ ${Number(f.amount).toLocaleString("pt-BR", {minimumFractionDigits:2})}</td><td><span class="selo-p ${escapeHtml(f.status)}">${f.status === "pago" ? "Pago" : f.status === "pendente" && f.due_date && f.due_date < dataHojeLocal() ? "Vencido" : escapeHtml(f.status)}</span></td><td>${f.origem === "lancamento" ? '<button class="btn-p btn-p-mini btn-p-perigo" data-excluir-fin="' + f.id + '">Excluir</button>' : "—"}</td></tr>`).join("") : `<tr><td colspan="5" class="painel-vazio">Nenhum lançamento financeiro.</td></tr>`;
+    const pendente = linhasFin.filter(f=>f.status==='pendente').reduce((s,f)=>s+Number(f.amount),0);
+    const pago = linhasFin.filter(f=>f.status==='pago').reduce((s,f)=>s+Number(f.amount),0);
     document.querySelector("[data-resumo-financeiro]").innerHTML = `<div><strong>R$ ${pago.toLocaleString("pt-BR",{minimumFractionDigits:2})}</strong><div class="texto-suave">Pago</div></div><div><strong>R$ ${pendente.toLocaleString("pt-BR",{minimumFractionDigits:2})}</strong><div class="texto-suave">Pendente</div></div>`;
     corpoFin.querySelectorAll("[data-excluir-fin]").forEach(btn=>btn.addEventListener("click",async()=>{ const {error:e}=await supabase.from("financial_transactions").delete().eq("id",btn.dataset.excluirFin); if(e) mostrarFlash(flash,"Erro: "+e.message,"erro"); carregarFinanceiro(); }));
   }
