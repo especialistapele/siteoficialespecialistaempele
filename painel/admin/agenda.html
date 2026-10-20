@@ -68,6 +68,7 @@ let anoAtual = hoje.getFullYear();
 let mesAtual = hoje.getMonth(); // 0-11
 let diaSelecionado = hojeStr();
 let agendamentosPorDia = {}; // { 'YYYY-MM-DD': [ {...} ] }
+let bloqueioRecorrente = null;
 
 campoData.value = diaSelecionado;
 
@@ -124,20 +125,24 @@ function montarGrade() {
     const ehHoje = chave === hojeStr();
     const ehSelecionado = chave === diaSelecionado;
     const itens = agendamentosPorDia[chave] || [];
+    const bloqueado = diaEstaBloqueado(chave);
 
     const celula = document.createElement('button');
     celula.type = 'button';
     celula.className = 'calendario-dia' +
       (foraDoMes ? ' fora-do-mes' : '') +
       (ehHoje ? ' hoje' : '') +
-      (ehSelecionado ? ' selecionado' : '');
+      (ehSelecionado ? ' selecionado' : '') +
+      (bloqueado ? ' dia-bloqueado' : '');
     celula.dataset.chave = chave;
+    if (bloqueado) { celula.style.background = '#e6e6e6'; celula.style.borderColor = '#111'; celula.title = 'Dia bloqueado: ' + (bloqueioRecorrente?.name || 'bloqueio recorrente'); }
 
     const pontos = itens.slice(0, 4).map(a => `<span class="calendario-ponto" style="background:${corStatus(a.status)}"></span>`).join('');
     const extra = itens.length > 4 ? `<span class="calendario-ponto-extra">+${itens.length - 4}</span>` : '';
 
     celula.innerHTML = `
       <span class="calendario-dia__numero">${dataCelula.getDate()}</span>
+      ${bloqueado ? '<span style="display:block;font-size:9px;color:#111;font-weight:700">BLOQUEADO</span>' : ''}
       ${itens.length ? `<span class="calendario-dia__pontos">${pontos}${extra}</span>` : ''}
     `;
 
@@ -192,8 +197,24 @@ function mostrarTooltip(celula, itens) {
 }
 function esconderTooltip() { tooltip.hidden = true; }
 
+function diaEstaBloqueado(chave) {
+  if (!bloqueioRecorrente || !bloqueioRecorrente.active) return false;
+  const [y,m,d] = chave.split('-').map(Number);
+  const [sy,sm,sd] = String(bloqueioRecorrente.start_date).slice(0,10).split('-').map(Number);
+  const delta = Math.round((Date.UTC(y,m-1,d) - Date.UTC(sy,sm-1,sd)) / 86400000);
+  return delta >= 0 && (!bloqueioRecorrente.end_date || chave <= bloqueioRecorrente.end_date) && delta % Number(bloqueioRecorrente.interval_days) === 0;
+}
+
+async function carregarRegraBloqueio() {
+  const { data, error } = await supabase.from('appointment_recurring_blocks')
+    .select('name,start_date,interval_days,end_date,color,active')
+    .order('created_at', { ascending: false }).limit(1).maybeSingle();
+  if (!error) bloqueioRecorrente = data;
+}
+
 // ---------- carrega os agendamentos do mês visível (para os pontinhos) ----------
 async function carregarMes() {
+  await carregarRegraBloqueio();
   montarGrade(); // desenha já, mesmo antes da resposta chegar (sem pontos)
 
   const primeiroDia = `${anoAtual}-${pad2(mesAtual + 1)}-01`;
@@ -202,7 +223,7 @@ async function carregarMes() {
 
   const { data, error } = await supabase
     .from('appointments')
-    .select('id,appointment_date,appointment_time,tipo,status,patients(full_name)')
+    .select('id,appointment_date,appointment_time,appointment_end_time,tipo,status,patients(full_name)')
     .gte('appointment_date', primeiroDia)
     .lte('appointment_date', ultimoDia)
     .order('appointment_time');
