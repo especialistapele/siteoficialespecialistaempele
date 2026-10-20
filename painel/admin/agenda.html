@@ -40,7 +40,7 @@
   </div>
   <form id="form-recorrencia" style="margin-top:16px">
     <div class="form-linha">
-      <div class="form-campo"><label for="recorrencia-nome">Nome da regra</label><input id="recorrencia-nome" value="SEXTO RAKI" maxlength="160" required></div>
+      <div class="form-campo"><label for="recorrencia-nome">Nome da regra</label><input id="recorrencia-nome" value="SEXTO RAKI" maxlength="160" readonly required></div>
       <div class="form-campo"><label for="recorrencia-inicio">Data inicial</label><input id="recorrencia-inicio" type="date" required></div>
       <div class="form-campo"><label for="recorrencia-intervalo">Repetir a cada (dias)</label><input id="recorrencia-intervalo" type="number" min="1" max="3650" step="1" required></div>
     </div>
@@ -212,7 +212,7 @@ function montarGrade() {
       (ehSelecionado ? ' selecionado' : '') +
       (bloqueado ? ' dia-bloqueado' : '');
     celula.dataset.chave = chave;
-    if (bloqueado) { celula.style.background = '#e6e6e6'; celula.style.borderColor = '#111'; celula.title = 'Dia bloqueado: ' + (bloqueioRecorrente?.name || 'bloqueio recorrente'); }
+    if (bloqueado) { celula.style.background = '#e6e6e6'; celula.style.borderColor = bloqueioRecorrente?.color || '#111'; celula.title = 'Dia bloqueado: ' + (bloqueioRecorrente?.name || 'bloqueio recorrente'); }
     else if (bloqueioParcial) { celula.title = 'Há bloqueio parcial nesta data'; }
 
     const pontos = itens.slice(0, 4).map(a => `<span class="calendario-ponto" style="background:${corStatus(a.status)}"></span>`).join('');
@@ -221,7 +221,7 @@ function montarGrade() {
 
     celula.innerHTML = `
       <span class="calendario-dia__numero">${dataCelula.getDate()}</span>
-      ${bloqueado ? '<span style="display:block;font-size:9px;color:#111;font-weight:700">BLOQUEADO</span>' : ''}
+      ${bloqueado ? `<span style="display:block;font-size:9px;color:${esc(bloqueioRecorrente?.color || '#111')};font-weight:700">BLOQUEADO</span>` : ''}
       ${!bloqueado && bloqueioParcial ? '<span style="display:block;font-size:9px;color:#b91c1c;font-weight:700">BLOQUEIO PARCIAL</span>' : ''}
       ${eventos.length ? `<span style="display:block;font-size:9px;color:${esc(corEvento)};font-weight:700">EVENTO${eventos.length > 1 ? ' +' + (eventos.length - 1) : ''}</span>` : ''}
       ${itens.length ? `<span class="calendario-dia__pontos">${pontos}${extra}</span>` : ''}
@@ -331,7 +331,7 @@ document.getElementById('form-recorrencia').addEventListener('submit', async eve
     mostrarFlash(document.querySelector('[data-flash]'), 'Confira o nome, a data inicial, o intervalo e a data final da recorrência.', 'erro');
     return;
   }
-  const payload = { name: nome, start_date: inicio, interval_days: intervalo, end_date: fim, color: document.getElementById('recorrencia-cor').value, active: document.getElementById('recorrencia-ativa').checked, updated_at: new Date().toISOString() };
+  const payload = { name: 'SEXTO RAKI', start_date: inicio, interval_days: intervalo, end_date: fim, color: document.getElementById('recorrencia-cor').value, active: document.getElementById('recorrencia-ativa').checked, updated_at: new Date().toISOString() };
   btn.disabled = true;
   let result;
   if (bloqueioRecorrente?.id) {
