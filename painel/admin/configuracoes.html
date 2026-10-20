@@ -207,9 +207,16 @@
   function renderizarPreviaRaki() {
     if (!rakiInicio.value || Number(rakiIntervalo.value) < 1) { rakiPrevia.textContent = "Informe uma data e intervalo válidos."; return; }
     const [y,m,d] = rakiInicio.value.split("-").map(Number);
-    const inicio = new Date(y,m-1,d,12,0,0);
+    const intervalo = Number(rakiIntervalo.value);
+    const inicioUtc = Date.UTC(y,m-1,d);
+    const hoje = new Date();
+    const hojeUtc = Date.UTC(hoje.getFullYear(),hoje.getMonth(),hoje.getDate());
+    const primeiroIndice = Math.max(0, Math.ceil((hojeUtc - inicioUtc) / 86400000 / intervalo));
     const datas = [];
-    for (let i=0;i<6;i++) { const dt = new Date(inicio); dt.setDate(dt.getDate()+i*Number(rakiIntervalo.value)); datas.push(dt.toLocaleDateString("pt-BR")); }
+    for (let i=0;i<6;i++) {
+      const dt = new Date(inicioUtc + (primeiroIndice+i)*intervalo*86400000);
+      datas.push(dt.toLocaleDateString("pt-BR",{timeZone:"UTC"}));
+    }
     rakiPrevia.textContent = "Próximas ocorrências: " + datas.join(" · ") + (rakiAtivo.checked ? " (ativo)" : " (desativado)");
   }
   [rakiInicio,rakiIntervalo,rakiAtivo].forEach(el => el.addEventListener("change",renderizarPreviaRaki));
