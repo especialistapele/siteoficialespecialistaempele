@@ -930,7 +930,11 @@
       if (planoAtivo) {
         const payloadParcelas = parcelasDigitadas.map((x, i) => ({ patient_id: patientId, appointment_id: appointmentIdSalvo, installment_number: i + 1, installment_count: parcelasDigitadas.length, amount: x.amount, due_date: x.due_date, status: "pendente" }));
         const { error: erroInserirParcelas } = await supabase.from("appointment_installments").insert(payloadParcelas);
-        if (erroInserirParcelas) { mostrarFlash(flash, "Atendimento salvo, mas houve erro ao gravar parcelas: " + erroInserirParcelas.message, "erro"); return; }
+        if (erroInserirParcelas) {
+          await supabase.from("appointments").update({ payment_plan_enabled: false }).eq("id", appointmentIdSalvo);
+          mostrarFlash(flash, "Não foi possível gravar as parcelas; o parcelamento foi desativado para evitar um saldo incorreto. " + erroInserirParcelas.message, "erro");
+          return;
+        }
       }
     }
     mostrarFlash(flash, atendimentoEditando ? "Atendimento atualizado." : "Atendimento adicionado.", "sucesso");
