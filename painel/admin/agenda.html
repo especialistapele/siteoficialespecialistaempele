@@ -37,6 +37,55 @@
   <div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Início</th><th>Término</th><th>Paciente</th><th>Tipo</th><th>Observações</th><th>Valor</th><th>Pagamento</th><th>Status</th></tr></thead><tbody data-lista><tr><td colspan="8" class="painel-vazio">Carregando…</td></tr></tbody></table></div>
 </div>
 
+<div class="painel-card" style="margin-top:20px">
+  <h3 id="lista-eventos-titulo">Eventos e bloqueios do dia</h3>
+  <div id="lista-eventos-dia"><p class="painel-vazio">Carregando…</p></div>
+</div>
+
+<div id="modal-acoes-data" style="display:none;position:fixed;inset:0;background:rgba(20,20,20,.55);z-index:1000;align-items:center;justify-content:center;padding:16px">
+  <div class="painel-card" style="width:min(440px,100%)">
+    <h2 id="acoes-data-titulo">Ações para a data</h2>
+    <p class="texto-suave">Escolha o que deseja registrar neste dia.</p>
+    <div class="form-acoes" style="display:grid;grid-template-columns:1fr;gap:10px">
+      <button class="btn-p btn-p-dourado" type="button" id="acao-bloquear-data">Bloquear data ou horário</button>
+      <button class="btn-p btn-p-fora" type="button" id="acao-adicionar-evento">Adicionar evento</button>
+      <button class="btn-p btn-p-fora" type="button" id="acao-novo-agendamento">Novo atendimento de paciente</button>
+      <button class="btn-p btn-p-fora" type="button" id="acao-fechar-data">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-bloqueio-data" style="display:none;position:fixed;inset:0;background:rgba(20,20,20,.55);z-index:1001;align-items:center;justify-content:center;padding:16px">
+  <div class="painel-card" style="width:min(540px,100%);max-height:90vh;overflow:auto">
+    <h2>Bloquear data ou horário</h2>
+    <p class="texto-suave">Deixe os dois horários vazios para bloquear o dia inteiro. Bloqueios parciais impedem atendimentos que se sobreponham ao intervalo.</p>
+    <form id="form-bloqueio-data">
+      <div class="form-campo"><label for="bloqueio-data">Data</label><input id="bloqueio-data" type="date" required></div>
+      <div class="form-campo"><label for="bloqueio-nome">Motivo do bloqueio</label><input id="bloqueio-nome" maxlength="160" required placeholder="Ex.: compromisso pessoal"></div>
+      <div class="form-campo"><label for="bloqueio-inicio">Horário inicial (opcional)</label><input id="bloqueio-inicio" type="time" min="08:00" max="18:59"></div>
+      <div class="form-campo"><label for="bloqueio-fim">Horário final (opcional)</label><input id="bloqueio-fim" type="time" min="08:01" max="19:00"></div>
+      <div class="form-campo"><label for="bloqueio-cor">Cor</label><input id="bloqueio-cor" type="color" value="#b91c1c"></div>
+      <div class="form-acoes"><button class="btn-p btn-p-dourado" type="submit" id="bloqueio-salvar">Salvar bloqueio</button><button class="btn-p btn-p-fora" type="button" id="bloqueio-cancelar">Cancelar</button></div>
+    </form>
+  </div>
+</div>
+
+<div id="modal-evento" style="display:none;position:fixed;inset:0;background:rgba(20,20,20,.55);z-index:1001;align-items:center;justify-content:center;padding:16px">
+  <div class="painel-card" style="width:min(540px,100%);max-height:90vh;overflow:auto">
+    <h2>Adicionar evento</h2>
+    <p class="texto-suave">Evento administrativo, sem cadastro de paciente. Ele aparece na agenda, mas só bloqueia horários se você criar um bloqueio separado.</p>
+    <form id="form-evento">
+      <div class="form-campo"><label for="evento-titulo">Título do evento</label><input id="evento-titulo" maxlength="180" required placeholder="Ex.: Curso, reunião, viagem"></div>
+      <div class="form-campo"><label for="evento-data">Data</label><input id="evento-data" type="date" required></div>
+      <div class="form-campo"><label for="evento-inicio">Horário inicial (opcional)</label><input id="evento-inicio" type="time" min="08:00" max="18:59"></div>
+      <div class="form-campo"><label for="evento-fim">Horário final (opcional)</label><input id="evento-fim" type="time" min="08:01" max="19:00"></div>
+      <div class="form-campo"><label for="evento-descricao">Descrição (opcional)</label><textarea id="evento-descricao" rows="3" maxlength="2000"></textarea></div>
+      <div class="form-campo"><label for="evento-cor">Cor</label><input id="evento-cor" type="color" value="#2563eb"></div>
+      <div class="form-acoes"><button class="btn-p btn-p-dourado" type="submit" id="evento-salvar">Salvar evento</button><button class="btn-p btn-p-fora" type="button" id="evento-cancelar">Cancelar</button></div>
+    </form>
+  </div>
+</div>
+
 <div id="modal-agendamento" style="display:none;position:fixed;inset:0;background:rgba(20,20,20,.55);z-index:1000;align-items:center;justify-content:center;padding:16px"><div class="painel-card" style="width:min(620px,100%);max-height:90vh;overflow:auto"><h2>Novo agendamento</h2><p class="texto-suave">Data, início, término, nome e telefone são obrigatórios. Nenhuma conta de login será criada para o paciente.</p><form id="form-agendamento"><div class="form-campo"><label for="ag-data">Data</label><input id="ag-data" type="date" required></div><div class="form-campo"><label for="ag-inicio">Início</label><input id="ag-inicio" type="time" min="08:00" max="18:59" required></div><div class="form-campo"><label for="ag-fim">Término</label><input id="ag-fim" type="time" min="08:01" max="19:00" required></div><div class="form-campo"><label for="ag-paciente">Nome completo</label><input id="ag-paciente" required maxlength="180"></div><div class="form-campo"><label for="ag-telefone">Telefone</label><input id="ag-telefone" type="tel" required maxlength="40"></div><div class="form-campo" id="ag-paciente-existente-wrap" hidden><label for="ag-paciente-existente">Há mais de um cadastro com este telefone. Selecione o paciente correto</label><select id="ag-paciente-existente"><option value="">Selecione…</option></select></div><div class="form-campo"><label for="ag-tipo">Tipo de atendimento</label><input id="ag-tipo" maxlength="160"></div><div class="form-campo"><label for="ag-descricao">Observações</label><textarea id="ag-descricao" rows="3"></textarea></div><div class="form-acoes"><button class="btn-p btn-p-dourado" type="submit" id="ag-salvar">Salvar agendamento</button><button class="btn-p btn-p-fora" type="button" id="ag-cancelar">Cancelar</button></div></form></div></div>
 <!-- tooltip flutuante do calendário -->
 <div class="calendario-tooltip" data-tooltip hidden></div>
@@ -68,6 +117,8 @@ let anoAtual = hoje.getFullYear();
 let mesAtual = hoje.getMonth(); // 0-11
 let diaSelecionado = hojeStr();
 let agendamentosPorDia = {}; // { 'YYYY-MM-DD': [ {...} ] }
+let bloqueiosPorDia = {}; // bloqueios pontuais por data
+let eventosPorDia = {}; // eventos administrativos por data
 let bloqueioRecorrente = null;
 
 campoData.value = diaSelecionado;
@@ -125,7 +176,10 @@ function montarGrade() {
     const ehHoje = chave === hojeStr();
     const ehSelecionado = chave === diaSelecionado;
     const itens = agendamentosPorDia[chave] || [];
+    const bloqueios = bloqueiosPorDia[chave] || [];
+    const eventos = eventosPorDia[chave] || [];
     const bloqueado = diaEstaBloqueado(chave);
+    const bloqueioParcial = bloqueios.some(b => b.start_time && b.end_time);
 
     const celula = document.createElement('button');
     celula.type = 'button';
@@ -136,13 +190,17 @@ function montarGrade() {
       (bloqueado ? ' dia-bloqueado' : '');
     celula.dataset.chave = chave;
     if (bloqueado) { celula.style.background = '#e6e6e6'; celula.style.borderColor = '#111'; celula.title = 'Dia bloqueado: ' + (bloqueioRecorrente?.name || 'bloqueio recorrente'); }
+    else if (bloqueioParcial) { celula.title = 'Há bloqueio parcial nesta data'; }
 
     const pontos = itens.slice(0, 4).map(a => `<span class="calendario-ponto" style="background:${corStatus(a.status)}"></span>`).join('');
     const extra = itens.length > 4 ? `<span class="calendario-ponto-extra">+${itens.length - 4}</span>` : '';
+    const corEvento = eventos[0]?.color || '#2563eb';
 
     celula.innerHTML = `
       <span class="calendario-dia__numero">${dataCelula.getDate()}</span>
       ${bloqueado ? '<span style="display:block;font-size:9px;color:#111;font-weight:700">BLOQUEADO</span>' : ''}
+      ${!bloqueado && bloqueioParcial ? '<span style="display:block;font-size:9px;color:#b91c1c;font-weight:700">BLOQUEIO PARCIAL</span>' : ''}
+      ${eventos.length ? `<span style="display:block;font-size:9px;color:${esc(corEvento)};font-weight:700">EVENTO${eventos.length > 1 ? ' +' + (eventos.length - 1) : ''}</span>` : ''}
       ${itens.length ? `<span class="calendario-dia__pontos">${pontos}${extra}</span>` : ''}
     `;
 
@@ -151,6 +209,7 @@ function montarGrade() {
       campoData.value = chave;
       montarGrade();
       selecionarDia(chave);
+      abrirAcoesData(chave);
     });
 
     if (itens.length) {
@@ -198,6 +257,8 @@ function mostrarTooltip(celula, itens) {
 function esconderTooltip() { tooltip.hidden = true; }
 
 function diaEstaBloqueado(chave) {
+  const bloqueioDia = (bloqueiosPorDia[chave] || []).some(b => !b.start_time && !b.end_time);
+  if (bloqueioDia) return true;
   if (!bloqueioRecorrente || !bloqueioRecorrente.active) return false;
   const [y,m,d] = chave.split('-').map(Number);
   const [sy,sm,sd] = String(bloqueioRecorrente.start_date).slice(0,10).split('-').map(Number);
@@ -221,18 +282,29 @@ async function carregarMes() {
   const ultimoDiaNum = new Date(anoAtual, mesAtual + 1, 0).getDate();
   const ultimoDia = `${anoAtual}-${pad2(mesAtual + 1)}-${pad2(ultimoDiaNum)}`;
 
-  const { data, error } = await supabase
-    .from('appointments')
-    .select('id,appointment_date,appointment_time,appointment_end_time,tipo,status,patients(full_name)')
-    .gte('appointment_date', primeiroDia)
-    .lte('appointment_date', ultimoDia)
-    .order('appointment_time');
+  const [agendamentos, bloqueios, eventos] = await Promise.all([
+    supabase.from('appointments')
+      .select('id,appointment_date,appointment_time,appointment_end_time,tipo,status,patients(full_name)')
+      .gte('appointment_date', primeiroDia).lte('appointment_date', ultimoDia).order('appointment_time'),
+    supabase.from('appointment_date_blocks')
+      .select('id,name,block_date,start_time,end_time,color,active')
+      .gte('block_date', primeiroDia).lte('block_date', ultimoDia).eq('active', true),
+    supabase.from('calendar_events')
+      .select('id,title,event_date,start_time,end_time,description,color')
+      .gte('event_date', primeiroDia).lte('event_date', ultimoDia).order('start_time')
+  ]);
 
   agendamentosPorDia = {};
-  if (!error && data) {
-    for (const a of data) {
-      (agendamentosPorDia[a.appointment_date] ||= []).push(a);
-    }
+  bloqueiosPorDia = {};
+  eventosPorDia = {};
+  if (!agendamentos.error && agendamentos.data) {
+    for (const a of agendamentos.data) (agendamentosPorDia[a.appointment_date] ||= []).push(a);
+  }
+  if (!bloqueios.error && bloqueios.data) {
+    for (const b of bloqueios.data) (bloqueiosPorDia[b.block_date] ||= []).push(b);
+  }
+  if (!eventos.error && eventos.data) {
+    for (const e of eventos.data) (eventosPorDia[e.event_date] ||= []).push(e);
   }
   montarGrade();
   selecionarDia(diaSelecionado);
@@ -260,7 +332,93 @@ async function selecionarDia(chave) {
     mostrarFlash(document.querySelector('[data-flash]'), error ? 'Erro: ' + error.message : 'Status atualizado.', error ? 'erro' : 'sucesso');
     if (!error) carregarMes(); // atualiza os pontinhos do calendário também
   });
+  renderizarItensDaData(chave);
 }
+
+function abrirAcoesData(chave) {
+  document.getElementById('acoes-data-titulo').textContent = 'Ações para ' + chave.split('-').reverse().join('/');
+  document.getElementById('modal-acoes-data').style.display = 'flex';
+}
+function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
+function abrirFormularioData(id, dataId) {
+  fecharModal('modal-acoes-data');
+  document.getElementById(dataId).value = diaSelecionado;
+  document.getElementById(id).style.display = 'flex';
+}
+function renderizarItensDaData(chave) {
+  const container = document.getElementById('lista-eventos-dia');
+  const bloqueios = (bloqueiosPorDia[chave] || []);
+  const eventos = (eventosPorDia[chave] || []);
+  const recorrente = diaEstaBloqueado(chave) && !(bloqueios.some(b => !b.start_time && !b.end_time));
+  const linhas = [];
+  if (recorrente) linhas.push(`<div class="lista-simples__item"><span><strong>Bloqueio recorrente:</strong> ${esc(bloqueioRecorrente?.name || 'Bloqueio recorrente')} (dia inteiro)</span></div>`);
+  for (const b of bloqueios) linhas.push(`<div class="lista-simples__item" style="border-left:4px solid ${esc(b.color || '#b91c1c')};padding-left:10px"><span><strong>Bloqueio:</strong> ${esc(b.name)} · ${b.start_time ? esc(String(b.start_time).slice(0,5)) + '–' + esc(String(b.end_time).slice(0,5)) : 'dia inteiro'}</span><button type="button" class="btn-p btn-p-mini btn-p-perigo" data-excluir-bloqueio="${esc(b.id)}">Remover</button></div>`);
+  for (const e of eventos) linhas.push(`<div class="lista-simples__item" style="border-left:4px solid ${esc(e.color || '#2563eb')};padding-left:10px"><span><strong>Evento:</strong> ${esc(e.title)} · ${e.start_time ? esc(String(e.start_time).slice(0,5)) + (e.end_time ? '–' + esc(String(e.end_time).slice(0,5)) : '') : 'dia inteiro'}${e.description ? '<div class="texto-suave">' + esc(e.description) + '</div>' : ''}</span><button type="button" class="btn-p btn-p-mini btn-p-perigo" data-excluir-evento="${esc(e.id)}">Remover</button></div>`);
+  container.innerHTML = linhas.length ? linhas.join('') : '<p class="painel-vazio">Nenhum evento ou bloqueio pontual nesta data.</p>';
+  container.querySelectorAll('[data-excluir-bloqueio]').forEach(btn => btn.onclick = async () => {
+    if (!confirm('Remover este bloqueio?')) return;
+    const { error } = await supabase.from('appointment_date_blocks').delete().eq('id', btn.dataset.excluirBloqueio);
+    if (error) { mostrarFlash(document.querySelector('[data-flash]'), 'Não foi possível remover o bloqueio: ' + error.message, 'erro'); return; }
+    mostrarFlash(document.querySelector('[data-flash]'), 'Bloqueio removido.', 'sucesso'); await carregarMes();
+  });
+  container.querySelectorAll('[data-excluir-evento]').forEach(btn => btn.onclick = async () => {
+    if (!confirm('Remover este evento?')) return;
+    const { error } = await supabase.from('calendar_events').delete().eq('id', btn.dataset.excluirEvento);
+    if (error) { mostrarFlash(document.querySelector('[data-flash]'), 'Não foi possível remover o evento: ' + error.message, 'erro'); return; }
+    mostrarFlash(document.querySelector('[data-flash]'), 'Evento removido.', 'sucesso'); await carregarMes();
+  });
+}
+
+document.getElementById('acao-fechar-data').onclick = () => fecharModal('modal-acoes-data');
+document.getElementById('acao-bloquear-data').onclick = () => abrirFormularioData('modal-bloqueio-data', 'bloqueio-data');
+document.getElementById('acao-adicionar-evento').onclick = () => abrirFormularioData('modal-evento', 'evento-data');
+document.getElementById('acao-novo-agendamento').onclick = () => {
+  fecharModal('modal-acoes-data');
+  document.getElementById('ag-data').value = diaSelecionado;
+  document.getElementById('modal-agendamento').style.display = 'flex';
+};
+document.getElementById('bloqueio-cancelar').onclick = () => fecharModal('modal-bloqueio-data');
+document.getElementById('evento-cancelar').onclick = () => fecharModal('modal-evento');
+
+document.getElementById('form-bloqueio-data').addEventListener('submit', async event => {
+  event.preventDefault();
+  const inicio = document.getElementById('bloqueio-inicio').value || null;
+  const fim = document.getElementById('bloqueio-fim').value || null;
+  if ((inicio && !fim) || (!inicio && fim) || (inicio && fim && fim <= inicio)) {
+    mostrarFlash(document.querySelector('[data-flash]'), 'Informe os dois horários do bloqueio e confira se o término é posterior ao início.', 'erro'); return;
+  }
+  const btn = document.getElementById('bloqueio-salvar'); btn.disabled = true;
+  const { error } = await supabase.from('appointment_date_blocks').insert({
+    name: document.getElementById('bloqueio-nome').value.trim(),
+    block_date: document.getElementById('bloqueio-data').value,
+    start_time: inicio, end_time: fim,
+    color: document.getElementById('bloqueio-cor').value, active: true
+  });
+  btn.disabled = false;
+  if (error) { mostrarFlash(document.querySelector('[data-flash]'), 'Não foi possível salvar o bloqueio: ' + error.message, 'erro'); return; }
+  fecharModal('modal-bloqueio-data'); document.getElementById('form-bloqueio-data').reset(); document.getElementById('bloqueio-cor').value = '#b91c1c';
+  mostrarFlash(document.querySelector('[data-flash]'), 'Bloqueio salvo. Agendamentos que coincidam com o intervalo serão impedidos.', 'sucesso'); await carregarMes();
+});
+document.getElementById('form-evento').addEventListener('submit', async event => {
+  event.preventDefault();
+  const inicio = document.getElementById('evento-inicio').value || null;
+  const fim = document.getElementById('evento-fim').value || null;
+  if ((inicio && !fim) || (!inicio && fim) || (inicio && fim && fim <= inicio)) {
+    mostrarFlash(document.querySelector('[data-flash]'), 'Informe os dois horários do evento e confira se o término é posterior ao início.', 'erro'); return;
+  }
+  const btn = document.getElementById('evento-salvar'); btn.disabled = true;
+  const { error } = await supabase.from('calendar_events').insert({
+    title: document.getElementById('evento-titulo').value.trim(),
+    event_date: document.getElementById('evento-data').value,
+    start_time: inicio, end_time: fim,
+    description: document.getElementById('evento-descricao').value.trim() || null,
+    color: document.getElementById('evento-cor').value
+  });
+  btn.disabled = false;
+  if (error) { mostrarFlash(document.querySelector('[data-flash]'), 'Não foi possível salvar o evento: ' + error.message, 'erro'); return; }
+  fecharModal('modal-evento'); document.getElementById('form-evento').reset(); document.getElementById('evento-cor').value = '#2563eb';
+  mostrarFlash(document.querySelector('[data-flash]'), 'Evento salvo na agenda.', 'sucesso'); await carregarMes();
+});
 
 const pacienteExistenteWrap = document.getElementById('ag-paciente-existente-wrap');
 const pacienteExistenteSelect = document.getElementById('ag-paciente-existente');
