@@ -37,7 +37,7 @@
   <div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Início</th><th>Término</th><th>Paciente</th><th>Tipo</th><th>Observações</th><th>Valor</th><th>Pagamento</th><th>Status</th></tr></thead><tbody data-lista><tr><td colspan="8" class="painel-vazio">Carregando…</td></tr></tbody></table></div>
 </div>
 
-<div id="modal-agendamento" style="display:none;position:fixed;inset:0;background:rgba(20,20,20,.55);z-index:1000;align-items:center;justify-content:center;padding:16px"><div class="painel-card" style="width:min(620px,100%);max-height:90vh;overflow:auto"><h2>Novo agendamento</h2><p class="texto-suave">Data, início, término, nome e telefone são obrigatórios. Nenhuma conta de login será criada para o paciente.</p><form id="form-agendamento"><div class="form-campo"><label for="ag-data">Data</label><input id="ag-data" type="date" required></div><div class="form-campo"><label for="ag-inicio">Início</label><input id="ag-inicio" type="time" min="08:00" max="18:59" required></div><div class="form-campo"><label for="ag-fim">Término</label><input id="ag-fim" type="time" min="08:01" max="19:00" required></div><div class="form-campo"><label for="ag-paciente">Nome completo</label><input id="ag-paciente" required maxlength="180"></div><div class="form-campo"><label for="ag-telefone">Telefone</label><input id="ag-telefone" type="tel" required maxlength="40"></div><div class="form-campo"><label for="ag-tipo">Tipo de atendimento</label><input id="ag-tipo" maxlength="160"></div><div class="form-campo"><label for="ag-descricao">Observações</label><textarea id="ag-descricao" rows="3"></textarea></div><div class="form-acoes"><button class="btn-p btn-p-dourado" type="submit" id="ag-salvar">Salvar agendamento</button><button class="btn-p btn-p-fora" type="button" id="ag-cancelar">Cancelar</button></div></form></div></div>
+<div id="modal-agendamento" style="display:none;position:fixed;inset:0;background:rgba(20,20,20,.55);z-index:1000;align-items:center;justify-content:center;padding:16px"><div class="painel-card" style="width:min(620px,100%);max-height:90vh;overflow:auto"><h2>Novo agendamento</h2><p class="texto-suave">Data, início, término, nome e telefone são obrigatórios. Nenhuma conta de login será criada para o paciente.</p><form id="form-agendamento"><div class="form-campo"><label for="ag-data">Data</label><input id="ag-data" type="date" required></div><div class="form-campo"><label for="ag-inicio">Início</label><input id="ag-inicio" type="time" min="08:00" max="18:59" required></div><div class="form-campo"><label for="ag-fim">Término</label><input id="ag-fim" type="time" min="08:01" max="19:00" required></div><div class="form-campo"><label for="ag-paciente">Nome completo</label><input id="ag-paciente" required maxlength="180"></div><div class="form-campo"><label for="ag-telefone">Telefone</label><input id="ag-telefone" type="tel" required maxlength="40"></div><div class="form-campo" id="ag-paciente-existente-wrap" hidden><label for="ag-paciente-existente">Há mais de um cadastro com este telefone. Selecione o paciente correto</label><select id="ag-paciente-existente"><option value="">Selecione…</option></select></div><div class="form-campo"><label for="ag-tipo">Tipo de atendimento</label><input id="ag-tipo" maxlength="160"></div><div class="form-campo"><label for="ag-descricao">Observações</label><textarea id="ag-descricao" rows="3"></textarea></div><div class="form-acoes"><button class="btn-p btn-p-dourado" type="submit" id="ag-salvar">Salvar agendamento</button><button class="btn-p btn-p-fora" type="button" id="ag-cancelar">Cancelar</button></div></form></div></div>
 <!-- tooltip flutuante do calendário -->
 <div class="calendario-tooltip" data-tooltip hidden></div>
 
@@ -262,6 +262,27 @@ async function selecionarDia(chave) {
   });
 }
 
+const pacienteExistenteWrap = document.getElementById('ag-paciente-existente-wrap');
+const pacienteExistenteSelect = document.getElementById('ag-paciente-existente');
+const telefoneInput = document.getElementById('ag-telefone');
+let pacientesCorrespondentes = [];
+function normalizarTelefone(v) { return String(v || '').replace(/[^0-9]/g, ''); }
+telefoneInput.addEventListener('input', () => {
+  pacientesCorrespondentes = [];
+  pacienteExistenteSelect.innerHTML = '<option value="">Selecione…</option>';
+  pacienteExistenteWrap.hidden = true;
+});
+telefoneInput.addEventListener('blur', async () => {
+  const telefone = telefoneInput.value.trim();
+  if (normalizarTelefone(telefone).length < 8) return;
+  const { data, error } = await supabase.rpc('admin_find_patients_by_phone', { p_phone: telefone });
+  if (error || !Array.isArray(data)) return;
+  pacientesCorrespondentes = data;
+  if (data.length > 1) {
+    pacienteExistenteSelect.innerHTML = '<option value="">Selecione…</option>' + data.map(p => '<option value="' + esc(p.id) + '">' + esc(p.full_name) + ' — ' + esc(p.phone || 'sem telefone') + '</option>').join('');
+    pacienteExistenteWrap.hidden = false;
+  }
+});
 const modalAgendamento = document.getElementById('modal-agendamento');
 document.getElementById('novo-agendamento').addEventListener('click', () => { document.getElementById('ag-data').value = diaSelecionado; modalAgendamento.style.display = 'flex'; });
 document.getElementById('ag-cancelar').addEventListener('click', () => { modalAgendamento.style.display = 'none'; });
@@ -269,8 +290,9 @@ document.getElementById('form-agendamento').addEventListener('submit', async (ev
   event.preventDefault(); const btn = document.getElementById('ag-salvar');
   const data = document.getElementById('ag-data').value, inicio = document.getElementById('ag-inicio').value, fim = document.getElementById('ag-fim').value;
   if (!data || !inicio || !fim || fim <= inicio || inicio < '08:00' || inicio >= '19:00' || fim > '19:00') { mostrarFlash(document.querySelector('[data-flash]'), 'Confira os horários. A agenda funciona das 08h às 19h e o término deve ser posterior ao início.', 'erro'); return; }
+  if (pacientesCorrespondentes.length > 1 && !pacienteExistenteSelect.value) { mostrarFlash(document.querySelector('[data-flash]'), 'Selecione o cadastro correto do paciente antes de salvar.', 'erro'); return; }
   btn.disabled = true;
-  const { error } = await supabase.rpc('admin_create_appointment', { p_appointment_date: data, p_appointment_time: inicio, p_appointment_end_time: fim, p_patient_name: document.getElementById('ag-paciente').value.trim(), p_patient_phone: document.getElementById('ag-telefone').value.trim(), p_patient_id: null, p_tipo: document.getElementById('ag-tipo').value.trim() || null, p_description: document.getElementById('ag-descricao').value.trim() || null, p_valor: 0, p_taxa_agendamento: 0 });
+  const { error } = await supabase.rpc('admin_create_appointment', { p_appointment_date: data, p_appointment_time: inicio, p_appointment_end_time: fim, p_patient_name: document.getElementById('ag-paciente').value.trim(), p_patient_phone: document.getElementById('ag-telefone').value.trim(), p_patient_id: (pacientesCorrespondentes.length > 1 ? (pacienteExistenteSelect.value || null) : null), p_tipo: document.getElementById('ag-tipo').value.trim() || null, p_description: document.getElementById('ag-descricao').value.trim() || null, p_valor: 0, p_taxa_agendamento: 0 });
   btn.disabled = false;
   if (error) { mostrarFlash(document.querySelector('[data-flash]'), error.message || 'Não foi possível criar o agendamento.', 'erro'); return; }
   modalAgendamento.style.display = 'none'; document.getElementById('form-agendamento').reset(); diaSelecionado = data; campoData.value = data;
