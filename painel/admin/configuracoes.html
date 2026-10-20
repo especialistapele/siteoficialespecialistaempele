@@ -196,7 +196,7 @@
   const rakiPrevia = document.getElementById("cfg-raki-previa");
   let rakiId = null;
   async function carregarRaki() {
-    const { data, error } = await supabase.from("appointment_recurring_blocks").select("id,name,start_date,interval_days,active").eq("name","SEXTO RAKI").order("created_at",{ascending:false}).limit(1).maybeSingle();
+    const { data, error } = await supabase.from("appointment_recurring_blocks").select("id,name,start_date,interval_days,active").order("created_at",{ascending:false}).limit(1).maybeSingle();
     if (error) { rakiPrevia.textContent = "Bloqueio ainda indisponível. Verifique se a migração da agenda foi aplicada."; return; }
     if (data) {
       rakiId = data.id; rakiAtivo.checked = data.active; rakiNome.value = data.name;
