@@ -51,7 +51,7 @@ create policy calendar_events_admin_all on public.calendar_events for all to aut
 -- Impede criar um bloqueio que conflite silenciosamente com atendimentos já existentes.
 -- Usa o mesmo advisory lock da validação de agendamentos para reduzir condições de corrida.
 create or replace function public.validate_appointment_date_block()
-returns trigger language plpgsql security invoker set search_path = public as $
+returns trigger language plpgsql security invoker set search_path = public as $block$
 begin
  if not new.active then return new; end if;
  perform pg_advisory_xact_lock(hashtext(new.block_date::text));
@@ -73,7 +73,7 @@ begin
  end if;
  return new;
 end;
-$;
+$block$;
 
 drop trigger if exists appointment_date_blocks_validate on public.appointment_date_blocks;
 create trigger appointment_date_blocks_validate
@@ -82,7 +82,7 @@ on public.appointment_date_blocks
 for each row execute function public.validate_appointment_date_block();
 
 create or replace function public.validate_appointment_schedule()
-returns trigger language plpgsql security invoker set search_path = public as $$
+returns trigger language plpgsql security invoker set search_path = public as $fn$
 declare schedule_changed boolean := tg_op = 'INSERT';
 begin
  if tg_op = 'UPDATE' then
@@ -123,4 +123,4 @@ begin
  end if;
  return new;
 end;
-$$;
+$fn$;
