@@ -29,6 +29,29 @@
   </div>
 
   <div class="calendario-grade" data-grade></div>
+
+</div>
+
+<!-- ===================== CONFIGURAÇÃO DE RECORRÊNCIA ===================== -->
+<div class="painel-card" style="margin-top:20px">
+  <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap">
+    <div><h3 style="margin:0 0 4px">Bloqueio recorrente SEXTO RAKI</h3><p class="texto-suave" style="margin:0">Configure a repetição do bloqueio sem precisar editar o banco. Alterar a regra não modifica atendimentos já registrados.</p></div>
+    <span class="selo-p" id="recorrencia-status">Carregando…</span>
+  </div>
+  <form id="form-recorrencia" style="margin-top:16px">
+    <div class="form-linha">
+      <div class="form-campo"><label for="recorrencia-nome">Nome da regra</label><input id="recorrencia-nome" value="SEXTO RAKI" maxlength="160" readonly required></div>
+      <div class="form-campo"><label for="recorrencia-inicio">Data inicial</label><input id="recorrencia-inicio" type="date" required></div>
+      <div class="form-campo"><label for="recorrencia-intervalo">Repetir a cada (dias)</label><input id="recorrencia-intervalo" type="number" min="1" max="3650" step="1" required></div>
+    </div>
+    <div class="form-linha">
+      <div class="form-campo"><label for="recorrencia-fim">Data final (opcional)</label><input id="recorrencia-fim" type="date"></div>
+      <div class="form-campo"><label for="recorrencia-cor">Cor no calendário</label><input id="recorrencia-cor" type="color" value="#000000"></div>
+      <div class="form-campo" style="display:flex;align-items:center;gap:10px;padding-top:22px"><input id="recorrencia-ativa" type="checkbox" checked style="width:18px;height:18px"><label for="recorrencia-ativa">Regra ativa</label></div>
+    </div>
+    <p class="texto-suave" id="recorrencia-resumo">Carregando configuração…</p>
+    <div class="form-acoes"><button class="btn-p btn-p-dourado" type="submit" id="recorrencia-salvar">Salvar recorrência</button></div>
+  </form>
 </div>
 
 <!-- ===================== LISTA DO DIA SELECIONADO ===================== -->
@@ -189,7 +212,7 @@ function montarGrade() {
       (ehSelecionado ? ' selecionado' : '') +
       (bloqueado ? ' dia-bloqueado' : '');
     celula.dataset.chave = chave;
-    if (bloqueado) { celula.style.background = '#e6e6e6'; celula.style.borderColor = '#111'; celula.title = 'Dia bloqueado: ' + (bloqueioRecorrente?.name || 'bloqueio recorrente'); }
+    if (bloqueado) { celula.style.background = '#e6e6e6'; celula.style.borderColor = bloqueioRecorrente?.color || '#111'; celula.title = 'Dia bloqueado: ' + (bloqueioRecorrente?.name || 'bloqueio recorrente'); }
     else if (bloqueioParcial) { celula.title = 'Há bloqueio parcial nesta data'; }
 
     const pontos = itens.slice(0, 4).map(a => `<span class="calendario-ponto" style="background:${corStatus(a.status)}"></span>`).join('');
@@ -198,7 +221,7 @@ function montarGrade() {
 
     celula.innerHTML = `
       <span class="calendario-dia__numero">${dataCelula.getDate()}</span>
-      ${bloqueado ? '<span style="display:block;font-size:9px;color:#111;font-weight:700">BLOQUEADO</span>' : ''}
+      ${bloqueado ? `<span style="display:block;font-size:9px;color:${esc(bloqueioRecorrente?.color || '#111')};font-weight:700">BLOQUEADO</span>` : ''}
       ${!bloqueado && bloqueioParcial ? '<span style="display:block;font-size:9px;color:#b91c1c;font-weight:700">BLOQUEIO PARCIAL</span>' : ''}
       ${eventos.length ? `<span style="display:block;font-size:9px;color:${esc(corEvento)};font-weight:700">EVENTO${eventos.length > 1 ? ' +' + (eventos.length - 1) : ''}</span>` : ''}
       ${itens.length ? `<span class="calendario-dia__pontos">${pontos}${extra}</span>` : ''}
@@ -268,10 +291,64 @@ function diaEstaBloqueado(chave) {
 
 async function carregarRegraBloqueio() {
   const { data, error } = await supabase.from('appointment_recurring_blocks')
-    .select('name,start_date,interval_days,end_date,color,active')
-    .order('created_at', { ascending: false }).limit(1).maybeSingle();
-  if (!error) bloqueioRecorrente = data;
+    .select('id,name,start_date,interval_days,end_date,color,active')
+    .eq('name', 'SEXTO RAKI').order('created_at', { ascending: false }).limit(1).maybeSingle();
+  if (!error) {
+    bloqueioRecorrente = data;
+    preencherFormularioRecorrencia(data);
+  } else {
+    document.getElementById('recorrencia-status').textContent = 'Erro ao carregar';
+    document.getElementById('recorrencia-resumo').textContent = error.message;
+  }
 }
+
+
+function preencherFormularioRecorrencia(regra) {
+  const status = document.getElementById('recorrencia-status');
+  const resumo = document.getElementById('recorrencia-resumo');
+  if (!regra) {
+    status.textContent = 'Regra não encontrada';
+    resumo.textContent = 'A regra SEXTO RAKI ainda não foi cadastrada no banco.';
+    return;
+  }
+  document.getElementById('recorrencia-nome').value = regra.name || 'SEXTO RAKI';
+  document.getElementById('recorrencia-inicio').value = String(regra.start_date).slice(0,10);
+  document.getElementById('recorrencia-intervalo').value = regra.interval_days;
+  document.getElementById('recorrencia-fim').value = regra.end_date ? String(regra.end_date).slice(0,10) : '';
+  document.getElementById('recorrencia-cor').value = /^#[0-9a-fA-F]{6}$/.test(regra.color || '') ? regra.color : '#000000';
+  document.getElementById('recorrencia-ativa').checked = regra.active === true;
+  status.textContent = regra.active ? 'Ativa' : 'Inativa';
+  resumo.textContent = 'Bloqueia o dia inteiro a cada ' + regra.interval_days + ' dia(s), a partir de ' + String(regra.start_date).slice(0,10).split('-').reverse().join('/') + (regra.end_date ? ', até ' + String(regra.end_date).slice(0,10).split('-').reverse().join('/') : ', sem data final') + '.';
+}
+document.getElementById('form-recorrencia').addEventListener('submit', async event => {
+  event.preventDefault();
+  const btn = document.getElementById('recorrencia-salvar');
+  const nome = document.getElementById('recorrencia-nome').value.trim();
+  const inicio = document.getElementById('recorrencia-inicio').value;
+  const intervalo = Number(document.getElementById('recorrencia-intervalo').value);
+  const fim = document.getElementById('recorrencia-fim').value || null;
+  if (!nome || !inicio || !Number.isInteger(intervalo) || intervalo < 1 || intervalo > 3650 || (fim && fim < inicio)) {
+    mostrarFlash(document.querySelector('[data-flash]'), 'Confira o nome, a data inicial, o intervalo e a data final da recorrência.', 'erro');
+    return;
+  }
+  const payload = { name: 'SEXTO RAKI', start_date: inicio, interval_days: intervalo, end_date: fim, color: document.getElementById('recorrencia-cor').value, active: document.getElementById('recorrencia-ativa').checked, updated_at: new Date().toISOString() };
+  btn.disabled = true;
+  let result;
+  if (bloqueioRecorrente?.id) {
+    result = await supabase.from('appointment_recurring_blocks').update(payload).eq('id', bloqueioRecorrente.id).select('id,name,start_date,interval_days,end_date,color,active').single();
+  } else {
+    result = await supabase.from('appointment_recurring_blocks').insert(payload).select('id,name,start_date,interval_days,end_date,color,active').single();
+  }
+  btn.disabled = false;
+  if (result.error) {
+    mostrarFlash(document.querySelector('[data-flash]'), 'Não foi possível salvar a recorrência: ' + result.error.message, 'erro');
+    return;
+  }
+  bloqueioRecorrente = result.data;
+  preencherFormularioRecorrencia(result.data);
+  mostrarFlash(document.querySelector('[data-flash]'), 'Recorrência atualizada. A nova regra será aplicada às próximas tentativas de agendamento; atendimentos existentes não foram alterados.', 'sucesso');
+  await carregarMes();
+});
 
 // ---------- carrega os agendamentos do mês visível (para os pontinhos) ----------
 async function carregarMes() {
