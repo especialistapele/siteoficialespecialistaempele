@@ -5,6 +5,7 @@
 
 <div class="painel-topo">
   <div><h1>Agenda</h1><p class="texto-suave">Atendimentos agendados, confirmados e realizados.</p></div>
+  <button class="btn-p btn-p-dourado" id="novo-agendamento">+ Novo agendamento</button>
 </div>
 
 <div class="aviso-flash" data-flash></div>
@@ -33,9 +34,10 @@
 <!-- ===================== LISTA DO DIA SELECIONADO ===================== -->
 <div class="painel-card" style="margin-top:20px">
   <h3 id="lista-dia-titulo">Atendimentos do dia</h3>
-  <div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Hora</th><th>Paciente</th><th>Tipo</th><th>Observações</th><th>Valor</th><th>Pagamento</th><th>Status</th></tr></thead><tbody data-lista><tr><td colspan="7" class="painel-vazio">Carregando…</td></tr></tbody></table></div>
+  <div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Início</th><th>Término</th><th>Paciente</th><th>Tipo</th><th>Observações</th><th>Valor</th><th>Pagamento</th><th>Status</th></tr></thead><tbody data-lista><tr><td colspan="8" class="painel-vazio">Carregando…</td></tr></tbody></table></div>
 </div>
 
+<div id="modal-agendamento" style="display:none;position:fixed;inset:0;background:rgba(20,20,20,.55);z-index:1000;align-items:center;justify-content:center;padding:16px"><div class="painel-card" style="width:min(620px,100%);max-height:90vh;overflow:auto"><h2>Novo agendamento</h2><p class="texto-suave">Data, início, término, nome e telefone são obrigatórios. Nenhuma conta de login será criada para o paciente.</p><form id="form-agendamento"><div class="form-campo"><label for="ag-data">Data</label><input id="ag-data" type="date" required></div><div class="form-campo"><label for="ag-inicio">Início</label><input id="ag-inicio" type="time" min="08:00" max="18:59" required></div><div class="form-campo"><label for="ag-fim">Término</label><input id="ag-fim" type="time" min="08:01" max="19:00" required></div><div class="form-campo"><label for="ag-paciente">Nome completo</label><input id="ag-paciente" required maxlength="180"></div><div class="form-campo"><label for="ag-telefone">Telefone</label><input id="ag-telefone" type="tel" required maxlength="40"></div><div class="form-campo" id="ag-paciente-existente-wrap" hidden><label for="ag-paciente-existente">Há mais de um cadastro com este telefone. Selecione o paciente correto</label><select id="ag-paciente-existente"><option value="">Selecione…</option></select></div><div class="form-campo"><label for="ag-tipo">Tipo de atendimento</label><input id="ag-tipo" maxlength="160"></div><div class="form-campo"><label for="ag-descricao">Observações</label><textarea id="ag-descricao" rows="3"></textarea></div><div class="form-acoes"><button class="btn-p btn-p-dourado" type="submit" id="ag-salvar">Salvar agendamento</button><button class="btn-p btn-p-fora" type="button" id="ag-cancelar">Cancelar</button></div></form></div></div>
 <!-- tooltip flutuante do calendário -->
 <div class="calendario-tooltip" data-tooltip hidden></div>
 
@@ -66,6 +68,7 @@ let anoAtual = hoje.getFullYear();
 let mesAtual = hoje.getMonth(); // 0-11
 let diaSelecionado = hojeStr();
 let agendamentosPorDia = {}; // { 'YYYY-MM-DD': [ {...} ] }
+let bloqueioRecorrente = null;
 
 campoData.value = diaSelecionado;
 
@@ -122,20 +125,24 @@ function montarGrade() {
     const ehHoje = chave === hojeStr();
     const ehSelecionado = chave === diaSelecionado;
     const itens = agendamentosPorDia[chave] || [];
+    const bloqueado = diaEstaBloqueado(chave);
 
     const celula = document.createElement('button');
     celula.type = 'button';
     celula.className = 'calendario-dia' +
       (foraDoMes ? ' fora-do-mes' : '') +
       (ehHoje ? ' hoje' : '') +
-      (ehSelecionado ? ' selecionado' : '');
+      (ehSelecionado ? ' selecionado' : '') +
+      (bloqueado ? ' dia-bloqueado' : '');
     celula.dataset.chave = chave;
+    if (bloqueado) { celula.style.background = '#e6e6e6'; celula.style.borderColor = '#111'; celula.title = 'Dia bloqueado: ' + (bloqueioRecorrente?.name || 'bloqueio recorrente'); }
 
     const pontos = itens.slice(0, 4).map(a => `<span class="calendario-ponto" style="background:${corStatus(a.status)}"></span>`).join('');
     const extra = itens.length > 4 ? `<span class="calendario-ponto-extra">+${itens.length - 4}</span>` : '';
 
     celula.innerHTML = `
       <span class="calendario-dia__numero">${dataCelula.getDate()}</span>
+      ${bloqueado ? '<span style="display:block;font-size:9px;color:#111;font-weight:700">BLOQUEADO</span>' : ''}
       ${itens.length ? `<span class="calendario-dia__pontos">${pontos}${extra}</span>` : ''}
     `;
 
@@ -163,7 +170,7 @@ function mostrarTooltip(celula, itens) {
       <span class="calendario-tooltip__hora">${esc(String(a.appointment_time || '').slice(0, 5))}</span>
       <span>
         <strong>${esc(a.patients?.full_name || 'Paciente')}</strong>
-        <small>${esc(a.tipo || 'Atendimento')} · ${esc(a.status || 'agendado')}</small>
+        <small>${esc(a.tipo || 'Atendimento')} · ${esc(a.status || 'agendado')}${a.appointment_end_time ? ' · até ' + esc(String(a.appointment_end_time).slice(0,5)) : ''}</small>
       </span>
     </div>`).join('');
   const restante = itens.length > 8 ? `<div class="calendario-tooltip__mais">+${itens.length - 8} atendimento(s)</div>` : '';
@@ -190,8 +197,24 @@ function mostrarTooltip(celula, itens) {
 }
 function esconderTooltip() { tooltip.hidden = true; }
 
+function diaEstaBloqueado(chave) {
+  if (!bloqueioRecorrente || !bloqueioRecorrente.active) return false;
+  const [y,m,d] = chave.split('-').map(Number);
+  const [sy,sm,sd] = String(bloqueioRecorrente.start_date).slice(0,10).split('-').map(Number);
+  const delta = Math.round((Date.UTC(y,m-1,d) - Date.UTC(sy,sm-1,sd)) / 86400000);
+  return delta >= 0 && (!bloqueioRecorrente.end_date || chave <= bloqueioRecorrente.end_date) && delta % Number(bloqueioRecorrente.interval_days) === 0;
+}
+
+async function carregarRegraBloqueio() {
+  const { data, error } = await supabase.from('appointment_recurring_blocks')
+    .select('name,start_date,interval_days,end_date,color,active')
+    .order('created_at', { ascending: false }).limit(1).maybeSingle();
+  if (!error) bloqueioRecorrente = data;
+}
+
 // ---------- carrega os agendamentos do mês visível (para os pontinhos) ----------
 async function carregarMes() {
+  await carregarRegraBloqueio();
   montarGrade(); // desenha já, mesmo antes da resposta chegar (sem pontos)
 
   const primeiroDia = `${anoAtual}-${pad2(mesAtual + 1)}-01`;
@@ -200,7 +223,7 @@ async function carregarMes() {
 
   const { data, error } = await supabase
     .from('appointments')
-    .select('id,appointment_date,appointment_time,tipo,status,patients(full_name)')
+    .select('id,appointment_date,appointment_time,appointment_end_time,tipo,status,patients(full_name)')
     .gte('appointment_date', primeiroDia)
     .lte('appointment_date', ultimoDia)
     .order('appointment_time');
@@ -220,9 +243,9 @@ async function selecionarDia(chave) {
   const [a, m, d] = chave.split('-');
   listaTitulo.textContent = `Atendimentos do dia ${d}/${m}/${a}`;
 
-  const { data, error } = await supabase.from('appointments').select('id,patient_id,appointment_time,tipo,description,valor,status,taxa_agendamento,taxa_status,restante_pago,restante_status,restante_data_pagamento,patients(full_name)').eq('appointment_date', chave).order('appointment_time');
+  const { data, error } = await supabase.from('appointments').select('id,patient_id,appointment_time,appointment_end_time,tipo,description,valor,status,taxa_agendamento,taxa_status,restante_pago,restante_status,restante_data_pagamento,patients(full_name)').eq('appointment_date', chave).order('appointment_time');
   const tb = document.querySelector('[data-lista]');
-  if (error) { tb.innerHTML = `<tr><td colspan="7" class="painel-vazio">${esc(error.message)}</td></tr>`; return; }
+  if (error) { tb.innerHTML = `<tr><td colspan="8" class="painel-vazio">${esc(error.message)}</td></tr>`; return; }
   tb.innerHTML = data?.length ? data.map(a => {
     const total = Number(a.valor || 0);
     const taxa = Number(a.taxa_agendamento || 0);
@@ -230,8 +253,8 @@ async function selecionarDia(chave) {
     const pagoRestante = Math.min(restante, Number(a.restante_pago || 0));
     const falta = Math.max(0, restante - pagoRestante);
     const pagamento = `Taxa: R$ ${taxa.toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${esc(a.taxa_status || 'pendente')}<br>Restante: R$ ${falta.toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${esc(a.restante_status || 'pendente')}`;
-    return `<tr><td><strong>${esc(String(a.appointment_time || '').slice(0,5))}</strong></td><td>${esc(a.patients?.full_name || 'Paciente')}</td><td>${esc(a.tipo || 'Atendimento')}</td><td>${esc(a.description || '—')}</td><td>R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>${pagamento}</td><td><select data-status="${a.id}"><option value="agendado" ${a.status === 'agendado' ? 'selected' : ''}>Agendado</option><option value="confirmado" ${a.status === 'confirmado' ? 'selected' : ''}>Confirmado</option><option value="realizado" ${a.status === 'realizado' ? 'selected' : ''}>Realizado</option><option value="cancelado" ${a.status === 'cancelado' ? 'selected' : ''}>Cancelado</option></select></td></tr>`;
-  }).join('') : `<tr><td colspan="7" class="painel-vazio">Nenhum atendimento para esta data.</td></tr>`;
+    return `<tr><td><strong>${esc(String(a.appointment_time || '').slice(0,5))}</strong></td><td>${esc(a.appointment_end_time ? String(a.appointment_end_time).slice(0,5) : '—')}</td><td>${esc(a.patients?.full_name || 'Paciente')}</td><td>${esc(a.tipo || 'Atendimento')}</td><td>${esc(a.description || '—')}</td><td>R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>${pagamento}</td><td><select data-status="${a.id}"><option value="agendado" ${a.status === 'agendado' ? 'selected' : ''}>Agendado</option><option value="confirmado" ${a.status === 'confirmado' ? 'selected' : ''}>Confirmado</option><option value="realizado" ${a.status === 'realizado' ? 'selected' : ''}>Realizado</option><option value="cancelado" ${a.status === 'cancelado' ? 'selected' : ''}>Cancelado</option></select></td></tr>`;
+  }).join('') : `<tr><td colspan="8" class="painel-vazio">Nenhum atendimento para esta data.</td></tr>`;
   tb.querySelectorAll('[data-status]').forEach(s => s.onchange = async () => {
     const { error } = await supabase.from('appointments').update({ status: s.value }).eq('id', s.dataset.status);
     mostrarFlash(document.querySelector('[data-flash]'), error ? 'Erro: ' + error.message : 'Status atualizado.', error ? 'erro' : 'sucesso');
@@ -239,6 +262,42 @@ async function selecionarDia(chave) {
   });
 }
 
+const pacienteExistenteWrap = document.getElementById('ag-paciente-existente-wrap');
+const pacienteExistenteSelect = document.getElementById('ag-paciente-existente');
+const telefoneInput = document.getElementById('ag-telefone');
+let pacientesCorrespondentes = [];
+function normalizarTelefone(v) { return String(v || '').replace(/[^0-9]/g, ''); }
+telefoneInput.addEventListener('input', () => {
+  pacientesCorrespondentes = [];
+  pacienteExistenteSelect.innerHTML = '<option value="">Selecione…</option>';
+  pacienteExistenteWrap.hidden = true;
+});
+telefoneInput.addEventListener('blur', async () => {
+  const telefone = telefoneInput.value.trim();
+  if (normalizarTelefone(telefone).length < 8) return;
+  const { data, error } = await supabase.rpc('admin_find_patients_by_phone', { p_phone: telefone });
+  if (error || !Array.isArray(data)) return;
+  pacientesCorrespondentes = data;
+  if (data.length > 1) {
+    pacienteExistenteSelect.innerHTML = '<option value="">Selecione…</option>' + data.map(p => '<option value="' + esc(p.id) + '">' + esc(p.full_name) + ' — ' + esc(p.phone || 'sem telefone') + '</option>').join('');
+    pacienteExistenteWrap.hidden = false;
+  }
+});
+const modalAgendamento = document.getElementById('modal-agendamento');
+document.getElementById('novo-agendamento').addEventListener('click', () => { document.getElementById('ag-data').value = diaSelecionado; modalAgendamento.style.display = 'flex'; });
+document.getElementById('ag-cancelar').addEventListener('click', () => { modalAgendamento.style.display = 'none'; });
+document.getElementById('form-agendamento').addEventListener('submit', async (event) => {
+  event.preventDefault(); const btn = document.getElementById('ag-salvar');
+  const data = document.getElementById('ag-data').value, inicio = document.getElementById('ag-inicio').value, fim = document.getElementById('ag-fim').value;
+  if (!data || !inicio || !fim || fim <= inicio || inicio < '08:00' || inicio >= '19:00' || fim > '19:00') { mostrarFlash(document.querySelector('[data-flash]'), 'Confira os horários. A agenda funciona das 08h às 19h e o término deve ser posterior ao início.', 'erro'); return; }
+  if (pacientesCorrespondentes.length > 1 && !pacienteExistenteSelect.value) { mostrarFlash(document.querySelector('[data-flash]'), 'Selecione o cadastro correto do paciente antes de salvar.', 'erro'); return; }
+  btn.disabled = true;
+  const { error } = await supabase.rpc('admin_create_appointment', { p_appointment_date: data, p_appointment_time: inicio, p_appointment_end_time: fim, p_patient_name: document.getElementById('ag-paciente').value.trim(), p_patient_phone: document.getElementById('ag-telefone').value.trim(), p_patient_id: (pacientesCorrespondentes.length > 1 ? (pacienteExistenteSelect.value || null) : null), p_tipo: document.getElementById('ag-tipo').value.trim() || null, p_description: document.getElementById('ag-descricao').value.trim() || null, p_valor: 0, p_taxa_agendamento: 0 });
+  btn.disabled = false;
+  if (error) { mostrarFlash(document.querySelector('[data-flash]'), error.message || 'Não foi possível criar o agendamento.', 'erro'); return; }
+  modalAgendamento.style.display = 'none'; document.getElementById('form-agendamento').reset(); diaSelecionado = data; campoData.value = data;
+  mostrarFlash(document.querySelector('[data-flash]'), 'Agendamento criado com sucesso.', 'sucesso'); await carregarMes();
+});
 carregarMes();
 </script>
 </main></div></body></html>
