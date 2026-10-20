@@ -124,6 +124,35 @@ before insert or update of appointment_date, appointment_time, appointment_end_t
 on public.appointments
 for each row execute function public.validate_appointment_schedule();
 
+
+-- Busca administrativa para permitir seleção manual quando o telefone estiver duplicado.
+create or replace function public.admin_find_patients_by_phone(p_phone text)
+returns table(id uuid, full_name text, phone text)
+language plpgsql
+security definer
+set search_path = public
+as $
+declare
+  v_phone_digits text := regexp_replace(coalesce(p_phone, ''), '[^0-9]', '', 'g');
+begin
+  if not public.is_admin() then
+    raise exception using errcode = '42501', message = 'Apenas administradores podem consultar pacientes.';
+  end if;
+  if length(v_phone_digits) < 8 then
+    return;
+  end if;
+  return query
+    select p.id, p.full_name, p.phone
+    from public.patients p
+    where regexp_replace(coalesce(p.phone, ''), '[^0-9]', '', 'g') = v_phone_digits
+    order by p.full_name
+    limit 25;
+end;
+$;
+
+revoke all on function public.admin_find_patients_by_phone(text) from public, anon;
+grant execute on function public.admin_find_patients_by_phone(text) to authenticated;
+
 -- Operação atômica: paciente existente selecionado explicitamente OU criação
 -- automática. Não cria login, e-mail, nem credenciais. Telefone é comparado
 -- por dígitos; múltiplos resultados exigem seleção manual no cliente.
