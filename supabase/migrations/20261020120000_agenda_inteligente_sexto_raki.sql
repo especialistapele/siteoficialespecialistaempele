@@ -105,10 +105,17 @@ begin
     from public.appointments a
     where a.appointment_date = new.appointment_date
       and a.status <> 'cancelado'
-      and a.appointment_end_time is not null
       and (tg_op = 'INSERT' or a.id <> new.id)
-      and new.appointment_time < a.appointment_end_time
-      and new.appointment_end_time > a.appointment_time
+      and (
+        -- Para registros legados sem término conhecido, bloqueia ao menos
+        -- o mesmo horário de início sem inventar duração retroativa.
+        (a.appointment_end_time is null and a.appointment_time = new.appointment_time)
+        or (
+          a.appointment_end_time is not null
+          and new.appointment_time < a.appointment_end_time
+          and new.appointment_end_time > a.appointment_time
+        )
+      )
   ) then
     raise exception using errcode = '23P01',
       message = 'Este horário se sobrepõe a outro atendimento ativo.';
