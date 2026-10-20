@@ -65,7 +65,7 @@ const mesInput=document.querySelector('[data-mes]');
 mesInput.value=mesAtual;
 const form=document.querySelector('[data-form-despesa]');
 const flash=document.querySelector('[data-flash]');
-let appointments=[], historico=[], lancamentos=[], despesas=[], regrasParceiros=[], recebidosPorAtendimento=new Map();
+let appointments=[], historico=[], lancamentos=[], parcelas=[], despesas=[], regrasParceiros=[], recebidosPorAtendimento=new Map();
 
 function totalRecebidoAtendimento(a,mapa){
   const total=Math.max(0,Number(a.valor||0));
@@ -76,36 +76,50 @@ function totalRecebidoAtendimento(a,mapa){
 }
 async function carregar(){
   const tb=document.querySelector('[data-lista]');
-  const [{data:at,error:erroAt},{data:hist,error:erroHist},{data:fin,error:erroFin}]=await Promise.all([
-    supabase.from('appointments').select('id,patient_id,appointment_date,appointment_time,tipo,description,valor,status,taxa_agendamento,taxa_status,taxa_forma_pagamento,patients(full_name)').order('appointment_date',{ascending:false}),
+  const [{data:at,error:erroAt},{data:hist,error:erroHist},{data:fin,error:erroFin},{data:inst,error:erroInst}]=await Promise.all([
+    supabase.from('appointments').select('id,patient_id,appointment_date,appointment_time,tipo,description,valor,status,taxa_agendamento,taxa_status,taxa_forma_pagamento,payment_plan_enabled,patients(full_name)').order('appointment_date',{ascending:false}),
     supabase.from('appointment_payment_history').select('appointment_id,amount,payment_date,payment_method,payment_type').eq('payment_type','restante').order('payment_date',{ascending:true}),
-    supabase.from('financial_transactions').select('id,patient_id,description,amount,due_date,status,paid_at,appointment_id,patients(full_name)').order('due_date',{ascending:false})
+    supabase.from('financial_transactions').select('id,patient_id,description,amount,due_date,status,paid_at,appointment_id,patients(full_name)').order('due_date',{ascending:false}),
+    supabase.from('appointment_installments').select('id,patient_id,appointment_id,installment_number,installment_count,amount,due_date,status,paid_at,payment_method,patients(full_name)').order('due_date',{ascending:false})
   ]);
   if(erroAt){tb.innerHTML='<tr><td colspan="6" class="painel-vazio">'+esc(erroAt.message)+'</td></tr>';return;}
-  appointments=at||[]; historico=hist||[]; lancamentos=fin||[];
+  appointments=at||[]; historico=hist||[]; lancamentos=fin||[]; parcelas=inst||[];
   if(erroHist) mostrarFlash(flash,'Não foi possível carregar o histórico de pagamentos: '+erroHist.message,'erro');
   if(erroFin) mostrarFlash(flash,'Não foi possível carregar os lançamentos financeiros: '+erroFin.message,'erro');
+  if(erroInst) mostrarFlash(flash,'Não foi possível carregar as parcelas: '+erroInst.message,'erro');
   const mapa=new Map();
   historico.forEach(p=>mapa.set(p.appointment_id,(mapa.get(p.appointment_id)||0)+Number(p.amount||0)));
   recebidosPorAtendimento=mapa;
   const registros=[];
+  const parcelasPorAtendimento=new Map();
+  parcelas.forEach(x=>{if(!parcelasPorAtendimento.has(x.appointment_id))parcelasPorAtendimento.set(x.appointment_id,[]);parcelasPorAtendimento.get(x.appointment_id).push(x);});
   appointments.filter(a=>a.status!=='cancelado').forEach(a=>{
     const total=Math.max(0,Number(a.valor||0)), taxa=Math.max(0,Number(a.taxa_agendamento||0));
     const taxaPaga=a.taxa_status==='pago'?Math.min(taxa,total):0, baseRestante=Math.max(0,total-taxa);
     const historicoPago=Math.min(baseRestante,mapa.get(a.id)||0), restante=Math.max(0,baseRestante-historicoPago);
-    if(restante>0) registros.push({tipo:'atendimento',id:a.id,nome:a.patients?.full_name||'—',descricao:a.tipo||a.description||'Atendimento',data:a.appointment_date,valor:restante,status:historicoPago>0?'parcial':'pendente'});
+    if(a.payment_plan_enabled){
+      (parcelasPorAtendimento.get(a.id)||[]).filter(x=>x.status!=='pago').forEach(x=>registros.push({tipo:'parcela',id:x.id,nome:x.patients?.full_name||a.patients?.full_name||'—',descricao:'Parcela '+x.installment_number+'/'+x.installment_count+' — '+(a.tipo||a.description||'Atendimento'),data:x.due_date,valor:Number(x.amount||0),status:x.due_date&&x.due_date<localISO(new Date())?'vencido':'pendente'}));
+    } else if(restante>0) registros.push({tipo:'atendimento',id:a.id,nome:a.patients?.full_name||'—',descricao:a.tipo||a.description||'Atendimento',data:a.appointment_date,valor:restante,status:historicoPago>0?'parcial':'pendente'});
     if(taxa>0&&a.taxa_status!=='pago') registros.push({tipo:'taxa',id:a.id,nome:a.patients?.full_name||'—',descricao:'Taxa de agendamento',data:a.appointment_date,valor:Math.max(0,taxa-taxaPaga),status:'pendente'});
   });
   lancamentos.forEach(x=>{if(x.status==='pendente')registros.push({tipo:'lancamento',id:x.id,nome:x.patients?.full_name||'—',descricao:x.description||'Lançamento financeiro',data:x.due_date,valor:Number(x.amount||0),status:'pendente'});});
   registros.sort((a,b)=>String(b.data||'').localeCompare(String(a.data||'')));
   const totalPendente=registros.reduce((s,x)=>s+Number(x.valor||0),0);
   const totalComprometido=appointments.filter(a=>a.status!=='cancelado').reduce((s,a)=>s+Number(a.valor||0),0)+lancamentos.filter(x=>x.status!=='cancelado').reduce((s,x)=>s+Number(x.amount||0),0);
-  const pagoAtendimentos=appointments.filter(a=>a.status!=='cancelado').reduce((s,a)=>s+totalRecebidoAtendimento(a,mapa),0);
+  const pagoAtendimentos=appointments.filter(a=>a.status!=='cancelado').reduce((s,a)=>{
+    if(a.payment_plan_enabled){
+      const taxa=a.taxa_status==='pago'?Math.min(Number(a.valor||0),Number(a.taxa_agendamento||0)):0;
+      const base=Math.max(0,Number(a.valor||0)-Number(a.taxa_agendamento||0));
+      const pagoParcelas=parcelas.filter(x=>x.appointment_id===a.id&&x.status==='pago').reduce((x,p)=>x+Number(p.amount||0),0);
+      return s+taxa+Math.min(base,pagoParcelas);
+    }
+    return s+totalRecebidoAtendimento(a,mapa);
+  },0);
   const pagoLancamentos=lancamentos.filter(x=>x.status==='pago').reduce((s,x)=>s+Number(x.amount||0),0);
   document.querySelector('[data-total]').textContent=moeda(totalComprometido);
   document.querySelector('[data-pago]').textContent=moeda(pagoAtendimentos+pagoLancamentos);
   document.querySelector('[data-pendente]').textContent=moeda(totalPendente);
-  tb.innerHTML=registros.length?registros.map(x=>'<tr><td>'+esc(x.nome)+'</td><td>'+esc(x.descricao)+'</td><td>'+(x.data?new Date(x.data+'T00:00:00').toLocaleDateString('pt-BR'):'—')+'</td><td>'+moeda(x.valor)+'</td><td><span class="selo-p '+(x.status==='parcial'?'agendado':'')+'">'+(x.status==='parcial'?'Parcial':'Pendente')+'</span></td><td>'+(x.tipo==='lancamento'?'<span class="texto-suave">Lançamento</span>':'<span class="texto-suave">Atendimento</span>')+'</td></tr>').join(''):'<tr><td colspan="6" class="painel-vazio">Nenhum valor pendente no momento.</td></tr>';
+  tb.innerHTML=registros.length?registros.map(x=>'<tr><td>'+esc(x.nome)+'</td><td>'+esc(x.descricao)+'</td><td>'+(x.data?new Date(x.data+'T00:00:00').toLocaleDateString('pt-BR'):'—')+'</td><td>'+moeda(x.valor)+'</td><td><span class="selo-p '+(x.status==='parcial'?'agendado':x.status==='vencido'?'cancelado':'')+'">'+(x.status==='parcial'?'Parcial':x.status==='vencido'?'Vencido':'Pendente')+'</span></td><td><span class="texto-suave">'+(x.tipo==='lancamento'?'Lançamento':x.tipo==='parcela'?'Parcela Pix':'Atendimento')+'</span></td></tr>').join(''):'<tr><td colspan="6" class="painel-vazio">Nenhum valor pendente no momento.</td></tr>';
   preencherAtendimentos();
   await carregarDespesas();
 }
