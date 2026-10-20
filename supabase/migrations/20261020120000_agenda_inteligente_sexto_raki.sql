@@ -18,6 +18,7 @@ create table if not exists public.appointment_recurring_blocks (
 );
 
 alter table public.appointment_recurring_blocks enable row level security;
+grant select, insert, update on public.appointment_recurring_blocks to authenticated;
 drop policy if exists appointment_recurring_blocks_admin_all on public.appointment_recurring_blocks;
 create policy appointment_recurring_blocks_admin_all
   on public.appointment_recurring_blocks
