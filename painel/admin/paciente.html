@@ -891,6 +891,9 @@
       amount: Math.round(Math.max(0, Number(row.querySelector("[data-parcela-valor]").value || 0)) * 100) / 100,
       due_date: row.querySelector("[data-parcela-vencimento]").value
     }));
+    if (planoAtivo && historicoPagamentos.length > 0 && parcelasAtendimento.length === 0) {
+      mostrarFlash(flash, "Este atendimento já tem pagamentos registrados no histórico. Para evitar duplicidade, não é possível convertê-lo automaticamente em parcelamento.", "erro"); return;
+    }
     if (planoAtivo) {
       if (!parcelasDigitadas.length || parcelasDigitadas.some(x => x.amount <= 0 || !x.due_date)) {
         mostrarFlash(flash, "Informe valor e vencimento para todas as parcelas.", "erro"); return;
