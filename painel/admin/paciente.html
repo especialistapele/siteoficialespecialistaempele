@@ -612,6 +612,11 @@
   const editorParcelas = document.querySelector("[data-installment-editor]");
   const linhasParcelas = document.querySelector("[data-installment-rows]");
   const historicoParcelas = document.querySelector("[data-installment-history]");
+  function atualizarVisibilidadePlano() {
+    editorParcelas.hidden = !toggleParcelamento.checked;
+    document.getElementById("resumo-atendimento-financeiro").hidden = toggleParcelamento.checked;
+    document.querySelector(".bloco-pagamentos-restante").hidden = toggleParcelamento.checked;
+  }
   const dataHojeLocal = () => {
     const d = new Date();
     return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
@@ -658,13 +663,13 @@
       parcelasAtendimento = data || [];
     }
     toggleParcelamento.checked = parcelasAtendimento.length > 0;
-    editorParcelas.hidden = !toggleParcelamento.checked;
+    atualizarVisibilidadePlano();
     renderizarCamposParcelas(parcelasAtendimento.length ? parcelasAtendimento : [{ amount: Math.max(0, Number(document.getElementById("valor").value || 0) - Number(document.getElementById("taxa_agendamento").value || 0)), due_date: "" }]);
     renderizarHistoricoParcelas();
   }
 
   toggleParcelamento.addEventListener("change", () => {
-    editorParcelas.hidden = !toggleParcelamento.checked;
+    atualizarVisibilidadePlano();
     if (toggleParcelamento.checked && !linhasParcelas.children.length) renderizarCamposParcelas([{ amount: Math.max(0, Number(document.getElementById("valor").value || 0) - Number(document.getElementById("taxa_agendamento").value || 0)), due_date: "" }]);
   });
   document.getElementById("adicionar-parcela").addEventListener("click", () => {
@@ -773,7 +778,7 @@
     historicoPagamentos = [];
     parcelasAtendimento = [];
     toggleParcelamento.checked = false;
-    editorParcelas.hidden = true;
+    atualizarVisibilidadePlano();
     linhasParcelas.innerHTML = "";
     historicoParcelas.innerHTML = "";
     document.getElementById("novo_pagamento_valor").value = 0;
