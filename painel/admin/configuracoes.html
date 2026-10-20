@@ -85,6 +85,17 @@
         </div>
       </div>
 
+      <div class="painel-card" id="cfg-bloqueio-recorrente">
+        <h3>Bloqueio recorrente da agenda</h3>
+        <p class="texto-suave">Gerencie o bloqueio de dia inteiro. Datas com atendimentos existentes devem ser revisadas manualmente; nenhum atendimento será movido ou cancelado automaticamente.</p>
+        <div class="config-item"><span>Ativar bloqueio recorrente</span><label class="toggle"><input type="checkbox" id="cfg-raki-ativo"><span class="slider"></span></label></div>
+        <div class="form-campo"><label for="cfg-raki-nome">Nome</label><input id="cfg-raki-nome" type="text" value="SEXTO RAKI" maxlength="100"></div>
+        <div class="form-campo"><label for="cfg-raki-inicio">Data inicial</label><input id="cfg-raki-inicio" type="date" value="2026-10-19"></div>
+        <div class="form-campo"><label for="cfg-raki-intervalo">Intervalo em dias corridos</label><input id="cfg-raki-intervalo" type="number" min="1" max="365" value="6"></div>
+        <p class="texto-suave">Cor de identificação: preta. Recorrência sem data final.</p>
+        <button class="btn-p btn-p-dourado" id="cfg-raki-salvar" type="button">Salvar bloqueio</button>
+        <div id="cfg-raki-previa" class="texto-suave" style="margin-top:12px"></div>
+      </div>
       <div class="painel-card config-notificacoes">
         <h3>Notificações do painel</h3>
         <p class="texto-suave" style="margin-top:-6px">Todos os alertas abaixo começam ativados. Você pode desligar individualmente o que não quiser receber no centro de notificações.</p>
@@ -176,6 +187,47 @@
     document.getElementById("cfg-notif-artigos").checked = config.notificacoes_artigos;
     document.getElementById("cfg-notif-resultados").checked = config.notificacoes_resultados;
   }
+
+  // Bloqueio recorrente persistido em tabela própria; a migration não é aplicada automaticamente.
+  const rakiAtivo = document.getElementById("cfg-raki-ativo");
+  const rakiNome = document.getElementById("cfg-raki-nome");
+  const rakiInicio = document.getElementById("cfg-raki-inicio");
+  const rakiIntervalo = document.getElementById("cfg-raki-intervalo");
+  const rakiPrevia = document.getElementById("cfg-raki-previa");
+  let rakiId = null;
+  async function carregarRaki() {
+    const { data, error } = await supabase.from("appointment_recurring_blocks").select("id,name,start_date,interval_days,active").eq("name","SEXTO RAKI").order("created_at",{ascending:false}).limit(1).maybeSingle();
+    if (error) { rakiPrevia.textContent = "Bloqueio ainda indisponível. Verifique se a migração da agenda foi aplicada."; return; }
+    if (data) {
+      rakiId = data.id; rakiAtivo.checked = data.active; rakiNome.value = data.name;
+      rakiInicio.value = data.start_date; rakiIntervalo.value = data.interval_days;
+    }
+    renderizarPreviaRaki();
+  }
+  function renderizarPreviaRaki() {
+    if (!rakiInicio.value || Number(rakiIntervalo.value) < 1) { rakiPrevia.textContent = "Informe uma data e intervalo válidos."; return; }
+    const [y,m,d] = rakiInicio.value.split("-").map(Number);
+    const inicio = new Date(y,m-1,d,12,0,0);
+    const datas = [];
+    for (let i=0;i<6;i++) { const dt = new Date(inicio); dt.setDate(dt.getDate()+i*Number(rakiIntervalo.value)); datas.push(dt.toLocaleDateString("pt-BR")); }
+    rakiPrevia.textContent = "Próximas ocorrências: " + datas.join(" · ") + (rakiAtivo.checked ? " (ativo)" : " (desativado)");
+  }
+  [rakiInicio,rakiIntervalo,rakiAtivo].forEach(el => el.addEventListener("change",renderizarPreviaRaki));
+  document.getElementById("cfg-raki-salvar").addEventListener("click", async () => {
+    const nome = rakiNome.value.trim(), intervalo = Number(rakiIntervalo.value);
+    if (!nome || !rakiInicio.value || !Number.isInteger(intervalo) || intervalo < 1 || intervalo > 365) {
+      mostrarFlash(flash, "Informe nome, data inicial e intervalo entre 1 e 365 dias.", "erro"); return;
+    }
+    const payload = {name:nome,start_date:rakiInicio.value,interval_days:intervalo,end_date:null,color:"#000000",active:rakiAtivo.checked,updated_at:new Date().toISOString()};
+    const result = rakiId
+      ? await supabase.from("appointment_recurring_blocks").update(payload).eq("id",rakiId).select("id").single()
+      : await supabase.from("appointment_recurring_blocks").insert(payload).select("id").single();
+    if (result.error) { mostrarFlash(flash, "Não foi possível salvar. Verifique se a migração está aplicada e se você tem permissão administrativa.", "erro"); return; }
+    rakiId = result.data.id;
+    mostrarFlash(flash, "Bloqueio recorrente salvo.", "sucesso");
+    renderizarPreviaRaki();
+  });
+  await carregarRaki();
 
   async function salvar(campo, valor) {
     const { error } = await supabase.from("configuracoes").update({ [campo]: valor, updated_at: new Date().toISOString() }).eq("id", 1);
