@@ -4,8 +4,11 @@
 </head><body><div class="painel-layout"><aside class="painel-sidebar" data-sidebar></aside><main class="painel-main"><div class="painel-topo"><div><h1>Financeiro</h1><p class="texto-suave">Visão geral dos lançamentos financeiros dos pacientes.</p></div></div><div class="stats-grid"><div class="stat-card"><span class="stat-card__legenda">Total lançado</span><div class="stat-card__valor" data-total>—</div></div><div class="stat-card"><span class="stat-card__legenda">Pago</span><div class="stat-card__valor" data-pago>—</div></div><div class="stat-card"><span class="stat-card__legenda">Pendente</span><div class="stat-card__valor" data-pendente>—</div></div></div><div class="aviso-flash" data-flash></div><div class="painel-card"><div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Paciente</th><th>Descrição</th><th>Vencimento</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody data-lista><tr><td colspan="6" class="painel-vazio">Carregando…</td></tr></tbody></table></div></div>
 
 <section class="finance-expenses" aria-labelledby="despesas-title">
-  <div class="painel-topo finance-expenses__heading"><div><h2 id="despesas-title">Despesas e Lucro Real</h2><p class="texto-suave">Apuração por caixa: receita só entra quando recebida; despesas só reduzem o lucro quando marcadas como pagas.</p></div><label class="finance-expenses__month">Mês de referência <input type="month" data-mes></label></div>
+  <div class="painel-topo finance-expenses__heading"><div><h2 id="despesas-title">Despesas e Lucro Real</h2><p class="texto-suave">Apuração por caixa: receita só entra quando recebida; despesas só reduzem o lucro quando marcadas como pagas.</p></div><label class="finance-expenses__month">Mês de referência <input type="month" data-mes></label>
+    <label class="finance-expenses__month">Unidade <select data-unidade-filtro><option value="">Todas as unidades</option><option value="Araruama">Araruama</option><option value="Cabo Frio">Cabo Frio</option><option value="Copacabana">Copacabana</option><option value="__nao_informado__">Não informado</option></select></label></div>
   <div class="stats-grid finance-expenses__stats">
+    <div class="stat-card"><span class="stat-card__legenda">Faturamento dos atendimentos realizados</span><div class="stat-card__valor" data-faturamento-mes>R$ 0,00</div></div>
+    <div class="stat-card"><span class="stat-card__legenda">Atendimentos realizados</span><div class="stat-card__valor" data-atendimentos-mes>0</div></div>
     <div class="stat-card"><span class="stat-card__legenda">Receita recebida</span><div class="stat-card__valor" data-receita-mes>R$ 0,00</div></div>
     <div class="stat-card"><span class="stat-card__legenda">Despesas pagas</span><div class="stat-card__valor" data-despesas-pagas>R$ 0,00</div></div>
     <div class="stat-card"><span class="stat-card__legenda">Lucro operacional</span><div class="stat-card__valor" data-lucro>R$ 0,00</div></div>
@@ -62,7 +65,11 @@ const hoje=new Date();
 const localISO=d=>new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
 const mesAtual=localISO(hoje).slice(0,7);
 const mesInput=document.querySelector('[data-mes]');
+const unidadeInput=document.querySelector('[data-unidade-filtro]');
 mesInput.value=mesAtual;
+const unidadeAtual=()=>unidadeInput.value;
+const pertenceUnidade=(unidade)=>!unidadeAtual()?true:unidadeAtual()==='__nao_informado__'?!unidade:unidade===unidadeAtual();
+const appointmentsById=()=>new Map(appointments.map(a=>[a.id,a]));
 const form=document.querySelector('[data-form-despesa]');
 const flash=document.querySelector('[data-flash]');
 let appointments=[], historico=[], lancamentos=[], parcelas=[], despesas=[], regrasParceiros=[], recebidosPorAtendimento=new Map();
@@ -77,7 +84,7 @@ function totalRecebidoAtendimento(a,mapa){
 async function carregar(){
   const tb=document.querySelector('[data-lista]');
   const [{data:at,error:erroAt},{data:hist,error:erroHist},{data:fin,error:erroFin},{data:inst,error:erroInst}]=await Promise.all([
-    supabase.from('appointments').select('id,patient_id,appointment_date,appointment_time,tipo,description,valor,status,taxa_agendamento,taxa_status,taxa_forma_pagamento,payment_plan_enabled,patients(full_name)').order('appointment_date',{ascending:false}),
+    supabase.from('appointments').select('id,patient_id,appointment_date,appointment_time,tipo,description,valor,status,taxa_agendamento,taxa_status,taxa_forma_pagamento,payment_plan_enabled,service_unit,patients(full_name)').order('appointment_date',{ascending:false}),
     supabase.from('appointment_payment_history').select('appointment_id,amount,payment_date,payment_method,payment_type').eq('payment_type','restante').order('payment_date',{ascending:true}),
     supabase.from('financial_transactions').select('id,patient_id,description,amount,due_date,status,paid_at,appointment_id,patients(full_name)').order('due_date',{ascending:false}),
     supabase.from('appointment_installments').select('id,patient_id,appointment_id,installment_number,installment_count,amount,due_date,status,paid_at,payment_method,patients(full_name)').order('due_date',{ascending:false})
@@ -188,18 +195,32 @@ async function carregarDespesas(){
   despesas=data||[];
   const pagas=despesas.filter(x=>x.status==='pago').reduce((s,x)=>s+Number(x.amount||0),0);
   const pendentes=despesas.filter(x=>x.status==='pendente').reduce((s,x)=>s+Number(x.amount||0),0);
-  // Apuração por caixa: taxas recebidas na data do atendimento, parcelas na data efetiva do pagamento.
-  const receitaTaxas=appointments.filter(a=>a.status!=='cancelado'&&a.taxa_status==='pago'&&String(a.appointment_date||'').startsWith(mesInput.value)).reduce((s,a)=>s+Math.min(Number(a.valor||0),Number(a.taxa_agendamento||0)),0);
-  const receitaParcelas=historico.filter(p=>String(p.payment_date||'').startsWith(mesInput.value)).reduce((s,p)=>s+Number(p.amount||0),0);
-  const receitaFin=lancamentos.filter(x=>x.status==='pago'&&String((x.paid_at||x.due_date||'')).startsWith(mesInput.value)).reduce((s,x)=>s+Number(x.amount||0),0);
-  const receita=receitaTaxas+receitaParcelas+receitaFin;
+  const byId=appointmentsById();
+  const despesasFiltradas=despesas.filter(x=>{
+    const linked=x.appointment_id?byId.get(x.appointment_id):null;
+    if(linked) return pertenceUnidade(linked.service_unit);
+    if(!unidadeAtual()) return true;
+    if(unidadeAtual()==='__nao_informado__') return !x.location;
+    return String(x.location||'').trim().toLowerCase()===unidadeAtual().toLowerCase();
+  });
+  const pagasFiltradas=despesasFiltradas.filter(x=>x.status==='pago').reduce((s,x)=>s+Number(x.amount||0),0);
+  const pendentesFiltradas=despesasFiltradas.filter(x=>x.status==='pendente').reduce((s,x)=>s+Number(x.amount||0),0);
+  const atendimentosMes=appointments.filter(a=>a.status==='realizado'&&String(a.appointment_date||'').startsWith(mesInput.value)&&pertenceUnidade(a.service_unit));
+  const faturamento=atendimentosMes.reduce((s,a)=>s+Number(a.valor||0),0);
+  const receitaTaxas=appointments.filter(a=>a.status!=='cancelado'&&a.taxa_status==='pago'&&String(a.appointment_date||'').startsWith(mesInput.value)&&pertenceUnidade(a.service_unit)).reduce((s,a)=>s+Math.min(Number(a.valor||0),Number(a.taxa_agendamento||0)),0);
+  const receitaParcelas=historico.filter(p=>String(p.payment_date||'').startsWith(mesInput.value)&&pertenceUnidade(byId.get(p.appointment_id)?.service_unit)).reduce((s,p)=>s+Number(p.amount||0),0);
+  const receitaParcelasPix=parcelas.filter(p=>p.status==='pago'&&String(p.paid_at||'').startsWith(mesInput.value)&&pertenceUnidade(byId.get(p.appointment_id)?.service_unit)).reduce((s,p)=>s+Number(p.amount||0),0);
+  const receitaFin=lancamentos.filter(x=>x.status==='pago'&&String((x.paid_at||x.due_date||'')).startsWith(mesInput.value)&&pertenceUnidade(x.appointment_id?byId.get(x.appointment_id)?.service_unit:null)).reduce((s,x)=>s+Number(x.amount||0),0);
+  const receita=receitaTaxas+receitaParcelas+receitaParcelasPix+receitaFin;
+  document.querySelector('[data-faturamento-mes]').textContent=moeda(faturamento);
+  document.querySelector('[data-atendimentos-mes]').textContent=String(atendimentosMes.length);
   document.querySelector('[data-receita-mes]').textContent=moeda(receita);
-  document.querySelector('[data-despesas-pagas]').textContent=moeda(pagas);
-  document.querySelector('[data-lucro]').textContent=moeda(receita-pagas);
-  document.querySelector('[data-despesas-pendentes]').textContent=moeda(pendentes);
-  document.querySelector('[data-qtd-despesas]').textContent=despesas.length+' lançamento(s)';
+  document.querySelector('[data-despesas-pagas]').textContent=moeda(pagasFiltradas);
+  document.querySelector('[data-lucro]').textContent=moeda(receita-pagasFiltradas);
+  document.querySelector('[data-despesas-pendentes]').textContent=moeda(pendentesFiltradas);
+  document.querySelector('[data-qtd-despesas]').textContent=despesasFiltradas.length+' lançamento(s)';
   const tipoLabel={manual:'Manual',percentual:'% recebido',hora:'Por hora'};
-  tb.innerHTML=despesas.length?despesas.map(x=>'<tr><td>'+new Date(x.expense_date+'T00:00:00').toLocaleDateString('pt-BR')+'</td><td>'+esc(x.description)+'<small class="finance-expenses__sub">'+esc(x.category||'outros')+'</small></td><td>'+esc(x.location||'—')+'</td><td>'+esc(tipoLabel[x.calculation_type]||'Manual')+'</td><td>'+moeda(x.amount)+'</td><td><span class="selo-p '+(x.status==='pago'?'finance-expenses__paid':'agendado')+'">'+(x.status==='pago'?'Pago':'Pendente')+'</span></td><td><div class="finance-expenses__row-actions"><button type="button" data-editar="'+esc(x.id)+'" class="botao-secundario">Editar</button><button type="button" data-excluir="'+esc(x.id)+'" class="botao-secundario">Excluir</button></div></td></tr>').join(''):'<tr><td colspan="7" class="painel-vazio">Nenhuma despesa neste mês.</td></tr>';
+  tb.innerHTML=despesasFiltradas.length?despesasFiltradas.map(x=>'<tr><td>'+new Date(x.expense_date+'T00:00:00').toLocaleDateString('pt-BR')+'</td><td>'+esc(x.description)+'<small class="finance-expenses__sub">'+esc(x.category||'outros')+'</small></td><td>'+esc(x.location||'—')+'</td><td>'+esc(tipoLabel[x.calculation_type]||'Manual')+'</td><td>'+moeda(x.amount)+'</td><td><span class="selo-p '+(x.status==='pago'?'finance-expenses__paid':'agendado')+'">'+(x.status==='pago'?'Pago':'Pendente')+'</span></td><td><div class="finance-expenses__row-actions"><button type="button" data-editar="'+esc(x.id)+'" class="botao-secundario">Editar</button><button type="button" data-excluir="'+esc(x.id)+'" class="botao-secundario">Excluir</button></div></td></tr>').join(''):'<tr><td colspan="7" class="painel-vazio">Nenhuma despesa nesta seleção.</td></tr>';
   tb.querySelectorAll('[data-editar]').forEach(b=>b.addEventListener('click',()=>editarDespesa(b.dataset.editar)));
   tb.querySelectorAll('[data-excluir]').forEach(b=>b.addEventListener('click',()=>excluirDespesa(b.dataset.excluir)));
 }
@@ -261,6 +282,7 @@ form.addEventListener('submit',async e=>{
   mostrarFlash(flash,id?'Despesa atualizada.':'Despesa registrada.','sucesso');limparFormulario();await carregarDespesas();
 });
 mesInput.addEventListener('change',carregarDespesas);
+unidadeInput.addEventListener('change',carregarDespesas);
 limparFormulario();
 carregar();
 </script></body></html>
