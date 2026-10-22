@@ -1,7 +1,7 @@
 <!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="robots" content="noindex,nofollow"><title>Financeiro — Painel</title><link rel="stylesheet" href="/painel/assets/css/painel.css"><link rel="stylesheet" href="/painel/assets/css/financeiro-despesas.css"><link rel="icon" href="/assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-</head><body><div class="painel-layout"><aside class="painel-sidebar" data-sidebar></aside><main class="painel-main"><div class="painel-topo"><div><h1>Financeiro</h1><p class="texto-suave">Visão geral dos lançamentos financeiros dos pacientes.</p></div></div><div class="stats-grid"><div class="stat-card"><span class="stat-card__legenda">Total lançado</span><div class="stat-card__valor" data-total>—</div></div><div class="stat-card"><span class="stat-card__legenda">Pago</span><div class="stat-card__valor" data-pago>—</div></div><div class="stat-card"><span class="stat-card__legenda">Pendente</span><div class="stat-card__valor" data-pendente>—</div></div></div><div class="aviso-flash" data-flash></div><div class="painel-card"><div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Paciente</th><th>Descrição</th><th>Vencimento</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody data-lista><tr><td colspan="6" class="painel-vazio">Carregando…</td></tr></tbody></table></div></div>
+</head><body><div class="painel-layout"><aside class="painel-sidebar" data-sidebar></aside><main class="painel-main"><div class="painel-topo"><div><h1>Financeiro</h1><p class="texto-suave">Visão geral dos lançamentos financeiros dos pacientes.</p></div></div><div class="stats-grid"><div class="stat-card"><span class="stat-card__legenda">Total lançado</span><div class="stat-card__valor" data-total>—</div></div><div class="stat-card"><span class="stat-card__legenda">Pago</span><div class="stat-card__valor" data-pago>—</div></div><div class="stat-card"><span class="stat-card__legenda">Pendente</span><div class="stat-card__valor" data-pendente>—</div></div><div class="stat-card"><span class="stat-card__legenda">Projetado para o próximo mês</span><div class="stat-card__valor" data-projecao-proximo-mes>R$ 0,00</div><small class="texto-suave" data-projecao-proximo-mes-qtd>0 agendamentos previstos</small></div></div><div class="aviso-flash" data-flash></div><div class="painel-card"><div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Paciente</th><th>Descrição</th><th>Vencimento</th><th>Valor</th><th>Status</th><th></th></tr></thead><tbody data-lista><tr><td colspan="6" class="painel-vazio">Carregando…</td></tr></tbody></table></div></div>
 
 <section class="finance-expenses" aria-labelledby="despesas-title">
   <div class="painel-topo finance-expenses__heading"><div><h2 id="despesas-title">Despesas e Lucro Real</h2><p class="texto-suave">Apuração por caixa: receita só entra quando recebida; despesas só reduzem o lucro quando marcadas como pagas.</p></div><label class="finance-expenses__month">Mês de referência <input type="month" data-mes></label>
@@ -15,8 +15,8 @@
     <div class="stat-card"><span class="stat-card__legenda">Despesas pendentes</span><div class="stat-card__valor" data-despesas-pendentes>R$ 0,00</div></div>
   </div>
   <div class="painel-card finance-expenses__appointments">
-    <div class="finance-expenses__table-head"><div><h3>Atendimentos realizados no período</h3><p class="texto-suave">Lista vinculada ao mês e à unidade selecionados acima.</p></div><span class="texto-suave" data-qtd-atendimentos-lista>0 atendimentos</span></div>
-    <div class="finance-expenses__appointments-total"><span>Faturamento dos atendimentos listados</span><strong data-total-atendimentos-lista>R$ 0,00</strong></div>
+    <div class="finance-expenses__table-head"><div><h3>Atendimentos do período</h3><p class="texto-suave">Inclui atendimentos futuros e realizados, conforme o mês e a unidade selecionados acima.</p></div><span class="texto-suave" data-qtd-atendimentos-lista>0 atendimentos</span></div>
+    <div class="finance-expenses__appointments-total"><span>Valor previsto/registrado dos atendimentos listados</span><strong data-total-atendimentos-lista>R$ 0,00</strong></div>
     <div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Data</th><th>Paciente</th><th>Procedimento</th><th>Unidade</th><th>Valor</th><th>Situação</th></tr></thead><tbody data-lista-atendimentos-financeiro><tr><td colspan="6" class="painel-vazio">Carregando atendimentos…</td></tr></tbody></table></div>
   </div>
   <details class="painel-card finance-expenses__form-card finance-expenses__collapsible">
@@ -235,12 +235,22 @@ async function carregarDespesas(){
   tb.querySelectorAll('[data-editar]').forEach(b=>b.addEventListener('click',()=>editarDespesa(b.dataset.editar)));
   tb.querySelectorAll('[data-excluir]').forEach(b=>b.addEventListener('click',()=>excluirDespesa(b.dataset.excluir)));
 }
+function renderizarProjecaoProximoMes(){
+  const [ano,mes]=mesAtual.split('-').map(Number);
+  const inicio=new Date(ano,mes,1);
+  const fim=new Date(ano,mes+1,1);
+  const inicioISO=localISO(inicio), fimISO=localISO(fim);
+  const rows=appointments.filter(a=>a.status!=='cancelado'&&String(a.appointment_date||'')>=inicioISO&&String(a.appointment_date||'')<fimISO&&pertenceUnidade(a.service_unit));
+  document.querySelector('[data-projecao-proximo-mes]').textContent=moeda(rows.reduce((sum,a)=>sum+Math.max(0,Number(a.valor||0)),0));
+  document.querySelector('[data-projecao-proximo-mes-qtd]').textContent=rows.length+' agendamento(s) previsto(s) · '+inicio.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+}
 function renderizarAtendimentosFinanceiro(){
-  const rows=appointments.filter(a=>a.status==='realizado'&&String(a.appointment_date||'').startsWith(mesInput.value)&&pertenceUnidade(a.service_unit)).sort((a,b)=>String(b.appointment_date||'').localeCompare(String(a.appointment_date||''))||String(b.appointment_time||'').localeCompare(String(a.appointment_time||'')));
+  renderizarProjecaoProximoMes();
+  const rows=appointments.filter(a=>a.status!=='cancelado'&&String(a.appointment_date||'').startsWith(mesInput.value)&&pertenceUnidade(a.service_unit)).sort((a,b)=>String(b.appointment_date||'').localeCompare(String(a.appointment_date||''))||String(b.appointment_time||'').localeCompare(String(a.appointment_time||'')));
   document.querySelector('[data-qtd-atendimentos-lista]').textContent=rows.length+' atendimento(s)';
-  document.querySelector('[data-total-atendimentos-lista]').textContent=moeda(rows.reduce((sum,a)=>sum+Number(a.valor||0),0));
+  document.querySelector('[data-total-atendimentos-lista]').textContent=moeda(rows.reduce((sum,a)=>sum+Math.max(0,Number(a.valor||0)),0));
   const tb=document.querySelector('[data-lista-atendimentos-financeiro]');
-  tb.innerHTML=rows.length?rows.map(a=>'<tr><td>'+esc(a.appointment_date?new Date(a.appointment_date+'T00:00:00').toLocaleDateString('pt-BR')+(a.appointment_time?' · '+a.appointment_time:''):'—')+'</td><td>'+esc(a.patients?.full_name||'Paciente sem nome')+'</td><td>'+esc(a.tipo||a.description||'Atendimento')+'</td><td>'+esc(a.service_unit||'Não informado')+'</td><td>'+moeda(a.valor)+'</td><td><span class="selo-p">'+esc(a.status||'—')+'</span></td></tr>').join(''):'<tr><td colspan="6" class="painel-vazio">Nenhum atendimento realizado para o mês e a unidade selecionados.</td></tr>';
+  tb.innerHTML=rows.length?rows.map(a=>'<tr><td>'+esc(a.appointment_date?new Date(a.appointment_date+'T00:00:00').toLocaleDateString('pt-BR')+(a.appointment_time?' · '+a.appointment_time:''):'—')+'</td><td>'+esc(a.patients?.full_name||'Paciente sem nome')+'</td><td>'+esc(a.tipo||a.description||'Atendimento')+'</td><td>'+esc(a.service_unit||'Não informado')+'</td><td>'+moeda(a.valor)+'</td><td><span class="selo-p">'+esc(a.status==='realizado'?'Realizado':a.status==='agendado'?'Agendado':a.status||'—')+'</span></td></tr>').join(''):'<tr><td colspan="6" class="painel-vazio">Nenhum atendimento cadastrado para o mês e a unidade selecionados.</td></tr>';
 }
 function preencherRegras(){
   const select=form.elements.partner_rule_id,current=select.value;
