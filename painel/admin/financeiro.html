@@ -14,8 +14,14 @@
     <div class="stat-card"><span class="stat-card__legenda">Lucro operacional</span><div class="stat-card__valor" data-lucro>R$ 0,00</div></div>
     <div class="stat-card"><span class="stat-card__legenda">Despesas pendentes</span><div class="stat-card__valor" data-despesas-pendentes>R$ 0,00</div></div>
   </div>
-  <div class="painel-card finance-expenses__form-card">
-    <h3>Regras salvas dos parceiros</h3>
+  <div class="painel-card finance-expenses__appointments">
+    <div class="finance-expenses__table-head"><div><h3>Atendimentos realizados no período</h3><p class="texto-suave">Lista vinculada ao mês e à unidade selecionados acima.</p></div><span class="texto-suave" data-qtd-atendimentos-lista>0 atendimentos</span></div>
+    <div class="finance-expenses__appointments-total"><span>Faturamento dos atendimentos listados</span><strong data-total-atendimentos-lista>R$ 0,00</strong></div>
+    <div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Data</th><th>Paciente</th><th>Procedimento</th><th>Unidade</th><th>Valor</th><th>Situação</th></tr></thead><tbody data-lista-atendimentos-financeiro><tr><td colspan="6" class="painel-vazio">Carregando atendimentos…</td></tr></tbody></table></div>
+  </div>
+  <details class="painel-card finance-expenses__form-card finance-expenses__collapsible">
+    <summary>Regras salvas dos parceiros</summary>
+    <div class="finance-expenses__collapsible-content">
     <p class="texto-suave">Cadastre uma vez o percentual ou o valor por hora de cada consultório. O valor calculado nos lançamentos continuará editável.</p>
     <form data-rule-form class="finance-expenses__form">
       <label>Nome da regra / parceiro<input name="name" maxlength="120" required placeholder="Ex.: Consultório Centro"></label>
@@ -27,7 +33,10 @@
     </form>
     <div class="finance-expenses__rules" data-lista-regras><p class="painel-vazio">Carregando regras…</p></div>
   </div>
-  <div class="painel-card finance-expenses__form-card">
+  </details>
+  <details class="painel-card finance-expenses__form-card finance-expenses__collapsible" data-despesa-details>
+    <summary>Registrar despesa</summary>
+    <div class="finance-expenses__collapsible-content">
     <h3 data-form-title>Registrar despesa</h3>
     <form data-form-despesa class="finance-expenses__form">
       <input type="hidden" name="id">
@@ -47,6 +56,7 @@
       <div class="finance-expenses__actions"><button type="submit" class="botao-principal" data-salvar-despesa>Salvar despesa</button><button type="button" class="botao-secundario is-hidden" data-cancelar-edicao>Cancelar edição</button></div>
     </form>
   </div>
+  </details>
   <div class="painel-card">
     <div class="finance-expenses__table-head"><h3>Despesas do mês</h3><span class="texto-suave" data-qtd-despesas>0 lançamentos</span></div>
     <div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Data</th><th>Descrição</th><th>Local</th><th>Cálculo</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody data-lista-despesas><tr><td colspan="7" class="painel-vazio">Carregando…</td></tr></tbody></table></div>
@@ -184,6 +194,7 @@ function limparFormulario(){
   atualizarCampos();
 }
 async function carregarDespesas(){
+  renderizarAtendimentosFinanceiro();
   const inicio=mesInput.value+'-01';
   const fimDate=new Date(Number(mesInput.value.slice(0,4)),Number(mesInput.value.slice(5,7)),1);
   const fim=localISO(new Date(fimDate.getTime()-86400000));
@@ -224,6 +235,13 @@ async function carregarDespesas(){
   tb.querySelectorAll('[data-editar]').forEach(b=>b.addEventListener('click',()=>editarDespesa(b.dataset.editar)));
   tb.querySelectorAll('[data-excluir]').forEach(b=>b.addEventListener('click',()=>excluirDespesa(b.dataset.excluir)));
 }
+function renderizarAtendimentosFinanceiro(){
+  const rows=appointments.filter(a=>a.status==='realizado'&&String(a.appointment_date||'').startsWith(mesInput.value)&&pertenceUnidade(a.service_unit)).sort((a,b)=>String(b.appointment_date||'').localeCompare(String(a.appointment_date||''))||String(b.appointment_time||'').localeCompare(String(a.appointment_time||'')));
+  document.querySelector('[data-qtd-atendimentos-lista]').textContent=rows.length+' atendimento(s)';
+  document.querySelector('[data-total-atendimentos-lista]').textContent=moeda(rows.reduce((sum,a)=>sum+Number(a.valor||0),0));
+  const tb=document.querySelector('[data-lista-atendimentos-financeiro]');
+  tb.innerHTML=rows.length?rows.map(a=>'<tr><td>'+esc(a.appointment_date?new Date(a.appointment_date+'T00:00:00').toLocaleDateString('pt-BR')+(a.appointment_time?' · '+a.appointment_time:''):'—')+'</td><td>'+esc(a.patients?.full_name||'Paciente sem nome')+'</td><td>'+esc(a.tipo||a.description||'Atendimento')+'</td><td>'+esc(a.service_unit||'Não informado')+'</td><td>'+moeda(a.valor)+'</td><td><span class="selo-p">'+esc(a.status||'—')+'</span></td></tr>').join(''):'<tr><td colspan="6" class="painel-vazio">Nenhum atendimento realizado para o mês e a unidade selecionados.</td></tr>';
+}
 function preencherRegras(){
   const select=form.elements.partner_rule_id,current=select.value;
   select.innerHTML='<option value="">Sem regra salva</option>'+regrasParceiros.filter(r=>r.active).map(r=>'<option value="'+esc(r.id)+'">'+esc(r.name)+' — '+(r.calculation_type==='percentual'?Number(r.percentage||0)+'%':moeda(r.hourly_rate)+'/hora')+'</option>').join('');
@@ -238,6 +256,7 @@ function preencherRegras(){
 }
 function editarDespesa(id){
   const x=despesas.find(d=>d.id===id);if(!x)return;
+  document.querySelector('[data-despesa-details]').open=true;
   Object.keys(x).forEach(k=>{if(form.elements[k])form.elements[k].value=x[k]??'';});
   document.querySelector('[data-form-title]').textContent='Editar despesa';
   document.querySelector('[data-salvar-despesa]').textContent='Salvar alterações';
