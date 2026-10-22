@@ -298,7 +298,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-acne-caso-01.html",
       "redirect_to": null,
-      "sha256": "d1e8af09bb4ed98476470988f6e823a75e3ce812f9751558a3667a83e6332670"
+      "sha256": "fd1425e01df85f89dfba683593b20bbf3d1fdd4f248ebfb2ce00018c99264b0a"
     },
     {
       "path": "resultados/resultado-de-acne-caso-02.html",
@@ -811,5 +811,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-22T14:13:14.368Z"
+  "generated_at": "2026-10-22T14:25:40.825Z"
 }
