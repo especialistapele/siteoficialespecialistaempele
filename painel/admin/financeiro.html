@@ -52,7 +52,7 @@
     <div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Data</th><th>Descrição</th><th>Local</th><th>Cálculo</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead><tbody data-lista-despesas><tr><td colspan="7" class="painel-vazio">Carregando…</td></tr></tbody></table></div>
   </div>
 </section>
-</main></div><script type="module"><script type="module">
+</main></div><script type="module">
 import {supabase,exigirAdmin,configurarBotaoSair,mostrarFlash} from '/painel/assets/js/painel-auth.js';
 import {renderSidebarAdmin} from '/painel/assets/js/admin-sidebar.js';
 const ctx=await exigirAdmin();
@@ -285,4 +285,4 @@ mesInput.addEventListener('change',carregarDespesas);
 unidadeInput.addEventListener('change',carregarDespesas);
 limparFormulario();
 carregar();
-</script></script></body></html>
+</script></body></html>
