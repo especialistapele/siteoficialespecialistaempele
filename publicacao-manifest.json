@@ -8,7 +8,7 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 79,
+  "total": 80,
   "items": [
     {
       "path": "blog/acne-e-estresse.html",
@@ -38,7 +38,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/como-escolher-um-tratamento-para-melasma.html",
       "redirect_to": null,
-      "sha256": "1d1940f2da92f3bc18555dda188ff1aa154a02e42bbf625d5ab50ce28df933ed"
+      "sha256": "f981b113164d976d5f620dc59dfcf901602a40acbf8044de75903523db4c82bc"
     },
     {
       "path": "blog/controle-da-oleosidade.html",
@@ -48,7 +48,17 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/controle-da-oleosidade.html",
       "redirect_to": null,
-      "sha256": "f190343087ecb2d82898d6b5eaaa3d188a1c723e8e772f433f5eba835773e99e"
+      "sha256": "24ac67178c532f5a27f5ad4fcd7d46cfd622d7ac580b8242517791f85c4dad4c"
+    },
+    {
+      "path": "blog/melasma-hormonal.html",
+      "url": "https://www.especialistaempele.com.br/blog/melasma-hormonal.html",
+      "id": "BLOG-000009",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/blog/melasma-hormonal.html",
+      "redirect_to": null,
+      "sha256": "88d790f052f802a1c409a59d552785fc0538dc4b142d6ec27d61df3d7fee4656"
     },
     {
       "path": "blog/o-que-e-regeneracao-cutanea.html",
@@ -58,7 +68,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/o-que-e-regeneracao-cutanea.html",
       "redirect_to": null,
-      "sha256": "b7dbd676ce20a0f4fa41c37866c3ca6f734567a4e879e3a7cd1b312a68f0ca3e"
+      "sha256": "26794756e10a431829ba728735e58bf6a89b5d454b55583d9dda11762e450db2"
     },
     {
       "path": "blog/pele-seca-ou-desidratada.html",
@@ -68,7 +78,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/pele-seca-ou-desidratada.html",
       "redirect_to": null,
-      "sha256": "7d7f8a1dfc5c35372a2e9a2d1a3c13642295c03c27c38c3c3cbd717bb457e6d5"
+      "sha256": "00cf664f308c3d40001c0b1471c87f8f44c8069f4afd91200be21d36a8ffb1a4"
     },
     {
       "path": "blog/por-que-a-acne-persiste.html",
@@ -78,7 +88,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/por-que-a-acne-persiste.html",
       "redirect_to": null,
-      "sha256": "f617c570ea0697060a7ccd5b10eea26b1dd17b69ec99a76a0f79e8b7cd851355"
+      "sha256": "92ec2bb04a77de01a7164daf4fe3b8e4f96e3702a7e8583e8ba4b7422ca4c2ae"
     },
     {
       "path": "blog/rejuvenescimento-facial-ou-harmonizacao.html",
@@ -88,7 +98,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/rejuvenescimento-facial-ou-harmonizacao.html",
       "redirect_to": null,
-      "sha256": "e42159ef2758a36fe51e87dbeed38a2eb8f1d4ce480a6d414efabe8ab5d4eb3e"
+      "sha256": "9e3942bd12e0173e933c03c876bd0115c5b835a79a54990e1babbd290a778f6f"
     },
     {
       "path": "resultados/clareamento-de-axila-02.html",
@@ -288,7 +298,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-acne-caso-01.html",
       "redirect_to": null,
-      "sha256": "fd1425e01df85f89dfba683593b20bbf3d1fdd4f248ebfb2ce00018c99264b0a"
+      "sha256": "d1e8af09bb4ed98476470988f6e823a75e3ce812f9751558a3667a83e6332670"
     },
     {
       "path": "resultados/resultado-de-acne-caso-02.html",
@@ -801,5 +811,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-19T19:47:39.353Z"
+  "generated_at": "2026-10-22T14:13:14.368Z"
 }
