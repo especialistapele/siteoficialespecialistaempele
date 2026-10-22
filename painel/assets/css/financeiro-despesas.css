@@ -1,2 +1,17 @@
 .finance-expenses{margin-top:2rem;display:grid;gap:1rem}.finance-expenses__heading{align-items:end;gap:1rem;flex-wrap:wrap}.finance-expenses__heading h2{margin:0 0 .35rem}.finance-expenses__month{display:grid;gap:.35rem;font-size:.9rem}.finance-expenses__month input,.finance-expenses__form input,.finance-expenses__form select{width:100%;min-width:0;box-sizing:border-box;padding:.65rem;border:1px solid var(--borda,#d8d8d8);border-radius:.5rem;background:var(--fundo-card,#fff);color:inherit}.finance-expenses__stats{grid-template-columns:repeat(auto-fit,minmax(165px,1fr))}.finance-expenses__form-card{padding:1rem}.finance-expenses__form-card h3,.finance-expenses__table-head h3{margin-top:0}.finance-expenses__form{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.85rem;align-items:end}.finance-expenses__form label{display:grid;gap:.35rem;font-size:.9rem}.finance-expenses__hint{grid-column:1/-1;margin:0;font-size:.88rem;color:var(--texto-suave,#666)}.finance-expenses__actions{display:flex;gap:.5rem;flex-wrap:wrap;grid-column:1/-1}.finance-expenses__table-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 1rem 0}.finance-expenses__sub{display:block;color:var(--texto-suave,#777);font-size:.78rem}.finance-expenses__row-actions{display:flex;gap:.35rem;flex-wrap:wrap}.finance-expenses__paid{background:#e4f5eb;color:#17663b}.is-hidden{display:none!important}@media(max-width:640px){.finance-expenses__heading{align-items:stretch}.finance-expenses__month{width:100%}.finance-expenses__row-actions button{font-size:.8rem;padding:.4rem}}
 .finance-expenses__rules{display:grid;gap:.5rem;margin-top:1rem}.finance-expenses__rule-item{display:flex;justify-content:space-between;align-items:center;gap:1rem;border:1px solid var(--borda,#e1e1e1);border-radius:.5rem;padding:.7rem}.finance-expenses__rule-item small{display:block;color:var(--texto-suave,#777);font-size:.8rem;margin-top:.2rem}.finance-expenses__rule-item button{flex-shrink:0}
+/* Seções recolhíveis do financeiro */
+.finance-expenses__collapsible{padding:0;overflow:hidden}
+.finance-expenses__collapsible>summary{cursor:pointer;list-style:none;font-size:1.05rem;font-weight:650;padding:1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.finance-expenses__collapsible>summary::-webkit-details-marker{display:none}
+.finance-expenses__collapsible>summary::after{content:"+";font-size:1.35rem;font-weight:400;line-height:1}
+.finance-expenses__collapsible[open]>summary::after{content:"−"}
+.finance-expenses__collapsible>summary:focus-visible{outline:2px solid currentColor;outline-offset:-3px}
+.finance-expenses__collapsible-content{padding:0 1rem 1rem}
+.finance-expenses__collapsible-content>h3{margin-top:0}
+.finance-expenses__appointments{padding:0 0 1rem;overflow:hidden}
+.finance-expenses__appointments .finance-expenses__table-head{align-items:flex-start}
+.finance-expenses__appointments .finance-expenses__table-head h3{margin-bottom:.35rem}
+.finance-expenses__appointments-total{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.8rem 1rem;margin:.5rem 1rem 1rem;border-radius:.5rem;background:var(--fundo-suave,#f6f6f6)}
+.finance-expenses__appointments-total strong{white-space:nowrap}
+@media(max-width:640px){.finance-expenses__appointments-total{align-items:flex-start;flex-direction:column;gap:.3rem}}
