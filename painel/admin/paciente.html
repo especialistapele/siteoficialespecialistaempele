@@ -603,6 +603,7 @@
   // Atendimentos (histórico + estatísticas)
   let grafico;
   let atendimentoEditando = null;
+  let atendimentoOriginal = null;
 
   const moeda = (valor) => Number(valor || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 });
   let historicoPagamentos = [];
@@ -753,9 +754,17 @@
 
   function preencherFormularioAtendimento(a) {
     atendimentoEditando = a.id;
-    document.getElementById("appointment_date").value = a.appointment_date || "";
-    document.getElementById("appointment_time").value = a.appointment_time ? String(a.appointment_time).slice(0,5) : "";
-    document.getElementById("appointment_end_time").value = a.appointment_end_time ? String(a.appointment_end_time).slice(0,5) : "";
+    atendimentoOriginal = {
+      appointment_date: a.appointment_date || "",
+      appointment_time: a.appointment_time ? String(a.appointment_time).slice(0,5) : "",
+      appointment_end_time: a.appointment_end_time ? String(a.appointment_end_time).slice(0,5) : ""
+    };
+    document.getElementById("appointment_date").value = atendimentoOriginal.appointment_date;
+    document.getElementById("appointment_time").value = atendimentoOriginal.appointment_time;
+    document.getElementById("appointment_end_time").value = atendimentoOriginal.appointment_end_time;
+    // Registros antigos podem não ter horário final. Permita editar sem inventar
+    // um horário novo quando a intenção é apenas atualizar status/dados financeiros.
+    document.getElementById("appointment_end_time").required = Boolean(atendimentoOriginal.appointment_end_time);
     document.getElementById("valor").value = Number(a.valor || 0);
     document.getElementById("taxa_agendamento").value = Number(a.taxa_agendamento || 0);
     document.getElementById("taxa_status").value = a.taxa_status || "pendente";
@@ -773,7 +782,9 @@
 
   function limparFormularioAtendimento() {
     atendimentoEditando = null;
+    atendimentoOriginal = null;
     document.getElementById("form-atendimento").reset();
+    document.getElementById("appointment_end_time").required = true;
     document.getElementById("taxa_status").value = "pendente";
     historicoPagamentos = [];
     parcelasAtendimento = [];
@@ -878,13 +889,21 @@
     const dataAtendimento = document.getElementById("appointment_date").value;
     const horarioInicial = document.getElementById("appointment_time").value;
     const horarioFinal = document.getElementById("appointment_end_time").value;
-    if (!dataAtendimento || !horarioInicial || !horarioFinal) {
-      mostrarFlash(flash, "Informe a data, o horário inicial e o horário final do atendimento.", "erro");
-      return;
-    }
-    if (horarioInicial < "08:00" || horarioInicial >= "19:00" || horarioFinal <= horarioInicial || horarioFinal > "19:00") {
-      mostrarFlash(flash, "Confira os horários: o atendimento deve ocorrer entre 08h e 19h, e o horário final precisa ser posterior ao inicial.", "erro");
-      return;
+    const agendaSemAlteracao = Boolean(atendimentoEditando && atendimentoOriginal
+      && dataAtendimento === atendimentoOriginal.appointment_date
+      && horarioInicial === atendimentoOriginal.appointment_time
+      && horarioFinal === atendimentoOriginal.appointment_end_time);
+    // Atualizar status/financeiro de um atendimento legado não é um reagendamento.
+    // Não exigir horário final nem disparar validações da agenda se seus campos não mudaram.
+    if (!agendaSemAlteracao) {
+      if (!dataAtendimento || !horarioInicial || !horarioFinal) {
+        mostrarFlash(flash, "Informe a data, o horário inicial e o horário final do atendimento.", "erro");
+        return;
+      }
+      if (horarioInicial < "08:00" || horarioInicial >= "19:00" || horarioFinal <= horarioInicial || horarioFinal > "19:00") {
+        mostrarFlash(flash, "Confira os horários: o atendimento deve ocorrer entre 08h e 19h, e o horário final precisa ser posterior ao inicial.", "erro");
+        return;
+      }
     }
     const planoAtivo = toggleParcelamento.checked;
     const parcelasDigitadas = [...linhasParcelas.querySelectorAll("[data-parcela-linha]")].map(row => ({
@@ -907,7 +926,14 @@
       mostrarFlash(flash, "Este parcelamento já tem pagamentos registrados. Mantenha-o ativo para preservar o histórico.", "erro"); return;
     }
     const dados = {
-      patient_id: patientId, appointment_date: dataAtendimento, appointment_time: horarioInicial, appointment_end_time: horarioFinal,
+      patient_id: patientId,
+      // Ao editar um registro sem alterar a agenda, não envie os campos de horário:
+      // isso evita acionar o trigger de reagendamento em registros históricos.
+      ...(!agendaSemAlteracao ? {
+        appointment_date: dataAtendimento,
+        appointment_time: horarioInicial,
+        appointment_end_time: horarioFinal
+      } : {}),
       payment_plan_enabled: planoAtivo,
       valor: total, taxa_agendamento: taxa, taxa_status: document.getElementById("taxa_status").value, taxa_forma_pagamento: document.getElementById("taxa_forma_pagamento").value.trim() || null,
       restante_pago: historicoPagamentos.reduce((s, p) => s + Number(p.amount || 0), 0),
