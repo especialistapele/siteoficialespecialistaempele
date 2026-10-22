@@ -279,9 +279,104 @@
           <div class="pessoa__nome" data-proximo-atendimento>—</div>
         </div>
       </div>
+
+      <!-- CALCULADORA RÁPIDA: fica abaixo das estatísticas, na coluna direita -->
+      <section class="painel-card calculadora-atendimento" aria-labelledby="calculadora-atendimento-titulo">
+        <h3 id="calculadora-atendimento-titulo" style="margin-bottom:12px">Calculadora</h3>
+        <label for="calculadora-expressao" class="texto-suave" style="font-size:12px">Conta (use +, −, × e ÷)</label>
+        <input id="calculadora-expressao" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 180 + 250 - 50" aria-label="Expressão matemática" style="width:100%;margin:6px 0 10px">
+        <div class="calculadora-atendimento__resultado" aria-live="polite">
+          <span class="texto-suave">Resultado</span>
+          <strong id="calculadora-resultado">R$ 0,00</strong>
+        </div>
+        <div class="calculadora-atendimento__teclas" aria-label="Teclas da calculadora">
+          <button type="button" data-calc="7">7</button><button type="button" data-calc="8">8</button><button type="button" data-calc="9">9</button><button type="button" data-calc="/">÷</button>
+          <button type="button" data-calc="4">4</button><button type="button" data-calc="5">5</button><button type="button" data-calc="6">6</button><button type="button" data-calc="*">×</button>
+          <button type="button" data-calc="1">1</button><button type="button" data-calc="2">2</button><button type="button" data-calc="3">3</button><button type="button" data-calc="-">−</button>
+          <button type="button" data-calc="0">0</button><button type="button" data-calc=",">,</button><button type="button" data-calc="clear">C</button><button type="button" data-calc="+">+</button>
+          <button type="button" data-calc="backspace">⌫</button><button type="button" data-calc="=" class="calculadora-atendimento__igual">Calcular</button>
+        </div>
+        <button type="button" class="btn-p btn-p-dourado calculadora-atendimento__transferir" id="calculadora-transferir">Transferir cálculo</button>
+        <p class="texto-suave" id="calculadora-aviso" role="status" style="font-size:12px;margin:8px 0 0">O resultado só será enviado ao valor do atendimento quando você clicar no botão.</p>
+      </section>
     </div>
   </main>
 </div>
+
+<style>
+.paciente-detalhe-layout{align-items:start}
+.calculadora-atendimento{margin-top:16px}
+.calculadora-atendimento__resultado{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px;background:#f7f4ed;border:1px solid var(--linha);border-radius:9px;margin-bottom:10px}
+.calculadora-atendimento__resultado strong{font-size:20px;color:var(--texto,#1c2924);font-variant-numeric:tabular-nums}
+.calculadora-atendimento__teclas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.calculadora-atendimento__teclas button{min-height:38px;border:1px solid var(--linha);border-radius:7px;background:#fff;color:var(--texto,#1c2924);font:inherit;font-weight:600;cursor:pointer}
+.calculadora-atendimento__teclas button:hover{background:#f2ead9}
+.calculadora-atendimento__teclas .calculadora-atendimento__igual{grid-column:span 3;background:#f2ead9}
+.calculadora-atendimento__transferir{width:100%;margin-top:10px}
+#calculadora-expressao{box-sizing:border-box;min-height:42px;border:1px solid var(--linha);border-radius:8px;padding:10px;font:inherit}
+@media(max-width:900px){.calculadora-atendimento{margin-top:12px}}
+</style>
+<script>
+(() => {
+  const expressao = document.getElementById("calculadora-expressao");
+  const resultado = document.getElementById("calculadora-resultado");
+  const aviso = document.getElementById("calculadora-aviso");
+  const transferir = document.getElementById("calculadora-transferir");
+  if (!expressao || !resultado || !aviso || !transferir) return;
+  let valorCalculado = 0;
+  let resultadoValido = true;
+  const moeda = n => Number(n).toLocaleString("pt-BR", {style:"currency",currency:"BRL"});
+  function calcular() {
+    const texto = expressao.value.trim().replace(/,/g, ".").replace(/[×]/g, "*").replace(/[÷]/g, "/").replace(/[−]/g, "-").replace(/\s+/g, "");
+    if (!texto) { valorCalculado = 0; resultadoValido = true; resultado.textContent = moeda(0); aviso.textContent = "Digite uma conta ou use as teclas abaixo."; return; }
+    if (!/^[0-9.+*/()\-]+$/.test(texto) || !/[0-9)]$/.test(texto) || /[+*/.-]$/.test(texto)) {
+      resultadoValido = false; resultado.textContent = "Conta inválida"; aviso.textContent = "Confira a expressão matemática."; return;
+    }
+    try {
+      // Só permite números e operadores aritméticos, nunca executa texto arbitrário.
+      const tokens = texto.match(/\d+(?:\.\d+)?|[()+*/-]/g);
+      if (!tokens || tokens.join("") !== texto) throw new Error("expressão inválida");
+      let pos = 0;
+      function fator() {
+        if (tokens[pos] === "+") { pos++; return fator(); }
+        if (tokens[pos] === "-") { pos++; return -fator(); }
+        if (tokens[pos] === "(") { pos++; const n = soma(); if (tokens[pos++] !== ")") throw new Error("parênteses"); return n; }
+        const token = tokens[pos++];
+        if (!token || !/^\d+(?:\.\d+)?$/.test(token)) throw new Error("número");
+        return Number(token);
+      }
+      function produto() { let n = fator(); while (tokens[pos] === "*" || tokens[pos] === "/") { const op=tokens[pos++], b=fator(); if(op==="/"&&b===0) throw new Error("divisão por zero"); n=op==="*"?n*b:n/b; } return n; }
+      function soma() { let n=produto(); while(tokens[pos] === "+" || tokens[pos] === "-") { const op=tokens[pos++], b=produto(); n=op==="+"?n+b:n-b; } return n; }
+      const n=soma();
+      if(pos!==tokens.length || !Number.isFinite(n)) throw new Error("expressão inválida");
+      valorCalculado = Math.round((n + Number.EPSILON) * 100) / 100;
+      resultadoValido = valorCalculado >= 0;
+      resultado.textContent = resultadoValido ? moeda(valorCalculado) : "Valor negativo";
+      aviso.textContent = resultadoValido ? "Conta calculada. Transfira somente se quiser preencher o valor do atendimento." : "O valor do atendimento não pode ser negativo.";
+    } catch (_) { resultadoValido=false; resultado.textContent="Conta inválida"; aviso.textContent="Confira a conta e tente novamente."; }
+  }
+  expressao.addEventListener("input", calcular);
+  document.querySelectorAll("[data-calc]").forEach(btn => btn.addEventListener("click", () => {
+    const tecla=btn.dataset.calc;
+    if(tecla==="clear") expressao.value="";
+    else if(tecla==="backspace") expressao.value=expressao.value.slice(0,-1);
+    else if(tecla==="=") { calcular(); return; }
+    else expressao.value += tecla;
+    calcular();
+    expressao.focus();
+  }));
+  transferir.addEventListener("click", () => {
+    calcular();
+    if(!resultadoValido) return;
+    const campo=document.getElementById("valor");
+    if(!campo) { aviso.textContent="Não encontrei o campo Valor total (R$)."; return; }
+    campo.value=valorCalculado.toFixed(2);
+    campo.dispatchEvent(new Event("input",{bubbles:true}));
+    campo.dispatchEvent(new Event("change",{bubbles:true}));
+    aviso.textContent="Valor "+moeda(valorCalculado)+" transferido para Valor total (R$).";
+  });
+})();
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script type="module">
