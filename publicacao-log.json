@@ -599,8 +599,21 @@
       "workflow_run_id": "39311028769",
       "workflow_sha": "152cfc80238b29e895fa411d9f339b02a75ed136",
       "ref": "main"
+    },
+    {
+      "request_id": "25df180d-d0c2-437e-a750-30c4ce0a9e61",
+      "status": "error",
+      "trigger": "panel",
+      "path": "blog/rejuvenescimento-maos-manchas-solares.html",
+      "content_id": null,
+      "publicado": false,
+      "requested_at": "2026-10-25T16:58:08.536Z",
+      "completed_at": "2026-10-25T16:58:21.318Z",
+      "workflow_run_id": "40214189498",
+      "workflow_sha": "1cf04fa811602b512404c8eda3b5246777487804",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-19T19:27:17.744Z",
-  "total": 46
+  "updated_at": "2026-10-25T16:58:21.318Z",
+  "total": 47
 }
