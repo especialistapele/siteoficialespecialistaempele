@@ -141,13 +141,21 @@
             </section>
             <div class="form-linha">
               <div class="form-campo"><label for="tipo">Tipo de atendimento</label>
-                <input type="text" id="tipo" list="tipos-atendimento-sugeridos" placeholder="Ex.: Limpeza de pele">
-                <datalist id="tipos-atendimento-sugeridos">
-                  <option value="Consulta de Avaliação"></option>
-                  <option value="Retorno"></option>
-                  <option value="Procedimento"></option>
-                  <option value="Acompanhamento"></option>
-                </datalist>
+                <select id="tipo">
+                  <option value="">Selecione o tipo de atendimento</option>
+                  <option value="Consulta de Avaliação">Consulta de Avaliação</option>
+                  <option value="Retorno">Retorno</option>
+                  <option value="Procedimento">Procedimento</option>
+                  <option value="Acompanhamento">Acompanhamento</option>
+                  <option value="Limpeza de pele">Limpeza de pele</option>
+                  <option value="Peeling">Peeling</option>
+                  <option value="Microagulhamento">Microagulhamento</option>
+                  <option value="Jato de plasma">Jato de plasma</option>
+                  <option value="Eletrocautério">Eletrocautério</option>
+                  <option value="Tratamento de acne">Tratamento de acne</option>
+                  <option value="Tratamento de melasma">Tratamento de melasma</option>
+                  <option value="Outro">Outro</option>
+                </select>
               </div>
               <div class="form-campo"><label for="status">Status</label>
                 <select id="status">
