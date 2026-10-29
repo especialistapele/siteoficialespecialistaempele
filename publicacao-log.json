@@ -651,8 +651,21 @@
       "workflow_run_id": "40544911434",
       "workflow_sha": "57f585fda93be1149e835eaae09f7b8baced7761",
       "ref": "main"
+    },
+    {
+      "request_id": "6a5d26fb-2091-4523-ab23-9a279be9c434",
+      "status": "error",
+      "trigger": "panel",
+      "path": "blog/regeneracao-cutanea-ou-volumizacao-facial.html",
+      "content_id": null,
+      "publicado": true,
+      "requested_at": "2026-10-29T12:45:28.973Z",
+      "completed_at": "2026-10-29T12:45:45.974Z",
+      "workflow_run_id": "40875914695",
+      "workflow_sha": "c939428ed44e48692c2c7358dbcd9d4d949d1fc8",
+      "ref": "main"
     }
   ],
-  "updated_at": "2026-10-27T16:51:09.227Z",
-  "total": 50
+  "updated_at": "2026-10-29T12:45:45.974Z",
+  "total": 51
 }
