@@ -26,6 +26,19 @@
   .dashboard-tipos-mes__nome{font-size:12px;color:var(--muted);line-height:1.4;min-height:32px;overflow-wrap:anywhere}
   .dashboard-tipos-mes__quantidade{font-size:27px;line-height:1.2;font-weight:750;color:var(--texto,#26312d);margin-top:6px}
   .dashboard-tipos-mes__unidade{font-size:11px;color:var(--muted);margin-top:3px}
+  .dashboard-tipos-mes__seletor{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+  .dashboard-tipos-mes__seletor select{border:1px solid var(--linha);border-radius:8px;padding:8px 10px;background:#fff;color:inherit;font:inherit;max-width:190px}
+  .dashboard-tipos-comparativo{margin-top:22px;padding-top:18px;border-top:1px solid var(--linha)}
+  .dashboard-tipos-comparativo__lista{display:grid;gap:8px}
+  .dashboard-tipos-comparativo__linha{display:grid;grid-template-columns:minmax(120px,1.5fr) repeat(2,minmax(70px,1fr)) minmax(90px,1fr);gap:10px;align-items:center;padding:11px 12px;border:1px solid var(--linha);border-radius:9px}
+  .dashboard-tipos-comparativo__linha--cabecalho{background:#f8f7f3;font-size:11px;font-weight:700;color:var(--muted)}
+  .dashboard-tipos-comparativo__nome{font-size:12px;overflow-wrap:anywhere}
+  .dashboard-tipos-comparativo__valor{font-size:14px;font-weight:700}
+  .dashboard-tipos-comparativo__variacao{font-size:12px;font-weight:700}
+  .dashboard-tipos-comparativo__variacao.positivo{color:#28734a}
+  .dashboard-tipos-comparativo__variacao.negativo{color:#a94438}
+  .dashboard-tipos-comparativo__variacao.neutro{color:var(--muted)}
+  @media(max-width:600px){.dashboard-tipos-comparativo__linha{grid-template-columns:minmax(90px,1.3fr) repeat(2,minmax(50px,.8fr));gap:7px;padding:9px}.dashboard-tipos-comparativo__linha>*:last-child{grid-column:2 / -1}.dashboard-tipos-comparativo__linha--cabecalho>*:last-child{grid-column:2 / -1}}
 </style>
 </head>
 <body>
@@ -101,10 +114,21 @@
       <div class="dashboard-tipos-mes">
         <div class="dashboard-tipos-mes__cabecalho">
           <h4>Procedimentos realizados no mês</h4>
-          <span data-tipos-mes-periodo></span>
+          <label class="dashboard-tipos-mes__seletor">Selecionar mês
+            <select data-tipos-mes-select aria-label="Selecionar mês para contagem de procedimentos"></select>
+          </label>
         </div>
         <div class="dashboard-tipos-mes__cards" data-tipos-mes-cards>
           <p class="texto-suave">Carregando quantidades do mês…</p>
+        </div>
+      </div>
+      <div class="dashboard-tipos-comparativo">
+        <div class="dashboard-tipos-mes__cabecalho">
+          <h4>Comparativo de procedimentos</h4>
+          <span data-tipos-comparativo-periodo>Carregando períodos…</span>
+        </div>
+        <div class="dashboard-tipos-comparativo__lista" data-tipos-comparativo>
+          <p class="texto-suave">Carregando comparação mensal…</p>
         </div>
       </div>
     </div>
@@ -203,36 +227,55 @@
       </div>`).join("") || `<p class="texto-suave">Sem dados ainda.</p>`;
   }
 
-  // Quantidade de procedimentos efetivamente realizados no mês atual.
-  // O segundo procedimento de um mesmo atendimento também entra na contagem.
+  // Contagem mensal e comparação com o mês imediatamente anterior.
   const hoje = new Date();
-  const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-  const inicioProximoMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1);
   const dataISO = (data) => `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}-${String(data.getDate()).padStart(2, "0")}`;
-  const periodoTipos = document.querySelector("[data-tipos-mes-periodo]");
+  const chaveMes = (data) => `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}`;
+  const dataDoMes = (chave) => {
+    const [ano, mes] = chave.split("-").map(Number);
+    return new Date(ano, mes - 1, 1);
+  };
+  const inicioSeguinte = (data) => new Date(data.getFullYear(), data.getMonth() + 1, 1);
+  const rotuloMes = (data) => data.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  const seletorMes = document.querySelector("[data-tipos-mes-select]");
+  const periodoComparativo = document.querySelector("[data-tipos-comparativo-periodo]");
   const cardsTipos = document.querySelector("[data-tipos-mes-cards]");
-  periodoTipos.textContent = hoje.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  const listaComparativo = document.querySelector("[data-tipos-comparativo]");
+  const mesesDisponiveis = [];
+  for (let deslocamento = -12; deslocamento <= 3; deslocamento++) {
+    const data = new Date(hoje.getFullYear(), hoje.getMonth() + deslocamento, 1);
+    mesesDisponiveis.push(data);
+  }
+  seletorMes.innerHTML = mesesDisponiveis.map((data) => {
+    const chave = chaveMes(data);
+    return `<option value="${chave}" ${chave === chaveMes(hoje) ? "selected" : ""}>${escapeHtml(rotuloMes(data))}</option>`;
+  }).join("");
 
-  const { data: atendimentosMes, error: erroAtendimentosMes } = await supabase
-    .from("appointments")
-    .select("tipo,tipo_secundario,appointment_date,status")
-    .eq("status", "realizado")
-    .gte("appointment_date", dataISO(inicioMes))
-    .lt("appointment_date", dataISO(inicioProximoMes));
-
-  if (erroAtendimentosMes) {
-    cardsTipos.innerHTML = `<p class="texto-suave">Não foi possível carregar as quantidades deste mês.</p>`;
-  } else {
-    const contagemTiposMes = new Map();
-    (atendimentosMes || []).forEach((atendimento) => {
+  async function contarProcedimentosNoMes(dataMes) {
+    const inicio = new Date(dataMes.getFullYear(), dataMes.getMonth(), 1);
+    const fim = inicioSeguinte(inicio);
+    const { data: atendimentos, error: erroAtendimentos } = await supabase
+      .from("appointments")
+      .select("tipo,tipo_secundario,appointment_date,status")
+      .eq("status", "realizado")
+      .gte("appointment_date", dataISO(inicio))
+      .lt("appointment_date", dataISO(fim));
+    if (erroAtendimentos) throw erroAtendimentos;
+    const contagem = new Map();
+    (atendimentos || []).forEach((atendimento) => {
       [atendimento.tipo, atendimento.tipo_secundario].forEach((tipo) => {
         const nome = (tipo || "").trim();
-        if (nome) contagemTiposMes.set(nome, (contagemTiposMes.get(nome) || 0) + 1);
+        if (nome) contagem.set(nome, (contagem.get(nome) || 0) + 1);
       });
     });
-    const tiposOrdenadosMes = [...contagemTiposMes.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR"));
-    cardsTipos.innerHTML = tiposOrdenadosMes.length
-      ? tiposOrdenadosMes.map(([tipo, total]) => `
+    return contagem;
+  }
+
+  function renderCardsProcedimentos(contagem, dataMes) {
+    document.querySelector("[data-tipos-mes-periodo]").textContent = rotuloMes(dataMes);
+    const ordenados = [...contagem.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR"));
+    cardsTipos.innerHTML = ordenados.length
+      ? ordenados.map(([tipo, total]) => `
         <div class="dashboard-tipos-mes__card">
           <div class="dashboard-tipos-mes__nome">${escapeHtml(tipo)}</div>
           <div class="dashboard-tipos-mes__quantidade">${total}</div>
@@ -240,6 +283,59 @@
         </div>`).join("")
       : `<p class="texto-suave">Nenhum procedimento realizado neste mês.</p>`;
   }
+
+  function renderComparativo(contagemAtual, contagemAnterior, dataAtual, dataAnterior) {
+    periodoComparativo.textContent = `${rotuloMes(dataAnterior)} × ${rotuloMes(dataAtual)}`;
+    const tipos = [...new Set([...contagemAnterior.keys(), ...contagemAtual.keys()])]
+      .sort((a, b) => ((contagemAtual.get(b) || 0) - (contagemAtual.get(a) || 0)) || a.localeCompare(b, "pt-BR"));
+    if (!tipos.length) {
+      listaComparativo.innerHTML = `<p class="texto-suave">Não há procedimentos realizados nos dois períodos para comparar.</p>`;
+      return;
+    }
+    listaComparativo.innerHTML = `
+      <div class="dashboard-tipos-comparativo__linha dashboard-tipos-comparativo__linha--cabecalho">
+        <span>Procedimento</span><span>${escapeHtml(rotuloMes(dataAnterior))}</span><span>${escapeHtml(rotuloMes(dataAtual))}</span><span>Variação</span>
+      </div>
+      ${tipos.map((tipo) => {
+        const anterior = contagemAnterior.get(tipo) || 0;
+        const atual = contagemAtual.get(tipo) || 0;
+        const diferenca = atual - anterior;
+        const percentual = anterior === 0 ? (atual > 0 ? "Novo" : "0%") : `${diferenca > 0 ? "+" : ""}${Math.round((diferenca / anterior) * 100)}%`;
+        const classe = diferenca > 0 ? "positivo" : diferenca < 0 ? "negativo" : "neutro";
+        const variacao = anterior === 0 ? (atual > 0 ? "Novo neste mês" : "Sem variação") : `${diferenca > 0 ? "+" : ""}${diferenca} (${percentual})`;
+        return `<div class="dashboard-tipos-comparativo__linha">
+          <span class="dashboard-tipos-comparativo__nome">${escapeHtml(tipo)}</span>
+          <span class="dashboard-tipos-comparativo__valor">${anterior}</span>
+          <span class="dashboard-tipos-comparativo__valor">${atual}</span>
+          <span class="dashboard-tipos-comparativo__variacao ${classe}">${escapeHtml(variacao)}</span>
+        </div>`;
+      }).join("")}`;
+  }
+
+  let sequenciaCarregamentoTipos = 0;
+  async function atualizarResumoTipos() {
+    const sequencia = ++sequenciaCarregamentoTipos;
+    const dataAtual = dataDoMes(seletorMes.value);
+    const dataAnterior = new Date(dataAtual.getFullYear(), dataAtual.getMonth() - 1, 1);
+    cardsTipos.innerHTML = `<p class="texto-suave">Carregando procedimentos…</p>`;
+    listaComparativo.innerHTML = `<p class="texto-suave">Carregando comparação mensal…</p>`;
+    try {
+      const [contagemAtual, contagemAnterior] = await Promise.all([
+        contarProcedimentosNoMes(dataAtual),
+        contarProcedimentosNoMes(dataAnterior),
+      ]);
+      if (sequencia !== sequenciaCarregamentoTipos) return;
+      renderCardsProcedimentos(contagemAtual, dataAtual);
+      renderComparativo(contagemAtual, contagemAnterior, dataAtual, dataAnterior);
+    } catch (erro) {
+      if (sequencia !== sequenciaCarregamentoTipos) return;
+      cardsTipos.innerHTML = `<p class="texto-suave">Não foi possível carregar as quantidades deste mês.</p>`;
+      listaComparativo.innerHTML = `<p class="texto-suave">Não foi possível carregar o comparativo mensal.</p>`;
+      console.error("Erro ao carregar contagem mensal de procedimentos:", erro);
+    }
+  }
+  seletorMes.addEventListener("change", atualizarResumoTipos);
+  await atualizarResumoTipos();
 
   // Pacientes recentes
   const { data: recentes } = await supabase.from("patients").select("*").order("created_at", { ascending: false }).limit(5);
