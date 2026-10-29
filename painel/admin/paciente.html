@@ -191,6 +191,9 @@
                   <option value="Técnica de biohipertrofia">Técnica de biohipertrofia</option>
             </datalist>
               </div>
+              <div class="form-campo"><label for="tipo_secundario">Segundo procedimento (opcional)</label>
+                <input id="tipo_secundario" type="text" list="tipos-lista" autocomplete="off" placeholder="Digite para buscar ou escolha um segundo procedimento">
+              </div>
               <div class="form-campo"><label for="status">Status</label>
                 <select id="status">
                   <option value="agendado">Agendado</option>
@@ -935,6 +938,7 @@
     carregarHistoricoPagamentos(a.id);
     carregarParcelasAtendimento(a.id);
     document.getElementById("tipo").value = a.tipo || "Consulta de Avaliação";
+    document.getElementById("tipo_secundario").value = a.tipo_secundario || "";
     document.getElementById("status").value = a.status || "agendado";
     document.getElementById("descricao").value = a.description || "";
     document.querySelector('#form-atendimento button[type="submit"]').textContent = "Salvar alterações";
@@ -993,7 +997,7 @@
       return `<tr>
         <td>${new Date(a.appointment_date + "T00:00:00").toLocaleDateString("pt-BR")}${a.appointment_time ? `<div class="pessoa__sub">${escapeHtml(String(a.appointment_time).slice(0,5))}</div>` : ""}</td>
         <td>${escapeHtml(a.service_unit || "Não informado")}</td>
-        <td>${escapeHtml(a.tipo || a.description || "—")}</td>
+        <td>${escapeHtml(a.tipo || a.description || "—")}${a.tipo_secundario ? `<div class="pessoa__sub">2º procedimento: ${escapeHtml(a.tipo_secundario)}</div>` : ""}</td>
         <td>R$ ${moeda(total)}</td>
         <td>R$ ${moeda(taxa)}<div class="pessoa__sub">${escapeHtml(a.taxa_status || "pendente")}</div></td>
         <td>R$ ${moeda(falta)}<div class="pessoa__sub">${a.payment_plan_enabled ? "Parcelado" : escapeHtml(a.restante_status || "pendente")}${a.restante_data_pagamento ? " · " + new Date(a.restante_data_pagamento + "T00:00:00").toLocaleDateString("pt-BR") : ""}</div></td>
@@ -1121,7 +1125,7 @@
       restante_data_pagamento: historicoPagamentos.length ? historicoPagamentos[historicoPagamentos.length - 1].payment_date : null,
       restante_forma_pagamento: historicoPagamentos.length ? historicoPagamentos[historicoPagamentos.length - 1].payment_method : null,
       service_unit: document.getElementById("unidade_atendimento").value || null,
-      tipo: document.getElementById("tipo").value, status: document.getElementById("status").value, description: document.getElementById("descricao").value.trim()
+      tipo: document.getElementById("tipo").value, tipo_secundario: document.getElementById("tipo_secundario").value.trim() || null, status: document.getElementById("status").value, description: document.getElementById("descricao").value.trim()
     };
     const query = atendimentoEditando
       ? supabase.from("appointments").update(dados).eq("id", atendimentoEditando).select("id").single()
