@@ -88,7 +88,8 @@
 </div>
 
 <div id="modal-agendamento" style="display:none;position:fixed;inset:0;background:rgba(20,20,20,.55);z-index:1000;align-items:center;justify-content:center;padding:16px"><div class="painel-card" style="width:min(620px,100%);max-height:90vh;overflow:auto"><h2>Novo agendamento</h2><p class="texto-suave">Data, início, término, nome e telefone são obrigatórios. Nenhuma conta de login será criada para o paciente.</p><form id="form-agendamento"><div class="form-campo"><label for="ag-data">Data</label><input id="ag-data" type="date" required></div><div class="form-campo"><label for="ag-inicio">Início</label><input id="ag-inicio" type="time" min="08:00" max="18:59" required></div><div class="form-campo"><label for="ag-fim">Término</label><input id="ag-fim" type="time" min="08:01" max="19:00" required></div><div class="form-campo"><label for="ag-paciente">Nome completo</label><input id="ag-paciente" required maxlength="180"></div><div class="form-campo"><label for="ag-telefone">Telefone</label><input id="ag-telefone" type="tel" required maxlength="40"></div><div class="form-campo" id="ag-paciente-existente-wrap" hidden><label for="ag-paciente-existente">Há mais de um cadastro com este telefone. Selecione o paciente correto</label><select id="ag-paciente-existente"><option value="">Selecione…</option></select></div><div class="form-campo"><label for="ag-tipo">Tipo de atendimento</label>
-            <select id="ag-tipo">
+            <input id="ag-tipo" type="text" list="ag-tipos-lista" autocomplete="off" placeholder="Digite para buscar ou escolha um procedimento">
+            <datalist id="ag-tipos-lista">
               <option value="">Selecione o tipo de atendimento</option>
               <option value="Consulta de Avaliação">Consulta de Avaliação</option>
               <option value="Peeling">Peeling</option>
@@ -99,6 +100,7 @@
               <option value="Tratamento de melasma">Tratamento de melasma</option>
             
                   <option value="Extração de comedões">Extração de comedões</option>
+                  <option value="Remoção de Nigras">Remoção de Nigras</option>
                   <option value="Peeling de cerveja">Peeling de cerveja</option>
                   <option value="Peeling químico">Peeling químico</option>
                   <option value="Limpeza de pele profunda">Limpeza de pele profunda</option>
@@ -134,7 +136,7 @@
                   <option value="Clareamento de axilas">Clareamento de axilas</option>
                   <option value="Técnica biorredutora">Técnica biorredutora</option>
                   <option value="Técnica de biohipertrofia">Técnica de biohipertrofia</option>
-            </select>
+            </datalist>
           </div><div class="form-campo"><label for="ag-descricao">Observações</label><textarea id="ag-descricao" rows="3"></textarea></div><div class="form-acoes"><button class="btn-p btn-p-dourado" type="submit" id="ag-salvar">Salvar agendamento</button><button class="btn-p btn-p-fora" type="button" id="ag-cancelar">Cancelar</button></div></form></div></div>
 <!-- tooltip flutuante do calendário -->
 <div class="calendario-tooltip" data-tooltip hidden></div>
