@@ -17,6 +17,15 @@
   .dashboard-notificacoes__item strong{font-size:13px}
   .dashboard-notificacoes__item p{margin:3px 0 0;font-size:12px;color:var(--muted)}
   .dashboard-notificacoes__badge{min-width:24px;height:24px;padding:0 7px;border-radius:999px;background:var(--gold);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700}
+  .dashboard-tipos-mes{margin-top:22px;padding-top:18px;border-top:1px solid var(--linha)}
+  .dashboard-tipos-mes__cabecalho{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .dashboard-tipos-mes__cabecalho h4{margin:0;font-size:15px}
+  .dashboard-tipos-mes__cabecalho span{font-size:12px;color:var(--muted)}
+  .dashboard-tipos-mes__cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}
+  .dashboard-tipos-mes__card{border:1px solid var(--linha);border-radius:10px;padding:13px;background:#fff;min-width:0}
+  .dashboard-tipos-mes__nome{font-size:12px;color:var(--muted);line-height:1.4;min-height:32px;overflow-wrap:anywhere}
+  .dashboard-tipos-mes__quantidade{font-size:27px;line-height:1.2;font-weight:750;color:var(--texto,#26312d);margin-top:6px}
+  .dashboard-tipos-mes__unidade{font-size:11px;color:var(--muted);margin-top:3px}
 </style>
 </head>
 <body>
@@ -88,6 +97,15 @@
       <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center">
         <canvas id="grafico-tipos" width="160" height="160" style="max-width:160px"></canvas>
         <div class="donut-legenda" data-legenda-tipos style="flex:1;min-width:200px"></div>
+      </div>
+      <div class="dashboard-tipos-mes">
+        <div class="dashboard-tipos-mes__cabecalho">
+          <h4>Procedimentos realizados no mês</h4>
+          <span data-tipos-mes-periodo></span>
+        </div>
+        <div class="dashboard-tipos-mes__cards" data-tipos-mes-cards>
+          <p class="texto-suave">Carregando quantidades do mês…</p>
+        </div>
       </div>
     </div>
   </main>
@@ -183,6 +201,44 @@
         <span><span class="donut-legenda__cor" style="background:${cores[i % cores.length]}"></span>${escapeHtml(t.tipo)}</span>
         <strong>${totalTipos ? Math.round((t.total / totalTipos) * 100) : 0}%</strong>
       </div>`).join("") || `<p class="texto-suave">Sem dados ainda.</p>`;
+  }
+
+  // Quantidade de procedimentos efetivamente realizados no mês atual.
+  // O segundo procedimento de um mesmo atendimento também entra na contagem.
+  const hoje = new Date();
+  const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+  const inicioProximoMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 1);
+  const dataISO = (data) => `${data.getFullYear()}-${String(data.getMonth() + 1).padStart(2, "0")}-${String(data.getDate()).padStart(2, "0")}`;
+  const periodoTipos = document.querySelector("[data-tipos-mes-periodo]");
+  const cardsTipos = document.querySelector("[data-tipos-mes-cards]");
+  periodoTipos.textContent = hoje.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+
+  const { data: atendimentosMes, error: erroAtendimentosMes } = await supabase
+    .from("appointments")
+    .select("tipo,tipo_secundario,appointment_date,status")
+    .eq("status", "realizado")
+    .gte("appointment_date", dataISO(inicioMes))
+    .lt("appointment_date", dataISO(inicioProximoMes));
+
+  if (erroAtendimentosMes) {
+    cardsTipos.innerHTML = `<p class="texto-suave">Não foi possível carregar as quantidades deste mês.</p>`;
+  } else {
+    const contagemTiposMes = new Map();
+    (atendimentosMes || []).forEach((atendimento) => {
+      [atendimento.tipo, atendimento.tipo_secundario].forEach((tipo) => {
+        const nome = (tipo || "").trim();
+        if (nome) contagemTiposMes.set(nome, (contagemTiposMes.get(nome) || 0) + 1);
+      });
+    });
+    const tiposOrdenadosMes = [...contagemTiposMes.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pt-BR"));
+    cardsTipos.innerHTML = tiposOrdenadosMes.length
+      ? tiposOrdenadosMes.map(([tipo, total]) => `
+        <div class="dashboard-tipos-mes__card">
+          <div class="dashboard-tipos-mes__nome">${escapeHtml(tipo)}</div>
+          <div class="dashboard-tipos-mes__quantidade">${total}</div>
+          <div class="dashboard-tipos-mes__unidade">${total === 1 ? "procedimento realizado" : "procedimentos realizados"}</div>
+        </div>`).join("")
+      : `<p class="texto-suave">Nenhum procedimento realizado neste mês.</p>`;
   }
 
   // Pacientes recentes
