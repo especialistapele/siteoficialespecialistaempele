@@ -141,7 +141,8 @@
             </section>
             <div class="form-linha">
               <div class="form-campo"><label for="tipo">Tipo de atendimento</label>
-                <select id="tipo">
+                <input id="tipo" type="text" list="tipos-lista" autocomplete="off" placeholder="Digite para buscar ou escolha um procedimento">
+            <datalist id="tipos-lista">
                   <option value="">Selecione o tipo de atendimento</option>
                   <option value="Consulta de Avaliação">Consulta de Avaliação</option>
                   <option value="Peeling">Peeling</option>
@@ -152,6 +153,7 @@
                   <option value="Tratamento de melasma">Tratamento de melasma</option>
                 
                   <option value="Extração de comedões">Extração de comedões</option>
+                  <option value="Remoção de Nigras">Remoção de Nigras</option>
                   <option value="Peeling de cerveja">Peeling de cerveja</option>
                   <option value="Peeling químico">Peeling químico</option>
                   <option value="Limpeza de pele profunda">Limpeza de pele profunda</option>
@@ -187,7 +189,7 @@
                   <option value="Clareamento de axilas">Clareamento de axilas</option>
                   <option value="Técnica biorredutora">Técnica biorredutora</option>
                   <option value="Técnica de biohipertrofia">Técnica de biohipertrofia</option>
-            </select>
+            </datalist>
               </div>
               <div class="form-campo"><label for="status">Status</label>
                 <select id="status">
