@@ -1001,12 +1001,9 @@
   }
 
   const formularioAtendimento = document.getElementById("form-atendimento");
-  formularioAtendimento.addEventListener("invalid", (e) => {
-    const campo = e.target;
-    const rotulo = campo.labels?.[0]?.textContent?.trim() || campo.getAttribute("aria-label") || campo.id || "campo obrigatório";
-    mostrarFlash(flash, `Confira o campo "${rotulo}". Ele está vazio ou contém um valor inválido.`, "erro");
-    campo.scrollIntoView?.({ behavior: "smooth", block: "center" });
-  }, true);
+  // A validação nativa podia bloquear o submit por inputs dinâmicos do parcelamento
+  // sem informar um rótulo útil. As regras deste formulário são validadas no submit.
+  formularioAtendimento.noValidate = true;
 
   formularioAtendimento.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -1034,6 +1031,11 @@
     if (!agendaSemAlteracao) {
       if (!dataAtendimento || !horarioInicial || !horarioFinal) {
         mostrarFlash(flash, "Informe a data, o horário inicial e o horário final do atendimento.", "erro");
+        const campoInvalido = !dataAtendimento ? document.getElementById("appointment_date")
+          : !horarioInicial ? document.getElementById("appointment_time")
+          : document.getElementById("appointment_end_time");
+        campoInvalido.focus();
+        campoInvalido.scrollIntoView?.({ behavior: "smooth", block: "center" });
         return;
       }
       if (horarioInicial < "08:00" || horarioInicial >= "19:00" || horarioFinal <= horarioInicial || horarioFinal > "19:00") {
