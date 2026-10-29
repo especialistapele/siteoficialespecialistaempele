@@ -141,12 +141,13 @@
             </section>
             <div class="form-linha">
               <div class="form-campo"><label for="tipo">Tipo de atendimento</label>
-                <select id="tipo">
-                  <option>Consulta de Avaliação</option>
-                  <option>Retorno</option>
-                  <option>Procedimento</option>
-                  <option>Acompanhamento</option>
-                </select>
+                <input type="text" id="tipo" list="tipos-atendimento-sugeridos" placeholder="Ex.: Limpeza de pele">
+                <datalist id="tipos-atendimento-sugeridos">
+                  <option value="Consulta de Avaliação"></option>
+                  <option value="Retorno"></option>
+                  <option value="Procedimento"></option>
+                  <option value="Acompanhamento"></option>
+                </datalist>
               </div>
               <div class="form-campo"><label for="status">Status</label>
                 <select id="status">
@@ -999,8 +1000,22 @@
     grafico = new Chart(document.getElementById("grafico-paciente"), { type:"line", data:{labels,datasets:[{data:valores,borderColor:"#c9a45b",backgroundColor:"rgba(201,164,91,.15)",fill:true,tension:.3}]}, options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}} });
   }
 
-  document.getElementById("form-atendimento").addEventListener("submit", async (e) => {
+  const formularioAtendimento = document.getElementById("form-atendimento");
+  formularioAtendimento.addEventListener("invalid", (e) => {
+    const campo = e.target;
+    const rotulo = campo.labels?.[0]?.textContent?.trim() || campo.getAttribute("aria-label") || campo.id || "campo obrigatório";
+    mostrarFlash(flash, `Confira o campo "${rotulo}". Ele está vazio ou contém um valor inválido.`, "erro");
+    campo.scrollIntoView?.({ behavior: "smooth", block: "center" });
+  }, true);
+
+  formularioAtendimento.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const botaoSalvar = formularioAtendimento.querySelector('button[type="submit"]');
+    if (botaoSalvar.disabled) return;
+    botaoSalvar.disabled = true;
+    const textoOriginalBotao = botaoSalvar.textContent;
+    botaoSalvar.textContent = "Salvando…";
+    try {
     const total = Math.max(0, parseFloat(document.getElementById("valor").value) || 0);
     const taxa = Math.max(0, parseFloat(document.getElementById("taxa_agendamento").value) || 0);
     if (taxa > total) { atualizarResumoAtendimento(); mostrarFlash(flash, "A taxa de agendamento não pode ser maior que o valor total.", "erro"); return; }
@@ -1090,6 +1105,13 @@
     document.querySelector('[data-aba="historico"]').click();
     carregarParcelasAtendimento(appointmentIdSalvo);
     carregarAtendimentos();
+    } catch (erro) {
+      console.error("Falha ao salvar atendimento:", erro);
+      mostrarFlash(flash, "Não foi possível salvar o atendimento. " + (erro?.message || "Verifique os campos e tente novamente."), "erro");
+    } finally {
+      botaoSalvar.disabled = false;
+      botaoSalvar.textContent = atendimentoEditando ? "Salvar alterações" : "Adicionar atendimento";
+    }
   });
 
   carregarAtendimentos();
