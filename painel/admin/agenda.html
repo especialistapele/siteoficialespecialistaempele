@@ -87,7 +87,23 @@
   </div>
 </div>
 
-<div id="modal-agendamento" style="display:none;position:fixed;inset:0;background:rgba(20,20,20,.55);z-index:1000;align-items:center;justify-content:center;padding:16px"><div class="painel-card" style="width:min(620px,100%);max-height:90vh;overflow:auto"><h2>Novo agendamento</h2><p class="texto-suave">Data, início, término, nome e telefone são obrigatórios. Nenhuma conta de login será criada para o paciente.</p><form id="form-agendamento"><div class="form-campo"><label for="ag-data">Data</label><input id="ag-data" type="date" required></div><div class="form-campo"><label for="ag-inicio">Início</label><input id="ag-inicio" type="time" min="08:00" max="18:59" required></div><div class="form-campo"><label for="ag-fim">Término</label><input id="ag-fim" type="time" min="08:01" max="19:00" required></div><div class="form-campo"><label for="ag-paciente">Nome completo</label><input id="ag-paciente" required maxlength="180"></div><div class="form-campo"><label for="ag-telefone">Telefone</label><input id="ag-telefone" type="tel" required maxlength="40"></div><div class="form-campo" id="ag-paciente-existente-wrap" hidden><label for="ag-paciente-existente">Há mais de um cadastro com este telefone. Selecione o paciente correto</label><select id="ag-paciente-existente"><option value="">Selecione…</option></select></div><div class="form-campo"><label for="ag-tipo">Tipo de atendimento</label><input id="ag-tipo" maxlength="160"></div><div class="form-campo"><label for="ag-descricao">Observações</label><textarea id="ag-descricao" rows="3"></textarea></div><div class="form-acoes"><button class="btn-p btn-p-dourado" type="submit" id="ag-salvar">Salvar agendamento</button><button class="btn-p btn-p-fora" type="button" id="ag-cancelar">Cancelar</button></div></form></div></div>
+<div id="modal-agendamento" style="display:none;position:fixed;inset:0;background:rgba(20,20,20,.55);z-index:1000;align-items:center;justify-content:center;padding:16px"><div class="painel-card" style="width:min(620px,100%);max-height:90vh;overflow:auto"><h2>Novo agendamento</h2><p class="texto-suave">Data, início, término, nome e telefone são obrigatórios. Nenhuma conta de login será criada para o paciente.</p><form id="form-agendamento"><div class="form-campo"><label for="ag-data">Data</label><input id="ag-data" type="date" required></div><div class="form-campo"><label for="ag-inicio">Início</label><input id="ag-inicio" type="time" min="08:00" max="18:59" required></div><div class="form-campo"><label for="ag-fim">Término</label><input id="ag-fim" type="time" min="08:01" max="19:00" required></div><div class="form-campo"><label for="ag-paciente">Nome completo</label><input id="ag-paciente" required maxlength="180"></div><div class="form-campo"><label for="ag-telefone">Telefone</label><input id="ag-telefone" type="tel" required maxlength="40"></div><div class="form-campo" id="ag-paciente-existente-wrap" hidden><label for="ag-paciente-existente">Há mais de um cadastro com este telefone. Selecione o paciente correto</label><select id="ag-paciente-existente"><option value="">Selecione…</option></select></div><div class="form-campo"><label for="ag-tipo">Tipo de atendimento</label>
+            <select id="ag-tipo">
+              <option value="">Selecione o tipo de atendimento</option>
+              <option value="Consulta de Avaliação">Consulta de Avaliação</option>
+              <option value="Retorno">Retorno</option>
+              <option value="Procedimento">Procedimento</option>
+              <option value="Acompanhamento">Acompanhamento</option>
+              <option value="Limpeza de pele">Limpeza de pele</option>
+              <option value="Peeling">Peeling</option>
+              <option value="Microagulhamento">Microagulhamento</option>
+              <option value="Jato de plasma">Jato de plasma</option>
+              <option value="Eletrocautério">Eletrocautério</option>
+              <option value="Tratamento de acne">Tratamento de acne</option>
+              <option value="Tratamento de melasma">Tratamento de melasma</option>
+              <option value="Outro">Outro</option>
+            </select>
+          </div><div class="form-campo"><label for="ag-descricao">Observações</label><textarea id="ag-descricao" rows="3"></textarea></div><div class="form-acoes"><button class="btn-p btn-p-dourado" type="submit" id="ag-salvar">Salvar agendamento</button><button class="btn-p btn-p-fora" type="button" id="ag-cancelar">Cancelar</button></div></form></div></div>
 <!-- tooltip flutuante do calendário -->
 <div class="calendario-tooltip" data-tooltip hidden></div>
 
