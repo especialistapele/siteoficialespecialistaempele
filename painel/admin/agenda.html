@@ -29,6 +29,11 @@
   </div>
 
   <div class="calendario-grade" data-grade></div>
+  <div class="calendario-legenda-unidades" aria-label="Legenda das unidades">
+    <span class="calendario-legenda-item"><i class="calendario-legenda-cor" style="background:#f59e0b"></i>Araruama</span>
+    <span class="calendario-legenda-item"><i class="calendario-legenda-cor" style="background:#3b82f6"></i>Cabo Frio</span>
+    <span class="calendario-legenda-item"><i class="calendario-legenda-cor" style="background:#16a34a"></i>Copacabana</span>
+  </div>
 
 </div>
 
@@ -50,9 +55,29 @@
     <div class="form-acoes" style="display:grid;grid-template-columns:1fr;gap:10px">
       <button class="btn-p btn-p-dourado" type="button" id="acao-bloquear-data">Bloquear data ou horário</button>
       <button class="btn-p btn-p-fora" type="button" id="acao-adicionar-evento">Adicionar evento</button>
+      <button class="btn-p btn-p-fora" type="button" id="acao-definir-unidade">Definir unidade deste dia</button>
       <button class="btn-p btn-p-fora" type="button" id="acao-novo-agendamento">Novo atendimento de paciente</button>
       <button class="btn-p btn-p-fora" type="button" id="acao-fechar-data">Fechar</button>
     </div>
+  </div>
+</div>
+
+<div id="modal-unidade-data" style="display:none;position:fixed;inset:0;background:rgba(20,20,20,.55);z-index:1002;align-items:center;justify-content:center;padding:16px">
+  <div class="painel-card" style="width:min(440px,100%)">
+    <h2>Unidade de atendimento</h2>
+    <p class="texto-suave">A cor identifica a unidade do dia inteiro e não altera os agendamentos existentes. Para retirar a marcação, escolha “Sem unidade”.</p>
+    <form id="form-unidade-data">
+      <div class="form-campo"><label for="unidade-data">Data</label><input id="unidade-data" type="date" required></div>
+      <div class="form-campo"><label for="unidade-local">Unidade</label>
+        <select id="unidade-local" required>
+          <option value="">Sem unidade (remover identificação)</option>
+          <option value="Araruama">Araruama</option>
+          <option value="Cabo Frio">Cabo Frio</option>
+          <option value="Copacabana">Copacabana</option>
+        </select>
+      </div>
+      <div class="form-acoes"><button class="btn-p btn-p-dourado" type="submit" id="unidade-salvar">Salvar identificação</button><button class="btn-p btn-p-fora" type="button" id="unidade-cancelar">Cancelar</button></div>
+    </form>
   </div>
 </div>
 
@@ -171,7 +196,9 @@ let diaSelecionado = hojeStr();
 let agendamentosPorDia = {}; // { 'YYYY-MM-DD': [ {...} ] }
 let bloqueiosPorDia = {}; // bloqueios pontuais por data
 let eventosPorDia = {}; // eventos administrativos por data
+let unidadesPorDia = {}; // identificação visual da unidade por data
 let bloqueioRecorrente = null;
+const CORES_UNIDADE = { Araruama: '#f59e0b', 'Cabo Frio': '#3b82f6', Copacabana: '#16a34a' };
 
 campoData.value = diaSelecionado;
 
@@ -230,6 +257,8 @@ function montarGrade() {
     const itens = agendamentosPorDia[chave] || [];
     const bloqueios = bloqueiosPorDia[chave] || [];
     const eventos = eventosPorDia[chave] || [];
+    const unidade = unidadesPorDia[chave] || null;
+    const corUnidade = unidade ? CORES_UNIDADE[unidade] : null;
     const bloqueado = diaEstaBloqueado(chave);
     const bloqueioParcial = bloqueios.some(b => b.start_time && b.end_time);
 
@@ -241,8 +270,20 @@ function montarGrade() {
       (ehSelecionado ? ' selecionado' : '') +
       (bloqueado ? ' dia-bloqueado' : '');
     celula.dataset.chave = chave;
-    if (bloqueado) { celula.style.background = '#e6e6e6'; celula.style.borderColor = bloqueioRecorrente?.color || '#111'; celula.title = 'Dia bloqueado: ' + (bloqueioRecorrente?.name || 'bloqueio recorrente'); }
-    else if (bloqueioParcial) { celula.title = 'Há bloqueio parcial nesta data'; }
+    if (unidade) {
+      celula.classList.add('dia-com-unidade');
+      celula.style.backgroundColor = corUnidade;
+      celula.style.borderColor = corUnidade;
+      celula.style.color = '#fff';
+      celula.title = 'Atendimento em ' + unidade;
+    }
+    if (bloqueado) {
+      if (!unidade) celula.style.background = '#e6e6e6';
+      celula.style.borderColor = bloqueioRecorrente?.color || '#111';
+      celula.title = (unidade ? 'Atendimento em ' + unidade + ' · ' : '') + 'Dia bloqueado: ' + (bloqueioRecorrente?.name || 'bloqueio recorrente');
+    } else if (bloqueioParcial) {
+      celula.title = (unidade ? 'Atendimento em ' + unidade + ' · ' : '') + 'Há bloqueio parcial nesta data';
+    }
 
     const pontos = itens.slice(0, 4).map(a => `<span class="calendario-ponto" style="background:${corStatus(a.status)}"></span>`).join('');
     const extra = itens.length > 4 ? `<span class="calendario-ponto-extra">+${itens.length - 4}</span>` : '';
@@ -250,9 +291,10 @@ function montarGrade() {
 
     celula.innerHTML = `
       <span class="calendario-dia__numero">${dataCelula.getDate()}</span>
-      ${bloqueado ? `<span style="display:block;font-size:9px;color:${esc(bloqueioRecorrente?.color || '#111')};font-weight:700">BLOQUEADO</span>` : ''}
+      ${unidade ? `<span class="calendario-unidade-label">${esc(unidade)}</span>` : ''}
+      ${bloqueado ? `<span style="display:block;font-size:9px;color:${unidade ? '#fff' : esc(bloqueioRecorrente?.color || '#111')};font-weight:700">BLOQUEADO</span>` : ''}
       ${!bloqueado && bloqueioParcial ? '<span style="display:block;font-size:9px;color:#b91c1c;font-weight:700">BLOQUEIO PARCIAL</span>' : ''}
-      ${eventos.length ? `<span style="display:block;font-size:9px;color:${esc(corEvento)};font-weight:700">EVENTO${eventos.length > 1 ? ' +' + (eventos.length - 1) : ''}</span>` : ''}
+      ${eventos.length ? `<span style="display:block;font-size:9px;color:${unidade ? '#fff' : esc(corEvento)};font-weight:700">EVENTO${eventos.length > 1 ? ' +' + (eventos.length - 1) : ''}</span>` : ''}
       ${itens.length ? `<span class="calendario-dia__pontos">${pontos}${extra}</span>` : ''}
     `;
 
@@ -335,7 +377,7 @@ async function carregarMes() {
   const ultimoDiaNum = new Date(anoAtual, mesAtual + 1, 0).getDate();
   const ultimoDia = `${anoAtual}-${pad2(mesAtual + 1)}-${pad2(ultimoDiaNum)}`;
 
-  const [agendamentos, bloqueios, eventos] = await Promise.all([
+  const [agendamentos, bloqueios, eventos, unidades] = await Promise.all([
     supabase.from('appointments')
       .select('id,appointment_date,appointment_time,appointment_end_time,tipo,status,patients(full_name)')
       .gte('appointment_date', primeiroDia).lte('appointment_date', ultimoDia).order('appointment_time'),
@@ -344,12 +386,16 @@ async function carregarMes() {
       .gte('block_date', primeiroDia).lte('block_date', ultimoDia).eq('active', true),
     supabase.from('calendar_events')
       .select('id,title,event_date,start_time,end_time,description,color')
-      .gte('event_date', primeiroDia).lte('event_date', ultimoDia).order('start_time')
+      .gte('event_date', primeiroDia).lte('event_date', ultimoDia).order('start_time'),
+    supabase.from('appointment_unit_days')
+      .select('appointment_date,service_unit')
+      .gte('appointment_date', primeiroDia).lte('appointment_date', ultimoDia)
   ]);
 
   agendamentosPorDia = {};
   bloqueiosPorDia = {};
   eventosPorDia = {};
+  unidadesPorDia = {};
   if (!agendamentos.error && agendamentos.data) {
     for (const a of agendamentos.data) (agendamentosPorDia[a.appointment_date] ||= []).push(a);
   }
@@ -358,6 +404,11 @@ async function carregarMes() {
   }
   if (!eventos.error && eventos.data) {
     for (const e of eventos.data) (eventosPorDia[e.event_date] ||= []).push(e);
+  }
+  if (!unidades.error && unidades.data) {
+    for (const u of unidades.data) unidadesPorDia[u.appointment_date] = u.service_unit;
+  } else if (unidades.error) {
+    console.error('Não foi possível carregar as unidades por data:', unidades.error.message);
   }
   montarGrade();
   selecionarDia(diaSelecionado);
@@ -392,6 +443,11 @@ function abrirAcoesData(chave) {
   document.getElementById('acoes-data-titulo').textContent = 'Ações para ' + chave.split('-').reverse().join('/');
   document.getElementById('modal-acoes-data').style.display = 'flex';
 }
+function abrirModalUnidade(chave) {
+  document.getElementById('unidade-data').value = chave;
+  document.getElementById('unidade-local').value = unidadesPorDia[chave] || '';
+  document.getElementById('modal-unidade-data').style.display = 'flex';
+}
 function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
 function abrirFormularioData(id, dataId) {
   fecharModal('modal-acoes-data');
@@ -402,12 +458,15 @@ function renderizarItensDaData(chave) {
   const container = document.getElementById('lista-eventos-dia');
   const bloqueios = (bloqueiosPorDia[chave] || []);
   const eventos = (eventosPorDia[chave] || []);
+  const unidade = unidadesPorDia[chave] || null;
   const recorrente = diaEstaBloqueado(chave) && !(bloqueios.some(b => !b.start_time && !b.end_time));
   const linhas = [];
+  if (unidade) linhas.push(`<div class="lista-simples__item" style="border-left:4px solid ${CORES_UNIDADE[unidade]};padding-left:10px"><span><strong>Unidade do dia:</strong> ${esc(unidade)}</span><button type="button" class="btn-p btn-p-mini btn-p-fora" data-editar-unidade>Alterar</button></div>`);
   if (recorrente) linhas.push(`<div class="lista-simples__item"><span><strong>Bloqueio recorrente:</strong> ${esc(bloqueioRecorrente?.name || 'Bloqueio recorrente')} (dia inteiro)</span></div>`);
   for (const b of bloqueios) linhas.push(`<div class="lista-simples__item" style="border-left:4px solid ${esc(b.color || '#b91c1c')};padding-left:10px"><span><strong>Bloqueio:</strong> ${esc(b.name)} · ${b.start_time ? esc(String(b.start_time).slice(0,5)) + '–' + esc(String(b.end_time).slice(0,5)) : 'dia inteiro'}</span><button type="button" class="btn-p btn-p-mini btn-p-perigo" data-excluir-bloqueio="${esc(b.id)}">Remover</button></div>`);
   for (const e of eventos) linhas.push(`<div class="lista-simples__item" style="border-left:4px solid ${esc(e.color || '#2563eb')};padding-left:10px"><span><strong>Evento:</strong> ${esc(e.title)} · ${e.start_time ? esc(String(e.start_time).slice(0,5)) + (e.end_time ? '–' + esc(String(e.end_time).slice(0,5)) : '') : 'dia inteiro'}${e.description ? '<div class="texto-suave">' + esc(e.description) + '</div>' : ''}</span><button type="button" class="btn-p btn-p-mini btn-p-perigo" data-excluir-evento="${esc(e.id)}">Remover</button></div>`);
   container.innerHTML = linhas.length ? linhas.join('') : '<p class="painel-vazio">Nenhum evento ou bloqueio pontual nesta data.</p>';
+  container.querySelectorAll('[data-editar-unidade]').forEach(btn => btn.onclick = () => abrirModalUnidade(chave));
   container.querySelectorAll('[data-excluir-bloqueio]').forEach(btn => btn.onclick = async () => {
     if (!confirm('Remover este bloqueio?')) return;
     const { error } = await supabase.from('appointment_date_blocks').delete().eq('id', btn.dataset.excluirBloqueio);
@@ -425,6 +484,10 @@ function renderizarItensDaData(chave) {
 document.getElementById('acao-fechar-data').onclick = () => fecharModal('modal-acoes-data');
 document.getElementById('acao-bloquear-data').onclick = () => abrirFormularioData('modal-bloqueio-data', 'bloqueio-data');
 document.getElementById('acao-adicionar-evento').onclick = () => abrirFormularioData('modal-evento', 'evento-data');
+document.getElementById('acao-definir-unidade').onclick = () => {
+  fecharModal('modal-acoes-data');
+  abrirModalUnidade(diaSelecionado);
+};
 document.getElementById('acao-novo-agendamento').onclick = () => {
   fecharModal('modal-acoes-data');
   document.getElementById('ag-data').value = diaSelecionado;
@@ -432,6 +495,28 @@ document.getElementById('acao-novo-agendamento').onclick = () => {
 };
 document.getElementById('bloqueio-cancelar').onclick = () => fecharModal('modal-bloqueio-data');
 document.getElementById('evento-cancelar').onclick = () => fecharModal('modal-evento');
+document.getElementById('unidade-cancelar').onclick = () => fecharModal('modal-unidade-data');
+document.getElementById('form-unidade-data').addEventListener('submit', async event => {
+  event.preventDefault();
+  const data = document.getElementById('unidade-data').value;
+  const unidade = document.getElementById('unidade-local').value;
+  const btn = document.getElementById('unidade-salvar');
+  if (!data) return;
+  btn.disabled = true;
+  const resultado = unidade
+    ? await supabase.from('appointment_unit_days').upsert({ appointment_date: data, service_unit: unidade }, { onConflict: 'appointment_date' })
+    : await supabase.from('appointment_unit_days').delete().eq('appointment_date', data);
+  btn.disabled = false;
+  if (resultado.error) {
+    mostrarFlash(document.querySelector('[data-flash]'), 'Não foi possível salvar a unidade: ' + resultado.error.message, 'erro');
+    return;
+  }
+  fecharModal('modal-unidade-data');
+  diaSelecionado = data;
+  campoData.value = data;
+  mostrarFlash(document.querySelector('[data-flash]'), unidade ? 'Unidade do dia atualizada para ' + unidade + '.' : 'Identificação de unidade removida deste dia.', 'sucesso');
+  await carregarMes();
+});
 
 document.getElementById('form-bloqueio-data').addEventListener('submit', async event => {
   event.preventDefault();
