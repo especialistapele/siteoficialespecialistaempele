@@ -8,6 +8,18 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-YPF8LKST26');
+  // Registra somente o clique no link de saída do WhatsApp; não envia respostas ou dados do formulário.
+  document.addEventListener('click', function(event) {
+    var link = event.target && event.target.closest ? event.target.closest('a[href*="wa.me/"], a[href*="whatsapp.com/"], a[href*="api.whatsapp.com/"]') : null;
+    if (!link || typeof window.gtag !== 'function') return;
+    window.gtag('event', 'whatsapp_click', {
+      link_url: link.href,
+      link_text: (link.innerText || link.getAttribute('aria-label') || 'WhatsApp').trim().slice(0, 100),
+      page_path: window.location.pathname,
+      page_title: document.title
+    });
+  }, true);
+
 </script>
 
 <meta charset="UTF-8">
