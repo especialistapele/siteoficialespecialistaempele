@@ -7,6 +7,7 @@ const ICONES = {
   agenda: "🗓️",
   artigo: "📝",
   resultado: "📸",
+  ga4: "📊",
 };
 
 function chave(item) {
@@ -71,6 +72,11 @@ export async function carregarNotificacoes(supabase) {
 
   const itens = [];
   const hoje = inicioHoje();
+  const revisoesGA4 = [
+    { id: "ga4:revisao-2026-11-02", dia: "2026-11-02", titulo: "Primeira conferência do Google GA4", descricao: "Verificar se a tag G-YPF8LKST26 começou a registrar usuários, sessões, páginas acessadas e cliques no WhatsApp.", detalhe: "Revisão inicial da coleta — Marketing · Melhorias do site." },
+    { id: "ga4:revisao-2026-11-04", dia: "2026-11-04", titulo: "Segunda conferência do Google GA4", descricao: "Comparar os dados com a primeira conferência, avaliar evolução e identificar falhas ou oportunidades de melhoria.", detalhe: "Segunda leitura da coleta — Marketing · Melhorias do site." },
+  ];
+  revisoesGA4.forEach((lembrete) => { const quando = new Date(lembrete.dia + "T09:00:00"); if (hoje >= quando) itens.push({ ...lembrete, tipo: "ga4", href: "/painel/admin/melhorias-site.html", data: quando, prioridade: "alta" }); });
 
   if (config.notificacoes_leads) {
     const { data, error } = await supabase
