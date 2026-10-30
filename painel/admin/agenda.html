@@ -1,7 +1,15 @@
 <!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="robots" content="noindex,nofollow"><title>Agenda — Painel</title><link rel="stylesheet" href="/painel/assets/css/painel.css"><link rel="icon" href="/assets/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="512x512" href="/assets/favicon-512.png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
-</head><body><div class="painel-layout"><aside class="painel-sidebar" data-sidebar></aside><main class="painel-main">
+<style>
+.agenda-ferramentas{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:16px 0}
+.agenda-visoes{display:flex;gap:6px;flex-wrap:wrap}.agenda-visoes button{border:1px solid #ddd;background:#fff;color:#333;border-radius:9px;padding:8px 13px;font-weight:700;cursor:pointer}.agenda-visoes button[aria-pressed="true"]{background:var(--gold,#b58a45);border-color:var(--gold,#b58a45);color:#fff}
+.agenda-filtro-unidade{display:flex;align-items:center;gap:8px;font-size:13px}.agenda-filtro-unidade select{min-width:160px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:inherit}
+.agenda-resumo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}.agenda-resumo-card{padding:12px 14px;border:1px solid #e6e1d8;border-radius:12px;background:#fff;min-width:0}.agenda-resumo-card small{display:block;color:#777;font-size:11px;margin-bottom:5px}.agenda-resumo-card strong{font-size:20px;line-height:1.2}.agenda-resumo-card span{display:block;font-size:11px;color:#777;margin-top:4px}
+.agenda-dia-compacto{min-height:145px;text-align:left;display:flex;flex-direction:column;align-items:stretch;gap:5px;padding:9px;overflow:hidden}.agenda-dia-compacto .agenda-dia-cab{display:flex;align-items:center;justify-content:space-between;font-weight:800}.agenda-compromisso-mini{display:flex;gap:6px;align-items:flex-start;padding:4px 5px;border-radius:6px;background:rgba(255,255,255,.82);color:#252525;font-size:11px;line-height:1.25;overflow-wrap:anywhere}.agenda-compromisso-mini b{white-space:nowrap}.agenda-dia-compacto .agenda-sem-itens{font-size:11px;opacity:.7;margin-top:7px}.agenda-grade-dia{grid-template-columns:minmax(0,1fr)!important}.agenda-grade-dia .agenda-dia-compacto{min-height:220px}.agenda-sem-filtro{opacity:.28;filter:grayscale(.65)}
+.agenda-whatsapp{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;border-radius:7px;padding:6px 9px;background:#e8f5ec;color:#176b37;text-decoration:none;font-size:12px;font-weight:700}
+@media(max-width:760px){.agenda-resumo{grid-template-columns:repeat(2,minmax(0,1fr))}.agenda-resumo-card strong{font-size:17px}.agenda-dia-compacto{min-height:130px;padding:6px}.agenda-compromisso-mini{font-size:10px}}
+</style></head><body><div class="painel-layout"><aside class="painel-sidebar" data-sidebar></aside><main class="painel-main">
 
 <div class="painel-topo">
   <div><h1>Agenda</h1><p class="texto-suave">Atendimentos agendados, confirmados e realizados.</p></div>
@@ -24,7 +32,7 @@
     </div>
   </div>
 
-  <div class="calendario-legenda-unidades" aria-label="Legenda das unidades">
+  <div class="agenda-ferramentas"><div class="agenda-visoes" role="group" aria-label="Visualização da agenda"><button type="button" data-visao="mes" aria-pressed="true">Mês</button><button type="button" data-visao="semana" aria-pressed="false">Semana</button><button type="button" data-visao="dia" aria-pressed="false">Dia</button></div><label class="agenda-filtro-unidade">Unidade<select id="filtro-unidade-agenda"><option value="">Todas as unidades</option><option value="Araruama">🦜 Araruama</option><option value="Cabo Frio">☀️ Cabo Frio</option><option value="Copacabana">Copacabana</option></select></label></div><div class="agenda-resumo" id="agenda-resumo" aria-live="polite"><div class="agenda-resumo-card"><small>Atendimentos do dia</small><strong>—</strong></div><div class="agenda-resumo-card"><small>Confirmados</small><strong>—</strong></div><div class="agenda-resumo-card"><small>Intervalos livres</small><strong>—</strong></div><div class="agenda-resumo-card"><small>Valor previsto</small><strong>—</strong></div></div><div class="calendario-legenda-unidades" aria-label="Legenda das unidades">
     <span class="calendario-legenda-item"><i class="calendario-legenda-cor" style="background:#f59e0b"></i><span aria-hidden="true">🦜</span>Araruama</span>
     <span class="calendario-legenda-item"><i class="calendario-legenda-cor" style="background:#3b82f6"></i><span aria-hidden="true">☀️</span>Cabo Frio</span>
     <span class="calendario-legenda-item"><i class="calendario-legenda-cor" style="background:#16a34a"></i><svg class="calendario-legenda-ladrilho" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="4" fill="#fff"/><path d="M-2 5 Q4 -1 10 5 T22 5 T34 5 M-2 12 Q4 6 10 12 T22 12 T34 12 M-2 19 Q4 13 10 19 T22 19 T34 19" fill="none" stroke="#171717" stroke-width="3"/></svg>Copacabana</span>
@@ -40,7 +48,7 @@
 <!-- ===================== LISTA DO DIA SELECIONADO ===================== -->
 <div class="painel-card" style="margin-top:20px">
   <h3 id="lista-dia-titulo">Atendimentos do dia</h3>
-  <div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Início</th><th>Término</th><th>Paciente</th><th>Tipo</th><th>Observações</th><th>Valor</th><th>Pagamento</th><th>Status</th></tr></thead><tbody data-lista><tr><td colspan="8" class="painel-vazio">Carregando…</td></tr></tbody></table></div>
+  <div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Início</th><th>Término</th><th>Paciente</th><th>Tipo</th><th>Observações</th><th>Valor</th><th>Pagamento</th><th>Status</th><th>Contato</th></tr></thead><tbody data-lista><tr><td colspan="9" class="painel-vazio">Carregando…</td></tr></tbody></table></div>
 </div>
 
 <div class="painel-card" style="margin-top:20px">
@@ -198,6 +206,8 @@ let bloqueiosPorDia = {}; // bloqueios pontuais por data
 let eventosPorDia = {}; // eventos administrativos por data
 let unidadesPorDia = {}; // identificação visual da unidade por data
 let bloqueioRecorrente = null;
+let visaoAtual = 'mes';
+let filtroUnidade = '';
 const CORES_UNIDADE = { Araruama: '#f59e0b', 'Cabo Frio': '#3b82f6', Copacabana: '#16a34a' };
 const ICONE_UNIDADE = {
   Araruama: '<span class="calendario-unidade-emoji" aria-hidden="true">🦜</span>',
@@ -206,6 +216,16 @@ const ICONE_UNIDADE = {
 };
 
 campoData.value = diaSelecionado;
+document.querySelectorAll('[data-visao]').forEach(b => b.addEventListener('click', () => {
+  visaoAtual = b.dataset.visao;
+  document.querySelectorAll('[data-visao]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+  montarGrade();
+}));
+document.getElementById('filtro-unidade-agenda').addEventListener('change', e => {
+  filtroUnidade = e.target.value;
+  montarGrade();
+  selecionarDia(diaSelecionado);
+});
 
 document.getElementById('hoje').onclick = () => {
   anoAtual = hoje.getFullYear();
@@ -244,6 +264,8 @@ function corStatus(status) {
 
 // ---------- monta a grade do mês ----------
 function montarGrade() {
+  if (visaoAtual !== 'mes') { montarVisaoAlternativa(); return; }
+  grade.classList.remove('agenda-grade-dia'); grade.style.gridTemplateColumns = '';
   titulo.textContent = `${MESES[mesAtual]} ${anoAtual}`;
 
   const primeiroDia = new Date(anoAtual, mesAtual, 1);
@@ -260,6 +282,8 @@ function montarGrade() {
     const ehHoje = chave === hojeStr();
     const ehSelecionado = chave === diaSelecionado;
     const itens = agendamentosPorDia[chave] || [];
+    const unidadeDoDia = unidadesPorDia[chave] || itens.find(a => a.service_unit)?.service_unit || '';
+    const filtroCompativel = !filtroUnidade || unidadeDoDia === filtroUnidade || itens.some(a => a.service_unit === filtroUnidade);
     const bloqueios = bloqueiosPorDia[chave] || [];
     const eventos = eventosPorDia[chave] || [];
     const unidade = unidadesPorDia[chave] || null;
@@ -275,6 +299,7 @@ function montarGrade() {
       (ehSelecionado ? ' selecionado' : '') +
       (bloqueado ? ' dia-bloqueado' : '');
     celula.dataset.chave = chave;
+    if (!filtroCompativel) celula.classList.add('agenda-sem-filtro');
     celula.setAttribute('aria-label', chave + (unidade ? ': atendimento em ' + unidade : ''));
     if (unidade) {
       celula.classList.add('dia-com-unidade');
@@ -320,6 +345,31 @@ function montarGrade() {
     }
 
     grade.appendChild(celula);
+  }
+}
+
+function montarVisaoAlternativa() {
+  const selecionada = new Date(diaSelecionado + 'T12:00:00');
+  let datas = [];
+  if (visaoAtual === 'semana') {
+    const inicio = new Date(selecionada); inicio.setDate(inicio.getDate() - inicio.getDay());
+    datas = Array.from({length:7},(_,i)=>{const d=new Date(inicio);d.setDate(inicio.getDate()+i);return d;});
+    titulo.textContent = 'Semana de ' + paraChave(datas[0]).split('-').reverse().join('/') + ' a ' + paraChave(datas[6]).split('-').reverse().join('/');
+    grade.classList.remove('agenda-grade-dia'); grade.style.gridTemplateColumns = '';
+  } else {
+    datas = [selecionada]; titulo.textContent = selecionada.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+    grade.classList.add('agenda-grade-dia');
+  }
+  grade.innerHTML = '';
+  for (const dt of datas) {
+    const chave=paraChave(dt), itens=agendamentosPorDia[chave]||[], unidade=unidadesPorDia[chave]||itens.find(a=>a.service_unit)?.service_unit||'';
+    const visiveis=filtroUnidade?itens.filter(a=>(a.service_unit||unidadesPorDia[chave]||'')===filtroUnidade):itens;
+    const cel=document.createElement('button');cel.type='button';cel.className='calendario-dia agenda-dia-compacto'+(chave===diaSelecionado?' selecionado':'')+(chave===hojeStr()?' hoje':'');
+    if(unidade){cel.style.borderColor=CORES_UNIDADE[unidade];cel.style.backgroundColor=CORES_UNIDADE[unidade]+'22';}
+    const cards=visiveis.map(a=>'<span class="agenda-compromisso-mini"><b>'+esc(String(a.appointment_time||'').slice(0,5))+'</b><span>'+esc(a.patients?.full_name||'Paciente')+'<br>'+esc(a.tipo||'Atendimento')+' · '+esc(a.status||'agendado')+(a.appointment_end_time?' · '+esc(String(a.appointment_end_time).slice(0,5)):'')+'</span></span>').join('');
+    const bl=bloqueiosPorDia[chave]||[], ev=eventosPorDia[chave]||[];
+    cel.innerHTML='<span class="agenda-dia-cab"><span>'+dt.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'2-digit'})+'</span>'+(unidade?(ICONE_UNIDADE[unidade]||''):'')+'</span>'+(diaEstaBloqueado(chave)?'<span class="agenda-compromisso-mini">🔒 Dia bloqueado</span>':'')+bl.map(b=>'<span class="agenda-compromisso-mini">⛔ '+esc(b.name)+' '+(b.start_time?esc(String(b.start_time).slice(0,5))+'–'+esc(String(b.end_time).slice(0,5)):'dia inteiro')+'</span>').join('')+ev.map(e=>'<span class="agenda-compromisso-mini">📌 '+esc(e.title)+(e.start_time?' · '+esc(String(e.start_time).slice(0,5)):'')+'</span>').join('')+(cards||'<span class="agenda-sem-itens">Sem atendimentos'+(filtroUnidade?' nesta unidade':'')+'</span>');
+    cel.addEventListener('click',()=>{diaSelecionado=chave;campoData.value=chave;montarGrade();selecionarDia(chave);abrirAcoesData(chave);});grade.appendChild(cel);
   }
 }
 
@@ -379,13 +429,12 @@ async function carregarMes() {
   await carregarRegraBloqueio();
   montarGrade(); // desenha já, mesmo antes da resposta chegar (sem pontos)
 
-  const primeiroDia = `${anoAtual}-${pad2(mesAtual + 1)}-01`;
-  const ultimoDiaNum = new Date(anoAtual, mesAtual + 1, 0).getDate();
-  const ultimoDia = `${anoAtual}-${pad2(mesAtual + 1)}-${pad2(ultimoDiaNum)}`;
+  const primeiroDia = paraChave(new Date(anoAtual, mesAtual, 1 - new Date(anoAtual, mesAtual, 1).getDay()));
+  const ultimoDia = paraChave(new Date(anoAtual, mesAtual, 1 - new Date(anoAtual, mesAtual, 1).getDay() + 41));
 
   const [agendamentos, bloqueios, eventos, unidades] = await Promise.all([
     supabase.from('appointments')
-      .select('id,appointment_date,appointment_time,appointment_end_time,tipo,status,patients(full_name)')
+      .select('id,appointment_date,appointment_time,appointment_end_time,tipo,status,valor,service_unit,patients(full_name,phone)')
       .gte('appointment_date', primeiroDia).lte('appointment_date', ultimoDia).order('appointment_time'),
     supabase.from('appointment_date_blocks')
       .select('id,name,block_date,start_time,end_time,color,active')
@@ -425,18 +474,20 @@ async function selecionarDia(chave) {
   const [a, m, d] = chave.split('-');
   listaTitulo.textContent = `Atendimentos do dia ${d}/${m}/${a}`;
 
-  const { data, error } = await supabase.from('appointments').select('id,patient_id,appointment_time,appointment_end_time,tipo,description,valor,status,taxa_agendamento,taxa_status,restante_pago,restante_status,restante_data_pagamento,patients(full_name)').eq('appointment_date', chave).order('appointment_time');
+  const { data, error } = await supabase.from('appointments').select('id,patient_id,appointment_time,appointment_end_time,tipo,description,valor,status,taxa_agendamento,taxa_status,restante_pago,restante_status,restante_data_pagamento,service_unit,patients(full_name,phone)').eq('appointment_date', chave).order('appointment_time');
   const tb = document.querySelector('[data-lista]');
-  if (error) { tb.innerHTML = `<tr><td colspan="8" class="painel-vazio">${esc(error.message)}</td></tr>`; return; }
-  tb.innerHTML = data?.length ? data.map(a => {
+  if (error) { tb.innerHTML = `<tr><td colspan="9" class="painel-vazio">${esc(error.message)}</td></tr>`; return; }
+  renderizarResumoDia(chave, data || []);
+  const atendimentosVisiveis = (data || []).filter(a => !filtroUnidade || (a.service_unit || unidadesPorDia[chave] || '') === filtroUnidade);
+  tb.innerHTML = atendimentosVisiveis.length ? atendimentosVisiveis.map(a => {
     const total = Number(a.valor || 0);
     const taxa = Number(a.taxa_agendamento || 0);
     const restante = Math.max(0, total - taxa);
     const pagoRestante = Math.min(restante, Number(a.restante_pago || 0));
     const falta = Math.max(0, restante - pagoRestante);
     const pagamento = `Taxa: R$ ${taxa.toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${esc(a.taxa_status || 'pendente')}<br>Restante: R$ ${falta.toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${esc(a.restante_status || 'pendente')}`;
-    return `<tr><td><strong>${esc(String(a.appointment_time || '').slice(0,5))}</strong></td><td>${esc(a.appointment_end_time ? String(a.appointment_end_time).slice(0,5) : '—')}</td><td>${esc(a.patients?.full_name || 'Paciente')}</td><td>${esc(a.tipo || 'Atendimento')}</td><td>${esc(a.description || '—')}</td><td>R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>${pagamento}</td><td><select data-status="${a.id}"><option value="agendado" ${a.status === 'agendado' ? 'selected' : ''}>Agendado</option><option value="confirmado" ${a.status === 'confirmado' ? 'selected' : ''}>Confirmado</option><option value="realizado" ${a.status === 'realizado' ? 'selected' : ''}>Realizado</option><option value="cancelado" ${a.status === 'cancelado' ? 'selected' : ''}>Cancelado</option></select></td></tr>`;
-  }).join('') : `<tr><td colspan="8" class="painel-vazio">Nenhum atendimento para esta data.</td></tr>`;
+    return `<tr><td><strong>${esc(String(a.appointment_time || '').slice(0,5))}</strong></td><td>${esc(a.appointment_end_time ? String(a.appointment_end_time).slice(0,5) : '—')}</td><td>${esc(a.patients?.full_name || 'Paciente')}</td><td>${esc(a.tipo || 'Atendimento')}</td><td>${esc(a.description || '—')}</td><td>R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td>${pagamento}</td><td><select data-status="${a.id}"><option value="agendado" ${a.status === 'agendado' ? 'selected' : ''}>Agendado</option><option value="confirmado" ${a.status === 'confirmado' ? 'selected' : ''}>Confirmado</option><option value="realizado" ${a.status === 'realizado' ? 'selected' : ''}>Realizado</option><option value="cancelado" ${a.status === 'cancelado' ? 'selected' : ''}>Cancelado</option></select></td><td>${linkWhatsApp(a, chave)}</td></tr>`;
+  }).join('') : `<tr><td colspan="9" class="painel-vazio">Nenhum atendimento para esta data ou unidade.</td></tr>`;
   tb.querySelectorAll('[data-status]').forEach(s => s.onchange = async () => {
     const { error } = await supabase.from('appointments').update({ status: s.value }).eq('id', s.dataset.status);
     mostrarFlash(document.querySelector('[data-flash]'), error ? 'Erro: ' + error.message : 'Status atualizado.', error ? 'erro' : 'sucesso');
@@ -445,6 +496,22 @@ async function selecionarDia(chave) {
   renderizarItensDaData(chave);
 }
 
+function linkWhatsApp(a,chave) {
+  const fone=String(a.patients?.phone||'').replace(/\D/g,'');
+  if(!fone)return '<span class="texto-suave">Sem telefone</span>';
+  const numero=fone.startsWith('55')?fone:((fone.length===10||fone.length===11)?'55'+fone:fone);
+  const unidade=a.service_unit||unidadesPorDia[chave]||'a confirmar';
+  const msg=`Olá, ${a.patients?.full_name||''}! Passando para confirmar seu atendimento no dia ${chave.split('-').reverse().join('/')}, às ${String(a.appointment_time||'').slice(0,5)}, na unidade ${unidade}. Podemos confirmar sua presença?`;
+  return '<a class="agenda-whatsapp" target="_blank" rel="noopener" href="https://wa.me/'+numero+'?text='+encodeURIComponent(msg)+'">WhatsApp</a>';
+}
+function renderizarResumoDia(chave,lista) {
+  const ativos=lista.filter(a=>a.status!=='cancelado'), confirmados=ativos.filter(a=>a.status==='confirmado').length, realizados=ativos.filter(a=>a.status==='realizado').length;
+  const total=ativos.reduce((s,a)=>s+Number(a.valor||0),0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+  const legado=ativos.some(a=>!a.appointment_end_time), bloqueioTotal=diaEstaBloqueado(chave)||(bloqueiosPorDia[chave]||[]).some(b=>!b.start_time&&!b.end_time);
+  let livres='—';
+  if(!legado&&!bloqueioTotal){const faixas=ativos.map(a=>[String(a.appointment_time).slice(0,5),String(a.appointment_end_time).slice(0,5)]).concat((bloqueiosPorDia[chave]||[]).filter(b=>b.start_time&&b.end_time).map(b=>[String(b.start_time).slice(0,5),String(b.end_time).slice(0,5)])).sort((a,b)=>a[0].localeCompare(b[0]));let fim='08:00',n=0;for(const [ini,f] of faixas){if(ini>fim)n++;if(f>fim)fim=f;}if(fim<'19:00')n++;livres=String(n);}
+  document.getElementById('agenda-resumo').innerHTML=[['Atendimentos do dia',ativos.length,'Não inclui cancelados'],['Confirmados',confirmados,realizados+' realizados'],['Intervalos livres',livres,legado?'Há atendimento sem término cadastrado':(bloqueioTotal?'Data bloqueada':'Janelas identificadas entre 08h e 19h')],['Valor previsto',total,'Soma dos atendimentos não cancelados']].map(x=>'<div class="agenda-resumo-card"><small>'+x[0]+'</small><strong>'+x[1]+'</strong><span>'+x[2]+'</span></div>').join('');
+}
 function abrirAcoesData(chave) {
   document.getElementById('acoes-data-titulo').textContent = 'Ações para ' + chave.split('-').reverse().join('/');
   document.getElementById('modal-acoes-data').style.display = 'flex';
@@ -594,6 +661,15 @@ document.getElementById('form-agendamento').addEventListener('submit', async (ev
   if (!data || !inicio || !fim || fim <= inicio || inicio < '08:00' || inicio >= '19:00' || fim > '19:00') { mostrarFlash(document.querySelector('[data-flash]'), 'Confira os horários. A agenda funciona das 08h às 19h e o término deve ser posterior ao início.', 'erro'); return; }
   if (pacientesCorrespondentes.length > 1 && !pacienteExistenteSelect.value) { mostrarFlash(document.querySelector('[data-flash]'), 'Selecione o cadastro correto do paciente antes de salvar.', 'erro'); return; }
   btn.disabled = true;
+  // Validação de disponibilidade apenas por leitura; nenhum compromisso existente é modificado.
+  const [existentes,bloqueiosDia]=await Promise.all([
+    supabase.from('appointments').select('id,appointment_time,appointment_end_time,status,patients(full_name)').eq('appointment_date',data).neq('status','cancelado'),
+    supabase.from('appointment_date_blocks').select('name,start_time,end_time').eq('block_date',data).eq('active',true)
+  ]);
+  if(existentes.error||bloqueiosDia.error){btn.disabled=false;mostrarFlash(document.querySelector('[data-flash]'),'Não foi possível validar a disponibilidade. Nenhum agendamento foi criado. Tente novamente.','erro');return;}
+  const conflito=(existentes.data||[]).find(a=>{const ini=String(a.appointment_time||'').slice(0,5),fimExistente=a.appointment_end_time?String(a.appointment_end_time).slice(0,5):null;return fimExistente?(inicio<fimExistente&&fim>ini):inicio===ini;});
+  const bloqueio=(bloqueiosDia.data||[]).find(b=>!b.start_time||(inicio<String(b.end_time).slice(0,5)&&fim>String(b.start_time).slice(0,5)));
+  if(diaEstaBloqueado(data)||bloqueio||conflito){btn.disabled=false;const motivo=diaEstaBloqueado(data)?'A data está bloqueada pela regra recorrente.':bloqueio?'O horário coincide com o bloqueio: '+bloqueio.name+'.':'O horário se sobrepõe ao atendimento de '+(conflito.patients?.full_name||'outro paciente')+'.';mostrarFlash(document.querySelector('[data-flash]'),motivo+' Nada foi alterado nos atendimentos existentes.','erro');return;}
   const { error } = await supabase.rpc('admin_create_appointment', { p_appointment_date: data, p_appointment_time: inicio, p_appointment_end_time: fim, p_patient_name: document.getElementById('ag-paciente').value.trim(), p_patient_phone: document.getElementById('ag-telefone').value.trim(), p_patient_id: (pacientesCorrespondentes.length > 1 ? (pacienteExistenteSelect.value || null) : null), p_tipo: document.getElementById('ag-tipo').value.trim() || null, p_description: document.getElementById('ag-descricao').value.trim() || null, p_valor: 0, p_taxa_agendamento: 0 });
   btn.disabled = false;
   if (error) { mostrarFlash(document.querySelector('[data-flash]'), error.message || 'Não foi possível criar o agendamento.', 'erro'); return; }
