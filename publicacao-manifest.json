@@ -418,7 +418,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/resultado-de-acne-caso-03.html",
       "redirect_to": null,
-      "sha256": "ee36de3dde5f60da950b24e552bfad6f1164a0c2b9ad201bfb4cf0b60829f3e5"
+      "sha256": "5987db3c0604edda08c6657e4900588a044d157aee07d07999c74fb2960b985e"
     },
     {
       "path": "resultados/resultado-de-cicatrizes-de-acne-caso-01.html",
@@ -911,5 +911,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-30T15:10:08.650Z"
+  "generated_at": "2026-10-30T15:17:49.818Z"
 }
