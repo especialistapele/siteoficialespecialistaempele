@@ -8,6 +8,23 @@
 .agenda-resumo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}.agenda-resumo-card{padding:12px 14px;border:1px solid #e6e1d8;border-radius:12px;background:#fff;min-width:0}.agenda-resumo-card small{display:block;color:#777;font-size:11px;margin-bottom:5px}.agenda-resumo-card strong{font-size:20px;line-height:1.2}.agenda-resumo-card span{display:block;font-size:11px;color:#777;margin-top:4px}
 .agenda-dia-compacto{min-height:145px;text-align:left;display:flex;flex-direction:column;align-items:stretch;gap:5px;padding:9px;overflow:hidden}.agenda-dia-compacto .agenda-dia-cab{display:flex;align-items:center;justify-content:space-between;font-weight:800}.agenda-compromisso-mini{display:flex;gap:6px;align-items:flex-start;padding:4px 5px;border-radius:6px;background:rgba(255,255,255,.82);color:#252525;font-size:11px;line-height:1.25;overflow-wrap:anywhere}.agenda-compromisso-mini b{white-space:nowrap}.agenda-dia-compacto .agenda-sem-itens{font-size:11px;opacity:.7;margin-top:7px}.agenda-grade-dia{grid-template-columns:minmax(0,1fr)!important}.agenda-grade-dia .agenda-dia-compacto{min-height:220px}.agenda-sem-filtro{opacity:.28;filter:grayscale(.65)}
 .agenda-whatsapp{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;border-radius:7px;padding:6px 9px;background:#e8f5ec;color:#176b37;text-decoration:none;font-size:12px;font-weight:700}
+.agenda-grade-horarios{margin:14px 0 18px;border:1px solid #e5e1d9;border-radius:12px;overflow:hidden;background:#fff}
+.agenda-grade-horarios__topo{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:13px 15px;background:#faf9f6;border-bottom:1px solid #eee}
+.agenda-grade-horarios__topo strong{font-size:15px}.agenda-grade-horarios__legenda{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:#666}
+.agenda-grade-horarios__legenda span{display:inline-flex;align-items:center;gap:5px}.agenda-grade-horarios__dot{width:9px;height:9px;border-radius:3px;display:inline-block}
+.agenda-faixa{display:grid;grid-template-columns:82px minmax(0,1fr);gap:10px;padding:9px 12px;border-bottom:1px solid #f0eee9;align-items:stretch}
+.agenda-faixa:last-child{border-bottom:0}.agenda-faixa__hora{font-size:12px;font-weight:800;color:#555;padding-top:7px;white-space:nowrap}
+.agenda-faixa__conteudo{min-width:0;border-radius:9px;padding:9px 11px}
+.agenda-faixa--livre .agenda-faixa__conteudo{background:#edf8f0;border:1px solid #cce8d2}
+.agenda-faixa--ocupada .agenda-faixa__conteudo{background:#f8f5ef;border:1px solid #e8ddc9}
+.agenda-faixa--bloqueada .agenda-faixa__conteudo{background:#fff0f0;border:1px solid #f0caca}
+.agenda-faixa__titulo{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:800;font-size:13px}
+.agenda-faixa__detalhe{font-size:12px;color:#666;margin-top:3px;overflow-wrap:anywhere}
+.agenda-faixa-livre{width:100%;text-align:left;cursor:pointer;color:#176b37}
+.agenda-faixa-livre:hover{background:#e1f2e5!important;border-color:#9ccda7!important}
+.agenda-grade-horarios__vazio{padding:18px;text-align:center;color:#777;font-size:13px}
+@media(max-width:600px){.agenda-faixa{grid-template-columns:58px minmax(0,1fr);gap:7px;padding:7px}.agenda-faixa__hora{font-size:11px}.agenda-faixa__conteudo{padding:8px}}
+
 @media(max-width:760px){.agenda-resumo{grid-template-columns:repeat(2,minmax(0,1fr))}.agenda-resumo-card strong{font-size:17px}.agenda-dia-compacto{min-height:130px;padding:6px}.agenda-compromisso-mini{font-size:10px}}
 </style></head><body><div class="painel-layout"><aside class="painel-sidebar" data-sidebar></aside><main class="painel-main">
 
@@ -48,6 +65,7 @@
 <!-- ===================== LISTA DO DIA SELECIONADO ===================== -->
 <div class="painel-card" style="margin-top:20px">
   <h3 id="lista-dia-titulo">Atendimentos do dia</h3>
+  <div id="agenda-grade-horarios" class="agenda-grade-horarios" aria-live="polite"></div>
   <div style="overflow:auto"><table class="tabela-p"><thead><tr><th>Início</th><th>Término</th><th>Paciente</th><th>Tipo</th><th>Observações</th><th>Valor</th><th>Pagamento</th><th>Status</th><th>Contato</th></tr></thead><tbody data-lista><tr><td colspan="9" class="painel-vazio">Carregando…</td></tr></tbody></table></div>
 </div>
 
@@ -478,7 +496,7 @@ async function selecionarDia(chave) {
   const { data, error } = await supabase.from('appointments').select('id,patient_id,appointment_time,appointment_end_time,tipo,description,valor,status,taxa_agendamento,taxa_status,restante_pago,restante_status,restante_data_pagamento,service_unit,patients(full_name,phone)').eq('appointment_date', chave).order('appointment_time');
   const tb = document.querySelector('[data-lista]');
   if (error) { tb.innerHTML = `<tr><td colspan="9" class="painel-vazio">${esc(error.message)}</td></tr>`; return; }
-  renderizarResumoDia(chave, data || []);
+  renderizarResumoDia(chave, data || []);\n  renderizarGradeHorarios(chave, data || []);
   const atendimentosVisiveis = (data || []).filter(a => !filtroUnidade || (a.service_unit || unidadesPorDia[chave] || '') === filtroUnidade);
   tb.innerHTML = atendimentosVisiveis.length ? atendimentosVisiveis.map(a => {
     const total = Number(a.valor || 0);
@@ -497,6 +515,70 @@ async function selecionarDia(chave) {
   renderizarItensDaData(chave);
 }
 
+function horarioMinutos(valor) {
+  const partes = String(valor || '').slice(0,5).split(':').map(Number);
+  return partes.length === 2 && partes.every(Number.isFinite) ? partes[0] * 60 + partes[1] : null;
+}
+function horaTexto(minutos) {
+  return String(Math.floor(minutos / 60)).padStart(2,'0') + ':' + String(minutos % 60).padStart(2,'0');
+}
+function renderizarGradeHorarios(chave, atendimentos) {
+  const container = document.getElementById('agenda-grade-horarios');
+  if (!container) return;
+  const inicioDia = 8 * 60, fimDia = 19 * 60;
+  const lista = atendimentos.filter(a => a.status !== 'cancelado' && (!filtroUnidade || (a.service_unit || unidadesPorDia[chave] || '') === filtroUnidade));
+  const blocos = (bloqueiosPorDia[chave] || []).map(b => ({
+    tipo:'bloqueio', nome:b.name || 'Horário bloqueado',
+    inicio:b.start_time ? horarioMinutos(b.start_time) : inicioDia,
+    fim:b.end_time ? horarioMinutos(b.end_time) : fimDia
+  }));
+  const bloqueioDiaInteiro = diaEstaBloqueado(chave) || blocos.some(b => b.inicio <= inicioDia && b.fim >= fimDia);
+  if (bloqueioDiaInteiro) {
+    container.innerHTML = '<div class="agenda-grade-horarios__topo"><strong>Horários do dia · 08h às 19h</strong><span class="agenda-grade-horarios__legenda">Dia inteiro bloqueado</span></div><div class="agenda-faixa agenda-faixa--bloqueada"><span class="agenda-faixa__hora">08:00–19:00</span><div class="agenda-faixa__conteudo"><div class="agenda-faixa__titulo">🔒 Agenda bloqueada</div><div class="agenda-faixa__detalhe">Não há horários disponíveis nesta data.</div></div></div>';
+    return;
+  }
+  const ocupacoes = [];
+  for (const a of lista) {
+    const ini = horarioMinutos(a.appointment_time);
+    if (ini === null || ini >= fimDia || ini < inicioDia) continue;
+    const fimInformado = horarioMinutos(a.appointment_end_time);
+    const proximos = lista.map(x => horarioMinutos(x.appointment_time)).filter(x => x !== null && x > ini).sort((x,y)=>x-y);
+    // Sem término cadastrado: mantém o período conservador até o próximo atendimento ou o fim do expediente.
+    const fim = fimInformado !== null && fimInformado > ini ? fimInformado : (proximos[0] || fimDia);
+    ocupacoes.push({tipo:'atendimento',inicio:ini,fim:Math.min(fim,fimDia),nome:a.patients?.full_name || 'Paciente',detalhe:(a.tipo || 'Atendimento')+' · '+(a.status || 'agendado'),semFim:fimInformado===null,registro:a});
+  }
+  for (const b of blocos) {
+    if (b.inicio === null || b.fim === null || b.fim <= b.inicio) continue;
+    if (b.fim <= inicioDia || b.inicio >= fimDia) continue;
+    ocupacoes.push({tipo:'bloqueio',inicio:Math.max(inicioDia,b.inicio),fim:Math.min(fimDia,b.fim),nome:b.nome,detalhe:'Horário indisponível'});
+  }
+  ocupacoes.sort((a,b)=>a.inicio-b.inicio || (a.tipo==='bloqueio'?-1:1));
+  const linhas = [];
+  let cursor = inicioDia;
+  for (const item of ocupacoes) {
+    if (item.inicio > cursor) linhas.push({tipo:'livre',inicio:cursor,fim:item.inicio,nome:'Horário livre',detalhe:'Disponível para novo agendamento'});
+    const sobreposicao = item.inicio < cursor;
+    linhas.push({...item,sobreposicao});
+    cursor = Math.max(cursor,item.fim);
+  }
+  if (cursor < fimDia) linhas.push({tipo:'livre',inicio:cursor,fim:fimDia,nome:'Horário livre',detalhe:'Disponível para novo agendamento'});
+  if (!linhas.length) linhas.push({tipo:'livre',inicio:inicioDia,fim:fimDia,nome:'Horário livre',detalhe:'Disponível para novo agendamento'});
+  const cabecalho = '<div class="agenda-grade-horarios__topo"><strong>Horários do dia · 08h às 19h</strong><div class="agenda-grade-horarios__legenda"><span><i class="agenda-grade-horarios__dot" style="background:#cce8d2"></i>Livre</span><span><i class="agenda-grade-horarios__dot" style="background:#e8ddc9"></i>Agendado</span><span><i class="agenda-grade-horarios__dot" style="background:#f0caca"></i>Bloqueado</span></div></div>';
+  const conteudo = linhas.map(item => {
+    const faixa = horaTexto(item.inicio)+'–'+horaTexto(item.fim);
+    if (item.tipo === 'livre') return '<div class="agenda-faixa agenda-faixa--livre"><span class="agenda-faixa__hora">'+faixa+'</span><button type="button" class="agenda-faixa__conteudo agenda-faixa-livre" data-horario-livre="'+item.inicio+'" data-horario-fim="'+item.fim+'"><div class="agenda-faixa__titulo">＋ Horário livre</div><div class="agenda-faixa__detalhe">'+item.detalhe+' · clique para agendar neste intervalo</div></button></div>';
+    const bloqueio = item.tipo === 'bloqueio';
+    const detalhe = (item.detalhe || '') + (item.semFim ? ' · término não cadastrado; intervalo considerado indisponível até a próxima marcação' : '') + (item.sobreposicao ? ' · atenção: sobreposição de horários' : '');
+    return '<div class="agenda-faixa agenda-faixa--'+(bloqueio?'bloqueada':'ocupada')+'"><span class="agenda-faixa__hora">'+faixa+'</span><div class="agenda-faixa__conteudo"><div class="agenda-faixa__titulo">'+(bloqueio?'🔒 ':'● ')+esc(item.nome)+(item.sobreposicao?' ⚠️':'')+'</div><div class="agenda-faixa__detalhe">'+esc(detalhe)+'</div></div></div>';
+  }).join('');
+  container.innerHTML = cabecalho + (conteudo || '<div class="agenda-grade-horarios__vazio">Nenhum horário encontrado.</div>');
+  container.querySelectorAll('[data-horario-livre]').forEach(btn => btn.addEventListener('click', () => {
+    document.getElementById('ag-data').value = chave;
+    document.getElementById('ag-inicio').value = horaTexto(Number(btn.dataset.horarioLivre));
+    document.getElementById('ag-fim').value = horaTexto(Math.min(Number(btn.dataset.horarioLivre) + 60, Number(btn.dataset.horarioFim)));
+    document.getElementById('modal-agendamento').style.display = 'flex';
+  }));
+}
 function linkWhatsApp(a,chave) {
   const fone=String(a.patients?.phone||'').replace(/\D/g,'');
   if(!fone)return '<span class="texto-suave">Sem telefone</span>';
