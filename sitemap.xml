@@ -116,6 +116,13 @@
     <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/acne-e-estresse-1791831091736.webp</image:loc></image:image>
   </url>
   <url>
+    <loc>https://www.especialistaempele.com.br/blog/hiperpigmentacao.html</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/hiperpigmentacao-1791988318307.webp</image:loc></image:image>
+  </url>
+  <url>
     <loc>https://www.especialistaempele.com.br/blog/melasma-hormonal.html</loc>
     <lastmod>2026-10-22</lastmod>
     <changefreq>monthly</changefreq>
@@ -137,11 +144,69 @@
     <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/controle-da-oleosidade-1791986673138.webp</image:loc></image:image>
   </url>
   <url>
+    <loc>https://www.especialistaempele.com.br/blog/tratamento-estrias-regiao-corporal.html</loc>
+    <lastmod>2026-10-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.especialistaempele.com.br/blog/flacidez-abdominal-ou-gordura-localizada.html</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/flacidez-abdominal-ou-gordura-localizada-1793115839311.webp</image:loc></image:image>
+  </url>
+  <url>
     <loc>https://www.especialistaempele.com.br/blog/pele-seca-ou-desidratada.html</loc>
     <lastmod>2026-10-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <image:image><image:loc>https://www.especialistaempele.com.br/assets/blog-covers/pele-seca-ou-desidratada.svg</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://www.especialistaempele.com.br/blog/estrias-vermelhas-ou-brancas.html</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/estrias-vermelhas-ou-brancas-1793119847732.webp</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://www.especialistaempele.com.br/blog/flacidez-corporal-apos-emagrecimento.html</loc>
+    <lastmod>2026-10-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.especialistaempele.com.br/blog/regeneracao-cutanea-ou-volumizacao-facial.html</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/regeneracao-cutanea-ou-volumizacao-facial-1793277925702.webp</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://www.especialistaempele.com.br/blog/alimentos-para-pele-saudavel.html</loc>
+    <lastmod>2026-10-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.especialistaempele.com.br/blog/definicao-corporal-resultados-realistas.html</loc>
+    <lastmod>2026-10-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.especialistaempele.com.br/blog/celulite-ou-flacidez-como-diferenciar.html</loc>
+    <lastmod>2026-10-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.especialistaempele.com.br/blog/tratamento-gordura-localizada.html</loc>
+    <lastmod>2026-10-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/tratamento-gordura-localizada-1793115782109.webp</image:loc></image:image>
   </url>
   <url>
     <loc>https://www.especialistaempele.com.br/resultados/clareamento-de-interno-de-pernas-e-virilha.html</loc>
