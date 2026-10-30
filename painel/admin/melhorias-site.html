@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Melhorias do site — Marketing</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<style>
+.mr-intro{margin-bottom:18px}.mr-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}.mr-summary .painel-card{padding:15px}.mr-summary strong{display:block;font:26px Georgia,serif}.mr-summary span{font-size:12px;color:#777}
+.mr-group{margin:18px 0}.mr-group h2{font-size:19px;margin:0 0 10px}.mr-item{display:grid;grid-template-columns:auto 1fr minmax(130px,170px);gap:12px;padding:14px 16px;background:#fff;border-bottom:1px solid var(--linha);align-items:start}.mr-item:first-child{border-radius:10px 10px 0 0}.mr-item:last-child{border:0;border-radius:0 0 10px 10px}.mr-item strong{font-size:13.5px}.mr-item p{margin:4px 0 0;font-size:12px;line-height:1.5;color:#68716c}.mr-item select{padding:7px;border:1px solid var(--linha);border-radius:7px;background:#fff;max-width:160px}.mr-meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px}.mr-priority{font-size:10px;font-weight:800;text-transform:uppercase;color:#8a6a2f}.mr-alert{padding:14px 16px;border:1px solid rgba(201,164,91,.4);background:#fffdf7;border-radius:10px;margin:18px 0;font-size:13px;line-height:1.5}.mr-notes textarea{width:100%;min-height:100px;border:1px solid var(--linha);border-radius:8px;padding:12px}
+@media(max-width:650px){.mr-summary{grid-template-columns:1fr 1fr}.mr-item{grid-template-columns:auto 1fr}.mr-meta{grid-column:2;align-items:flex-start;flex-direction:row;flex-wrap:wrap}}
+</style></head><body>
+<div class="painel-layout"><aside class="painel-sidebar" data-sidebar></aside><main class="painel-main">
+<div class="painel-topo"><div><h1>Melhorias do site</h1><p class="texto-suave">Marketing · Relatório de acompanhamento e oportunidades de melhoria.</p></div></div>
+<section class="painel-card mr-intro"><h3>Plano de revisão do site</h3><p class="texto-suave" style="margin:0">Centralize verificações, prioridades, status e observações para acompanhar as melhorias sem perder pendências.</p></section>
+<div class="mr-alert"><strong>Conferências do Google GA4:</strong> 2 de novembro de 2026 — primeira leitura da coleta; 4 de novembro de 2026 — comparação e avaliação de evolução. Propriedade: <strong>G-YPF8LKST26</strong>.</div>
+<div class="mr-summary"><div class="painel-card"><strong data-total>0</strong><span>Itens no relatório</span></div><div class="painel-card"><strong data-done>0</strong><span>Concluídos</span></div><div class="painel-card"><strong data-pending>0</strong><span>Pendentes / em andamento</span></div></div>
+<div data-report></div>
+<section class="painel-card mr-notes"><h3>Observações gerais da auditoria</h3><textarea data-notes placeholder="Registre resultados, decisões, links e observações importantes..."></textarea><p class="texto-suave" style="font-size:11px">Salvo automaticamente neste navegador.</p></section>
+</main></div>
+<script type="module">
+import { exigirAdmin, configurarBotaoSair } from "/painel/assets/js/painel-auth.js";
+import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
+const ctx=await exigirAdmin(); if(!ctx) throw new Error("sem acesso");
+document.querySelector("[data-sidebar]").innerHTML=renderSidebarAdmin("melhorias-site",ctx.perfil.full_name); configurarBotaoSair();
+const groups=[
+["Desempenho e experiência mobile",[
+["performance","Reavaliar desempenho mobile (Lighthouse)","Repetir auditoria e identificar gargalos de JavaScript, CSS, fontes e carregamento.","Alta"],
+["imagens","Otimizar imagens e mídia","Conferir dimensões, formatos modernos, compressão, lazy loading e imagens acima da dobra.","Média"],
+["responsivo","Revisar navegação e leitura em celulares","Testar menus, formulários, botões, tabelas, banners e páginas de tratamento.","Alta"]]],
+["SEO e presença local",[
+["seo","Auditar SEO técnico","Verificar títulos, descrições, canonical, sitemap, robots, dados estruturados e indexação.","Alta"],
+["local","Reforçar SEO local","Conferir conteúdos e informações locais para Araruama, Cabo Frio e Copacabana, sem criar endereços não confirmados.","Alta"],
+["internos","Revisar páginas e links internos","Checar páginas de acne, melasma, tratamentos, resultados e artigos; validar links e chamadas para ação.","Média"]]],
+["Conversão e contato",[
+["whatsapp","Testar caminhos de contato pelo WhatsApp","Verificar botões, mensagens pré-preenchidas, destinos e funcionamento em celular e desktop.","Alta"],
+["cta","Revisar chamadas para agendamento","Avaliar clareza, posicionamento e facilidade para iniciar contato com a equipe.","Média"],
+["og","Corrigir prévias de compartilhamento","Testar Open Graph e imagem ao compartilhar páginas no WhatsApp, inclusive limpeza de pele.","Média"]]],
+["Medição e análise",[
+["tag","Validar cobertura do GA4","Mapear páginas públicas com a tag G-YPF8LKST26 e conferir duplicidades ou páginas sem medição.","Alta"],
+["eventos","Validar eventos importantes","Conferir page_view e whatsapp_click sem coletar respostas clínicas ou dados sensíveis.","Alta"],
+["origens","Analisar origens e páginas de entrada","Acompanhar usuários, sessões, canais, landing pages e páginas mais acessadas após coleta suficiente.","Média"],
+["gsc","Cruzar com Google Search Console","Verificar impressões, cliques, CTR, consultas e páginas com mudança de visibilidade.","Média"]]],
+["Qualidade técnica e manutenção",[
+["404","Verificar links quebrados e erros 404","Testar navegação, links externos, imagens ausentes e páginas antigas.","Média"],
+["seguranca","Revisar segurança e formulários","Conferir HTTPS, validações, proteção contra spam e mensagens de erro sem expor dados pessoais.","Alta"],
+["social","Validar metadados sociais","Conferir título, descrição e imagem de compartilhamento nas páginas principais.","Baixa"]]]
+];
+const storageKey="ep-melhorias-site-v1"; let state={}; try{state=JSON.parse(localStorage.getItem(storageKey)||"{}")}catch{}
+const root=document.querySelector("[data-report]");
+function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function save(){localStorage.setItem(storageKey,JSON.stringify(state));summary()}
+function summary(){const all=groups.flatMap(g=>g[1]);const done=all.filter(x=>state[x[0]]?.status==="concluido").length;document.querySelector("[data-total]").textContent=all.length;document.querySelector("[data-done]").textContent=done;document.querySelector("[data-pending]").textContent=all.length-done}
+function render(){root.innerHTML=groups.map(g=>'<section class="mr-group"><h2>'+esc(g[0])+'</h2><div class="painel-card" style="padding:0;overflow:hidden">'+g[1].map(x=>{const st=state[x[0]]?.status||"pendente";return '<div class="mr-item"><input type="checkbox" data-check="'+x[0]+'" '+(st==="concluido"?"checked":"")+' aria-label="Concluir '+esc(x[1])+'"><div><strong>'+esc(x[1])+'</strong><p>'+esc(x[2])+'</p></div><div class="mr-meta"><span class="mr-priority">'+esc(x[3])+'</span><select data-status="'+x[0]+'" aria-label="Status de '+esc(x[1])+'"><option value="pendente" '+(st==="pendente"?"selected":"")+'>Pendente</option><option value="andamento" '+(st==="andamento"?"selected":"")+'>Em andamento</option><option value="concluido" '+(st==="concluido"?"selected":"")+'>Concluído</option></select></div></div>'}).join("")+'</div></section>').join("");
+root.querySelectorAll("[data-status]").forEach(el=>el.addEventListener("change",()=>{state[el.dataset.status]={status:el.value};save();render()}));
+root.querySelectorAll("[data-check]").forEach(el=>el.addEventListener("change",()=>{state[el.dataset.check]={status:el.checked?"concluido":"pendente"};save();render()}));summary()}
+const notes=document.querySelector("[data-notes]");notes.value=localStorage.getItem(storageKey+":notes")||"";notes.addEventListener("input",()=>localStorage.setItem(storageKey+":notes",notes.value));
+render();
+</script></body></html>
