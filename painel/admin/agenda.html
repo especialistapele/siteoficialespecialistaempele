@@ -496,7 +496,8 @@ async function selecionarDia(chave) {
   const { data, error } = await supabase.from('appointments').select('id,patient_id,appointment_time,appointment_end_time,tipo,description,valor,status,taxa_agendamento,taxa_status,restante_pago,restante_status,restante_data_pagamento,service_unit,patients(full_name,phone)').eq('appointment_date', chave).order('appointment_time');
   const tb = document.querySelector('[data-lista]');
   if (error) { tb.innerHTML = `<tr><td colspan="9" class="painel-vazio">${esc(error.message)}</td></tr>`; return; }
-  renderizarResumoDia(chave, data || []);\n  renderizarGradeHorarios(chave, data || []);
+  renderizarResumoDia(chave, data || []);
+  renderizarGradeHorarios(chave, data || []);
   const atendimentosVisiveis = (data || []).filter(a => !filtroUnidade || (a.service_unit || unidadesPorDia[chave] || '') === filtroUnidade);
   tb.innerHTML = atendimentosVisiveis.length ? atendimentosVisiveis.map(a => {
     const total = Number(a.valor || 0);
