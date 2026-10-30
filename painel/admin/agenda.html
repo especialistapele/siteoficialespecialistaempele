@@ -24,16 +24,16 @@
     </div>
   </div>
 
-  <div class="calendario-dias-semana">
-    <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
-  </div>
-
-  <div class="calendario-grade" data-grade></div>
   <div class="calendario-legenda-unidades" aria-label="Legenda das unidades">
     <span class="calendario-legenda-item"><i class="calendario-legenda-cor" style="background:#f59e0b"></i>Araruama</span>
     <span class="calendario-legenda-item"><i class="calendario-legenda-cor" style="background:#3b82f6"></i>Cabo Frio</span>
     <span class="calendario-legenda-item"><i class="calendario-legenda-cor" style="background:#16a34a"></i>Copacabana</span>
   </div>
+  <div class="calendario-dias-semana">
+    <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+  </div>
+
+  <div class="calendario-grade" data-grade></div>
 
 </div>
 
@@ -199,6 +199,7 @@ let eventosPorDia = {}; // eventos administrativos por data
 let unidadesPorDia = {}; // identificação visual da unidade por data
 let bloqueioRecorrente = null;
 const CORES_UNIDADE = { Araruama: '#f59e0b', 'Cabo Frio': '#3b82f6', Copacabana: '#16a34a' };
+const SIGLA_UNIDADE = { Araruama: 'AR', 'Cabo Frio': 'CF', Copacabana: 'CO' };
 
 campoData.value = diaSelecionado;
 
@@ -270,6 +271,7 @@ function montarGrade() {
       (ehSelecionado ? ' selecionado' : '') +
       (bloqueado ? ' dia-bloqueado' : '');
     celula.dataset.chave = chave;
+    celula.setAttribute('aria-label', chave + (unidade ? ': atendimento em ' + unidade : ''));
     if (unidade) {
       celula.classList.add('dia-com-unidade');
       celula.style.backgroundColor = corUnidade;
@@ -291,7 +293,7 @@ function montarGrade() {
 
     celula.innerHTML = `
       <span class="calendario-dia__numero">${dataCelula.getDate()}</span>
-      ${unidade ? `<span class="calendario-unidade-label">${esc(unidade)}</span>` : ''}
+      ${unidade ? `<span class="calendario-unidade-label" title="${esc(unidade)}">${esc(SIGLA_UNIDADE[unidade] || unidade)}</span>` : ''}
       ${bloqueado ? `<span style="display:block;font-size:9px;color:${unidade ? '#fff' : esc(bloqueioRecorrente?.color || '#111')};font-weight:700">BLOQUEADO</span>` : ''}
       ${!bloqueado && bloqueioParcial ? '<span style="display:block;font-size:9px;color:#b91c1c;font-weight:700">BLOQUEIO PARCIAL</span>' : ''}
       ${eventos.length ? `<span style="display:block;font-size:9px;color:${unidade ? '#fff' : esc(corEvento)};font-weight:700">EVENTO${eventos.length > 1 ? ' +' + (eventos.length - 1) : ''}</span>` : ''}
