@@ -86,3 +86,17 @@
     }
   }
 })();
+
+// Google Analytics 4 — medição das páginas públicas que carregam este módulo.
+(function(){
+  if (window.__especialistaPeleGA4Loaded) return;
+  window.__especialistaPeleGA4Loaded = true;
+  var s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=G-YPF8LKST26';
+  document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = window.gtag || function(){window.dataLayer.push(arguments);};
+  window.gtag('js', new Date());
+  window.gtag('config', 'G-YPF8LKST26');
+})();
