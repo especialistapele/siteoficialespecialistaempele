@@ -87,6 +87,20 @@
   }
 })();
 
+// Rastreamento de cliques no WhatsApp (GA4), em páginas que carregam este módulo.
+
+  // Mede cliques de saída para o WhatsApp sem enviar dados digitados pelo visitante.
+  document.addEventListener('click', function(event) {
+    var link = event.target && event.target.closest ? event.target.closest('a[href*="wa.me/"], a[href*="whatsapp.com/"], a[href*="api.whatsapp.com/"]') : null;
+    if (!link || typeof window.gtag !== 'function') return;
+    window.gtag('event', 'whatsapp_click', {
+      link_url: link.href,
+      link_text: (link.innerText || link.getAttribute('aria-label') || 'WhatsApp').trim().slice(0, 100),
+      page_path: window.location.pathname,
+      page_title: document.title
+    });
+  }, true);
+
 // Google Analytics 4 — medição das páginas públicas que carregam este módulo.
 (function(){
   if (window.__especialistaPeleGA4Loaded) return;
