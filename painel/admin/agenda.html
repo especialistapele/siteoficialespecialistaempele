@@ -575,7 +575,7 @@ function renderizarGradeHorarios(chave, atendimentos) {
   container.querySelectorAll('[data-horario-livre]').forEach(btn => btn.addEventListener('click', () => {
     document.getElementById('ag-data').value = chave;
     document.getElementById('ag-inicio').value = horaTexto(Number(btn.dataset.horarioLivre));
-    document.getElementById('ag-fim').value = horaTexto(Number(btn.dataset.horarioFim));
+    document.getElementById('ag-fim').value = horaTexto(Math.min(Number(btn.dataset.horarioLivre) + 60, Number(btn.dataset.horarioFim)));
     document.getElementById('modal-agendamento').style.display = 'flex';
   }));
 }
