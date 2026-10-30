@@ -51,6 +51,21 @@ function extrairSitemap() {
   return [...readFileSync("sitemap.xml","utf8").matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 }
 async function main() {
+  // Páginas institucionais manuais: devem existir, ter canonical próprio
+  // e permanecer fora do índice de busca, mas não entram no sitemap.
+  for (const caminho of ["privacidade.html", "cookies.html"]) {
+    if (!existsSync(caminho)) {
+      erros.push(`Página institucional ausente: ${caminho}`);
+      continue;
+    }
+    const html = readFileSync(caminho, "utf8");
+    const canonical = obterCanonical(html);
+    const robots = (obterMeta(html, "robots")?.content || "").toLowerCase();
+    if (canonical !== `${SITE}/${caminho}`) erros.push(`${caminho}: canonical ausente ou inesperado: ${canonical || "(ausente)"}`);
+    if (!/<title>/i.test(html)) erros.push(`${caminho}: falta title.`);
+    if (!robots.includes("noindex") || !robots.includes("follow")) erros.push(`${caminho}: deve permanecer noindex,follow.`);
+  }
+
   if (!existsSync("sitemap.xml")) erros.push("sitemap.xml não existe.");
   const ids = new Map();
   for (const dir of ["blog","resultados"]) {
