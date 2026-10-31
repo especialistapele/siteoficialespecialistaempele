@@ -21,8 +21,9 @@
     banner = document.createElement("div");
     banner.className = "cookie-banner";
     banner.setAttribute("data-cookie-banner", "");
-    banner.setAttribute("role", "dialog");
+    banner.setAttribute("role", "region");
     banner.setAttribute("aria-label", "Preferências de cookies");
+    banner.setAttribute("aria-live", "polite");
 
     const texto = document.createElement("p");
     texto.append("Usamos cookies para melhorar sua experiência. ");
