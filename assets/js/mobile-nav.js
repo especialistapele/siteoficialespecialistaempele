@@ -3,37 +3,36 @@
     if(!navRoot) return;
     var toggle = navRoot.querySelector('.nav-toggle');
     if(!toggle) return;
-
-    function close(){
+    function close(restoreFocus){
+      var wasOpen = navRoot.classList.contains('nav-open');
       navRoot.classList.remove('nav-open');
       toggle.setAttribute('aria-expanded','false');
+      toggle.setAttribute('aria-label','Abrir menu');
       document.body.classList.remove('nav-scroll-lock');
+      if(restoreFocus && wasOpen) toggle.focus();
     }
     function open(){
       navRoot.classList.add('nav-open');
       toggle.setAttribute('aria-expanded','true');
+      toggle.setAttribute('aria-label','Fechar menu');
       document.body.classList.add('nav-scroll-lock');
     }
     toggle.addEventListener('click', function(){
-      if(navRoot.classList.contains('nav-open')){ close(); } else { open(); }
+      if(navRoot.classList.contains('nav-open')) close(false); else open();
     });
-
-    // Fecha o menu ao clicar em qualquer link do menu
     navRoot.querySelectorAll('a').forEach(function(a){
-      a.addEventListener('click', close);
+      a.addEventListener('click', function(){ close(false); });
     });
-
-    // Fecha com ESC
+    document.addEventListener('click', function(e){
+      if(navRoot.classList.contains('nav-open') && !navRoot.contains(e.target)) close(false);
+    });
     document.addEventListener('keydown', function(e){
-      if(e.key === 'Escape') close();
+      if(e.key === 'Escape') close(true);
     });
-
-    // Fecha automaticamente se a tela for redimensionada para desktop
     window.addEventListener('resize', function(){
-      if(window.innerWidth > 900) close();
+      if(window.innerWidth > 900) close(false);
     });
   }
-
   document.addEventListener('DOMContentLoaded', function(){
     setup(document.querySelector('.site-nav'));
     setup(document.querySelector('.site-nav-interna'));
