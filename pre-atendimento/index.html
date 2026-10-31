@@ -165,38 +165,45 @@
 <script src="/assets/js/mobile-nav.js" defer></script>
 <script type="module" src="/assets/js/cookies.js"></script>
 <script type="module">
-  import { supabase } from "/assets/js/supabase-client.js";
   const flash = document.querySelector("[data-flash]");
+  const form = document.getElementById("form-pre-atendimento");
 
-  document.getElementById("form-pre-atendimento").addEventListener("submit", async (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const botao = document.getElementById("botao-enviar");
     botao.disabled = true;
+    botao.setAttribute("aria-busy", "true");
+    form.setAttribute("aria-busy", "true");
     botao.textContent = "Enviando…";
 
-    const { error } = await supabase.from("pre_atendimentos").insert({
-      full_name: document.getElementById("full_name").value.trim(),
-      idade: document.getElementById("idade").value ? parseInt(document.getElementById("idade").value, 10) : null,
-      phone: document.getElementById("phone").value.trim(),
-      email: document.getElementById("email").value.trim(),
-      queixa_principal: document.getElementById("queixa_principal").value.trim(),
-      tratamentos_anteriores: document.getElementById("tratamentos_anteriores").value.trim(),
-      usa_medicamentos: document.getElementById("usa_medicamentos").value.trim(),
-      observacoes: document.getElementById("observacoes").value.trim(),
-    });
+    try {
+      const { supabase } = await import("/assets/js/supabase-client.js");
+      const { error } = await supabase.from("pre_atendimentos").insert({
+        full_name: document.getElementById("full_name").value.trim(),
+        idade: document.getElementById("idade").value ? parseInt(document.getElementById("idade").value, 10) : null,
+        phone: document.getElementById("phone").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        queixa_principal: document.getElementById("queixa_principal").value.trim(),
+        tratamentos_anteriores: document.getElementById("tratamentos_anteriores").value.trim(),
+        usa_medicamentos: document.getElementById("usa_medicamentos").value.trim(),
+        observacoes: document.getElementById("observacoes").value.trim(),
+      });
+      if (error) throw error;
 
-    if (error) {
-      flash.textContent = "Não foi possível enviar. Tente novamente ou fale direto pelo WhatsApp.";
+      flash.textContent = "Recebido! A Danielle vai analisar e entrar em contato pelo WhatsApp em breve.";
+      flash.className = "aviso-flash visivel sucesso";
+      form.reset();
+      botao.textContent = "Enviado ✓";
+    } catch (erro) {
+      console.error("Falha no envio do pré-atendimento:", erro);
+      flash.textContent = "Não foi possível enviar. Verifique sua conexão e tente novamente ou fale direto pelo WhatsApp.";
       flash.className = "aviso-flash visivel erro";
       botao.disabled = false;
       botao.textContent = "Enviar pré-atendimento";
-      return;
+    } finally {
+      botao.removeAttribute("aria-busy");
+      form.removeAttribute("aria-busy");
     }
-
-    flash.textContent = "Recebido! A Danielle vai analisar e entrar em contato pelo WhatsApp em breve.";
-    flash.className = "aviso-flash visivel sucesso";
-    document.getElementById("form-pre-atendimento").reset();
-    botao.textContent = "Enviado ✓";
   });
 </script>
 </body>
