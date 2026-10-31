@@ -95,3 +95,10 @@
    proporção real da foto enviada (contain), sem cortes laterais. */
 .antes-depois-slider--proporcional{aspect-ratio:auto;background:#e9e3d6}
 .antes-depois-slider--proporcional img{object-fit:contain}
+
+
+/* Foco visível para operar a comparação antes/depois pelo teclado. */
+.antes-depois-slider:focus-visible{
+  outline:3px solid #b18f4c;
+  outline-offset:4px;
+}
