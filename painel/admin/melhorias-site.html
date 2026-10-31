@@ -45,7 +45,21 @@ const groups=[
 ["seguranca","Revisar segurança e formulários","Conferir HTTPS, validações, proteção contra spam e mensagens de erro sem expor dados pessoais.","Alta"],
 ["social","Validar metadados sociais","Conferir título, descrição e imagem de compartilhamento nas páginas principais.","Baixa"]]]
 ];
-const storageKey="ep-melhorias-site-v1"; let state={}; try{state=JSON.parse(localStorage.getItem(storageKey)||"{}")}catch{}
+const storageKey="ep-melhorias-site-v1";
+const statusAuditado={
+  seo:{status:"concluido"},
+  performance:{status:"andamento"},
+  local:{status:"andamento"},
+  internos:{status:"andamento"},
+  tag:{status:"andamento"},
+  eventos:{status:"andamento"},
+  og:{status:"andamento"},
+  social:{status:"andamento"}
+};
+let state={}; try{state=JSON.parse(localStorage.getItem(storageKey)||"{}")}catch{}
+let statusAtualizado=false;
+Object.entries(statusAuditado).forEach(([id,valor])=>{if(!state[id]){state[id]=valor;statusAtualizado=true}});
+if(statusAtualizado){try{localStorage.setItem(storageKey,JSON.stringify(state))}catch{}}
 const root=document.querySelector("[data-report]");
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function save(){localStorage.setItem(storageKey,JSON.stringify(state));summary()}
