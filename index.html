@@ -1048,7 +1048,7 @@ h2,h3,p{margin-top:0}
 (() => {
   const items = document.querySelectorAll('[data-reveal]');
   if (!items.length) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
     items.forEach((el) => el.classList.add('is-visible'));
     return;
   }
