@@ -60,9 +60,14 @@ const statusAuditado={
   og:{status:"andamento"}
 };
 let state={}; try{state=JSON.parse(localStorage.getItem(storageKey)||"{}")}catch{}
-let statusAtualizado=false;
-Object.entries(statusAuditado).forEach(([id,valor])=>{if(!state[id]){state[id]=valor;statusAtualizado=true}});
-if(statusAtualizado){try{localStorage.setItem(storageKey,JSON.stringify(state))}catch{}}
+const auditVersionKey=storageKey+":audit-v2";
+if(!localStorage.getItem(auditVersionKey)){
+  Object.entries(statusAuditado).forEach(([id,valor])=>{state[id]=valor});
+  try{
+    localStorage.setItem(storageKey,JSON.stringify(state));
+    localStorage.setItem(auditVersionKey,"aplicado");
+  }catch{}
+}
 const root=document.querySelector("[data-report]");
 function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function save(){localStorage.setItem(storageKey,JSON.stringify(state));summary()}
