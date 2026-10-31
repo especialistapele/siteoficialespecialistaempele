@@ -28,6 +28,10 @@
 .avt-kpi{padding:16px;border:1px solid #e7e1d8;border-radius:12px;background:#fff}
 .avt-kpi strong{display:block;font-size:25px;margin-top:5px}
 .avt-empty{padding:40px;text-align:center;color:#888}
+.avt-detail__acoes{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.avt-delete{border:1px solid #d9aaa4;background:#fff;color:#9a3e35;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer}
+.avt-delete:hover{background:#fff2f0;border-color:#bd6b61}
+.avt-delete:disabled{opacity:.55;cursor:wait}
 @media(max-width:900px){.avt-grid{grid-template-columns:1fr}.avt-kpis{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
@@ -133,7 +137,10 @@ async function abrir(id){
   detalhe.innerHTML=`
     <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px">
       <div><h3 style="margin:0 0 6px">${escapeHtml(nome(c))}</h3><div class="texto-suave">${fmt(c.started_at)} · ${escapeHtml(c.page_path||"/")}</div></div>
-      <span class="avt-badge ${data.some(m=>m.sender==="system"&&m.message==="whatsapp_handoff")?"whatsapp":""}">${data.some(m=>m.sender==="system"&&m.message==="whatsapp_handoff")?"Encaminhada ao WhatsApp":"Histórico"}</span>
+      <div class="avt-detail__acoes">
+        <span class="avt-badge ${data.some(m=>m.sender==="system"&&m.message==="whatsapp_handoff")?"whatsapp":""}">${data.some(m=>m.sender==="system"&&m.message==="whatsapp_handoff")?"Encaminhada ao WhatsApp":"Histórico"}</span>
+        <button type="button" class="avt-delete" data-excluir-conversa="${c.id}">Excluir conversa</button>
+      </div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
       <span class="avt-badge">Assunto: ${escapeHtml(c.treatment_name||c.treatment_context||"geral")}</span>
@@ -143,6 +150,29 @@ async function abrir(id){
     </div>
     <div class="avt-messages">${data.map(m=>`<div class="avt-msg ${m.sender}">${escapeHtml(m.message)}<span class="avt-msg__time">${m.sender==="visitor"?"Cliente":m.sender==="bot"?"Atendente Virtual":"Sistema"} · ${fmt(m.created_at)}</span></div>`).join("")||'<div class="avt-empty">Nenhuma mensagem registrada.</div>'}</div>`;
 }
+
+detalhe.addEventListener("click",async(event)=>{
+  const botao=event.target.closest("[data-excluir-conversa]");
+  if(!botao)return;
+  const id=botao.dataset.excluirConversa;
+  const conversa=conversas.find(item=>item.id===id);
+  if(!conversa)return;
+  const confirmado=confirm("Tem certeza de que deseja excluir esta conversa? Todas as mensagens deste histórico também serão apagadas. Esta ação não pode ser desfeita.");
+  if(!confirmado)return;
+  botao.disabled=true;
+  botao.textContent="Excluindo…";
+  const {error}=await supabase.from("bot_conversations").delete().eq("id",id);
+  if(error){
+    botao.disabled=false;
+    botao.textContent="Excluir conversa";
+    mostrarFlash(document.querySelector("[data-flash]"),"Não foi possível excluir a conversa: "+error.message,"erro");
+    return;
+  }
+  conversas=conversas.filter(item=>item.id!==id);
+  detalhe.innerHTML='<div class="avt-empty">Conversa excluída.</div>';
+  mostrarFlash(document.querySelector("[data-flash]"),"Conversa excluída com sucesso.","sucesso");
+  await carregar();
+});
 
 document.querySelector("[data-recarregar]").addEventListener("click",carregar);
 carregar();
