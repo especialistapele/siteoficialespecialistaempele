@@ -59,7 +59,9 @@
 </main>
 <footer class="site-footer">
   <div class="footer-inner">
-    <div class="footer-grid">
+    <style>.email-marketing-box{display:grid;grid-template-columns:1.1fr 1fr;gap:28px;align-items:center;padding:30px 34px;margin:0 0 38px;background:#203128;border:1px solid rgba(201,164,91,.35);border-radius:14px;color:#f4eee3}.email-marketing-kicker{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#e4c77f}.email-marketing-copy h3{font:400 25px/1.2 Georgia,serif;color:#fff;margin:8px 0}.email-marketing-copy p{font-size:13px;line-height:1.55;color:rgba(244,238,227,.76);margin:0}.email-marketing-form{display:grid;gap:10px}.email-marketing-form>input{width:100%;padding:13px 14px;border:1px solid rgba(244,238,227,.3);border-radius:7px;background:#fff;color:#26312d;font:14px Arial}.email-marketing-consent{display:flex;align-items:flex-start;gap:9px;font-size:12px;line-height:1.45;color:rgba(244,238,227,.88)}.email-marketing-consent input{margin-top:2px;accent-color:#c9a45b}.email-marketing-form button{justify-self:start;border:0;border-radius:999px;padding:11px 20px;background:#c9a45b;color:#1d2a23;font-weight:700;cursor:pointer}.email-marketing-form button:disabled{opacity:.6;cursor:wait}.email-marketing-form small{font-size:10px;line-height:1.45;color:rgba(244,238,227,.6)}.email-marketing-feedback{min-height:16px;margin:0;font-size:12px;color:#e4c77f}@media(max-width:700px){.email-marketing-box{grid-template-columns:1fr;padding:23px 20px;gap:18px}.email-marketing-copy h3{font-size:22px}}</style>
+<section class="email-marketing-box" aria-labelledby="email-marketing-title"><div class="email-marketing-copy"><span class="email-marketing-kicker">Conteúdo Especialista em Pele</span><h3 id="email-marketing-title">Receba novidades e conteúdos sobre saúde da pele</h3><p>Informações, orientações e novidades da Especialista em Pele diretamente no seu e-mail.</p></div><form data-email-marketing-form class="email-marketing-form"><label class="sr-only" for="email-marketing-address">Seu e-mail</label><input id="email-marketing-address" name="email" type="email" autocomplete="email" placeholder="Seu melhor e-mail" required><label class="email-marketing-consent"><input type="checkbox" name="consent" required><span>Autorizo receber novidades, conteúdos e ofertas da Especialista em Pele por e-mail.</span></label><button type="submit">Quero receber</button><p class="email-marketing-feedback" data-email-marketing-feedback aria-live="polite"></p><small>Autorização opcional e independente dos cookies. Você poderá solicitar o cancelamento a qualquer momento.</small></form></section>
+<div class="footer-grid">
       <div class="footer-col">
         <a class="footer-brand" href="/"><img class="footer-logo" src="/assets/logo-especialista.webp" alt="Especialista em Pele"></a>
         <p class="footer-tagline">Araruama • Cabo Frio • Copacabana • Todo Brasil — Consultoria Regenerativa</p>
@@ -105,6 +107,7 @@
   </div>
 </div>
 
+<script type="module" src="/assets/js/email-marketing.js"></script>
 <script src="/assets/js/whatsapp.js" defer></script>
 <script type="module" src="/assets/js/cookies.js"></script>
 
