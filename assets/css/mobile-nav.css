@@ -241,3 +241,14 @@ body.nav-scroll-lock{overflow:hidden}
   outline-offset:2px;
 }
 #main-content{scroll-margin-top:24px}
+
+/* Acessibilidade: respeita a preferência por movimento reduzido em todo o site. */
+@media (prefers-reduced-motion: reduce){
+  html:focus-within{scroll-behavior:auto!important}
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+    scroll-behavior:auto!important;
+  }
+}
