@@ -21,6 +21,7 @@ const ICONES = {
   "atendente-virtual": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 5h14v11H8l-3 3V5Z"/><path d="M8 9h8M8 12h5"/></svg>`,
   skinmap: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 3c-2 3-2 6 0 9s2 6 0 9M3 12h18M6 6c2 1 4 1 6 0s4-1 6 0M6 18c2-1 4-1 6 0s4 1 6 0"/></svg>`,
   marketing: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11v2l13 4V7L3 11Z"/><path d="M16 9.5c2.5 0 4 1 4 2.5s-1.5 2.5-4 2.5M6 14l1.5 6h4L10 15"/></svg>`,
+  cookies: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.5 13A8.5 8.5 0 1 1 11 3.5a5.5 5.5 0 0 0 9.5 9.5Z"/><circle cx="8" cy="10" r="1"/><circle cx="12" cy="15" r="1"/><circle cx="7" cy="16" r=".7"/></svg>`,
   sair: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M15 17l5-5-5-5M20 12H9M12 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6"/></svg>`,
 };
 
@@ -29,6 +30,7 @@ const ITENS = [
   { id: "notificacoes", label: "Notificações", href: "/painel/admin/notificacoes.html" },
   { id: "marketing", label: "Marketing", groupHeader: true },
   { id: "melhorias-site", label: "Melhorias do site", href: "/painel/admin/melhorias-site.html", group: "marketing" },
+  { id: "cookies", label: "Cookies", href: "/painel/admin/cookies.html", group: "marketing" },
   { id: "pacientes", label: "Pacientes", href: "/painel/admin/pacientes.html" },
   { id: "blog", label: "Blog", href: "/painel/admin/blog.html" },
   { id: "depoimentos", label: "Depoimentos", href: "/painel/admin/depoimentos.html" },
