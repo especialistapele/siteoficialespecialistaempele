@@ -24,7 +24,6 @@ import { supabase } from "./supabase-client.js";
       await supabase.from("cookie_consents").insert({
         consent_analytics: analytics,
         consent_marketing: analytics,
-        user_agent: navigator.userAgent,
       });
     } catch (erro) {
       console.warn("Não foi possível registrar o consentimento:", erro);
