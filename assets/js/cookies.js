@@ -3,8 +3,6 @@
 // O Google Analytics só é carregado depois do aceite explícito.
 // ============================================================
 
-import { supabase } from "./supabase-client.js";
-
 (function () {
   const CHAVE_LOCAL = "ep_cookie_consent";
   const GA_ID = "G-YPF8LKST26";
@@ -80,6 +78,7 @@ import { supabase } from "./supabase-client.js";
 
   async function registrarConsentimento(analytics) {
     try {
+      const { supabase } = await import("./supabase-client.js");
       await supabase.from("cookie_consents").insert({
         consent_analytics: analytics,
         consent_marketing: false,
