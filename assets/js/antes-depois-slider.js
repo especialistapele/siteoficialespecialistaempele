@@ -31,6 +31,13 @@ export function initAntesDepoisSlider(root = document) {
     const handle = el.querySelector(".ad-handle");
     if (!antes || !handle) return;
 
+    el.setAttribute("role", "slider");
+    el.setAttribute("tabindex", "0");
+    el.setAttribute("aria-orientation", "horizontal");
+    el.setAttribute("aria-label", "Comparação antes e depois. Use as setas esquerda e direita para ajustar.");
+    el.setAttribute("aria-valuemin", "0");
+    el.setAttribute("aria-valuemax", "100");
+
     // Na variante "proporcional" (usada no acompanhamento fotográfico do
     // Prontuário), a área de comparação assume a proporção real da foto
     // em vez de um quadrado fixo, para não cortar as imagens.
@@ -48,6 +55,8 @@ export function initAntesDepoisSlider(root = document) {
       const pct = Math.max(0, Math.min(100, percentual));
       antes.style.clipPath = `inset(0 ${100 - pct}% 0 0)`;
       handle.style.left = pct + "%";
+      el.setAttribute("aria-valuenow", String(Math.round(pct)));
+      el.setAttribute("aria-valuetext", `${Math.round(pct)}% da imagem Antes visível`);
     }
 
     function posicaoDoEvento(clientX) {
@@ -70,8 +79,10 @@ export function initAntesDepoisSlider(root = document) {
     el.addEventListener("pointercancel", () => { arrastando = false; });
     el.addEventListener("keydown", (e) => {
       const atual = parseFloat(handle.style.left) || 50;
-      if (e.key === "ArrowRight") definirPosicao(atual + 5);
-      if (e.key === "ArrowLeft") definirPosicao(atual - 5);
+      if (e.key === "ArrowRight") { e.preventDefault(); definirPosicao(atual + 5); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); definirPosicao(atual - 5); }
+      if (e.key === "Home") { e.preventDefault(); definirPosicao(0); }
+      if (e.key === "End") { e.preventDefault(); definirPosicao(100); }
     });
 
     definirPosicao(50);
