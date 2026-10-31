@@ -829,7 +829,7 @@ h2,h3,p{margin-top:0}
     <div class="hero-media">
       <img class="hero-fallback" src="assets/hero-fallback.webp" alt="" fetchpriority="high">
       <!-- Vídeo do topo: sem faixa de áudio (só assim o autoplay é confiável no celular) -->
-      <video id="hero-video" autoplay muted loop playsinline webkit-playsinline preload="auto"
+      <video id="hero-video" muted loop playsinline webkit-playsinline preload="none"
              poster="assets/hero-fallback.webp" disablepictureinpicture disableremoteplayback
              aria-hidden="true" tabindex="-1">
         <source src="assets/hero.mp4" type="video/mp4">
@@ -1011,6 +1011,14 @@ h2,h3,p{margin-top:0}
 (() => {
   const v = document.getElementById('hero-video');
   if (!v) return;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const saveData = !!(navigator.connection && navigator.connection.saveData);
+  if (reduceMotion || saveData) {
+    v.pause();
+    v.removeAttribute('autoplay');
+    return;
+  }
+  v.preload = 'metadata';
   v.muted = true;
   v.defaultMuted = true;
   v.playsInline = true;
