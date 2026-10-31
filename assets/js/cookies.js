@@ -13,6 +13,13 @@ import { supabase } from "./supabase-client.js";
     let banner = document.querySelector("[data-cookie-banner]");
     if (banner) return banner;
 
+    if (!document.querySelector("[data-cookie-banner-style]")) {
+      const style = document.createElement("style");
+      style.setAttribute("data-cookie-banner-style", "");
+      style.textContent = ".cookie-banner{position:fixed;left:16px;right:16px;bottom:16px;max-width:560px;margin:0 auto;background:#fff;border:1px solid #ddd;border-radius:10px;box-shadow:0 10px 30px rgba(38,49,45,.18);padding:20px;z-index:9999;display:none;color:#26312d}.cookie-banner.visivel{display:block}.cookie-banner p{font-size:13.5px;line-height:1.5;color:#58645f;margin:0 0 14px}.cookie-banner a{color:inherit;text-decoration:underline}.cookie-banner__acoes{display:flex;gap:10px;flex-wrap:wrap}.cookie-banner button{min-height:40px;padding:9px 16px;border-radius:7px;border:1px solid #b99b65;cursor:pointer;font:inherit}.cookie-banner .btn-dourado{background:#c9a45b;color:#26312d}.cookie-banner .btn-fora{background:#fff;color:#26312d}@media(max-width:480px){.cookie-banner{left:10px;right:10px;bottom:10px;padding:16px}}";
+      document.head.appendChild(style);
+    }
+
     banner = document.createElement("div");
     banner.className = "cookie-banner";
     banner.setAttribute("data-cookie-banner", "");
