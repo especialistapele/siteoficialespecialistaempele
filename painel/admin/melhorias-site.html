@@ -55,12 +55,17 @@ const statusAuditado={
   whatsapp:{status:"andamento"},
   local:{status:"andamento"},
   internos:{status:"andamento"},
+  cta:{status:"pendente"},
+  og:{status:"andamento"},
   tag:{status:"andamento"},
   eventos:{status:"andamento"},
-  og:{status:"andamento"}
+  origens:{status:"pendente"},
+  gsc:{status:"andamento"},
+  "404":{status:"andamento"},
+  seguranca:{status:"andamento"}
 };
 let state={}; try{state=JSON.parse(localStorage.getItem(storageKey)||"{}")}catch{}
-const auditVersionKey=storageKey+":audit-v2";
+const auditVersionKey=storageKey+":audit-v3";
 if(!localStorage.getItem(auditVersionKey)){
   Object.entries(statusAuditado).forEach(([id,valor])=>{state[id]=valor});
   try{
@@ -77,17 +82,17 @@ root.querySelectorAll("[data-status]").forEach(el=>el.addEventListener("change",
 root.querySelectorAll("[data-check]").forEach(el=>el.addEventListener("change",()=>{state[el.dataset.check]={status:el.checked?"concluido":"pendente"};save();render()}));summary()}
 const notes=document.querySelector("[data-notes]");notes.value=localStorage.getItem(storageKey+":notes")||"";notes.addEventListener("input",()=>localStorage.setItem(storageKey+":notes",notes.value));
 const fixes=[
- {id:"consent-ga4",title:"Corrigir consentimento de cookies e carregamento do GA4",problem:"O whatsapp.js injeta o GA4 imediatamente, mesmo quando o visitante ainda não aceitou cookies. O cookies.js só libera analytics após aceite, mas atualmente não contém a integração real com o GA4. A home também não apresenta o banner nem carrega cookies.js.",action:"Padronizar o banner e o controle de consentimento nas páginas públicas; fazer o carregamento do GA4 depender exclusivamente do aceite; manter o registro de recusa e aceite sem bloquear funcionalidades essenciais.",priority:"Crítica",validation:"Pendente: testar primeira visita, aceite, recusa, persistência da escolha e chamadas de rede do GA4."},
+ {id:"consent-ga4",title:"Corrigir consentimento de cookies e carregamento do GA4",problem:"O whatsapp.js injeta o GA4 imediatamente, mesmo quando o visitante ainda não aceitou cookies. O cookies.js só libera analytics após aceite, mas atualmente não contém a integração real com o GA4. A cobertura precisa ser conferida página a página; o módulo é inicializado pelo whatsapp.js nas páginas que carregam esse script.",action:"Padronizar o banner e o controle de consentimento nas páginas públicas; fazer o carregamento do GA4 depender exclusivamente do aceite; manter o registro de recusa e aceite sem bloquear funcionalidades essenciais.",priority:"Crítica",validation:"Pendente: testar primeira visita, aceite, recusa, persistência da escolha e chamadas de rede do GA4."},
  {id:"ga4-evento-whatsapp",title:"Validar evento whatsapp_click após corrigir o consentimento",problem:"A propriedade G-YPF8LKST26 apresentou page_view, mas não houve whatsapp_click no recorte consultado. Isso ainda não comprova falha do evento.",action:"Após a correção do consentimento, testar cliques nos links de WhatsApp em páginas públicas e confirmar o evento no GA4/DebugView sem enviar conteúdo digitado pelo visitante.",priority:"Alta",validation:"Pendente: realizar clique de teste e confirmar evento e parâmetros permitidos."},
- {id:"banner-cobertura",title:"Uniformizar banner de cookies nas páginas públicas",problem:"A home não apresenta o banner nem carrega cookies.js. Há páginas internas que possuem o banner e o módulo, mas a cobertura do site não está uniforme.",action:"Mapear os modelos/páginas públicas e aplicar o mesmo componente de consentimento de forma consistente, excluindo painel e áreas autenticadas quando apropriado.",priority:"Alta",validation:"Pendente: conferir home, tratamentos, artigos, páginas locais, resultados e páginas institucionais."}
+ {id:"banner-cobertura",title:"Uniformizar banner de cookies nas páginas públicas",problem:"A home não apresenta o banner nem carrega cookies.js. Há páginas internas que possuem o banner e o módulo, mas a cobertura do site não está uniforme.",action:"Conferir página a página se whatsapp.js ou cookies.js inicializa o banner, incluindo modelos especiais e páginas institucionais; corrigir eventuais exceções, excluindo painel e áreas autenticadas quando apropriado.",priority:"Alta",validation:"Pendente: conferir home, tratamentos, artigos, páginas locais, resultados e páginas institucionais."}
 ];
 const fixesRoot=document.querySelector("[data-fixes]");
 const fixesKey=storageKey+":fixes";
 let fixState={};try{fixState=JSON.parse(localStorage.getItem(fixesKey)||"{}")}catch{}
 const fixAuditDefaults={
- "consent-ga4":{status:"andamento",validation:"Código ajustado: GA4 agora só é inicializado após aceite explícito. Falta validar aceite, recusa e persistência no navegador."},
- "ga4-evento-whatsapp":{status:"andamento",validation:"O evento permanece configurado e depende do GA4 liberado após consentimento. Falta confirmar whatsapp_click no DebugView."},
- "banner-cobertura":{status:"andamento",validation:"cookies.js cria o banner quando ausente e whatsapp.js inicializa o módulo nas páginas que carregam esse script. Falta auditar páginas especiais e validar visualmente."}
+ "consent-ga4":{status:"andamento",validation:"Código ajustado: GA4 só inicializa após aceite explícito ou consentimento previamente salvo como aceito. Verificações estáticas aprovadas; falta testar comportamento real no navegador e no GA4."},
+ "ga4-evento-whatsapp":{status:"andamento",validation:"O evento permanece configurado e depende do GA4 liberado após consentimento. Falta realizar clique real e confirmar whatsapp_click no DebugView."},
+ "banner-cobertura":{status:"andamento",validation:"cookies.js cria o banner quando ausente e whatsapp.js inicializa o módulo nas páginas que carregam esse script. Falta concluir a auditoria de cobertura e validar visualmente em navegador."}
 };
 Object.entries(fixAuditDefaults).forEach(([id,value])=>{if(!fixState[id]||fixState[id].status==="pendente")fixState[id]={...value,...(fixState[id]||{})};});
 try{localStorage.setItem(fixesKey,JSON.stringify(fixState))}catch{}
