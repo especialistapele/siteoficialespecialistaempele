@@ -78,6 +78,13 @@ const fixes=[
 const fixesRoot=document.querySelector("[data-fixes]");
 const fixesKey=storageKey+":fixes";
 let fixState={};try{fixState=JSON.parse(localStorage.getItem(fixesKey)||"{}")}catch{}
+const fixAuditDefaults={
+ "consent-ga4":{status:"andamento",validation:"Código ajustado: GA4 agora só é inicializado após aceite explícito. Falta validar aceite, recusa e persistência no navegador."},
+ "ga4-evento-whatsapp":{status:"andamento",validation:"O evento permanece configurado e depende do GA4 liberado após consentimento. Falta confirmar whatsapp_click no DebugView."},
+ "banner-cobertura":{status:"andamento",validation:"cookies.js cria o banner quando ausente e whatsapp.js inicializa o módulo nas páginas que carregam esse script. Falta auditar páginas especiais e validar visualmente."}
+};
+Object.entries(fixAuditDefaults).forEach(([id,value])=>{if(!fixState[id]||fixState[id].status==="pendente")fixState[id]={...value,...(fixState[id]||{})};});
+try{localStorage.setItem(fixesKey,JSON.stringify(fixState))}catch{}
 function saveFixes(){localStorage.setItem(fixesKey,JSON.stringify(fixState));renderFixes()}
 function renderFixes(){fixesRoot.innerHTML=fixes.map(f=>{const s=fixState[f.id]||{};const status=s.status||"pendente";return '<article class="mr-item"><div><strong>'+esc(f.title)+'</strong><p><b>Problema identificado:</b> '+esc(f.problem)+'</p><p><b>Correção necessária:</b> '+esc(f.action)+'</p><p><b>Validação:</b> '+esc(s.validation||f.validation)+'</p></div><div class="mr-meta"><span class="mr-priority">'+esc(f.priority)+'</span><select data-fix-status="'+f.id+'" aria-label="Status de '+esc(f.title)+'"><option value="pendente" '+(status==="pendente"?"selected":"")+'>Pendente</option><option value="andamento" '+(status==="andamento"?"selected":"")+'>Em andamento</option><option value="concluido" '+(status==="concluido"?"selected":"")+'>Concluída</option></select><textarea data-fix-validation="'+f.id+'" aria-label="Resultado dos testes" placeholder="Registre o resultado dos testes...">'+esc(s.validation||"")+'</textarea></div></article>'}).join("");fixesRoot.querySelectorAll("[data-fix-status]").forEach(el=>el.addEventListener("change",()=>{fixState[el.dataset.fixStatus]={...(fixState[el.dataset.fixStatus]||{}),status:el.value};saveFixes()}));fixesRoot.querySelectorAll("[data-fix-validation]").forEach(el=>el.addEventListener("change",()=>{fixState[el.dataset.fixValidation]={...(fixState[el.dataset.fixValidation]||{}),validation:el.value};localStorage.setItem(fixesKey,JSON.stringify(fixState))}))}
 renderFixes();
