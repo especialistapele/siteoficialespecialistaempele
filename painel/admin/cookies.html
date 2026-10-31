@@ -40,6 +40,7 @@
 <h3>Resumo por dia</h3>
 <div style="overflow-x:auto"><table class="cookie-table"><thead><tr><th>Data</th><th>Aceites</th><th>Recusas</th><th>Total</th><th>% aceite</th></tr></thead><tbody data-daily><tr><td colspan="5" class="cookie-loading">Carregando…</td></tr></tbody></table></div>
 </div>
+<section class="painel-card" style="margin-top:18px"><h3>E-mails autorizados para marketing</h3><p class="texto-suave" style="font-size:13px">Lista exclusiva de endereços que marcaram a autorização específica no formulário. Aceitar cookies não inclui ninguém nesta lista.</p><div class="cookie-toolbar"><div><strong data-email-total>—</strong><span class="texto-suave"> cadastros · </span><strong data-email-active>—</strong><span class="texto-suave"> autorizados ativos</span></div><button type="button" class="btn btn-dourado" id="exportar-emails">Exportar autorizados (CSV)</button></div><div class="cookie-status" data-email-status>Carregando lista…</div><div style="overflow-x:auto"><table class="cookie-table"><thead><tr><th>E-mail</th><th>Status</th><th>Data</th><th>Origem</th><th>Ação</th></tr></thead><tbody data-email-rows><tr><td colspan="5" class="cookie-loading">Carregando…</td></tr></tbody></table></div><p class="cookie-status">O descadastramento altera o status e retira o endereço da exportação. O envio de campanhas depende da conexão com uma plataforma de e-mail marketing.</p></section>
 <div class="cookie-status">Importante: estes números representam decisões registradas, não pessoas únicas. Um visitante que limpar os dados do navegador e escolher novamente poderá gerar outro registro. Quem ainda não escolheu ou acessou uma página sem o banner não aparece nesta contagem.</div>
 </main>
 </div>
@@ -88,6 +89,21 @@ async function carregar(){
 }
 periodo.addEventListener("change",carregar);
 await carregar();
+const emailStatus=document.querySelector("[data-email-status]"), emailRows=document.querySelector("[data-email-rows]");
+let subscribers=[];
+const escapeHtml=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+async function carregarEmails(){
+ emailStatus.textContent="Atualizando lista…";
+ const {data,error}=await supabase.from("email_marketing_subscribers").select("id,email,status,consented_at,consent_source").order("consented_at",{ascending:false}).limit(5000);
+ if(error){emailStatus.textContent="Não foi possível carregar a lista. Verifique as permissões do administrador.";emailRows.innerHTML='<tr><td colspan="5">Erro ao carregar.</td></tr>';return}
+ subscribers=data||[];const ativos=subscribers.filter(x=>x.status==="active");
+ document.querySelector("[data-email-total]").textContent=fmt(subscribers.length);document.querySelector("[data-email-active]").textContent=fmt(ativos.length);
+ emailRows.innerHTML=subscribers.length?subscribers.map(x=>'<tr><td>'+escapeHtml(x.email)+'</td><td>'+(x.status==="active"?"Autorizado":"Descadastrado")+'</td><td>'+new Date(x.consented_at).toLocaleString("pt-BR")+'</td><td>'+escapeHtml(x.consent_source)+'</td><td>'+(x.status==="active"?'<button type="button" class="btn btn-fora" data-unsubscribe="'+x.id+'">Descadastrar</button>':'—')+'</td></tr>').join(""):'<tr><td colspan="5">Nenhum e-mail autorizado até o momento.</td></tr>';
+ emailStatus.textContent=subscribers.length+" cadastro(s) registrados. Lista atualizada em "+new Date().toLocaleString("pt-BR")+".";
+}
+emailRows.addEventListener("click",async event=>{const button=event.target.closest("[data-unsubscribe]");if(!button)return;if(!confirm("Confirmar o descadastramento deste e-mail?"))return;button.disabled=true;const {error}=await supabase.from("email_marketing_subscribers").update({status:"unsubscribed",unsubscribed_at:new Date().toISOString()}).eq("id",button.dataset.unsubscribe);if(error){alert("Não foi possível atualizar o cadastro.");button.disabled=false;return}await carregarEmails()});
+document.getElementById("exportar-emails").addEventListener("click",()=>{const ativos=subscribers.filter(x=>x.status==="active");if(!ativos.length){alert("Não há e-mails autorizados para exportar.");return}const csv=["email,data_autorizacao,origem",...ativos.map(x=>[x.email,x.consented_at,x.consent_source].map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(","))].join("\r\n");const url=URL.createObjectURL(new Blob(["\\uFEFF",csv],{type:"text/csv;charset=utf-8"}));const link=document.createElement("a");link.href=url;link.download="emails-autorizados-especialista-em-pele.csv";link.click();URL.revokeObjectURL(url)});
+await carregarEmails();
 </script>
 </body>
 </html>
