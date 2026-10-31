@@ -547,3 +547,28 @@ body[data-pagina="resultados"] .filtro-tratamentos button:focus-visible{
   body[data-pagina="resultados"] .grade[data-grade-resultados] > .card,
   body[data-pagina="resultados"] .filtro-tratamentos button{transition:none}
 }
+
+/* Mantém todos os itens do cabeçalho interno na mesma linha,
+   inclusive quando o celular solicita a versão para computador. */
+.nav-inner-interna{flex-wrap:nowrap}
+.nav-links-interna{flex-wrap:nowrap;white-space:nowrap}
+.nav-login-interna{flex:0 0 auto}
+
+@media (min-width:901px) and (max-width:1100px){
+  .nav-inner-interna{
+    gap:10px;
+    padding-left:14px;
+    padding-right:14px;
+    justify-content:flex-start;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .logo-interna img{height:42px}
+  .nav-links-interna{
+    flex-wrap:nowrap;
+    flex-shrink:0;
+    gap:clamp(7px,.9vw,10px);
+  }
+  .nav-links-interna a{font-size:10px;letter-spacing:.06em}
+  .nav-login-interna{flex-shrink:0;font-size:9px;padding:8px 10px}
+}
