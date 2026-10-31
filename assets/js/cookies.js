@@ -54,6 +54,10 @@
   }
 
   const banner = criarBannerSeNecessario();
+  // Aplica semântica acessível também aos banners que já vêm no HTML.
+  banner.setAttribute("role", "region");
+  banner.setAttribute("aria-label", "Preferências de cookies");
+  banner.setAttribute("aria-live", "polite");
 
   function carregarAnalytics() {
     if (window.__especialistaPeleGA4Loaded) return;
