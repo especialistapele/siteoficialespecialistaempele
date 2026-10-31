@@ -40,7 +40,7 @@
   document.querySelectorAll("[data-whatsapp-link]").forEach((el) => {
     el.setAttribute("href", link);
     el.setAttribute("target", "_blank");
-    el.setAttribute("rel", "noopener");
+    el.setAttribute("rel", "noopener noreferrer");
   });
 
   // O bot usa o link já resolvido por este arquivo, evitando duplicar
