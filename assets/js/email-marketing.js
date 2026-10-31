@@ -22,7 +22,7 @@ document.querySelectorAll("[data-email-marketing-form]").forEach((form) => {
     });
     if (error) {
       if (error.code === "23505") {
-        feedback.textContent = "Este e-mail já consta no cadastro. Se desejar cancelar, entre em contato conosco.";
+        feedback.textContent = "Este e-mail já consta no cadastro. Se desejar cancelar, solicite pelo WhatsApp (21) 99219-7518.";
       } else {
         feedback.textContent = "Não foi possível concluir agora. Tente novamente mais tarde.";
         console.error("Falha no cadastro de e-mail marketing:", error);
