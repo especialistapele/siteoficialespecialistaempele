@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Cookies — Relatório de consentimento</title>
+<link rel="stylesheet" href="/painel/assets/css/painel.css">
+<link rel="icon" href="/assets/favicon.ico" sizes="any">
+<style>
+.cookie-intro{margin-bottom:18px}.cookie-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}.cookie-stat{padding:17px}.cookie-stat strong{display:block;font:30px Georgia,serif;color:var(--ink,#26312d);margin-bottom:5px}.cookie-stat span{font-size:12px;color:#727a75}.cookie-stat small{display:block;font-size:11px;color:#8a918c;margin-top:4px}.cookie-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0}.cookie-toolbar select{padding:9px 12px;border:1px solid var(--linha);border-radius:8px;background:#fff}.cookie-chart{min-height:290px}.cookie-chart canvas{width:100%;max-height:300px}.cookie-table{width:100%;border-collapse:collapse;font-size:13px}.cookie-table th,.cookie-table td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--linha)}.cookie-table th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#737b75}.cookie-status{padding:12px 14px;border-radius:8px;background:#f7f5ef;color:#646c66;font-size:12px;margin:12px 0}.cookie-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:#68716c}.cookie-legend span{display:flex;align-items:center;gap:6px}.cookie-dot{width:9px;height:9px;border-radius:50%;display:inline-block}.cookie-loading{padding:30px;text-align:center;color:#777}
+@media(max-width:760px){.cookie-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.cookie-toolbar{align-items:flex-start;flex-direction:column}.cookie-table{font-size:12px}.cookie-table th,.cookie-table td{padding:9px 7px}}
+</style>
+</head>
+<body>
+<div class="painel-layout">
+<aside class="painel-sidebar" data-sidebar></aside>
+<main class="painel-main">
+<div class="painel-topo"><div><h1>Relatório de cookies</h1><p class="texto-suave">Marketing · Acompanhamento das escolhas de consentimento no site.</p></div></div>
+<section class="painel-card cookie-intro">
+<h3>Consentimento dos visitantes</h3>
+<p class="texto-suave" style="margin:0">Acompanhe quantas decisões de aceite e recusa foram registradas pelo banner de cookies. O relatório apresenta dados agregados, sem exibir informações individuais dos visitantes.</p>
+</section>
+<div class="cookie-toolbar">
+<div><strong>Período do relatório</strong><p class="texto-suave" style="margin:3px 0 0;font-size:12px">Os indicadores e o gráfico acompanham o período selecionado.</p></div>
+<select id="periodo" aria-label="Período do relatório"><option value="7">Últimos 7 dias</option><option value="30" selected>Últimos 30 dias</option><option value="90">Últimos 90 dias</option><option value="all">Todo o período</option></select>
+</div>
+<div class="cookie-stats">
+<div class="painel-card cookie-stat"><strong data-total>—</strong><span>Decisões registradas</span><small>Aceites + recusas</small></div>
+<div class="painel-card cookie-stat"><strong data-accepted>—</strong><span>Aceitaram</span><small data-accepted-pct>—</small></div>
+<div class="painel-card cookie-stat"><strong data-rejected>—</strong><span>Recusaram</span><small data-rejected-pct>—</small></div>
+<div class="painel-card cookie-stat"><strong data-rate>—</strong><span>Taxa de aceitação</span><small>Entre as decisões registradas</small></div>
+</div>
+<div class="painel-card">
+<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap"><h3 style="margin:0">Evolução das decisões</h3><div class="cookie-legend"><span><i class="cookie-dot" style="background:#b99a58"></i>Aceites</span><span><i class="cookie-dot" style="background:#8b9690"></i>Recusas</span></div></div>
+<div class="cookie-chart"><canvas id="grafico-cookies"></canvas></div>
+<div class="cookie-status" data-status>Carregando dados…</div>
+</div>
+<div class="painel-card" style="margin-top:18px">
+<h3>Resumo por dia</h3>
+<div style="overflow-x:auto"><table class="cookie-table"><thead><tr><th>Data</th><th>Aceites</th><th>Recusas</th><th>Total</th><th>% aceite</th></tr></thead><tbody data-daily><tr><td colspan="5" class="cookie-loading">Carregando…</td></tr></tbody></table></div>
+</div>
+<div class="cookie-status">Importante: estes números representam decisões registradas, não pessoas únicas. Um visitante que limpar os dados do navegador e escolher novamente poderá gerar outro registro. Quem ainda não escolheu ou acessou uma página sem o banner não aparece nesta contagem.</div>
+</main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script type="module">
+import { supabase, exigirAdmin, configurarBotaoSair } from "/painel/assets/js/painel-auth.js";
+import { renderSidebarAdmin } from "/painel/assets/js/admin-sidebar.js";
+const contexto=await exigirAdmin();
+if(!contexto) throw new Error("Sem acesso administrativo");
+document.querySelector("[data-sidebar]").innerHTML=renderSidebarAdmin("cookies",contexto.perfil.full_name);
+configurarBotaoSair();
+const periodo=document.getElementById("periodo");
+const statusEl=document.querySelector("[data-status]");
+const tbody=document.querySelector("[data-daily]");
+let grafico=null;
+const fmt=n=>Number(n||0).toLocaleString("pt-BR");
+const pct=(a,t)=>t?((a/t)*100).toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1})+"%":"0%";
+function dateKey(value){const d=new Date(value);return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-")}
+function dateLabel(key){const [y,m,d]=key.split("-");return d+"/"+m}
+async function carregar(){
+ statusEl.textContent="Atualizando relatório…";
+ tbody.innerHTML='<tr><td colspan="5" class="cookie-loading">Carregando…</td></tr>';
+ const days=periodo.value==="all"?null:Number(periodo.value);
+ const since=days?new Date(Date.now()-days*86400000).toISOString():null;
+ let aceitosQ=supabase.from("cookie_consents").select("id",{count:"exact",head:true}).eq("consent_analytics",true);
+ let recusadosQ=supabase.from("cookie_consents").select("id",{count:"exact",head:true}).eq("consent_analytics",false);
+ let rowsQ=supabase.from("cookie_consents").select("created_at,consent_analytics").order("created_at",{ascending:true}).limit(5000);
+ if(since){aceitosQ=aceitosQ.gte("created_at",since);recusadosQ=recusadosQ.gte("created_at",since);rowsQ=rowsQ.gte("created_at",since)}
+ const [a,r,rows]=await Promise.all([aceitosQ,recusadosQ,rowsQ]);
+ if(a.error||r.error||rows.error){statusEl.textContent="Não foi possível carregar o relatório. Verifique a conexão e as permissões do banco.";tbody.innerHTML='<tr><td colspan="5">Erro ao carregar os dados.</td></tr>';return}
+ const accepted=a.count||0,rejected=r.count||0,total=accepted+rejected;
+ document.querySelector("[data-total]").textContent=fmt(total);
+ document.querySelector("[data-accepted]").textContent=fmt(accepted);
+ document.querySelector("[data-rejected]").textContent=fmt(rejected);
+ document.querySelector("[data-accepted-pct]").textContent=pct(accepted,total)+" das decisões";
+ document.querySelector("[data-rejected-pct]").textContent=pct(rejected,total)+" das decisões";
+ document.querySelector("[data-rate]").textContent=pct(accepted,total);
+ const byDay={};
+ for(const row of (rows.data||[])){const key=dateKey(row.created_at);byDay[key]??={accepted:0,rejected:0};if(row.consent_analytics)byDay[key].accepted++;else byDay[key].rejected++}
+ const keys=Object.keys(byDay).sort();
+ if(grafico)grafico.destroy();
+ grafico=new Chart(document.getElementById("grafico-cookies"),{type:"bar",data:{labels:keys.map(dateLabel),datasets:[{label:"Aceites",data:keys.map(k=>byDay[k].accepted),backgroundColor:"#b99a58",borderRadius:4},{label:"Recusas",data:keys.map(k=>byDay[k].rejected),backgroundColor:"#8b9690",borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},plugins:{legend:{display:false}},scales:{x:{stacked:false,grid:{display:false}},y:{beginAtZero:true,ticks:{precision:0},grid:{color:"rgba(0,0,0,.06)"}}}}});
+ const recent=keys.slice(-14).reverse();
+ tbody.innerHTML=recent.length?recent.map(k=>{const v=byDay[k],t=v.accepted+v.rejected;return '<tr><td>'+dateLabel(k)+'/'+k.slice(0,4)+'</td><td>'+fmt(v.accepted)+'</td><td>'+fmt(v.rejected)+'</td><td><strong>'+fmt(t)+'</strong></td><td>'+pct(v.accepted,t)+'</td></tr>'}).join(""):'<tr><td colspan="5">Nenhuma decisão registrada neste período.</td></tr>';
+ statusEl.textContent=fmt(total)+" decisões no período selecionado. Atualizado em "+new Date().toLocaleString("pt-BR")+".";
+}
+periodo.addEventListener("change",carregar);
+await carregar();
+</script>
+</body>
+</html>
