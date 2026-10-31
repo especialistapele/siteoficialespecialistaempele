@@ -718,7 +718,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/resultados/rosacea-com-15-dias-de-tratamento.html",
       "redirect_to": null,
-      "sha256": "a243a67d3f70a40205c624583fdaced13958a7b96fbfe581624362f8e7c5997d"
+      "sha256": "41adccca8730ce9e9608e8be86fa02b9a057965cd833a1e45947687c3c474005"
     },
     {
       "path": "resultados/tratamento-de-rejuvenescimento-facial.html",
@@ -941,5 +941,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-31T19:15:38.829Z"
+  "generated_at": "2026-10-31T19:41:57.274Z"
 }
