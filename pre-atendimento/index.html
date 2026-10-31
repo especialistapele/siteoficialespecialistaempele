@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pré-atendimento — Especialista em Pele</title>
 <meta name="description" content="Preencha o formulário de pré-atendimento para qualificar sua primeira consulta.">
-<meta name="robots" content="index,follow">
+<meta name="robots" content="noindex,follow">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Pré-atendimento — Especialista em Pele">
 <meta property="og:description" content="Preencha o formulário de pré-atendimento para qualificar sua primeira consulta.">
@@ -54,16 +54,16 @@
 
 
 <section class="secao wrap" style="max-width:640px">
-    <div class="aviso-flash" data-flash></div>
+    <div class="aviso-flash" data-flash role="status" aria-live="polite" aria-atomic="true"></div>
 
     <form id="form-pre-atendimento">
       <div class="form-linha">
-        <div class="form-campo"><label for="full_name">Nome completo</label><input type="text" id="full_name" required></div>
-        <div class="form-campo" style="max-width:120px"><label for="idade">Idade</label><input type="number" id="idade" min="1" max="120"></div>
+        <div class="form-campo"><label for="full_name">Nome completo</label><input type="text" id="full_name" autocomplete="name" required></div>
+        <div class="form-campo" style="max-width:120px"><label for="idade">Idade</label><input type="number" id="idade" min="1" max="120" inputmode="numeric"></div>
       </div>
       <div class="form-linha">
-        <div class="form-campo"><label for="phone">WhatsApp</label><input type="tel" id="phone" required placeholder="(21) 90000-0000"></div>
-        <div class="form-campo"><label for="email">E-mail</label><input type="email" id="email"></div>
+        <div class="form-campo"><label for="phone">WhatsApp</label><input type="tel" id="phone" autocomplete="tel" inputmode="tel" required placeholder="(21) 90000-0000"></div>
+        <div class="form-campo"><label for="email">E-mail</label><input type="email" id="email" autocomplete="email"></div>
       </div>
       <div class="form-campo">
         <label for="queixa_principal">Qual sua principal queixa com a pele?</label>
