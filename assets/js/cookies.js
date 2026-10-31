@@ -6,6 +6,23 @@
 (function () {
   const CHAVE_LOCAL = "ep_cookie_consent";
   const GA_ID = "G-YPF8LKST26";
+  let consentimentoEmMemoria = null;
+
+  function lerConsentimento() {
+    try { return localStorage.getItem(CHAVE_LOCAL); }
+    catch (erro) {
+      console.warn("Armazenamento local indisponível; consentimento ficará nesta sessão.", erro);
+      return consentimentoEmMemoria;
+    }
+  }
+
+  function salvarConsentimento(valor) {
+    consentimentoEmMemoria = valor;
+    try { localStorage.setItem(CHAVE_LOCAL, valor); }
+    catch (erro) {
+      console.warn("Não foi possível salvar a preferência de cookies neste dispositivo.", erro);
+    }
+  }
 
   function criarBannerSeNecessario() {
     let banner = document.querySelector("[data-cookie-banner]");
@@ -93,7 +110,7 @@
     }
   }
 
-  const consentimentoSalvo = localStorage.getItem(CHAVE_LOCAL);
+  const consentimentoSalvo = lerConsentimento();
 
   if (!consentimentoSalvo) {
     banner.classList.add("visivel");
@@ -103,14 +120,14 @@
   }
 
   banner.querySelector("[data-cookie-aceitar]")?.addEventListener("click", function () {
-    localStorage.setItem(CHAVE_LOCAL, "aceito");
+    salvarConsentimento("aceito");
     banner.classList.remove("visivel");
     carregarAnalytics();
     registrarConsentimento(true);
   });
 
   banner.querySelector("[data-cookie-recusar]")?.addEventListener("click", function () {
-    localStorage.setItem(CHAVE_LOCAL, "recusado");
+    salvarConsentimento("recusado");
     banner.classList.remove("visivel");
     registrarConsentimento(false);
   });
