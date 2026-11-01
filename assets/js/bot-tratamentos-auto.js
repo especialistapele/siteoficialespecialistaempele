@@ -87,6 +87,10 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "sobrancelha": {
     "presential": true,
     "online": false
+  },
+  "terapia-capilar": {
+    "presential": true,
+    "online": false
   }
 },
   pageContexts: {
@@ -110,7 +114,8 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "/tratamentos/rejuvenescimento.html": "rejuvenescimento",
   "/tratamentos/remocoes.html": "remocoes",
   "/tratamentos/rosacea.html": "rosacea",
-  "/tratamentos/sobrancelha.html": "sobrancelha"
+  "/tratamentos/sobrancelha.html": "sobrancelha",
+  "/tratamentos/terapia-capilar.html": "terapia-capilar"
 },
   greetings: {
   "acantose": "Vi que você está conhecendo nosso conteúdo sobre Acantose Nigricans: avaliação e cuidados. O que você gostaria de entender melhor?",
@@ -133,7 +138,8 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "rejuvenescimento": "Vi que você está conhecendo nosso conteúdo sobre Rejuvenescimento Facial. O que você gostaria de entender melhor?",
   "remocoes": "Vi que você está conhecendo nosso conteúdo sobre Avaliação para remoção de sinais, verrugas e acrocórdons na Região dos Lagos. O que você gostaria de entender melhor?",
   "rosacea": "Vi que você está conhecendo nosso conteúdo sobre Rosácea. O que você gostaria de entender melhor?",
-  "sobrancelha": "Vi que você está conhecendo nosso conteúdo sobre Despigmentação de Sobrancelhas. O que você gostaria de entender melhor?"
+  "sobrancelha": "Vi que você está conhecendo nosso conteúdo sobre Despigmentação de Sobrancelhas. O que você gostaria de entender melhor?",
+  "terapia-capilar": "Vi que você está conhecendo nosso conteúdo sobre Terapia Capilar em Araruama: avaliação com Microscopia Digital. O que você gostaria de entender melhor?"
 },
   labels: {
   "acantose": "Acantose Nigricans: avaliação e cuidados",
@@ -156,7 +162,8 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "rejuvenescimento": "Rejuvenescimento Facial",
   "remocoes": "Avaliação para remoção de sinais, verrugas e acrocórdons na Região dos Lagos",
   "rosacea": "Rosácea",
-  "sobrancelha": "Despigmentação de Sobrancelhas"
+  "sobrancelha": "Despigmentação de Sobrancelhas",
+  "terapia-capilar": "Terapia Capilar em Araruama: avaliação com Microscopia Digital"
 },
   aliases: {
   "acantose": [
@@ -242,6 +249,10 @@ window.ESPECIALISTA_PELE_BOT_AUTO = {
   "sobrancelha": [
     "Despigmentação de Sobrancelhas",
     "sobrancelha"
+  ],
+  "terapia-capilar": [
+    "Terapia Capilar em Araruama: avaliação com Microscopia Digital",
+    "terapia capilar"
   ]
 }
 };

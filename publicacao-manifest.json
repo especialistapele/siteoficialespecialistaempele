@@ -8,7 +8,7 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 94,
+  "total": 95,
   "items": [
     {
       "path": "blog/acne-e-estresse.html",
@@ -949,7 +949,17 @@
       "canonical": "https://www.especialistaempele.com.br/tratamentos/sobrancelha.html",
       "redirect_to": null,
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
+    },
+    {
+      "path": "tratamentos/terapia-capilar.html",
+      "url": "https://www.especialistaempele.com.br/tratamentos/terapia-capilar.html",
+      "id": null,
+      "status": "manual",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/tratamentos/terapia-capilar.html",
+      "redirect_to": null,
+      "sha256": "d15b1703559a818e6b54e5ed41ca3a3e835c66d89bef72439f636906598cca64"
     }
   ],
-  "generated_at": "2026-11-01T13:36:10.344Z"
+  "generated_at": "2026-11-01T22:54:41.195Z"
 }
