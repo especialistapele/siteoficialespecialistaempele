@@ -114,7 +114,8 @@ const fixes=[
  {id:"panel-storage-write",title:"Proteger o salvamento dos status e observações",problem:"Falhas de armazenamento podiam lançar exceções ao alterar status, registrar validações ou escrever observações.",action:"Centralizar gravações em helper protegido e manter os dados em memória durante a sessão quando a persistência falhar.",priority:"Alta",validation:"Concluído no código: gravações usam writeStored; falhas de localStorage não interrompem as interações e os valores ficam disponíveis em memória na sessão."},
  {id:"panel-audit-migration-safe",title:"Evitar falha na migração inicial do relatório",problem:"A verificação da versão da auditoria consultava localStorage fora de um bloco de proteção.",action:"Executar a leitura e a gravação do marcador de migração pelo mecanismo seguro de armazenamento.",priority:"Média",validation:"Concluído no código: marcador audit-v3 lido e gravado pelos helpers protegidos."},
  {id:"panel-summary-live",title:"Anunciar atualizações dos totais do relatório",problem:"Os totais de itens concluídos e pendentes mudavam sem uma região de status acessível.",action:"Adicionar role=status, aria-live=polite e aria-atomic ao resumo para comunicar alterações às tecnologias assistivas.",priority:"Média",validation:"Concluído no código: resumo dos totais configurado como região de status educada e atômica."},
- {id:"panel-notes-accessible",title:"Identificar as observações e informar o salvamento",problem:"O campo de observações não tinha nome acessível explícito nem retorno sobre falhas ao salvar.",action:"Adicionar nome acessível e descrição associada, além de informar se as alterações foram persistidas ou mantidas apenas na sessão.",priority:"Média",validation:"Concluído no código: textarea possui aria-label e aria-describedby; retorno de salvamento usa role=status e aria-live."},
+ {id:"panel-notes-accessible",title:"Identificar as observações e informar o salvamento",problem:"O campo de observações não tinha nome acessível explícito nem retorno sobre falhas ao salvar.",action:"Adicionar nome acessível e descrição associada, além de informar se as alterações foram persistidas ou mantidas apenas na sessão.",priority:"Média",validation:"Concluído no código: textarea possui aria-label e aria-describedby; retorno de salvamento usa role=status e aria-live."},,
+ {id:"skinmap-ga4-bypass",title:"Remover Analytics direto do SkinMap",problem:"As cinco páginas do SkinMap carregavam Analytics fora do consentimento.",action:"Retirar o código de rastreamento direto das etapas do SkinMap.",priority:"Crítica",validation:"Concluído no código: GA4 removido das cinco páginas SkinMap."}
 ];
 const fixesRoot=document.querySelector("[data-fixes]");
 const fixesKey=storageKey+":fixes";
@@ -147,7 +148,8 @@ const fixAuditDefaults={
  "whatsapp-noreferrer":{status:"concluido",validation:"Links externos configurados pelo whatsapp.js recebem rel=noopener noreferrer."},
  "panel-storage-read":{status:"concluido",validation:"Leituras de estado, notas, auditoria e correções usam readStored com fallback."},
  "panel-storage-write":{status:"concluido",validation:"Gravações usam writeStored; em caso de bloqueio, o estado permanece em memória durante a sessão."},
- "panel-audit-migration-safe":{status:"concluido",validation:"Marcador de migração audit-v3 acessado por helpers protegidos."},
+ "panel-audit-migration-safe":{status:"concluido",validation:"Marcad
+ "skinmap-ga4-bypass":{status:"andamento",validation:"GA4 removido das cinco páginas; falta teste de rede no navegador."},or de migração audit-v3 acessado por helpers protegidos."},
  "panel-summary-live":{status:"concluido",validation:"Resumo com role=status, aria-live=polite e aria-atomic=true."},
  "panel-notes-accessible":{status:"concluido",validation:"Campo com nome acessível, descrição e aviso de persistência/fallback em memória."},
 };
