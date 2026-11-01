@@ -22,6 +22,7 @@ function categoriaDoArtigo(artigo) {
   if (/\b rosacea\b|rosacea|sensibilidade|pele sensivel/.test(texto + " " + url)) return "rosacea";
   if (/\b(skincare|rotina|oleosidade|limpeza de pele|protetor solar|hidratacao)\b/.test(texto + " " + url)) return "skincare";
   if (/\b(regeneracao|rejuvenescimento|envelhecimento|colageno|firmeza)\b/.test(texto + " " + url)) return "regeneracao";
+  if (/\b(alopecia|capilar|cabelo|cabelos|couro cabeludo|efluvio|folicular|foliculo|queda de cabelo|queda capilar|tricoscopia|microscopia capilar)\b/.test(texto + " " + url)) return "terapia-capilar";
   if (/\b(ativo|ativos|ingrediente|bakuchiol|resveratrol|niacinamida|retino|barreira cutanea|ciencia)\b/.test(texto + " " + url)) return "ciencia";
   return "outros";
 }
