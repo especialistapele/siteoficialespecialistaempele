@@ -858,7 +858,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/limpeza-de-pele.html",
       "redirect_to": null,
-      "sha256": "cafe836c1f554295db78c6edf5e8d1810f9dab68268ae1b1593d3248e2b6f090"
+      "sha256": "7ef8f38ba84b3a5f9ac84005d595903ac5ac2295d18165f4192fc96975c4546b"
     },
     {
       "path": "tratamentos/manchas-solares-em-maos.html",
@@ -941,5 +941,5 @@
       "sha256": "40894bf3f020cbf73fa3393c636c4fa42fbf8374f81e8bc5679fbe3de91a8295"
     }
   ],
-  "generated_at": "2026-10-31T19:41:57.274Z"
+  "generated_at": "2026-11-01T10:44:21.922Z"
 }
