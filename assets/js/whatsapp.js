@@ -12,6 +12,7 @@
     melasma: "Olá! Tenho interesse no tratamento regenerativo para melasma.",
     rosacea: "Olá! Tenho interesse no tratamento regenerativo para rosácea.",
     remocoes: "Olá! Gostaria de saber mais sobre remoção de sinais, verrugas e nevos.",
+    "terapia-capilar": "Olá! Gostaria de saber mais sobre a avaliação de terapia capilar em Araruama.",
     corporal: "Olá! Tenho interesse nos tratamentos corporais.",
     resultados: "Olá! Vi os resultados no site e gostaria de agendar uma avaliação.",
     blog: "Olá! Li um artigo no blog e gostaria de saber mais.",

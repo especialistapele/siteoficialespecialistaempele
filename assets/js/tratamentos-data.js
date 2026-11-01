@@ -44,6 +44,7 @@ async function carregar() {
   const { data, error } = await supabase.from("treatments").select("*").eq("published", true).order("sort_order", { ascending: true });
   // O HTML original permanece visível e rastreável se a API estiver indisponível.
   if (error || !data?.length) return;
+  const extrasEstaticos = [...container.querySelectorAll("[data-static-treatment]")].map((el) => el.outerHTML);
   const faciais = data.filter((t) => categoriaTratamento(t) === "facial");
   const corporais = data.filter((t) => categoriaTratamento(t) === "corporal");
   const grupo = (titulo, itens, id) => itens.length
@@ -51,5 +52,8 @@ async function carregar() {
     : "";
   container.innerHTML = grupo("Tratamentos faciais", faciais, "tratamentos-faciais")
     + grupo("Tratamentos corporais", corporais, "tratamentos-corporais");
+  // Preserva cards editoriais estáticos que não dependem de cadastro na tabela treatments.
+  const destinoEstaticos = container.querySelector("#tratamentos-corporais") || container;
+  extrasEstaticos.forEach((html) => destinoEstaticos.insertAdjacentHTML("beforebegin", html));
 }
 carregar();
