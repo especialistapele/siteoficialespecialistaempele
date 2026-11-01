@@ -131,7 +131,7 @@ const SEO_ARTIGOS = {
     description: "Aprenda a diferenciar pele seca de desidratação, reconhecer sinais comuns e escolher cuidados que respeitem a barreira cutânea.",
     imageAlt: "Ilustração de uma gota de água sobre camadas da pele, representando hidratação e barreira cutânea.",
     relatedSlugs: ["barreira-cutanea-danificada", "o-que-e-regeneracao-cutanea", "erros-na-rotina-de-skincare"],
-  },,
+  },
 
   "alopecia-feminina-queda-cabelo": { description: "Entenda as principais causas de queda de cabelo feminina, como diferenciar eflúvio telógeno e alopecia androgenética e quando investigar.", imageAlt: "Ilustração editorial sobre queda capilar feminina e avaliação dos folículos.", treatment: { name: "Terapia Capilar", slug: "terapia-capilar" }, relatedSlugs: ["alopecia-androgenetica-feminina", "queda-pos-parto-efluvio-telogeno", "queda-cabelo-menopausa"] },
   "alopecia-androgenetica-feminina": { description: "Saiba reconhecer sinais de alopecia androgenética feminina, afinamento no topo e miniaturização dos fios e entenda como é feita a investigação.", imageAlt: "Ilustração editorial de padrão de afinamento capilar feminino.", treatment: { name: "Terapia Capilar", slug: "terapia-capilar" }, relatedSlugs: ["alopecia-feminina-queda-cabelo", "queda-cabelo-menopausa", "nutricao-deficiencias-queda-capilar"] },
