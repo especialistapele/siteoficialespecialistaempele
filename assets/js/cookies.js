@@ -6,7 +6,11 @@
 (function () {
   const CHAVE_LOCAL = "ep_cookie_consent";
   const GA_ID = "G-YPF8LKST26";
+  const rotaRestrita = /^\/(?:painel|pre-atendimento|skinmap)(?:\/|$)/.test(window.location.pathname);
   let consentimentoEmMemoria = null;
+
+  // Áreas com dados de pacientes, pré-atendimento ou respostas de pele não usam Analytics.
+  if (rotaRestrita) return;
 
   function lerConsentimento() {
     try { return localStorage.getItem(CHAVE_LOCAL); }
@@ -77,7 +81,14 @@
   banner.setAttribute("aria-live", "polite");
 
   function carregarAnalytics() {
-    if (window.__especialistaPeleGA4Loaded) return;
+    window["ga-disable-" + GA_ID] = false;
+
+    if (window.__especialistaPeleGA4Loaded) {
+      if (typeof window.gtag === "function") {
+        window.gtag("consent", "update", { analytics_storage: "granted" });
+      }
+      return;
+    }
 
     window.__especialistaPeleGA4Loaded = true;
     window.dataLayer = window.dataLayer || [];
@@ -85,6 +96,13 @@
       window.dataLayer.push(arguments);
     };
 
+    window.gtag("consent", "default", {
+      analytics_storage: "denied",
+      ad_storage: "denied",
+      ad_user_data: "denied",
+      ad_personalization: "denied"
+    });
+    window.gtag("consent", "update", { analytics_storage: "granted" });
     window.gtag("js", new Date());
     window.gtag("config", GA_ID, { anonymize_ip: true });
 
@@ -128,7 +146,18 @@
 
   banner.querySelector("[data-cookie-recusar]")?.addEventListener("click", function () {
     salvarConsentimento("recusado");
+    window["ga-disable-" + GA_ID] = true;
+    if (typeof window.gtag === "function") {
+      window.gtag("consent", "update", { analytics_storage: "denied" });
+    }
     banner.classList.remove("visivel");
     registrarConsentimento(false);
+  });
+
+  document.querySelectorAll("[data-cookie-preferences-open]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      banner.classList.add("visivel");
+      banner.querySelector("[data-cookie-aceitar]")?.focus();
+    });
   });
 })();
