@@ -37,7 +37,7 @@
   .limpeza-benefits{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 28px;padding:0;list-style:none}
   .limpeza-benefits li{border:1px solid rgba(228,199,127,.45);border-radius:999px;padding:8px 12px;font-size:13px;color:#f5f0e7}
   .limpeza-hero-media{margin:0;position:relative}
-  .limpeza-hero-media img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:18px;box-shadow:0 22px 55px rgba(0,0,0,.24)}
+  .limpeza-hero-media img{display:block;width:100%;height:auto;max-height:520px;aspect-ratio:auto;object-fit:contain;object-position:center;border-radius:18px;box-shadow:0 22px 55px rgba(0,0,0,.24)}
   .limpeza-hero-media figcaption{font-size:12px;color:rgba(245,240,231,.8);margin-top:10px}
   .limpeza-cta{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:13px 22px;border-radius:999px;background:#d7b56b;color:#26312d!important;text-decoration:none;font-weight:700}
   .limpeza-local-intro{padding:clamp(30px,5vw,54px) 0;background:#fff}
@@ -60,7 +60,7 @@
   @media(max-width:760px){
     .limpeza-hero-grid{grid-template-columns:1fr;gap:26px}
     .limpeza-hero h1{text-align:left;font-size:clamp(34px,9vw,46px)}
-    .limpeza-hero-media img{aspect-ratio:16/10;max-height:360px}
+    .limpeza-hero-media img{height:auto;max-height:360px;aspect-ratio:auto;object-fit:contain}
     .limpeza-benefits{gap:8px}
     .limpeza-benefits li{font-size:12px}
     .limpeza-conteudo .artigo-corpo p{font-size:16px}
