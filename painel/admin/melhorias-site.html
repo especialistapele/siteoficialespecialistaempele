@@ -114,7 +114,7 @@ const fixes=[
  {id:"panel-storage-write",title:"Proteger o salvamento dos status e observações",problem:"Falhas de armazenamento podiam lançar exceções ao alterar status, registrar validações ou escrever observações.",action:"Centralizar gravações em helper protegido e manter os dados em memória durante a sessão quando a persistência falhar.",priority:"Alta",validation:"Concluído no código: gravações usam writeStored; falhas de localStorage não interrompem as interações e os valores ficam disponíveis em memória na sessão."},
  {id:"panel-audit-migration-safe",title:"Evitar falha na migração inicial do relatório",problem:"A verificação da versão da auditoria consultava localStorage fora de um bloco de proteção.",action:"Executar a leitura e a gravação do marcador de migração pelo mecanismo seguro de armazenamento.",priority:"Média",validation:"Concluído no código: marcador audit-v3 lido e gravado pelos helpers protegidos."},
  {id:"panel-summary-live",title:"Anunciar atualizações dos totais do relatório",problem:"Os totais de itens concluídos e pendentes mudavam sem uma região de status acessível.",action:"Adicionar role=status, aria-live=polite e aria-atomic ao resumo para comunicar alterações às tecnologias assistivas.",priority:"Média",validation:"Concluído no código: resumo dos totais configurado como região de status educada e atômica."},
- {id:"panel-notes-accessible",title:"Identificar as observações e informar o salvamento",problem:"O campo de observações não tinha nome acessível explícito nem retorno sobre falhas ao salvar.",action:"Adicionar nome acessível e descrição associada, além de informar se as alterações foram persistidas ou mantidas apenas na sessão.",priority:"Média",validation:"Concluído no código: textarea possui aria-label e aria-describedby; retorno de salvamento usa role=status e aria-live."},,
+ {id:"panel-notes-accessible",title:"Identificar as observações e informar o salvamento",problem:"O campo de observações não tinha nome acessível explícito nem retorno sobre falhas ao salvar.",action:"Adicionar nome acessível e descrição associada, além de informar se as alterações foram persistidas ou mantidas apenas na sessão.",priority:"Média",validation:"Concluído no código: textarea possui aria-label e aria-describedby; retorno de salvamento usa role=status e aria-live."},
  {id:"skinmap-ga4-bypass",title:"Remover Analytics direto do SkinMap",problem:"As cinco páginas do SkinMap carregavam Analytics fora do consentimento.",action:"Retirar o código de rastreamento direto das etapas do SkinMap.",priority:"Crítica",validation:"Concluído no código: GA4 removido das cinco páginas SkinMap."},
  {id:"analytics-restricted-routes",title:"Desativar Analytics em rotas restritas",problem:"O módulo de consentimento também era inicializado em etapas que não precisam de medição.",action:"Excluir SkinMap, pré-atendimento e painel do carregamento de Analytics.",priority:"Crítica",validation:"Concluído no código: as rotas restritas não inicializam cookies.js nem GA4."},
  {id:"cookie-preferences-reopen",title:"Permitir alterar preferências de cookies",problem:"Depois da escolha, o visitante não tinha um controle para reabrir o banner.",action:"Disponibilizar um botão na política de cookies para alterar ou retirar a autorização.",priority:"Alta",validation:"Concluído no código: botão adicionado à política e associado ao banner."},
@@ -124,41 +124,46 @@ const fixesRoot=document.querySelector("[data-fixes]");
 const fixesKey=storageKey+":fixes";
 let fixState={};try{fixState=JSON.parse(readStored(fixesKey,"{}"))}catch{}
 const fixAuditDefaults={
- "consent-ga4":{status:"andamento",validation:"Código ajustado: GA4 só inicializa após aceite explícito ou consentimento previamente salvo como aceito. Verificações estáticas aprovadas; falta testar comportamento real no navegador e no GA4."},
- "ga4-evento-whatsapp":{status:"andamento",validation:"O evento permanece configurado e depende do GA4 liberado após consentimento. Falta realizar clique real e confirmar whatsapp_click no DebugView."},
- "banner-cobertura":{status:"andamento",validation:"cookies.js cria o banner quando ausente e whatsapp.js inicializa o módulo nas páginas que carregam esse script. Falta concluir a auditoria de cobertura e validar visualmente em navegador."},
- "resultados-lazy-images":{status:"concluido",validation:"100 imagens dos 50 comparativos antes/depois agora usam loading=lazy e decoding=async."},
+ "consent-ga4":{status:"andamento",validation:"Consent Mode com armazenamento negado por padrão; aceite libera Analytics e recusa posterior atualiza o consentimento. Falta teste real no navegador."},
+ "ga4-evento-whatsapp":{status:"andamento",validation:"Evento envia apenas method=whatsapp e outbound=true; falta confirmação no DebugView."},
+ "banner-cobertura":{status:"andamento",validation:"Páginas públicas comuns inicializam cookies.js; SkinMap, pré-atendimento e painel ficam fora do Analytics. Falta conferência visual completa."},
+ "resultados-lazy-images":{status:"concluido",validation:"100 imagens dos 50 comparativos antes/depois usam loading=lazy e decoding=async."},
  "pre-atendimento-noindex":{status:"concluido",validation:"noindex,follow aplicado ao formulário; URL segue acessível por link direto."},
  "pre-atendimento-autocomplete":{status:"concluido",validation:"Autocomplete name/tel/email e inputmode adicionados sem alterar os IDs do formulário."},
  "pre-atendimento-live-status":{status:"concluido",validation:"Área de retorno do envio configurada como role=status com aria-live=polite e aria-atomic."},
- "cookie-banner-region":{status:"concluido",validation:"Avisos existentes e dinâmicos recebem role=region, aria-label e aria-live=polite, sem simular diálogo modal."},
+ "cookie-banner-region":{status:"concluido",validation:"Avisos existentes e dinâmicos recebem role=region, aria-label e aria-live=polite."},
  "before-after-keyboard":{status:"concluido",validation:"Comparador com role=slider, teclado (setas/Home/End), valores ARIA e foco visível."},
- "patient-login-inline":{status:"concluido",validation:"CSS atualizado para manter o Login Paciente na mesma linha dos links em larguras de 901 a 1100 px; falta conferência visual em aparelho real."},
- "skip-navigation":{status:"concluido",validation:"Link de salto e destino #main-content implementados nas oito páginas principais."},
- "mobile-nav-a11y":{status:"concluido",validation:"Código atualizado para fechar ao clicar fora, fechar com Escape, devolver foco ao botão e sincronizar aria-label/aria-expanded. Falta apenas teste manual em dispositivos."},
- "home-image-lazy":{status:"concluido",validation:"Quatro imagens secundárias da home receberam loading=lazy e decoding=async; destaque preservado."},
- "blog-image-decoding":{status:"concluido",validation:"14 imagens de artigos do blog agora usam decoding=async junto com loading=lazy."},
- "brand-schema":{status:"concluido",validation:"alternateName atualizado para Danielle Brito nas cinco páginas institucionais e locais verificadas."},
+ "patient-login-inline":{status:"concluido",validation:"CSS atualizado para manter Login Paciente na mesma linha em larguras de 901 a 1100 px; falta conferência visual."},
+ "skip-navigation":{status:"concluido",validation:"Link de salto e destino #main-content implementados nas páginas principais."},
+ "mobile-nav-a11y":{status:"concluido",validation:"Menu fecha ao clicar fora ou Escape, devolve foco ao botão e sincroniza rótulos ARIA; falta teste manual."},
+ "home-image-lazy":{status:"concluido",validation:"Quatro imagens secundárias da home usam loading=lazy e decoding=async."},
+ "blog-image-decoding":{status:"concluido",validation:"14 imagens de artigos do blog usam decoding=async junto com loading=lazy."},
+ "brand-schema":{status:"concluido",validation:"alternateName atualizado para Danielle Brito nas páginas institucionais e locais verificadas."},
  "painel-relatorio-sintaxe":{status:"concluido",validation:"Erros de sintaxe corrigidos e bloco JavaScript validado por compilação."},
- "mobile-nav-inert":{status:"concluido",validation:"Links e login recebem inert no menu recolhido em telas até 900 px; inert é removido ao abrir ou em desktop."},
- "hero-video-data-motion":{status:"concluido",validation:"Vídeo só inicia por script se movimento reduzido e economia de dados estiverem desativados; imagem de capa preservada."},
- "sitemap-noindex":{status:"concluido",validation:"Concluído e reconferido na main: /pre-atendimento/ usa noindex,follow e não consta no sitemap.xml; URL segue acessível por link direto."},
- "reduced-motion-css":{status:"concluido",validation:"Media query prefers-reduced-motion adicionada ao CSS compartilhado para reduzir animações, transições e rolagem suave."},
- "cookie-storage-fallback":{status:"concluido",validation:"Leitura e gravação do consentimento protegidas; fallback em memória para sessão quando localStorage falhar."},
- "pre-atendimento-network-recovery":{status:"concluido",validation:"Falhas de importação ou envio são tratadas; mensagem acessível e reativação do botão."},
+ "mobile-nav-inert":{status:"concluido",validation:"Links e login recebem inert no menu recolhido até 900 px."},
+ "hero-video-data-motion":{status:"concluido",validation:"Vídeo só inicia se movimento reduzido e economia de dados estiverem desativados."},
+ "sitemap-noindex":{status:"concluido",validation:"/pre-atendimento/ usa noindex,follow e não consta no sitemap.xml."},
+ "reduced-motion-css":{status:"concluido",validation:"Media query prefers-reduced-motion adicionada ao CSS compartilhado."},
+ "cookie-storage-fallback":{status:"concluido",validation:"Leitura e gravação do consentimento protegidas; fallback em memória se localStorage falhar."},
+ "pre-atendimento-network-recovery":{status:"concluido",validation:"Falhas de importação ou envio são tratadas; mensagem e reativação do botão."},
  "pre-atendimento-busy-state":{status:"concluido",validation:"aria-busy no formulário e botão durante envio; atributos removidos no finally."},
- "home-re
+ "home-reveal-fallback":{status:"concluido",validation:"Elementos data-reveal são exibidos quando IntersectionObserver não está disponível."},
+ "whatsapp-noreferrer":{status:"concluido",validation:"Links externos recebem rel=noopener noreferrer."},
+ "panel-storage-read":{status:"concluido",validation:"Leituras do relatório usam readStored com fallback."},
+ "panel-storage-write":{status:"concluido",validation:"Gravações usam writeStored e fallback em memória."},
+ "panel-audit-migration-safe":{status:"concluido",validation:"Marcador de migração audit-v3 acessado por helpers protegidos."},
+ "panel-summary-live":{status:"concluido",validation:"Resumo com role=status, aria-live=polite e aria-atomic=true."},
+ "panel-notes-accessible":{status:"concluido",validation:"Campo de observações com nome acessível e aviso de persistência."},
+ "skinmap-ga4-bypass":{status:"andamento",validation:"GA4 removido das cinco páginas SkinMap; falta teste de rede no navegador."},
  "analytics-restricted-routes":{status:"andamento",validation:"Rotas restritas excluídas do Analytics; falta confirmar chamadas de rede."},
  "cookie-preferences-reopen":{status:"andamento",validation:"Botão de preferências adicionado; falta teste manual de aceite e recusa posterior."},
- "whatsapp-event-minimal":{status:"andamento",validation:"Evento reduzido a method e outbound; falta confirmação no DebugView."},veal-fallback":{status:"concluido",validation:"Elementos data-reveal são exibidos quando IntersectionObserver não está disponível."},
- "whatsapp-noreferrer":{status:"concluido",validation:"Links externos configurados pelo whatsapp.js recebem rel=noopener noreferrer."},
- "panel-storage-read":{status:"concluido",validation:"Leituras de estado, notas, auditoria e correções usam readStored com fallback."},
- "panel-storage-write":{status:"concluido",validation:"Gravações usam writeStored; em caso de bloqueio, o estado permanece em memória durante a sessão."},
- "panel-audit-migration-safe":{status:"concluido",validation:"Marcad
- "skinmap-ga4-bypass":{status:"andamento",validation:"GA4 removido das cinco páginas; falta teste de rede no navegador."},or de migração audit-v3 acessado por helpers protegidos."},
- "panel-summary-live":{status:"concluido",validation:"Resumo com role=status, aria-live=polite e aria-atomic=true."},
- "panel-notes-accessible":{status:"concluido",validation:"Campo com nome acessível, descrição e aviso de persistência/fallback em memória."},
-};
+ "whatsapp-event-minimal":{status:"andamento",validation:"Evento reduzido a method e outbound; falta confirmação no DebugView."}
+};;
+const consentAuditMigrationKey=storageKey+":consent-audit-v2";
+if(!readStored(consentAuditMigrationKey,"")){
+  ["consent-ga4","ga4-evento-whatsapp","banner-cobertura"].forEach(id=>{fixState[id]={...(fixState[id]||{}),...fixAuditDefaults[id]};});
+  writeStored(consentAuditMigrationKey,"aplicado");
+}
 Object.entries(fixAuditDefaults).forEach(([id,value])=>{if(!fixState[id]||fixState[id].status==="pendente")fixState[id]={...value,...(fixState[id]||{})};});
 writeStored(fixesKey,JSON.stringify(fixState));
 function saveFixes(){writeStored(fixesKey,JSON.stringify(fixState));renderFixes()}
