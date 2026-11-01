@@ -93,16 +93,17 @@
   document.addEventListener('click', function(event) {
     var link = event.target && event.target.closest ? event.target.closest('a[href*="wa.me/"], a[href*="whatsapp.com/"], a[href*="api.whatsapp.com/"]') : null;
     if (!link || typeof window.gtag !== 'function') return;
+    // Evento agregado: não envia URL, texto do link, página ou conteúdo digitado.
     window.gtag('event', 'whatsapp_click', {
-      link_url: link.href,
-      link_text: (link.innerText || link.getAttribute('aria-label') || 'WhatsApp').trim().slice(0, 100),
-      page_path: window.location.pathname,
-      page_title: document.title
+      method: 'whatsapp',
+      outbound: true
     });
   }, true);
 
 // Centraliza o banner e o consentimento em todas as páginas que carregam este módulo.
 // O próprio cookies.js decide se o GA4 pode ser carregado.
-import("/assets/js/cookies.js").catch(function (erro) {
-  console.warn("Não foi possível inicializar o consentimento de cookies:", erro);
-});
+if (!/^\/(?:painel|pre-atendimento|skinmap)(?:\/|$)/.test(window.location.pathname)) {
+  import("/assets/js/cookies.js").catch(function (erro) {
+    console.warn("Não foi possível inicializar o consentimento de cookies:", erro);
+  });
+}
