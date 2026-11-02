@@ -676,6 +676,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.especialistaempele.com.br/tratamentos/terapia-capilar.html</loc>
+    <lastmod>2026-11-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.especialistaempele.com.br/tratamentos/celulite.html</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
@@ -768,11 +774,6 @@
   <url>
     <loc>https://www.especialistaempele.com.br/tratamentos/clareamento-facial.html</loc>
     <lastmod>2026-09-25</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://www.especialistaempele.com.br/tratamentos/terapia-capilar.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
