@@ -189,6 +189,13 @@
     <image:image><image:loc>https://www.especialistaempele.com.br/assets/blog-covers/pele-seca-ou-desidratada.svg</image:loc></image:image>
   </url>
   <url>
+    <loc>https://www.especialistaempele.com.br/blog/alopecia-tracao-quebra-quimica.html</loc>
+    <lastmod>2026-11-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image><image:loc>https://www.especialistaempele.com.br/assets/blog/alopecia-tracao-quebra-quimica.svg</image:loc></image:image>
+  </url>
+  <url>
     <loc>https://www.especialistaempele.com.br/blog/alopecia-feminina-queda-cabelo.html</loc>
     <lastmod>2026-11-02</lastmod>
     <changefreq>monthly</changefreq>
@@ -208,6 +215,13 @@
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <image:image><image:loc>https://www.especialistaempele.com.br/assets/blog/queda-pos-parto-efluvio-telogeno.svg</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://www.especialistaempele.com.br/blog/queda-cabelo-menopausa.html</loc>
+    <lastmod>2026-11-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image><image:loc>https://www.especialistaempele.com.br/assets/blog/queda-cabelo-menopausa.svg</image:loc></image:image>
   </url>
   <url>
     <loc>https://www.especialistaempele.com.br/blog/estrias-vermelhas-ou-brancas.html</loc>
