@@ -245,10 +245,24 @@
     <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/estrias-vermelhas-ou-brancas-1793119847732.webp</image:loc></image:image>
   </url>
   <url>
+    <loc>https://www.especialistaempele.com.br/blog/alopecia-areata.html</loc>
+    <lastmod>2026-11-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image><image:loc>https://www.especialistaempele.com.br/assets/blog/alopecia-areata.svg</image:loc></image:image>
+  </url>
+  <url>
     <loc>https://www.especialistaempele.com.br/blog/flacidez-corporal-apos-emagrecimento.html</loc>
     <lastmod>2026-10-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.especialistaempele.com.br/blog/nutricao-deficiencias-queda-capilar.html</loc>
+    <lastmod>2026-11-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image><image:loc>https://www.especialistaempele.com.br/assets/blog/nutricao-deficiencias-queda-capilar.svg</image:loc></image:image>
   </url>
   <url>
     <loc>https://www.especialistaempele.com.br/blog/regeneracao-cutanea-ou-volumizacao-facial.html</loc>
