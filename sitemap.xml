@@ -81,6 +81,13 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.especialistaempele.com.br/blog/efluvio-telogeno-homens.html</loc>
+    <lastmod>2026-11-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image><image:loc>https://www.especialistaempele.com.br/assets/blog/efluvio-telogeno-homens.svg</image:loc></image:image>
+  </url>
+  <url>
     <loc>https://www.especialistaempele.com.br/blog/o-que-e-regeneracao-cutanea.html</loc>
     <lastmod>2026-09-25</lastmod>
     <changefreq>monthly</changefreq>
@@ -222,6 +229,13 @@
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <image:image><image:loc>https://www.especialistaempele.com.br/assets/blog/queda-cabelo-menopausa.svg</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://www.especialistaempele.com.br/blog/alopecia-androgenetica-masculina.html</loc>
+    <lastmod>2026-11-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image><image:loc>https://www.especialistaempele.com.br/assets/blog/alopecia-androgenetica-masculina.svg</image:loc></image:image>
   </url>
   <url>
     <loc>https://www.especialistaempele.com.br/blog/estrias-vermelhas-ou-brancas.html</loc>
