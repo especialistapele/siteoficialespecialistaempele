@@ -5,6 +5,7 @@
 .agenda-ferramentas{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin:16px 0}
 .agenda-visoes{display:flex;gap:6px;flex-wrap:wrap}.agenda-visoes button{border:1px solid #ddd;background:#fff;color:#333;border-radius:9px;padding:8px 13px;font-weight:700;cursor:pointer}.agenda-visoes button[aria-pressed="true"]{background:var(--gold,#b58a45);border-color:var(--gold,#b58a45);color:#fff}
 .agenda-filtro-unidade{display:flex;align-items:center;gap:8px;font-size:13px}.agenda-filtro-unidade select{min-width:160px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:inherit}
+.agenda-exportacao{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 16px;padding:12px 14px;border:1px solid #e6e1d8;border-radius:10px;background:#fff}.agenda-exportacao strong{font-size:13px;margin-right:4px}.agenda-exportacao label{font-size:12px;color:#666}.agenda-exportacao select{min-width:210px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:inherit}.agenda-exportacao button:disabled{opacity:.6;cursor:wait}@media(max-width:600px){.agenda-exportacao{align-items:stretch}.agenda-exportacao select,.agenda-exportacao button{width:100%}}
 .agenda-resumo{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}.agenda-resumo-card{padding:12px 14px;border:1px solid #e6e1d8;border-radius:12px;background:#fff;min-width:0}.agenda-resumo-card small{display:block;color:#777;font-size:11px;margin-bottom:5px}.agenda-resumo-card strong{font-size:20px;line-height:1.2}.agenda-resumo-card span{display:block;font-size:11px;color:#777;margin-top:4px}
 .agenda-dia-compacto{min-height:145px;text-align:left;display:flex;flex-direction:column;align-items:stretch;gap:5px;padding:9px;overflow:hidden}.agenda-dia-compacto .agenda-dia-cab{display:flex;align-items:center;justify-content:space-between;font-weight:800}.agenda-compromisso-mini{display:flex;gap:6px;align-items:flex-start;padding:4px 5px;border-radius:6px;background:rgba(255,255,255,.82);color:#252525;font-size:11px;line-height:1.25;overflow-wrap:anywhere}.agenda-compromisso-mini b{white-space:nowrap}.agenda-dia-compacto .agenda-sem-itens{font-size:11px;opacity:.7;margin-top:7px}.agenda-grade-dia{grid-template-columns:minmax(0,1fr)!important}.agenda-grade-dia .agenda-dia-compacto{min-height:220px}.agenda-sem-filtro{opacity:.28;filter:grayscale(.65)}
 .agenda-whatsapp{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;border-radius:7px;padding:6px 9px;background:#e8f5ec;color:#176b37;text-decoration:none;font-size:12px;font-weight:700}
@@ -49,7 +50,8 @@
     </div>
   </div>
 
-  <div class="agenda-ferramentas"><div class="agenda-visoes" role="group" aria-label="Visualização da agenda"><button type="button" data-visao="mes" aria-pressed="true">Mês</button><button type="button" data-visao="semana" aria-pressed="false">Semana</button><button type="button" data-visao="dia" aria-pressed="false">Dia</button></div><label class="agenda-filtro-unidade">Unidade<select id="filtro-unidade-agenda"><option value="">Todas as unidades</option><option value="Araruama">🦜 Araruama</option><option value="Cabo Frio">☀️ Cabo Frio</option><option value="Copacabana">Copacabana</option></select></label></div><div class="agenda-resumo" id="agenda-resumo" aria-live="polite"><div class="agenda-resumo-card"><small>Atendimentos do dia</small><strong>—</strong></div><div class="agenda-resumo-card"><small>Confirmados</small><strong>—</strong></div><div class="agenda-resumo-card"><small>Intervalos livres</small><strong>—</strong></div><div class="agenda-resumo-card"><small>Valor previsto</small><strong>—</strong></div></div><div class="calendario-legenda-unidades" aria-label="Legenda das unidades">
+  <div class="agenda-ferramentas"><div class="agenda-visoes" role="group" aria-label="Visualização da agenda"><button type="button" data-visao="mes" aria-pressed="true">Mês</button><button type="button" data-visao="semana" aria-pressed="false">Semana</button><button type="button" data-visao="dia" aria-pressed="false">Dia</button></div><label class="agenda-filtro-unidade">Unidade<select id="filtro-unidade-agenda"><option value="">Todas as unidades</option><option value="Araruama">🦜 Araruama</option><option value="Cabo Frio">☀️ Cabo Frio</option><option value="Copacabana">Copacabana</option></select></label></div>
+<div class="agenda-exportacao" role="group" aria-label="Exportar agenda do mês"><strong>Exportar agenda do mês</strong><label for="exportar-unidade-agenda">Unidade</label><select id="exportar-unidade-agenda"><option value="">Agenda completa — todas as unidades</option><option value="Araruama">Araruama</option><option value="Cabo Frio">Cabo Frio</option><option value="Copacabana">Copacabana</option></select><button type="button" class="btn-p btn-p-fora btn-p-mini" id="exportar-agenda-pdf">Exportar PDF</button><button type="button" class="btn-p btn-p-dourado btn-p-mini" id="exportar-agenda-excel">Exportar Excel (CSV)</button></div><div class="agenda-resumo" id="agenda-resumo" aria-live="polite"><div class="agenda-resumo-card"><small>Atendimentos do dia</small><strong>—</strong></div><div class="agenda-resumo-card"><small>Confirmados</small><strong>—</strong></div><div class="agenda-resumo-card"><small>Intervalos livres</small><strong>—</strong></div><div class="agenda-resumo-card"><small>Valor previsto</small><strong>—</strong></div></div><div class="calendario-legenda-unidades" aria-label="Legenda das unidades">
     <span class="calendario-legenda-item"><i class="calendario-legenda-cor" style="background:#f59e0b"></i><span aria-hidden="true">🦜</span>Araruama</span>
     <span class="calendario-legenda-item"><i class="calendario-legenda-cor" style="background:#3b82f6"></i><span aria-hidden="true">☀️</span>Cabo Frio</span>
     <span class="calendario-legenda-item"><i class="calendario-legenda-cor" style="background:#16a34a"></i><svg class="calendario-legenda-ladrilho" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="4" fill="#fff"/><path d="M-2 5 Q4 -1 10 5 T22 5 T34 5 M-2 12 Q4 6 10 12 T22 12 T34 12 M-2 19 Q4 13 10 19 T22 19 T34 19" fill="none" stroke="#171717" stroke-width="3"/></svg>Copacabana</span>
@@ -761,6 +763,110 @@ document.getElementById('form-agendamento').addEventListener('submit', async (ev
   modalAgendamento.style.display = 'none'; document.getElementById('form-agendamento').reset(); diaSelecionado = data; campoData.value = data;
   mostrarFlash(document.querySelector('[data-flash]'), 'Agendamento criado com sucesso.', 'sucesso'); await carregarMes();
 });
+async function obterDadosExportacaoAgenda() {
+  const unidadeSelecionada = document.getElementById('exportar-unidade-agenda').value;
+  const primeiroDia = `${anoAtual}-${pad2(mesAtual + 1)}-01`;
+  const ultimoDia = paraChave(new Date(anoAtual, mesAtual + 1, 0));
+  const [agendamentos, unidades] = await Promise.all([
+    supabase.from('appointments')
+      .select('id,appointment_date,appointment_time,appointment_end_time,tipo,description,status,valor,service_unit,patients(full_name,phone)')
+      .gte('appointment_date', primeiroDia).lte('appointment_date', ultimoDia)
+      .order('appointment_date').order('appointment_time'),
+    supabase.from('appointment_unit_days')
+      .select('appointment_date,service_unit')
+      .gte('appointment_date', primeiroDia).lte('appointment_date', ultimoDia)
+  ]);
+  if (agendamentos.error) throw agendamentos.error;
+  if (unidades.error) throw unidades.error;
+  const unidadesPorData = Object.fromEntries((unidades.data || []).map(u => [u.appointment_date, u.service_unit]));
+  const linhas = (agendamentos.data || []).map(a => ({
+    ...a,
+    unidadeExportacao: a.service_unit || unidadesPorData[a.appointment_date] || 'Não informada'
+  })).filter(a => !unidadeSelecionada || a.unidadeExportacao === unidadeSelecionada);
+  return { linhas, unidadeSelecionada, primeiroDia, ultimoDia };
+}
+
+function dataAgendaExportacao(data) {
+  const [ano, mes, dia] = String(data || '').slice(0, 10).split('-');
+  return dia && mes && ano ? `${dia}/${mes}/${ano}` : '';
+}
+
+function nomeArquivoAgenda(unidade, extensao) {
+  const unidadeSlug = unidade ? unidade.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]+/g, '-') : 'todas-as-unidades';
+  return `agenda-${anoAtual}-${pad2(mesAtual + 1)}-${unidadeSlug}.${extensao}`;
+}
+
+function csvCampo(valor) {
+  const texto = String(valor ?? '');
+  return '"' + texto.replace(/"/g, '""') + '"';
+}
+
+function baixarArquivoAgenda(conteudo, nome, tipo) {
+  const blob = new Blob([conteudo], { type: tipo });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = nome;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function exportarAgenda(formato) {
+  const botao = document.getElementById(formato === 'pdf' ? 'exportar-agenda-pdf' : 'exportar-agenda-excel');
+  const outroBotao = document.getElementById(formato === 'pdf' ? 'exportar-agenda-excel' : 'exportar-agenda-pdf');
+  const janela = formato === 'pdf' ? window.open('', '_blank') : null;
+  if (formato === 'pdf' && !janela) {
+    mostrarFlash(document.querySelector('[data-flash]'), 'Permita a abertura de janelas para gerar o PDF da agenda.', 'erro');
+    return;
+  }
+  botao.disabled = true;
+  outroBotao.disabled = true;
+  try {
+    const { linhas, unidadeSelecionada } = await obterDadosExportacaoAgenda();
+    const mesNome = MESES[mesAtual];
+    const tituloUnidade = unidadeSelecionada || 'Todas as unidades';
+    const colunas = ['Data', 'Início', 'Término', 'Unidade', 'Paciente', 'Telefone', 'Procedimento', 'Observações', 'Valor (R$)', 'Status'];
+    const valores = linhas.map(a => [
+      dataAgendaExportacao(a.appointment_date),
+      String(a.appointment_time || '').slice(0, 5),
+      String(a.appointment_end_time || '').slice(0, 5),
+      a.unidadeExportacao,
+      a.patients?.full_name || 'Paciente não identificado',
+      a.patients?.phone || '',
+      a.tipo || '',
+      a.description || '',
+      Number(a.valor || 0).toFixed(2).replace('.', ','),
+      a.status || ''
+    ]);
+    if (formato === 'excel') {
+      const csv = '\uFEFF' + [colunas, ...valores].map(linha => linha.map(csvCampo).join(';')).join('\r\n');
+      baixarArquivoAgenda(csv, nomeArquivoAgenda(unidadeSelecionada, 'csv'), 'text/csv;charset=utf-8;');
+      mostrarFlash(document.querySelector('[data-flash]'), `Arquivo da agenda de ${tituloUnidade} exportado para Excel com ${linhas.length} agendamento(s).`, 'sucesso');
+      return;
+    }
+    const tabela = valores.length
+      ? valores.map(linha => '<tr>' + linha.map(celula => '<td>' + esc(celula) + '</td>').join('') + '</tr>').join('')
+      : '<tr><td colspan="10">Nenhum agendamento encontrado para este filtro.</td></tr>';
+    janela.document.write(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Agenda ${esc(mesNome)} ${anoAtual}</title><style>
+      @page{size:landscape;margin:12mm}*{box-sizing:border-box}body{font:10px Arial,sans-serif;color:#222}h1{font-size:18px;margin:0 0 5px}p{font-size:11px;margin:0 0 14px;color:#555}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:5px 6px;text-align:left;vertical-align:top}th{background:#eee;font-weight:700}tr{break-inside:avoid}thead{display:table-header-group}.rodape{margin-top:10px;font-size:10px;color:#555}@media screen{body{padding:20px}button{margin-bottom:14px;padding:8px 12px}}
+      </style></head><body><h1>Agenda mensal — Especialista em Pele</h1><p>Referência: ${esc(mesNome)} de ${anoAtual} · Unidade: ${esc(tituloUnidade)} · Total: ${linhas.length} agendamento(s)</p><table><thead><tr>${colunas.map(c => '<th>' + esc(c) + '</th>').join('')}</tr></thead><tbody>${tabela}</tbody></table><div class="rodape">Documento gerado em ${new Date().toLocaleString('pt-BR')}</div><script>window.addEventListener('load',()=>setTimeout(()=>window.print(),250));<\/script></body></html>`);
+    janela.document.close();
+    mostrarFlash(document.querySelector('[data-flash]'), `Agenda de ${tituloUnidade} preparada para impressão ou salvamento em PDF (${linhas.length} agendamento(s)).`, 'sucesso');
+  } catch (error) {
+    if (janela && !janela.closed) janela.close();
+    console.error('Erro ao exportar agenda:', error);
+    mostrarFlash(document.querySelector('[data-flash]'), 'Não foi possível exportar a agenda: ' + (error.message || 'erro inesperado'), 'erro');
+  } finally {
+    botao.disabled = false;
+    outroBotao.disabled = false;
+  }
+}
+
+document.getElementById('exportar-agenda-pdf').addEventListener('click', () => exportarAgenda('pdf'));
+document.getElementById('exportar-agenda-excel').addEventListener('click', () => exportarAgenda('excel'));
+
 carregarMes();
 </script>
 </main></div></body></html>
