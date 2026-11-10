@@ -143,7 +143,10 @@
   async function carregar() {
     const { data, error } = await supabase.from("patients").select("*").order("created_at", { ascending: false });
     if (error) { corpo.innerHTML = `<tr><td colspan="5" class="painel-vazio">Erro: ${escapeHtml(error.message)}</td></tr>`; return; }
-    todosPacientes = data || [];
+    // Exibe a lista em ordem alfabética pelo nome, sem alterar os registros no banco.
+    todosPacientes = (data || []).sort((a, b) =>
+      (a.full_name || "").localeCompare(b.full_name || "", "pt-BR", { sensitivity: "base", numeric: true })
+    );
     renderizar(todosPacientes);
   }
 
