@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="960" viewBox="0 0 1200 960" role="img" aria-labelledby="title desc">
+<title id="title">Imagem temporária de massoterapia corporal</title>
+<desc id="desc">Ilustração abstrata em tons naturais que representa um momento de cuidado e massagem corporal.</desc>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#26332e"/><stop offset="1" stop-color="#59685a"/></linearGradient>
+ <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f1c9a5"/><stop offset="1" stop-color="#c98f69"/></linearGradient>
+</defs>
+<rect width="1200" height="960" rx="36" fill="url(#bg)"/>
+<circle cx="970" cy="160" r="210" fill="#e5c987" opacity=".12"/>
+<circle cx="210" cy="810" r="280" fill="#e5c987" opacity=".08"/>
+<path d="M170 665c95-185 260-275 450-260 160 12 285 92 395 250v160H170z" fill="#d9c5a8" opacity=".16"/>
+<path d="M235 650c115-135 245-190 400-165 130 22 220 95 310 205-80 95-205 145-370 145-150 0-260-55-340-185z" fill="url(#skin)"/>
+<path d="M425 455c40-90 145-140 250-120 95 18 165 85 190 175-80 75-170 115-275 115-80 0-140-55-165-170z" fill="#e8b991"/>
+<path d="M540 355c-45-65-35-130 15-155 48-25 105 4 126 54 20 48-7 92-55 120" fill="url(#skin)"/>
+<path d="M490 430c-70-65-125-70-160-25-28 36-5 80 45 105l135 65" fill="none" stroke="#f2d5ba" stroke-width="34" stroke-linecap="round"/>
+<path d="M735 405c65-65 120-65 155-15 25 37 0 78-50 100l-120 50" fill="none" stroke="#f2d5ba" stroke-width="34" stroke-linecap="round"/>
+<path d="M340 760c170 70 350 75 535 5" fill="none" stroke="#e5c987" stroke-width="5" opacity=".7" stroke-linecap="round"/>
+<text x="600" y="855" text-anchor="middle" fill="#f7f2e9" font-family="Georgia,serif" font-size="34">Imagem temporária · Massoterapia corporal</text>
+</svg>
