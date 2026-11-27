@@ -1178,7 +1178,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/tratamentos/melasma.html",
       "redirect_to": null,
-      "sha256": "08fa8a42766ff8c3f386de2daa0d3c8fe08884d2e51dd3b34d703602d6532f48"
+      "sha256": "4db84e6d886be6c39430c70069105040d3842142694f8ae69ad5a2983c5893e7"
     },
     {
       "path": "tratamentos/operatorio.html",
@@ -1251,5 +1251,5 @@
       "sha256": "4be6a3d1232515e093641358858d2dfab3acb06f7921e4585a707c2ad3d7921a"
     }
   ],
-  "generated_at": "2026-11-27T12:15:16.979Z"
+  "generated_at": "2026-11-27T13:29:12.971Z"
 }
