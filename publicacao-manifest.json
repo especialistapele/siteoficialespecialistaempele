@@ -158,7 +158,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/como-escolher-um-tratamento-para-melasma.html",
       "redirect_to": null,
-      "sha256": "c188fd5835f3c6cbeaa937dedab9b0c234f859c8c1f496c32161ac63ce8ff306"
+      "sha256": "e1e1d1089e598b43b56e04d10e29eb1950da918e3d7500051428d3133aa6ee32"
     },
     {
       "path": "blog/como-preparar-pele-tratamento-corporal.html",
@@ -368,7 +368,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/melasma-hormonal.html",
       "redirect_to": null,
-      "sha256": "86680c79a4e5b830877eddd5dd8caa6fb89bbcb5683507d3d163ec2823cceb0f"
+      "sha256": "aad0dc711840398e8e2554bebab490bb40787c1af3d862d26e0d8191ecc54a6d"
     },
     {
       "path": "blog/melasma-na-gravidez.html",
@@ -378,7 +378,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/melasma-na-gravidez.html",
       "redirect_to": null,
-      "sha256": "100a6750b9fdea01707d8e822f3910bea995e6965079710ed94f01e5646397ea"
+      "sha256": "f3fa15a02116f177fb74339f5b740e210a95f619ede0661c37d65495f61e1a65"
     },
     {
       "path": "blog/melasma-resistente.html",
@@ -388,7 +388,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/melasma-resistente.html",
       "redirect_to": null,
-      "sha256": "e94f19a361eb6d8921f3583b7c99be07aef076e7a8195ebeef91d94c2364e779"
+      "sha256": "6a2ece450594151a47c8decc47e033cde5b49699e226cd8e9d234a87c7ca40df"
     },
     {
       "path": "blog/microscopia-digital-capilar.html",
@@ -1251,5 +1251,5 @@
       "sha256": "4be6a3d1232515e093641358858d2dfab3acb06f7921e4585a707c2ad3d7921a"
     }
   ],
-  "generated_at": "2026-11-27T13:30:18.478Z"
+  "generated_at": "2026-11-27T13:31:07.022Z"
 }
