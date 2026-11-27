@@ -42,8 +42,24 @@ const SEO_ARTIGOS = {
     description: "Saiba como controlar a oleosidade da pele sem ressecar, preservar a barreira cutânea e montar uma rotina de cuidados equilibrada.",
   },
   "como-escolher-um-tratamento-para-melasma": {
-    description: "Descubra o que considerar ao escolher um tratamento para melasma, por que a avaliação individual importa e quais cuidados ajudam no acompanhamento.",
+    description: "Veja como avaliar o melasma, entender os fatores envolvidos e organizar fotoproteção, tratamento individualizado e manutenção.",
     treatment: { name: "Melasma", slug: "melasma" },
+    relatedSlugs: ["melasma-hormonal", "melasma-na-gravidez", "melasma-resistente"],
+  },
+  "melasma-hormonal": {
+    description: "Entenda a relação entre alterações hormonais e melasma, os fatores que também influenciam a pigmentação e os cuidados que merecem atenção.",
+    treatment: { name: "Melasma", slug: "melasma" },
+    relatedSlugs: ["como-escolher-um-tratamento-para-melasma", "melasma-na-gravidez", "melasma-resistente"],
+  },
+  "melasma-na-gravidez": {
+    description: "Saiba por que o melasma pode surgir na gravidez, como reforçar a fotoproteção e por que produtos e procedimentos exigem avaliação específica nesse período.",
+    treatment: { name: "Melasma", slug: "melasma" },
+    relatedSlugs: ["como-escolher-um-tratamento-para-melasma", "melasma-hormonal", "melasma-resistente"],
+  },
+  "melasma-resistente": {
+    description: "Entenda por que o melasma pode persistir ou voltar, o que revisar antes de intensificar o tratamento e quando é importante reavaliar o diagnóstico.",
+    treatment: { name: "Melasma", slug: "melasma" },
+    relatedSlugs: ["como-escolher-um-tratamento-para-melasma", "melasma-hormonal", "melasma-na-gravidez"],
   },
   "rejuvenescimento-facial-ou-harmonizacao": {
     description: "Entenda a diferença entre rejuvenescimento facial e harmonização e conheça uma abordagem focada na saúde, função e qualidade da pele.",
