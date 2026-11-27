@@ -8,7 +8,7 @@
     "removed": 404,
     "manual": 200
   },
-  "total": 120,
+  "total": 124,
   "items": [
     {
       "path": "blog/acantose-nigricans-dobras-pele.html",
@@ -18,7 +18,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/acantose-nigricans-dobras-pele.html",
       "redirect_to": null,
-      "sha256": "0f2190016723c39626e5493b677830bb81933ce07753aa0051f9c08021e4bb2d"
+      "sha256": "66f13e23005eb2076fddc6e84be6c5a3c96b8ef3a5f9234653a4e0157ec08faf"
     },
     {
       "path": "blog/acne-e-estresse.html",
@@ -48,7 +48,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/alimentos-para-pele-saudavel.html",
       "redirect_to": null,
-      "sha256": "8631534b21a134a99b89bcd6d45e883668fdcdc5d25b4861dbffb4357159d939"
+      "sha256": "aa6f2f88c1ca8723480f9fecb19692486f25c4b4c91dc4fceb279be04ec58930"
     },
     {
       "path": "blog/alopecia-androgenetica-feminina.html",
@@ -108,7 +108,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/avaliacao-tratamento-corporal.html",
       "redirect_to": null,
-      "sha256": "9129d5a1fe17ba13475fecee9d92b6bc0a9534a57d076c59131797cc1e7c67b7"
+      "sha256": "e49d44431c2c3bf24c15e53f87abfd8a19e0ba9a7879119326e50f9465a26030"
     },
     {
       "path": "blog/celulite-coxas-gluteos-cuidados.html",
@@ -118,7 +118,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/celulite-coxas-gluteos-cuidados.html",
       "redirect_to": null,
-      "sha256": "b8d5deb480e3aefefaef4d755abf4c349a0254c309d96d6ee9c9f0f2ccd3e16c"
+      "sha256": "6ee1c5eea87c633798a68aafb862b531bb37688d1fde135434e71bc556f990a5"
     },
     {
       "path": "blog/celulite-ou-flacidez-como-diferenciar.html",
@@ -128,7 +128,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/celulite-ou-flacidez-como-diferenciar.html",
       "redirect_to": null,
-      "sha256": "42756546c3799f1d4656fde2633889c46d4af0b90aecdd0703a0c4f97bead3ea"
+      "sha256": "c548eca1bbbc4f0f17520a84e53ddf14d8e2011260c9475e2edfbd414dc0239b"
     },
     {
       "path": "blog/cicatrizes-apos-esporotricose.html",
@@ -138,7 +138,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/cicatrizes-apos-esporotricose.html",
       "redirect_to": null,
-      "sha256": "1ab5b803cddc7e443fc56ebaffcf83a02a724875592f1c5f6e781ecd3d92094f"
+      "sha256": "2c67a2094f59ec7e73cad2343de7e02d30392880548ce6e0da552a5e61827483"
     },
     {
       "path": "blog/clareamento-corporal-seguranca.html",
@@ -148,7 +148,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/clareamento-corporal-seguranca.html",
       "redirect_to": null,
-      "sha256": "d334a3c1d48c635fd050a8b88bb37f742f3000a4e9b466699df24e5f6f75bd6f"
+      "sha256": "71fda29152b5de5bf49a39d6422e5ad7740617d0a445fcdda995df92cdedea1b"
     },
     {
       "path": "blog/como-escolher-um-tratamento-para-melasma.html",
@@ -168,7 +168,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/como-preparar-pele-tratamento-corporal.html",
       "redirect_to": null,
-      "sha256": "750c4b39549c252f5a776e1aa2864823cd5de2979a25f3f235a8e979f08e68c1"
+      "sha256": "281e2264ae5c615ced9dc9780b41da7ebc9470f952b60c279fa2f054e523f918"
     },
     {
       "path": "blog/controle-da-oleosidade.html",
@@ -178,7 +178,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/controle-da-oleosidade.html",
       "redirect_to": null,
-      "sha256": "e871ce13e850e729847dd32a01b1c58641077df14a9afbd64da14fb7bcf605f1"
+      "sha256": "da48e61dcb1fab41d79dc2922e6fa73371071c76785f08ede2448c832e94f309"
     },
     {
       "path": "blog/cuidados-pos-operatorio-estetico.html",
@@ -188,7 +188,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/cuidados-pos-operatorio-estetico.html",
       "redirect_to": null,
-      "sha256": "7033136d45100713ab798d2be21806897b77bc7c644157728c2b08a0508df15a"
+      "sha256": "21d613f6f5febdf5bf69c3c00be8a7ccba082723ec327cddc0b417e568689aeb"
     },
     {
       "path": "blog/definicao-corporal-resultados-realistas.html",
@@ -198,7 +198,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/definicao-corporal-resultados-realistas.html",
       "redirect_to": null,
-      "sha256": "4a48cf5f4e48720a281a81556846ca6a8dc78848c63711495ae2ed103dbde7ed"
+      "sha256": "cafe64839cd3dd5e03c239182949e7adc68621b7a110d09562e8ee230289ad04"
     },
     {
       "path": "blog/despigmentacao-sobrancelhas.html",
@@ -208,7 +208,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/despigmentacao-sobrancelhas.html",
       "redirect_to": null,
-      "sha256": "8f6db1ecc2ac670fd26c99d01f8dcc6125690eda168a1586c5e22f8624446ebb"
+      "sha256": "d609feefb15b99c675dbc10ea64b04d21a031ffedc2c266c42376f1208333d04"
     },
     {
       "path": "blog/efluvio-telogeno-homens.html",
@@ -228,7 +228,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/estrias-como-escolher-tratamento.html",
       "redirect_to": null,
-      "sha256": "c46f6940cc8c16e44202c4ca8445052f89f7265914fa3d81a6b2ec8461e11b7a"
+      "sha256": "e25fd9048779a937d5c04a8b1cef7329464f64ebf589a38b2bc41d7319ad8444"
     },
     {
       "path": "blog/estrias-vermelhas-ou-brancas.html",
@@ -238,7 +238,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/estrias-vermelhas-ou-brancas.html",
       "redirect_to": null,
-      "sha256": "ce704e3a12d678b08a3283ca61d867db3bce21dc2cbab8b0df67151e47cb9302"
+      "sha256": "15ce0cecb06bd02bade7f6d07ba2a8b9340835c56ddcc9f0416a2f4828d7d57a"
     },
     {
       "path": "blog/flacidez-abdominal-ou-gordura-localizada.html",
@@ -248,7 +248,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/flacidez-abdominal-ou-gordura-localizada.html",
       "redirect_to": null,
-      "sha256": "20776c4877ca681a37b3fbf6e119219b8871381dbed5127f3e2fcdb805154fcc"
+      "sha256": "51c113f615698b752ecacad96e8faaf9a5d08bb115ef1d628e5f16f144eca7fc"
     },
     {
       "path": "blog/flacidez-corporal-apos-emagrecimento.html",
@@ -258,7 +258,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/flacidez-corporal-apos-emagrecimento.html",
       "redirect_to": null,
-      "sha256": "74a651f535d441f7987f47230fd28ffba58e52f61631bebdd938df8e2412bd54"
+      "sha256": "fe9dc23d51a3d3524502638594460a4d9fe04c5864b546b948c44bb21a376a1b"
     },
     {
       "path": "blog/flacidez-facial.html",
@@ -271,6 +271,16 @@
       "sha256": "fb46cff7a47eb1f3a0529a4a356e2d75adbf11750f1f13cae3f5a4a64214bd8b"
     },
     {
+      "path": "blog/gua-sha-facial-como-usar-cuidados.html",
+      "url": "https://www.especialistaempele.com.br/blog/gua-sha-facial-como-usar-cuidados.html",
+      "id": "BLOG-000068",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/blog/gua-sha-facial-como-usar-cuidados.html",
+      "redirect_to": null,
+      "sha256": "80abeb7cc4fa55a607dadf9130f884515152d730bf357acfe69012069c0cee90"
+    },
+    {
       "path": "blog/hiperpigmentacao.html",
       "url": "https://www.especialistaempele.com.br/blog/hiperpigmentacao.html",
       "id": "BLOG-000010",
@@ -278,7 +288,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/hiperpigmentacao.html",
       "redirect_to": null,
-      "sha256": "4e410d3e5ffafdcd541c6765020c8bd5502c148c01580558413c60a250d6bcfe"
+      "sha256": "f95b87d48ca80d76848767b0e86b39dc6e25c90936d465ad8eae75be2ebd2a8d"
     },
     {
       "path": "blog/leucodermia-solar-manchas-brancas.html",
@@ -288,7 +298,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/leucodermia-solar-manchas-brancas.html",
       "redirect_to": null,
-      "sha256": "2aedd2d953fb401deca18b5f2041884f62dd0be7a17e306fb6818799ac78acb5"
+      "sha256": "e3315b881903a5b6353ad1298787dddb877d84a7653d95b2cc6be1229faab90e"
     },
     {
       "path": "blog/linhas-de-expressao.html",
@@ -308,7 +318,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/manchas-apos-picadas-corpo.html",
       "redirect_to": null,
-      "sha256": "33b9cd988fe73cda84ae88afa4ffcff301254cd585c61a0952d15b1ddee4514b"
+      "sha256": "f19ea60fa7ebc580b7bcb648d0c1a71eeafdc219ca6faef8aca00991504fe964"
     },
     {
       "path": "blog/manchas-faciais.html",
@@ -318,7 +328,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/manchas-faciais.html",
       "redirect_to": null,
-      "sha256": "50669046d326d0d2ddbb03c643f7fc235a356b69ebf9167e96f41bcad4b94d16"
+      "sha256": "70431bb6274e4352fac0abe5e5a0131fc164d28f88a2b97617c02e472564a84e"
     },
     {
       "path": "blog/manchas-solares-nas-maos.html",
@@ -328,7 +338,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/manchas-solares-nas-maos.html",
       "redirect_to": null,
-      "sha256": "037e1ffc33890d0bae5727bf72ae5f230effc6a90aed8010540240a39b20b140"
+      "sha256": "bbb8a1787f655f06d5d2930ee3f796eba047cccdfe50ea6b3b417b99ea01ab05"
     },
     {
       "path": "blog/manchas-solares.html",
@@ -338,7 +348,17 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/manchas-solares.html",
       "redirect_to": null,
-      "sha256": "af18474804e5a6f162da407eac63333d84c11148dbfde487ee08ed9aaaabe71d"
+      "sha256": "5c7daaa333803e60faafa175075ceed51eae5ceccfc24543e8a5e3dc2bbf29a1"
+    },
+    {
+      "path": "blog/massagem-tuina-o-que-e-tecnicas-cuidados.html",
+      "url": "https://www.especialistaempele.com.br/blog/massagem-tuina-o-que-e-tecnicas-cuidados.html",
+      "id": "BLOG-000070",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/blog/massagem-tuina-o-que-e-tecnicas-cuidados.html",
+      "redirect_to": null,
+      "sha256": "febacd368ba1280d61e725fd3b5f9a6b5f9e82addfdb4dd5d7111f9b1fc9c18f"
     },
     {
       "path": "blog/melasma-hormonal.html",
@@ -381,6 +401,16 @@
       "sha256": "6530cda0da569433638b0130ddb5dcb8c4322789dbcca36a65cbc5624f51b71d"
     },
     {
+      "path": "blog/moxabustao-o-que-e-como-funciona-cuidados.html",
+      "url": "https://www.especialistaempele.com.br/blog/moxabustao-o-que-e-como-funciona-cuidados.html",
+      "id": "BLOG-000069",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/blog/moxabustao-o-que-e-como-funciona-cuidados.html",
+      "redirect_to": null,
+      "sha256": "3d1cf214089576ed2690c1782817afa0e547402eceaf5f6d2ed3fa059c173671"
+    },
+    {
       "path": "blog/nutricao-deficiencias-queda-capilar.html",
       "url": "https://www.especialistaempele.com.br/blog/nutricao-deficiencias-queda-capilar.html",
       "id": "BLOG-000065",
@@ -398,7 +428,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/o-que-e-regeneracao-cutanea.html",
       "redirect_to": null,
-      "sha256": "9d4e76c3bec59f6ff80aa7b5659a4c01e5b960fcd87f259bdedb2058eb527e41"
+      "sha256": "ee70bb6ded24c389f70db692f114900d66ec1400c042ee97a9e5bcd2b14f614a"
     },
     {
       "path": "blog/pele-seca-ou-desidratada.html",
@@ -408,7 +438,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/pele-seca-ou-desidratada.html",
       "redirect_to": null,
-      "sha256": "c6e55893ce2c8b10a3a2939aa7c6170459d1b8720348448d38917a12a586030c"
+      "sha256": "7f40b5587320ae17cd3621570b16c8ab76acec06f717b9d7f8a41d0f9536eb72"
     },
     {
       "path": "blog/por-que-a-acne-persiste.html",
@@ -418,7 +448,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/por-que-a-acne-persiste.html",
       "redirect_to": null,
-      "sha256": "32a922f45c11802d3b67c4a8a39e3e23008b5010584813cd6903450ce1a3cb07"
+      "sha256": "c56f20589aacbd47a7c101f0d93fd7ea96133e9d9044302258cbf363bf44f5e0"
     },
     {
       "path": "blog/queda-cabelo-menopausa.html",
@@ -468,7 +498,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/rejuvenescimento-maos-manchas-solares.html",
       "redirect_to": null,
-      "sha256": "4d3aeec832bb6675c7977bab39ee58b5aff2ce7e4abc81f6148dabfde9db90e9"
+      "sha256": "7ce644143d987ae7b2437616ae1faec857541efc0a325f31c3f491d6ec91a83d"
     },
     {
       "path": "blog/tratamento-estrias-regiao-corporal.html",
@@ -478,7 +508,7 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/tratamento-estrias-regiao-corporal.html",
       "redirect_to": null,
-      "sha256": "c50b551e2ecbff4105612a1b31a4ed73a1748e31c2e1ed72d6be9b4f4b47a1b6"
+      "sha256": "6295c02b913444ddd8f510c941ee5c5741d07380d8bc8fc30e23ee8a18c9ddfd"
     },
     {
       "path": "blog/tratamento-gordura-localizada.html",
@@ -488,7 +518,17 @@
       "http_status": 200,
       "canonical": "https://www.especialistaempele.com.br/blog/tratamento-gordura-localizada.html",
       "redirect_to": null,
-      "sha256": "ba017c950c0b4e7e2d3757c44d8cc317eca203668be0e9aab1f9496a1a72cb0d"
+      "sha256": "1c8d2ebe4650bc3abfa2d97ce4edc4c86cf88fcae1a3b42f819d9e4b1379bfd9"
+    },
+    {
+      "path": "blog/ventosaterapia-como-funciona-beneficios-cuidados.html",
+      "url": "https://www.especialistaempele.com.br/blog/ventosaterapia-como-funciona-beneficios-cuidados.html",
+      "id": "BLOG-000067",
+      "status": "published",
+      "http_status": 200,
+      "canonical": "https://www.especialistaempele.com.br/blog/ventosaterapia-como-funciona-beneficios-cuidados.html",
+      "redirect_to": null,
+      "sha256": "ff06217bf2ec0cf1f806274b67ed7157de5cc704818386af451f1fc9264e8a49"
     },
     {
       "path": "resultados/clareamento-de-axila-02.html",
@@ -1211,5 +1251,5 @@
       "sha256": "4be6a3d1232515e093641358858d2dfab3acb06f7921e4585a707c2ad3d7921a"
     }
   ],
-  "generated_at": "2026-11-26T16:05:33.304Z"
+  "generated_at": "2026-11-27T12:15:16.979Z"
 }
