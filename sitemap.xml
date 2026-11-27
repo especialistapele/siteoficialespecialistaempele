@@ -109,17 +109,17 @@
     <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/rejuvenescimento-facial-ou-harmonizacao-1790373984937.webp</image:loc></image:image>
   </url>
   <url>
-    <loc>https://www.especialistaempele.com.br/blog/como-escolher-um-tratamento-para-melasma.html</loc>
-    <lastmod>2026-09-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-    <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/como-escolher-um-tratamento-para-melasma-1790376347160.webp</image:loc></image:image>
-  </url>
-  <url>
     <loc>https://www.especialistaempele.com.br/blog/clareamento-corporal-seguranca.html</loc>
     <lastmod>2026-11-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.especialistaempele.com.br/blog/como-escolher-um-tratamento-para-melasma.html</loc>
+    <lastmod>2026-11-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/como-escolher-um-tratamento-para-melasma-1790376347160.webp</image:loc></image:image>
   </url>
   <url>
     <loc>https://www.especialistaempele.com.br/blog/acne-e-estresse.html</loc>
@@ -144,7 +144,7 @@
   </url>
   <url>
     <loc>https://www.especialistaempele.com.br/blog/melasma-hormonal.html</loc>
-    <lastmod>2026-10-22</lastmod>
+    <lastmod>2026-11-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/melasma-hormonal-1791988245662.webp</image:loc></image:image>
@@ -199,7 +199,7 @@
   </url>
   <url>
     <loc>https://www.especialistaempele.com.br/blog/melasma-resistente.html</loc>
-    <lastmod>2026-11-11</lastmod>
+    <lastmod>2026-11-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/melasma-resistente-1791988087591.webp</image:loc></image:image>
@@ -218,7 +218,7 @@
   </url>
   <url>
     <loc>https://www.especialistaempele.com.br/blog/melasma-na-gravidez.html</loc>
-    <lastmod>2026-11-16</lastmod>
+    <lastmod>2026-11-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <image:image><image:loc>https://clwaotfbqwvxpykruwed.supabase.co/storage/v1/object/public/site-media/blog/melasma-na-gravidez-1791988393778.webp</image:loc></image:image>
